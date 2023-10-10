@@ -36,6 +36,10 @@ Below, are the modified/added files for this example:
 - `post.html`: Page displays the whole photo post. User can fetch more comments
 - `likes_comments.js`: Script for handling user likes and comments
   
+:::warning
+Be sure to replace the 'service_id', 'owner_id' in `new Skapi()` on all example pages.
+You can get your 'service_id' and 'owner_id' from your service dashboard.
+:::
 
 ## index.html
 
