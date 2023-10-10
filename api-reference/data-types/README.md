@@ -100,10 +100,7 @@ type RecordData = {
     table: {
         name: string; // Table name
         access_group: number | 'private' | 'public' | 'authorized'; // Allowed access level of this record.
-        subscription?: {
-            user_id: string; // Subscription ID (Is an uploaders user ID) of this record.
-            group: number; // Subscription group of this record.
-        };
+        subscription?: boolean; // true if the record is in the subscription access level.
     };
     reference: {
         record_id?: string; // ID of a record that this record is referencing.
