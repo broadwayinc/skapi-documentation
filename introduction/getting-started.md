@@ -6,7 +6,7 @@ Welcome to Skapi, This guide will walk you through importing the Skapi library i
 ## 1. Create a service
 
 1. Signup for an account at [skapi.com](https://www.skapi.com/signup).
-2. Log in and create a new service from your [dashboard page](https://www.skapi.com/admin).
+2. Log in and create a new service from your [dashboard page](https://www.skapi.com/dashboard).
 
 
 ## 2. Initialize the Skapi library
@@ -21,7 +21,7 @@ For vanilla HTML projects, import Skapi in the script tag, and initialize the li
 ```html
 <!-- index.html -->
 <!DOCTYPE html>
-<script src="https://cdn.jsdelivr.net/npm/skapi-js@alpha/dist/skapi.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
 
 <!-- Your content goes here -->
 
@@ -31,7 +31,7 @@ For vanilla HTML projects, import Skapi in the script tag, and initialize the li
 ```
 
 ::: warning
-Be sure to replace `'service_id'` and `'owner_id'` with the actual values of your service.
+Be sure to replace `'service_id'` and `'owner_id'` in `new Skapi()` with the actual values of your service.
 :::
 
 ### For SPA projects
@@ -89,4 +89,8 @@ The response data will be displayed in an alert box.
 Skapi is capable of handling HTML `onsubmit` event directly.
 
 For more information, see [Working with HTML forms](/introduction/working-with-forms).
+:::
+
+::: warning
+Be sure to replace `'service_id'` and `'owner_id'` in `new Skapi()` with the actual values of your service.
 :::
