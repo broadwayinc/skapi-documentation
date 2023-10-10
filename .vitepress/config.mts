@@ -8,9 +8,6 @@ export default defineConfig({
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     logo: '/logo-sml.png',
-    nav: [
-      { text: 'Getting Started', link: '/introduction/getting-started.md' }
-    ],
 
     sidebar: [
       {
