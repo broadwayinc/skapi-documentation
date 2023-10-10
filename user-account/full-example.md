@@ -2,28 +2,32 @@
 
 The examples shows how to build a user account page where users can retrieve and edit their account information.
 
-:::warning Note
+:::warning
 Since these examples are extension from the previous example: [Full Example: Implementing Authentication](/authentication/full-example.md).
 The files from the previous examples should all be present in the same directory.
 :::
 
-Below, are the modified/added files for this example:
-
 ```
 .
-├─ change_password.html
 ├─ bye.html
+├─ change_password.html
+├─ confirmation_required.html
+├─ create_account.html
+├─ forgot_password.html
+├─ index.html
+├─ login.html
 ├─ user_account.html
 └─ index.html
 ```
 
-- `index.html`: The main page that displays on successful login.
-- `user_account.html`: User account page.
+Below, are the modified/added files for this example:
+
 - `bye.html`: Page displayed when the user disables their account.
 - `change_password.html`: Page for changing the user's password.
+- `index.html`: The main page that displays on successful login.
+- `user_account.html`: User account page.
 
-
-:::warning Note
+:::warning
 Be sure to replace the 'service_id', 'owner_id' in `new Skapi()` on all example pages.
 You can get your 'service_id' and 'owner_id' from your service dashboard.
 

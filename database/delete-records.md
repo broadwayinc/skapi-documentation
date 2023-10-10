@@ -59,7 +59,7 @@ You can set `subscription` to `true` to remove the records only in the subscript
 
 Below is an example of a user deleting all records in the "A" table with a 'authorized' access group that are in the subscription table.
 
-Learn more about [Subscription](/database-advanced/subscription.md).
+Learn more about [Subscription](/database/subscription.md).
 
 ```js
 let query = {

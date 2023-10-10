@@ -6,22 +6,22 @@ Below, are the files for this example:
 
 ```
 .
-├─ create_account.html
 ├─ confirmation_required.html
-├─ login.html
+├─ create_account.html
 ├─ forgot_password.html
-└─ index.html
+├─ index.html
+└─ login.html
 ```
 
-- `create_account.html`: Page for creating a new user account
 - `confirmation_required.html`: Page to notify users to confirm their signup
-- `login.html`: Page for logging in
+- `create_account.html`: Page for creating a new user account
 - `forgot_password.html`: Page for resetting a forgotten password
 - `index.html`: Main page to show when user is logged in
+- `login.html`: Page for logging in
 
 You create these files put them in the same directory.
 
-:::warning Note
+:::warning
 Be sure to replace the 'service_id', 'owner_id' in `new Skapi()` on all example pages.
 You can get your 'service_id' and 'owner_id' from your service dashboard.
 

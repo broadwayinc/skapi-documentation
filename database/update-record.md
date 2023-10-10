@@ -30,7 +30,7 @@ skapi.postRecord(updatedData, config).then(record => {
 
 Example above overwrites record data to a new data and updated to a new table name.
 
-:::warning Note
+:::info
 Only the owner of the record can update a record.
 :::
 

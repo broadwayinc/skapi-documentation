@@ -9,11 +9,8 @@ hero:
     - theme: brand
       text: Getting Started
       link: /introduction/getting-started
-    # - theme: alt
-    #   text: API Examples
-    #   link: /api-examples
   image:
-    src: src/image/logo.png
+    src: logo.png
     alt: SkapiLogo
 
 features:
