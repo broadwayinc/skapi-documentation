@@ -4,7 +4,7 @@ layout: home
 hero:
   name: "Skapi"
   text: "One Line of Code => Full Backend API"
-  tagline: A backend API service specifically designed for frontend web developers
+  tagline: A backend API service specially designed for frontend web developers
   actions:
     - theme: brand
       text: Getting Started
