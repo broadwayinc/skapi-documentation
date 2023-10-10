@@ -124,7 +124,7 @@ The reserved keywords are:
   
 - `$updated`: Fetches the timestamp(13 digits millisecond format) at which the record was last updated.
   
-- `$referenced_count`: Fetch by the number of records that are [referencing](/database-advanced/README.md#referencing) the record. This can be useful if you need a query like: 'Post that has the most comments'
+- `$referenced_count`: Fetch by the number of records that are [referencing](/database/referencing.md) the record. This can be useful if you need a query like: 'Post that has the most comments'
   
 - `$user_id`: Fetches list of record uploaded by given user ID.
 

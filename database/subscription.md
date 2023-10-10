@@ -80,7 +80,7 @@ skapi.unsubscribe({
 })
 ```
 
-:::warning Note
+:::warning
 When unsubscribed, subscription information may need some time to be updated. (Usually almost immediate)
 :::
 

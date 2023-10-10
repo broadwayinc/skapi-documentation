@@ -4,8 +4,10 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: "Skapi",
   description: "One Line of Code => Full Backend API",
+  head: [['link', { rel: 'icon', href: '/favicon.ico' }]],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
+    logo: '/logo-sml.png',
     nav: [
       { text: 'Getting Started', link: '/introduction/getting-started.md' }
     ],
@@ -48,10 +50,16 @@ export default defineConfig({
           { text: 'Handling Files', link: '/database/handling-files.md' },
           { text: 'Deleting Records', link: '/database/delete-records.md' },
           { text: 'Table Information', link: '/database/table-info.md' },
-          { text: 'Referencing', link: '/database-advanced/referencing.md' },
-          { text: 'Indexing', link: '/database-advanced/index.md' },
-          { text: 'Tags', link: '/database-advanced/tags.md' },
-          { text: 'Subscription', link: '/database-advanced/subscription.md' }
+          { text: 'Referencing', link: '/database/referencing.md' },
+          { text: 'Indexing', link: '/database/index.md' },
+          { text: 'Tags', link: '/database/tags.md' },
+          { text: 'Subscription', link: '/database/subscription.md' }
+        ]
+      },
+      {
+        text: 'Full Example',
+        items: [
+          { text: 'Photo Sharing App', link: '/full-example/photo-sharing-app.md' }
         ]
       },
       {
@@ -66,7 +74,7 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/vuejs/vitepress' }
+      { icon: 'github', link: 'https://github.com/broadwayinc/skapi-js' }
     ]
   }
 })
