@@ -1,0 +1,95 @@
+
+# Updating User Profile
+
+### [`updateProfile(params, options?): Promise<UserProfile>`](/api-reference/user/README.md#updateprofile)
+
+:::warning
+User must be logged in to call this method
+:::
+
+User's profile can be updated using [`updateProfile()`](/api-reference/user/README.md#updateprofile).
+If the update is successful, the updated [UserProfile](/api-reference/data-types/README.md#userprofile) object is returned if the request was successful.
+
+:::danger
+- When the user change their email, They will be also changing their login email as well.
+- When user's email is changed, The email will be unverified.
+:::
+
+In this example, the user's name is updated by providing a new `name` value.
+If the update is successful, the updated user profile is returned.
+
+For full list of parameters, see [`updateProfile()`](/api-reference/user/README.md#updateprofile)
+
+:::code-group
+
+```html [Form]
+<form onsubmit="skapi.updateProfile(event).then(user=>console.log(user))">
+    <input type="text" name="name" placeholder="Name" required>
+    <br>
+    <input type="submit" value="Update Profile">
+</form>
+```
+
+``` js [JS]
+let params = {
+    name: 'New name',
+    // email, // The user's login email address. The email will be unverified if it is changed.
+    // address, // The user's address.
+    // gender, // The user's gender. Can be "female" or "male", or other values if neither of these are applicable.
+    // birthdate, // The user's birthdate in the format "YYYY-MM-DD".
+    // phone_number, // The user's phone number.
+    // email_public, // The user's email is public if this is set to true. The email should be verified.
+    // phone_number_public, // The user's phone number is public if this is set to true. The phone number should be verified.
+    // address_public, // The user's address is public if this is set to true.
+    // gender_public, // The user's gender is public if this is set to true.
+    // birthdate_public, // The user's birthdate is public if this is set to true.
+};
+
+skapi.updateProfile(params)
+  .then(user => {
+    console.log({user}); // User's name is updated.
+  });
+```
+:::
+
+## Public Attributes
+
+Couples of user's profile attributes can be set to public or private.
+When the profile is public, the user's profile information can be searched for by other users.
+When the profile is private, the user's profile information cannot be searched for by other users.
+
+The following attributes can be set to public or private:
+
+- `email`
+- `phone_number`
+- `address`
+- `gender`
+- `birthdate`
+
+By default, these attributes are set to private.
+
+Here is an example of setting the user's email to public:
+
+:::code-group
+
+```html [Form]
+<form onsubmit="skapi.updateProfile(event).then(user=>console.log(user))">
+    <input type="checkbox" name="email_public" value="true"> Make email public
+    <br>
+    <input type="submit" value="Update Profile">
+</form>
+```
+
+``` js [JS]
+let params = {
+    email_public: true
+}
+
+skapi.updateProfile(params)
+  .then(user => {
+    console.log({user}); // User's email is now public.
+  });
+```
+
+:::
+
