@@ -7,9 +7,6 @@ The [`postRecord()`](/api-reference/database/README.md#postrecord) method can al
 For record config parameters, you only need to include the parameters you want to update along with the `record_id` parameter.
 All other fields in the record will remain unchanged unless explicitly included in the method call.
 
-User can only update the `config` of the record if they leave the first argument `data` to `undefined`.
-Then, only the `config` will be updated with the previous data untouched.
-
 ```js
 let updatedData = {
   newData: "Overwritten with new data."
@@ -30,13 +27,33 @@ skapi.postRecord(updatedData, config).then(record => {
 
 Example above overwrites record data to a new data and updated to a new table name.
 
+:::tip
+To update only the `config` of the record with `data` untouched, you can leave the first argument `data` to `undefined`.
+Then, only the `config` will be updated with the previous data untouched.
+
+```js
+let new_config = {
+  record_id: 'record_id_to_update',
+  table: {
+    name: 'new_table_name',
+    access_group: 'private' // change access group to private
+  }
+};
+
+skapi.postRecord(undefined, new_config).then(record => {
+  console.log(record);
+});
+```
+:::
+
 :::info
 Only the owner of the record can update a record.
 :::
 
 ## Readonly Record
 
-You can let user upload a readonly record that cannot be updated by the user once it is created. This is useful for creating a record that is meant to be immutable.
+You can let user upload a readonly record that cannot be updated by the user once it is created.
+This is useful for creating a record that is meant to be immutable.
 
 To create a readonly record, you can set the `readonly` parameter in the `config` object to `true`.
 
@@ -50,15 +67,17 @@ let config = {
   readonly: true
 };
 
+let read_only_record_id;
 skapi.postRecord(data, config).then(record => {
   console.log(record);
+  read_only_record_id = record.record_id;
 });
 ```
 
 When the record is created with `readonly` set to `true`, the user will not be able to update the record anymore.
 
 ```js
-skapi.postRecord({ myData: "Can this be updated?" }, { record_id: 'readonly_record_id' }).catch(err=>{
+skapi.postRecord({ myData: "Can this be updated?" }, { record_id: read_only_record_id }).catch(err=>{
     alert(err.message); // Record is readonly.
 })
 ```
