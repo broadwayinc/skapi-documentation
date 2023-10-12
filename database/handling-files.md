@@ -114,5 +114,5 @@ Here's an example demonstrating how you can remove files from a record:
 ```js
 ...
 let fileToDelete = record.bin.picture[0]; // file object retrieved from the record.
-skapi.postRecord({ record_id: 'record_id_with_file', remove_bin: [fileToDelete] });
+skapi.postRecord(undefined, { record_id: 'record_id_with_file', remove_bin: [fileToDelete] });
 ```
