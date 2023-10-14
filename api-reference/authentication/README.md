@@ -155,3 +155,15 @@ resetPassword(
     }
 ): Promise<'SUCCESS: New password has been set.'>
 ```
+
+
+## secureRequest
+
+```ts
+secureRequest(
+    params: {
+        url: string;
+        data?: any;
+    }
+): Promise<any>
+```

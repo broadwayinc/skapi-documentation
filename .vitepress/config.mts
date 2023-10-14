@@ -67,6 +67,13 @@ export default defineConfig({
           { text: 'Database', link: 'api-reference/database/README.md' },
           { text: 'Data Types', link: 'api-reference/data-types/README.md' }
         ]
+      },
+      {
+        text: 'Service Security',
+        items: [
+          { text: 'Settings', link: 'security/security-settings.md' },
+          { text: 'Custom API', link: 'security/custom-api.md' },
+        ]
       }
     ],
 
