@@ -48,6 +48,10 @@ It is recommended to encourage users to verify their email addresses.
 For more info on email verification, see [Email Verification](../user-account/email-verification.md).
 :::
 
+You can also customize the email template for the verification email.
+
+For more info on email templates, see [E-Mail Templates](../email/email-templates.md).
+
 ### Step 2: Reset Password
 
 The user will receive an email containing a verification code. After the user receives the verification code, they can use the [`resetPassword()`](/api-reference/authentication/README.md#resetpassword) method to reset their password.

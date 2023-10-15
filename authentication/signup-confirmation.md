@@ -61,6 +61,10 @@ If the website is running on local file system (e.g. `file:///C:/Users/username/
 redirect URL of `signup_confirmation` should be the full URL (e.g. `https://your.website.com/path/to/your/success/page`).
 :::
 
+You can also customize the email template for the signup confirmation email.
+
+For more info on email templates, see [E-Mail Templates](../email/email-templates.md).
+
 ## Resending Signup Confirmation Email
 
 ### [`resendSignupConfirmation(redirect?): Promise<string>`](/api-reference/authentication/README.md#resendsignupconfirmation)

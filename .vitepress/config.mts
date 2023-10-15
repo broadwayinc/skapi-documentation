@@ -60,19 +60,26 @@ export default defineConfig({
         ]
       },
       {
+        text: 'Service Security',
+        items: [
+          { text: 'Settings', link: 'security/security-settings.md' },
+          { text: 'Custom API', link: 'security/custom-api.md' },
+        ]
+      },
+      {
+        text: 'E-Mail Service',
+        items: [
+          { text: 'E-Mail Templates', link: 'email/email-templates.md' },
+          // { text: 'Newsletters', link: 'email/newsletters.md' },
+        ]
+      },
+      {
         text: 'API Reference',
         items: [
           { text: 'Authentication', link: 'api-reference/authentication/README.md' },
           { text: 'User Account', link: 'api-reference/user/README.md' },
           { text: 'Database', link: 'api-reference/database/README.md' },
           { text: 'Data Types', link: 'api-reference/data-types/README.md' }
-        ]
-      },
-      {
-        text: 'Service Security',
-        items: [
-          { text: 'Settings', link: 'security/security-settings.md' },
-          { text: 'Custom API', link: 'security/custom-api.md' },
         ]
       }
     ],
