@@ -7,8 +7,16 @@ Once a user has signed up, they can log in to your service using their email and
 ### [`login(params): Promise<UserProfile>`](/api-reference/authentication/README.md#login)
 
 Use the [`login()`](/api-reference/authentication/README.md#login) method to log a user into your service.
+
+:::warning
 If `signup_confirmation` option was set to `true` during [`signup()`](/api-reference/authentication/README.md#signup),
 users will not be able to log in until they have confirmed their account.
+
+Also, when user have successfully confirmed their signup and logged in, user will be sent a welcome email.
+You can also customize the email template for the signup confirmation email.
+
+For more info on email templates, see [E-Mail Templates](../email/email-templates.md).
+:::
 
 ::: code-group
 
