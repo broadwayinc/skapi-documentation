@@ -52,9 +52,7 @@ Only the owner of the record can update a record.
 
 ## Readonly Record
 
-You can let user upload a readonly record that cannot be updated by the user once it is created.
-This is useful for creating a record that is meant to be immutable.
-
+You can let user upload a readonly record that is immutable once it is created.
 To create a readonly record, you can set the `readonly` parameter in the `config` object to `true`.
 
 ```js
@@ -74,7 +72,7 @@ skapi.postRecord(data, config).then(record => {
 });
 ```
 
-When the record is created with `readonly` set to `true`, the user will not be able to update the record anymore.
+When the record is created with `readonly` set to `true`, the user will not be able edit or delete the record anymore.
 
 ```js
 skapi.postRecord({ myData: "Can this be updated?" }, { record_id: read_only_record_id }).catch(err=>{
