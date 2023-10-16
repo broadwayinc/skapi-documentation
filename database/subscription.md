@@ -13,6 +13,7 @@ Lets assume **user 'A'** uploads a record in table 'Posts' with subscription acc
 skapi.postRecord(null, {
   table: {
     name:'Posts',
+    access_group: 'authorized',
     subscription: true
 }})
 ```
@@ -42,6 +43,7 @@ Once the **user 'B'** has subscribed to **user 'A'**,
 skapi.getRecords({
   table: {
     name: 'Posts',
+    access_group: 'authorized',
     subscription: 'user_id_of_user_A'
   }
 }).then(response => {
