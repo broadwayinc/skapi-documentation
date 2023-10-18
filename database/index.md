@@ -270,7 +270,7 @@ The index information includes:
 For example, let say we have a table called "VoteBoard" that lets user upload records with a compound index name such as "Vote.Beer".
 The index value will be boolean.
 ```js
-skapi.postRecord({
+skapi.postRecord(null, {
     table: 'VoteBoard',
     index: {
         name: 'Vote.Beer',
@@ -306,6 +306,7 @@ let config = {
 
 let query = {
     table: 'VoteBoard',
+    index: 'Vote.',
     order: {
         by: 'average_bool'
     }
@@ -320,7 +321,10 @@ Note that in the `config` object, the `ascending` value is set to `false`.
 
 So the list will be ordered in *descending* order from highest votes to lower votes.
 
-If the index name is a [compound index name](./#compound-index-names), you can only fetch certain indexes under the top level of the compound index name.
+:::warning
+If the index name is a [compound index name](./#compound-index-names),
+you can only order the values under the parent of the compound index name.
+:::
 
 For example, to list all indexes under "Vote." that has higher votes then 50% and order them by `average_bool`, you can do the following:
 
