@@ -297,7 +297,15 @@ Maybe there is multiple indexes such as "Vote.Beer", "Vote.Wine", "Vote.Coffee" 
 And you may want to know the rating of each index and order them by the rating.
 In that case, you can use the `order.by` parameter in the `query`.
 
-Example below lists all indexes in the **"VoteBoard"** table ordered by `average_bool` from highest value:
+Example below lists all indexes under the compound index `Vote.` in the **"VoteBoard"** table ordered by `average_bool` from highest value:
+
+:::warning
+`order.by` only works on the values under the index name.
+If your index name is a [compound index name](./#compound-index-names),
+You should declare the parent index of your child compound index name.
+
+For example, if you expect to get the index `Vote.Beer` from ordering `average_bool`, you should declare the parent index `Vote.` in the `index` parameter.
+:::
 
 ```js
 let config = {
@@ -320,11 +328,6 @@ skapi.getIndexes(query, config).then(response => {
 Note that in the `config` object, the `ascending` value is set to `false`.
 
 So the list will be ordered in *descending* order from highest votes to lower votes.
-
-:::warning
-If the index name is a [compound index name](./#compound-index-names),
-you can only order the values under the parent of the compound index name.
-:::
 
 For example, to list all indexes under "Vote." that has higher votes then 50% and order them by `average_bool`, you can do the following:
 
