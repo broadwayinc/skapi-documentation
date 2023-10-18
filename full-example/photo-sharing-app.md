@@ -413,7 +413,7 @@ To keep the `index.html` organized there is additional js scripts imported via s
 
 The function `postToHtml()` generates HTML elements for photo posts fetched from the database.
 
-The script downloads restricted image files and converts to base64. Additional database is called for comments, and likes.
+The script generates each image endpoints and attach the url to the img element. Additional database is called for comments, and likes.
 
 The script will attach unique id to the HTML elements.
 The id will contain the posts `record_id` string fetched from the database.
