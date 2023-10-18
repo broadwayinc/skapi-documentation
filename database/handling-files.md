@@ -8,7 +8,7 @@ This allows you to upload any size of binary files to the database without any a
 To upload files, you can use the HTML form `SubmitEvent` or `FormData` that includes `FileList` object when calling the [`postRecord()`](/api-reference/database/README.md#postrecord) method.
 
 Additionally, We can log the progress of the upload by passing a [ProgressCallback](/api-reference/data-types/README.md#progresscallback) in the `progress` parameter in the second argument of [`postRecord()`](/api-reference/database/README.md#postrecord).
-This can be useful when uploading large files and you want to show a progress bar.
+This can be useful if the user is uploading files more than 4MB, you can show a progress bar.
 
 Here's an example demonstrating how you can upload files using Skapi:
 
