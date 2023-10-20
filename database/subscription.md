@@ -18,6 +18,10 @@ skapi.postRecord(null, {
 }})
 ```
 
+:::warning
+Since user needs to login to subscribe to other users, the `table.access_group` cannot be set to `public` when uploading subscription records.
+:::
+
 To allow other users to access the records that requires subscription, they must first subscribe to the uploader using the [`subscribe()`](/api-reference/database/README.md#subscribe) method:
 
 ### [`subscribe(option): Promise<string>`](/api-reference/database/README.md#subscribe)

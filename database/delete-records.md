@@ -59,6 +59,24 @@ You can set `subscription` to `true` to remove the records only in the subscript
 
 Below is an example of a user deleting all records in the "A" table with a 'authorized' access group that are in the subscription table.
 
+First, lets upload a record in the "A" table that requires subscription.
+
+```js
+let query = {
+    table: {
+        name: 'A',
+        access_group: 'authorized',
+        subscription: true
+    }
+};
+
+skapi.postRecord(query).then(response => {
+    console.log(response); // Record is uploaded
+});
+```
+
+Then, you can let user remove all records uploaded in the "A" table that requires subscription.
+
 Learn more about [Subscription](/database/subscription.md).
 
 ```js
