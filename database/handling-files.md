@@ -52,11 +52,7 @@ Once the files are uploaded, Skapi serves the files using a CDN with no addition
 
 ## Downloading Files
 
-To download files from the record, you can use the `getFile()` method on the [BinaryFile](/api-reference/data-types/README.md#binaryfile) object in the record. The `getFile()` method has two arguments:
-
-`getFile()` method have two arguments:
-- `dataType`: Type of ways for file to be downloaded. Can be `blob` or `base64` or `endpoint` url. By default, it will trigger download from the web browser.
-- `progress`: Progress callback function. Can be useful when downloading large file as a blob and you want to show progress bar. (Will not work when download type is `endpoint` or web browser download.)
+To download files from the record, you can use the `getFile()` method on the [BinaryFile](/api-reference/data-types/README.md#binaryfile) object in the record.
 
 Below is an example of how you can download a file from a record:
 
@@ -91,7 +87,8 @@ skapi.getRecords({ record_id: 'record_id_with_file' }).then(rec => {
     */
 
     let fileToDownload = record.bin.picture[0]; // get the file object from the record
-    fileToDownload.getFile();
+    
+    fileToDownload.getFile(); // browser will download the file.
 });
 ```
 
@@ -100,6 +97,44 @@ Uploaded files follow the access restrictions of the record.
 User must have access to the record in order to download the file.
 :::
 
+`getFile()` allows you to download the file in various ways:
+- `blob`: Downloads the file as a [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob) object.
+- `base64`: Downloads the file as a base64 string.
+- `endpoint`: Gets the file endpoint URL. If the file access is restricted to the user, the endpoint will be a signed URL.
+
+`getFile(dataType?: string, progress?: () => void )` method have two arguments:
+- `dataType`: Type of ways for file to be downloaded. Can be `"blob"` or `"base64"` or `"endpoint"` url. By default, it will trigger download from the web browser.
+- `progress`: Progress callback function. Can be useful when downloading large file as a blob and you want to show progress bar. (Will not work when download type is `endpoint` or web browser download.)
+
+If the file has access restriction, you must use the `endpoint` type to get the file endpoint URL.
+The endpoint URL will be a signed URL that can expire after a certain amount of time.
+
+If the file is an image or a video, you can use the url on img tag or video tag to display the file.
+
+Below is an example of how you can get the endpoint URL of the access restricted file:
+
+```js
+fileToDownload.getFile('endpoint').then(url => {
+    console.log(url); // endpoint of the file. https://...
+});
+
+```
+
+Below is an example of how you can download a file as a blob, base64 with progress callback:
+
+```js
+let progressInfo = p => {
+    console.log(p); // Download progress information
+};
+
+fileToDownload.getFile('blob', progressInfo).then(b => {
+    console.log(b); // Blob object of the file.
+});
+
+fileToDownload.getFile('base64', progressInfo).then(b => {
+    console.log(b); // base64 string
+});
+```
 
 ## Removing Files
 
