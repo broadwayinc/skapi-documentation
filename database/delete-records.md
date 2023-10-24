@@ -70,7 +70,7 @@ let query = {
     }
 };
 
-skapi.postRecord(query).then(response => {
+skapi.postRecord(null, query).then(response => {
     console.log(response); // Record is uploaded
 });
 ```
