@@ -154,29 +154,29 @@ Either the `params.subscriber` or `params.subscription` value must be provided.
 
 ```js
 /**
- * Retrieve all subscription information where userA is the subscriber
+ * Retrieve all subscription information where userB is the subscriber
  */
 skapi.getSubscriptions({
-  subscriber: "userA_user_id"
+  subscriber: "userB_user_id"
 }).then((response) => {
   console.log(response.list);
 });
 
 /** 
- * Retrieve all subscription information where userB is being subscribed to
+ * Retrieve all subscription information where userA is being subscribed to
  */
 skapi.getSubscriptions({
-  subscription: "userB_user_id"
+  subscription: "userA_user_id"
 }).then((response) => {
   console.log(response.list);
 });
 
 /** 
- * Check if userA is subscribed to userB
+ * Check if userB is subscribed to userA
  */
 skapi.getSubscriptions({
-  subscriber: "userA_user_id",
-  subscription: "userB_user_id"
+  subscriber: "userB_user_id",
+  subscription: "userA_user_id"
 }).then((response) => {
   console.log(response.list?.[0]);
 });
