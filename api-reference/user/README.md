@@ -1,4 +1,4 @@
-# User Account
+# API Reference: User Account
 
 ## updateProfile
 

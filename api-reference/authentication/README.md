@@ -1,4 +1,4 @@
-# Authentication
+# API Reference: Authentication
 
 ## signup
 

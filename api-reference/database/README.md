@@ -1,4 +1,4 @@
-# Database
+# API Reference: Database
 
 ## postRecord
 
