@@ -1,7 +1,8 @@
-# E-Mail Templates
+# Automated E-Mails
 
-When the user signup, reset password, or change email, the system will send an email to the user.
-You can customize the email template by sending your templates to the email endpoints.
+When the user signup, reset password, or change email, subscribes to public newsletters, get invited to your service,
+the system will send an automated email to the user.
+You can customize the email template of the automated emails by sending your templates to the email endpoints.
 
 E-Mail endpoints can be found in your `Mail` page in your service page.
 
@@ -18,19 +19,25 @@ In the `Mail` page, you can find the following endpoints:
   
   Endpoint for signup confirmation email template. The user receives this email when they are requested for confirmation on signup.
 
+- **Invitation**
+  
+  Endpoint for invitation email template. The user receives this email when they are invited to the service.
+
 - **Newsletter Subscription**
   
-  Endpoint for newsletter subscription email template. The user receives this email when they subscribe to the newsletter.
+  Endpoint for public newsletter subscription confirmation email template. The user receives this email when they subscribe to the public newsletter.
 
 The following example shows the format for email endpoints:
+
 ```
 xxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@mail.skapi.com
 ```
 
-To customize the email template, send your customized design to the endpoint address.
+To customize the email template, just send your customized template via your e-mail to the endpoint address.
 
 :::danger
-**DO NOT** share your email endpoint address with anyone. This endpoint is unique to your service and should be kept private.
+- **DO NOT** share your email endpoint address with anyone. This endpoint is unique to your service and should be kept private.
+- You must use the same email address that you used to signup to Skapi.
 :::
 
 ## Template Placeholders
@@ -65,3 +72,27 @@ Any other email service should have similar way to set the link.
 Below shows an example of signup confirmation template. In this example we included **`${service_name}`** in the subject, and **`${name}`** with link in the content.
 
 ![signup confirmation template](/conftemp.png)
+
+
+## Required Placeholders for invitation email
+
+Below are the required placeholders for invitation email.
+
+- **`${link}`**: Link to accept the invitation.
+- **`${email}`**: Invited persons email address.
+- **`${password}`**: Temporary password for the invited person.
+
+When user clicks on the link, they will be able to login with the temporary password.
+
+You can invite users to your service from the user page in your service page in Skapi website.
+
+:::tip
+To make the invitation email more personal, it would be good idea to include **`${name}`** placeholder in the template.
+:::
+
+## Required Placeholders for public newsletter subscription confirmation email
+
+When user subscribes to your public newsletters user receives subscription confirmation email.
+The subscription confirmation email contains a link to confirm the subscription.
+
+you must include **`${link}`** placeholders in your email content.

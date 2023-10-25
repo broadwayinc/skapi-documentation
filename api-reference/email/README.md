@@ -1,11 +1,13 @@
+# API Reference: Email
+
 ## subscribeNewsletter
 
 ```ts
 subscribeNewsletter({
     params: SubmitEvent | <{
-        email?: string;
-        group: number | 'public' | 'authorized';
-        redirect?: string;
+        group: 'public' | 'authorized';
+        email?: string; // only for public newsletters
+        redirect?: string; // only for public newsletters. User will be redirected to this URL when confirmation link is clicked.
     }>,
     callbacks: {
         response?(response: any): any;
@@ -17,5 +19,19 @@ subscribeNewsletter({
 ## unsubscribeNewsletter
 
 ```ts
-unsubscribeNewsletter(params: { group: number | 'public' | 'authorized' | null; }): Promise<string>
+unsubscribeNewsletter(
+    params: { 
+        group: 'authorized';
+    }
+): Promise<string>
+```
+
+## getNewsletterSubscription
+
+```ts
+getNewsletterSubscription(
+    params: { 
+        group: 'authorized';
+    }
+): Promise<any[]>
 ```

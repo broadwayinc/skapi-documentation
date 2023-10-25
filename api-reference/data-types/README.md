@@ -1,4 +1,4 @@
-# Data Types
+# API Reference: Data Types
 
 ## UserProfile
 
