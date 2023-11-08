@@ -78,7 +78,8 @@ If you need to resend the confirmation email, use the [`resendSignupConfirmation
     .catch(err => {
         if(err.code === 'SIGNUP_CONFIRMATION_NEEDED') {
           if(confirm('Your signup confirmation is required. Resend confirmation email?')) {
-            skapi.resendSignupConfirmation('https\:\/\/your.website.com/success/page').then(res=>{
+            let redirect = 'https://your.website.com/success/page';
+            skapi.resendSignupConfirmation(redirect).then(res=>{
               console.log(res); // 'SUCCESS: Signup confirmation E-Mail has been sent.'
             });
           }
