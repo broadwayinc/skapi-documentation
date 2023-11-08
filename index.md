@@ -3,8 +3,9 @@ layout: home
 
 hero:
   name: "Skapi"
-  text: "One Line of Code => Full Backend API"
-  tagline: A backend API service specially designed for frontend web developers
+  text: "One Line of Code => Complete Backend Solution"
+  tagline: Instantly Power Your Website with a Robust Backend API
+  
   actions:
     - theme: brand
       text: Getting Started
@@ -16,11 +17,11 @@ hero:
 features:
   - icon: 💯
     title: Compatible with Vanila HTML
-    details: No fancy framework or complex deployment required. Just focused on the basics, Skapi is a single JavaScript library fully compatible with vanilla HTML, as well as any frontend frameworks.
+    details: No fancy framework or complex deployment required. Skapi seamlessly integrates with classic HTML and SPA frameworks.
   - title: All-in-One Package
     icon: 📦
-    details: Skapi provides all the backend features you need for your web application out of the box, without the need to set up or maintain multiple services.
+    details: All the backend features you'd expect in your web application out of the box, without the need to set up or maintain multiple services.
   - title: Simple, Yet Flexible Database
     icon: 📊
-    details: Skapi's unique database design combines the best of SQL and noSQL worlds, providing both scalability and flexibility without the need for manual schema design.
+    details: Skapi's unique database design provides both scalability and flexibility without the need for manual schema design.
 ---

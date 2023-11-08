@@ -1,7 +1,11 @@
 # Sending Newsletters
 
-You can send newsletters to your users by sending your email to the endpoint email.
-E-Mail endpoints can be found in your `Mail` page in your service page.
+You can send newsletters to your users by sending your email to the endpoint email address.
+The following example shows the format for email endpoints for sending newsletters:
+
+```
+xxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@mail.skapi.com
+```
 
 In the `Mail` page, you can find the following endpoints at the **Newsletters** section.
 
@@ -9,13 +13,13 @@ In the `Mail` page, you can find the following endpoints at the **Newsletters** 
 
 You can send public newsletters to your users by sending your email to the endpoint email.
 
-First, the users must subscribe to the public newsletter to receive the email:
+First, the users must subscribe to the public newsletter to receive your public newsletters:
 
 :::code-group
 ```html [Form]
 <form onsubmit="skapi.subscribeNewsletter(event).then(res => alert(res))">
     <input type="email" name="email" placeholder='E-Mail address'/>
-    <input hidden name="redirect" value="https\:\/\/your.domain.com\/successpage"/>
+    <input hidden name="redirect" value="https://your.domain.com/successpage"/>
     <input hidden name="group" value="public"/>
     <input type="submit" value="Subscribe"/>
 </form>
@@ -38,6 +42,11 @@ If the confirmation is successful, the user will be redirected to the redirect u
 
 All the public newsletters will have unsubscribe link at the bottom of the email.
 When the user clicks the unsubscribe link, they will no longer receive your public newsletters.
+
+:::warning
+If the user is logged in, they will not be asked to confirm their email address.
+Instead, they must have their [`email verifed`](/user-account/email-verification).
+:::
 
 ## Service Newsletters
   

@@ -63,15 +63,19 @@ export default defineConfig({
         text: 'Service Security',
         items: [
           { text: 'Settings', link: '/security/security-settings.md' },
-          { text: 'Custom API', link: '/security/custom-api.md' }
+          { text: 'API Bridge', link: '/security/api-bridge.md' }
         ]
       },
       {
         text: 'E-Mail Service',
         items: [
           { text: 'Automated E-Mails', link: '/email/email-templates.md' },
-          { text: 'Sending Newsletters', link: '/email/newsletters.md' }
+          { text: 'Newsletters', link: '/email/newsletters.md' }
         ]
+      },
+      {
+        text: 'Website Hosting',
+        link: '/hosting/hosting.md'
       },
       {
         text: 'API Reference',

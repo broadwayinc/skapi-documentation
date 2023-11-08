@@ -1,6 +1,6 @@
 # Full Example: Photo sharing application
 
-These examples shows how you can use Skapi database to build photo sharing web page.
+These examples shows how you can use Skapi database to build photo sharing web page with just plain HTML and Javascript.
 
 The user can upload a photo, comment, like the posts... etc.
 User can also upload private photos using the database access group restrictions.
