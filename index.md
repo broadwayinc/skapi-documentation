@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: "Skapi"
-  text: "One Line of Code => Complete Backend Solution"
-  tagline: Instantly Power Your Website with a Robust Backend API
+  text: "One Line of Code => Complete Backend API"
+  tagline: Integrate Your Website with a Robust Backend API
   
   actions:
     - theme: brand
@@ -16,7 +16,7 @@ hero:
 
 features:
   - icon: 💯
-    title: Compatible with Vanila HTML
+    title: Compatible with Vanilla HTML
     details: No fancy framework or complex deployment required. Skapi seamlessly integrates with classic HTML and SPA frameworks.
   - title: All-in-One Package
     icon: 📦
