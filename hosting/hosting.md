@@ -39,7 +39,7 @@ You can set the 404 page for your website from the `HTML file for 404 page` at t
 
 This HTML file will be served when the user visits a page that does not exist in your website.
 
-:::warning
-If you are using **SPA framework** such as Vue, React, or Angular, you must set the 404 page to your `index.html` file.
+:::danger
+If you are using **SPA framework** such as Vue, React, or Angular, **YOU MUST** set the 404 page to your **`index.html`** file.
 :::
 
