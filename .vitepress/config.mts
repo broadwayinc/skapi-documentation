@@ -41,7 +41,8 @@ export default defineConfig({
       {
         text: 'Database',
         items: [
-          { text: 'Create / Fetch Records', link: '/database/create-fetch.md' },
+          { text: 'Creating Records', link: '/database/create.md' },
+          { text: 'Fetching Records', link: '/database/fetch.md' },
           { text: 'Access Restrictions', link: '/database/access-restrictions.md' },
           { text: 'Update Record', link: '/database/update-record.md' },
           { text: 'Handling Files', link: '/database/handling-files.md' },
@@ -59,6 +60,15 @@ export default defineConfig({
           { text: 'Photo Sharing App', link: '/full-example/photo-sharing-app.md' }
         ]
       },
+      {
+        text: 'Realtime Connection',
+        items: [
+          { text: 'Connecting to Realtime', link: '/realtime/connecting.md' },
+          { text: 'Sending Realtime Data', link: '/realtime/post.md' },
+          { text: 'Realtime Groups', link: '/realtime/group.md' },
+        ]
+      },
+      
       {
         text: 'Service Security',
         items: [
@@ -84,6 +94,7 @@ export default defineConfig({
           { text: 'User Account', link: '/api-reference/user/README.md' },
           { text: 'Database', link: '/api-reference/database/README.md' },
           { text: 'Email', link: '/api-reference/email/README.md' },
+          { text: 'Realtime', link: '/api-reference/realtime/README.md' },
           { text: 'Data Types', link: '/api-reference/data-types/README.md' }
         ]
       }
