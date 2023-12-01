@@ -31,7 +31,7 @@ Example above shows how to send realtime data to a user with an id: 'recipient_u
 [`postRealtime()`](/api-reference/realtime/README.md#postrealtime) method can be used directly from the form element as shown in the example above.
 [`postRealtime()`](/api-reference/realtime/README.md#postrealtime) takes two arguments:
 - `message`: The data to be sent to the recipient. It can be any JSON parsable data, or a SubmitEvent object.
-- `recipient`: The user ID of the recipient.
+- `recipient`: The user ID of the recipient or the name of the group the user have joined.
 
 When the message is sent successfully, the method will return the following object:
 ```ts
