@@ -96,3 +96,27 @@ skapi.getRealtimeUsers({ group: 'HelloWorld', user_id: 'user_a' }).then(res => {
     console.log(res.list) // ['user_a']
 });
 ```
+
+## Sending Data to a Group
+
+User can send any JSON data over to a group by using [`postRealtime()`](/api-reference/realtime/README.md#postrealtime) method.
+Any users in the group will receive the data.
+
+The example below shows how to send realtime data to a group named "HelloWorld":
+
+::: code-group
+
+```html [Form]
+<form onsubmit="skapi.postRealtime(event, 'HelloWorld').then(u=>console.log(u))">
+    <input name="msg" required><input type="submit" value="Send">
+</form>
+```
+
+```js [JS]
+skapi.postRealtime({ msg: "Hello World!" }, 'HelloWorld').then(res => console.log(res));
+```
+:::
+
+:::warning
+The user must be joined to the group to send data to the group.
+:::
