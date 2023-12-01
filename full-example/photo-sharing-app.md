@@ -13,6 +13,8 @@ The files from the previous examples should all be present in the same directory
 
 You can download the full project files via github: [https://github.com/broadwayinc/example-photoapp](https://github.com/broadwayinc/example-photoapp)
 
+Also, checkout the hosted example: [https://photoshare.skapi.com](https://photoshare.skapi.com)
+
 ```
 .
 ├─ bye.html
