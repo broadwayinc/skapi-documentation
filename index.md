@@ -3,7 +3,7 @@ layout: home
 
 hero:
   name: "Skapi"
-  text: Build Fullstack Applications Right From HTML
+  text: Build Fullstack Applications Just From HTML & Javascript
   tagline: Skapi is a serverless backend JS library that allows you to build fullstack applications without writing a single line of backend code.
   
   actions:
