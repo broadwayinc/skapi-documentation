@@ -22,9 +22,6 @@ For vanilla HTML projects, import Skapi in the script tag, and initialize the li
 <!-- index.html -->
 <!DOCTYPE html>
 <script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
-
-<!-- Your content goes here -->
-
 <script>
     const skapi = new Skapi('service_id', 'owner_id');
 </script>
