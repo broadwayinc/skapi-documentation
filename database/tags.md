@@ -3,7 +3,8 @@
 
 Tags are additional information that can be associated with a record. They provide additional search criteria to perform more detailed queries, either on their own or in combination with indexes. Unlike indexes, tags cannot be queried with conditional operators.
 
-To add tags to a record, you can use the `config.tags` parameter in the [`postRecord()`](/api-reference/database/README.md#postrecord) method. This parameter accepts a string or an array of strings, allowing you to add multiple tags to a single record.
+To add tags to a record, you can use the `config.tags` parameter in the [`postRecord()`](/api-reference/database/README.md#postrecord) method.
+This parameter accepts a string or an array of strings or string with comma separated values, allowing you to add multiple tags to a single record.
 
 ## Adding Tags to a Record
 
