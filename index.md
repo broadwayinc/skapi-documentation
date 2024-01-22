@@ -23,5 +23,5 @@ features:
     details: Skapi is written in Typescript and provides full support for Typescript projects.
   - title: All-in-One Package
     icon: 📦
-    details: Skapi provides all the backend features you need for your web application out of the box, without the need to set up or maintain any backend servers.
+    details: Skapi provides all the backend features you need for your web application right out of the box.
 ---
