@@ -21,7 +21,7 @@ features:
   - title: Typescript Support
     icon: ✏️
     details: Skapi is written in Typescript and provides full support for Typescript projects.
-  - title: Everything you need
+  - title: All-in-One Package
     icon: 📦
-    details: Everything you'd expect from a backend server is included in Skapi. Authentication, Database, File Storage, CDN and more.
+    details: Skapi provides all the backend features you need for your web application out of the box, without the need to set up or maintain any backend servers.
 ---
