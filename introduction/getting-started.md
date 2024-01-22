@@ -6,7 +6,7 @@ Welcome to Skapi, This guide will walk you through importing the Skapi library i
 ## 1. Create a service
 
 1. Signup for an account at [skapi.com](https://www.skapi.com/signup).
-2. Log in and create a new service from your [dashboard page](https://www.skapi.com/dashboard).
+2. Log in and create a new service from the `My Services` page.
 
 
 ## 2. Initialize the Skapi library
