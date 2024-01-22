@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: "Skapi"
-  text: Build Fullstack Applications Just From HTML & Javascript
-  tagline: Skapi is a serverless backend JS library that allows you to build fullstack applications without writing a single line of backend code.
+  text: Backend API Library for HTML Frontend
+  tagline: Build fullstack web applications directly from your HTML frontend.
   
   actions:
     - theme: brand
@@ -15,13 +15,13 @@ hero:
     alt: SkapiLogo
 
 features:
-  - title: All-in-One Package
-    icon: 📦
-    details: All the backend features you'd expect in your web application out of the box, without the need to set up or maintain multiple services.
   - icon: 💯
-    title: Compatible with Vanilla HTML
-    details: No fancy framework or complex deployment required. Skapi seamlessly integrates with classic HTML and SPA frameworks.
+    title: Compatible with any framework
+    details: Skapi is compatible with any frontend framework, including React, Vue, Angular, and more.
   - title: Typescript Support
     icon: ✏️
     details: Skapi is written in Typescript and provides full support for Typescript projects.
+  - title: Everything you need
+    icon: 📦
+    details: Everything you'd expect from a backend server is included in Skapi. Authentication, Database, File Storage, CDN and more.
 ---
