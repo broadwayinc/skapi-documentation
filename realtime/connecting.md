@@ -20,7 +20,7 @@ let RealtimeCallback = (rt) => {
     // Callback executed when there is data transfer between the users.
     /**
     rt = {
-        status: 'message' | 'error' | 'success' | 'close' | 'notice',
+        status: 'message' | 'private' | 'error' | 'success' | 'close' | 'notice',
         message: '...'
     }
     */
@@ -37,6 +37,8 @@ When the callback is executed, message will be passed as an object with `status`
 - `status` Shows the type of the received message as below:
   
   "message": When there is data transfer between the users.
+
+  "private": When there is private data transfer between the users.
   
   "error": When there is an error.
   
@@ -47,13 +49,14 @@ When the callback is executed, message will be passed as an object with `status`
   "notice": When there is a notice.
 
 - `message` is the data passed from the server. It can be any JSON parsable data.
+- `sender` is the user ID of the message sender. It is only available when `status` is "message" or "private".
 
 
 ## Closing Connection
 
-### [`closeRealtime(): Promise<void>`](/api-reference/realtime/README.md#closetealtime)
+### [`closeRealtime(): Promise<void>`](/api-reference/realtime/README.md#closerealtime)
 
-You can closed the realtime connection by calling [`closeRealtime()`](/api-reference/realtime/README.md#closetealtime) method.
+You can close the realtime connection by calling [`closeRealtime()`](/api-reference/realtime/README.md#closerealtime) method.
 
 ```js
 skapi.closeRealtime();

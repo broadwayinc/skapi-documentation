@@ -1,6 +1,6 @@
-# API Security
+# Service Settings
 
-Skapi provides a security setting to protect your service from unauthorized access. You can set the security setting in your service dashboard.
+Skapi provides a security settings to protect your service from unauthorized access. You can set the security setting in your service dashboard.
 
 ## Cors
 
@@ -15,10 +15,10 @@ When the cors setting is set, the request from the other domain will be blocked.
 
 Skapi provides API bridge to your custom API's. To protect your API from unauthorized access, you can set the secret key in your service dashboard.
 
-When you set the secret key, you can do [secure post request](/security/api-bridge.html#secure-post-request) to your custom API's.
+When you set the secret key, you can do [secure post request](/api-bridge/secure-post-request.html#secure-post-request) to your custom API's.
 
 ## Client Secret Key
 
 Skapi provides API bridge to your 3rd party API's. To protect your API from unauthorized access, you can set the client secret key in your service dashboard as a key value.
 
-When you set the client secret key, you can do [secure client secret request](/security/api-bridge.html#secure-client-secret-request) to your 3rd party API.
+When you set the client secret key, you can do [secure client secret request](/api-bridge/secure-client-secret-request.html#secure-client-secret-request) to your 3rd party API.

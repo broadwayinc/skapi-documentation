@@ -51,7 +51,6 @@ See [UserProfile](/api-reference/data-types/README.md#userprofile)
 }
 ```
 
-
 ## resendSignupConfirmation
 
 ```ts
@@ -68,7 +67,6 @@ resendSignupConfirmation(
   message: 'Least one login attempt is required.'
 }
 ```
-
 
 ## login
 
@@ -105,7 +103,6 @@ See [UserProfile](/api-reference/data-types/README.md#userprofile)
   message: 'Too many attempts. Please try again later.';
 }
 ```
-
 
 ## getProfile
 
@@ -154,31 +151,4 @@ resetPassword(
         new_password: string; // At least 6 characters and a maximum of 60 characters.
     }
 ): Promise<'SUCCESS: New password has been set.'>
-```
-
-
-## secureRequest
-
-```ts
-secureRequest(
-    params: {
-        url: string;
-        data?: any;
-    }
-): Promise<any>
-```
-
-## clientSecretRequest
-
-```ts
-clientSecretRequest(
-    params: {
-        url: string;
-        clientSecretName: string;
-        method: 'get' | 'post' | 'GET' | 'POST';
-        headers?: Record<string, string>;
-        data?: Record<string, string>;
-        params?: Record<string, string>;
-    }
-): Promise<any>
 ```

@@ -68,12 +68,15 @@ export default defineConfig({
           { text: 'Realtime Groups', link: '/realtime/group.md' },
         ]
       },
-      
       {
-        text: 'Service Security',
+        text: 'Service Settings',
+        link: '/service-settings/service-settings.md'
+      },
+      {
+        text: 'API Bridge',
         items: [
-          { text: 'Settings', link: '/security/security-settings.md' },
-          { text: 'API Bridge', link: '/security/api-bridge.md' }
+          { text: 'Secure Post Request', link: '/api-bridge/secure-post-request.md' },
+          { text: 'Secure Client Secret Request', link: '/api-bridge/secure-client-secret-request.md' },
         ]
       },
       {
@@ -95,6 +98,7 @@ export default defineConfig({
           { text: 'Database', link: '/api-reference/database/README.md' },
           { text: 'Email', link: '/api-reference/email/README.md' },
           { text: 'Realtime', link: '/api-reference/realtime/README.md' },
+          { text: 'API Bridge', link: '/api-reference/api-bridge/README.md' },
           { text: 'Data Types', link: '/api-reference/data-types/README.md' }
         ]
       }
