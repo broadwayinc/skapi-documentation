@@ -18,6 +18,10 @@ signup(
         gender_public?: boolean; // Default = false
         birthdate_public?: boolean; // Default = false
         misc?: string; // Additional string value that can be used freely.
+        picture?: string; // URL of the profile picture.
+        profile?: string; // URL of the profile page.
+        website?: string; // URL of the website.
+        nickname?: string; // Nickname of the user.
     },
     options?: {
         /**

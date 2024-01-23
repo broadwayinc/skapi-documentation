@@ -16,7 +16,11 @@ updateProfile(
         address_public?: boolean; // When set to true, address attribute is visible to others.
         gender_public?: boolean; // When set to true, gender attribute is visible to others.
         birthdate_public?: boolean; // When set to true, birthdate attribute is visible to others.
-        misc: string; // Additional string value that can be used freely.
+        misc?: string; // Additional string value that can be used freely.
+        picture?: string; // URL of the profile picture.
+        profile?: string; // URL of the profile page.
+        website?: string; // URL of the website.
+        nickname?: string; // Nickname of the user.
     }
 ): Promise<UserProfile>
 ```
