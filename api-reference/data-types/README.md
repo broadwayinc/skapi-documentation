@@ -75,6 +75,10 @@ type UserPublic = {
     gender?:string // The user's gender. Can be "female" or "male"; or other values if neither of these are applicable.
     birthdate?:string; // The user's birthdate in the format "YYYY-MM-DD".
     misc?: string; // Additional custom string value.
+    picture?: string; // URL of the profile picture.
+    profile?: string; // URL of the profile page.
+    website?: string; // URL of the website.
+    nickname?: string; // Nickname of the user.
 }
 ```
 
