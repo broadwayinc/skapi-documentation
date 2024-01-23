@@ -22,9 +22,8 @@ export default defineConfig({
         items: [
           { text: 'Creating an account', link: '/authentication/create-account.md' },
           { text: 'Signup Confirmation', link: '/authentication/signup-confirmation.md' },
-          { text: 'Login/Logout', link: '/authentication/login-logout.md' },
-          { text: 'Forgot Password', link: '/authentication/forgot-password.md' },
-          { text: 'Full Example', link: '/authentication/full-example.md' }
+          { text: 'Login / Logout', link: '/authentication/login-logout.md' },
+          { text: 'Forgot Password', link: '/authentication/forgot-password.md' }
         ]
       },
       {
@@ -34,8 +33,7 @@ export default defineConfig({
           { text: 'Updating User Profile', link: '/user-account/update-account.md' },
           { text: 'Changing Password', link: '/user-account/change-password.md' },
           { text: 'Disable / Recover Account', link: '/user-account/disable-recover-account.md' },
-          { text: 'Search Users', link: '/user-account/get-users.md' },
-          { text: 'Full Example', link: '/user-account/full-example.md' }
+          { text: 'Search Users', link: '/user-account/get-users.md' }
         ]
       },
       {
@@ -55,12 +53,6 @@ export default defineConfig({
         ]
       },
       {
-        text: 'Full Example',
-        items: [
-          { text: 'Photo Sharing App', link: '/full-example/photo-sharing-app.md' }
-        ]
-      },
-      {
         text: 'Realtime Connection',
         items: [
           { text: 'Connecting to Realtime', link: '/realtime/connecting.md' },
@@ -76,7 +68,17 @@ export default defineConfig({
         text: 'API Bridge',
         items: [
           { text: 'Secure Post Request', link: '/api-bridge/secure-post-request.md' },
-          { text: 'Secure Client Secret Request', link: '/api-bridge/secure-client-secret-request.md' },
+          { text: 'Client Secret Request', link: '/api-bridge/client-secret-request.md' },
+        ]
+      },
+      {
+        text: 'Complete Tutorial',
+        items: [
+          { text: 'Introduction', link: '/full-example/intro.md' },
+          { text: 'Authentication / User Profile', link: '/full-example/auth-profile.md' },
+          { text: 'Instaclone', link: '/full-example/instaclone.md' },
+          { text: 'Chat Room', link: '/full-example/chatroom.md' },
+          { text: 'AI Image Generator', link: '/full-example/image-generator.md' }
         ]
       },
       {

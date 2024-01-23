@@ -1,4 +1,4 @@
-## Secure Client Secret Request
+## Client Secret Request
 
 If you are using 3rd party API's that requires a client secret, you can use [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) to make a secure `POST` or `GET` request to your 3rd party API's.
 

@@ -21,4 +21,4 @@ When you set the secret key, you can do [secure post request](/api-bridge/secure
 
 Skapi provides API bridge to your 3rd party API's. To protect your API from unauthorized access, you can set the client secret key in your service dashboard as a key value.
 
-When you set the client secret key, you can do [secure client secret request](/api-bridge/secure-client-secret-request.html#secure-client-secret-request) to your 3rd party API.
+When you set the client secret key, you can do [client secret request](/api-bridge/client-secret-request.html#client-secret-request) to your 3rd party API.
