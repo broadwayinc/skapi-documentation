@@ -38,6 +38,10 @@ type UserProfile = {
     gender_public?:boolean; // The user's gender is public if this is set to true.
     birthdate_public?:boolean; // The user's birthdate is public if this is set to true.
     misc?: string; // Additional custom string value.
+    picture?: string; // URL of the profile picture.
+    profile?: string; // URL of the profile page.
+    website?: string; // URL of the website.
+    nickname?: string; // Nickname of the user.
 }
 ```
 
