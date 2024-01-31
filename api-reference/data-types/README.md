@@ -9,9 +9,14 @@ type UserProfile = {
     access_group:number; // The access level of the user's account.
     user_id:string; // The user's ID.
     locale:string; // The country code of the user's location when they signed up.
-    approved: string; // [by_skapi | by_admin] : [approved | suspended] : [timestamp]
-    timestamp:number; // Account created timestamp(milliseconds).
-    log?:number; // Last login timestamp(milliseconds). Only shown using getProfile().
+
+    /**
+     Account approval timestamp.
+     This timestamp is generated when the user confirms their signup, or recovers their disabled account.
+     [by_skapi | by_admin] : [approved | suspended] : [timestamp]
+     */
+    approved: string;
+    log:number; // Last login timestamp(Seconds).
 
     /**
      The user's email address.
@@ -37,11 +42,11 @@ type UserProfile = {
     address_public?:boolean; // The user's address is public if this is set to true.
     gender_public?:boolean; // The user's gender is public if this is set to true.
     birthdate_public?:boolean; // The user's birthdate is public if this is set to true.
-    misc?: string; // Additional custom string value.
     picture?: string; // URL of the profile picture.
     profile?: string; // URL of the profile page.
     website?: string; // URL of the website.
     nickname?: string; // Nickname of the user.
+    misc?: string; // Additional string value that can be used freely. This value is only visible from skapi.getProfile()
 }
 ```
 
@@ -52,11 +57,17 @@ type UserPublic = {
     access_group:number; // The access level of the user's account.
     user_id:string; // The user's ID.
     locale:string; // The country code of the user's location when they signed up.
-    approved: string; // [by_skapi | by_admin] : [approved | suspended] : [timestamp]
+
+    /**
+     Account approval timestamp.
+     This timestamp is generated when the user confirms their signup, or recovers their disabled account.
+     [by_skapi | by_admin] : [approved | suspended] : [timestamp]
+     */
+    approved: string;
     timestamp:number; // Account created timestamp(milliseconds).
-    log?:number; // Last login timestamp(milliseconds). Only shown using getProfile().
-    subscribers?: number; // number of subscribers
-    
+    log:number; // Last login timestamp(milliseconds).
+    subscribers: number; // Number of subscribers.
+    records: number; // Total number of records user has produced in the database.
     /**
      The user's email address.
      This should be a maximum of 64 characters and is only visible to others if the email_public option is set to true.
@@ -74,7 +85,6 @@ type UserPublic = {
     address?:string // The user's address.
     gender?:string // The user's gender. Can be "female" or "male"; or other values if neither of these are applicable.
     birthdate?:string; // The user's birthdate in the format "YYYY-MM-DD".
-    misc?: string; // Additional custom string value.
     picture?: string; // URL of the profile picture.
     profile?: string; // URL of the profile page.
     website?: string; // URL of the website.
