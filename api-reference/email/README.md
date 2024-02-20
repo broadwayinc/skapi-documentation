@@ -35,3 +35,32 @@ getNewsletterSubscription(
     }
 ): Promise<any[]>
 ```
+
+## getNewsletters
+
+```ts
+getNewsletters(
+    params?: {
+        /**
+         * Search points.
+         * 'message_id' and 'subject' value should be string.
+         * Others in numbers.
+         */
+        searchFor: 'message_id' | 'timestamp' | 'read' | 'complaint' | 'subject';
+        value: string | number;
+        group: 'public' | 'authorized' | number;
+        range?: string | number;
+        /**
+         * Defaults to '='
+         */
+        condition?: '>' | '>=' | '=' | '<' | '<=' | 'gt' | 'gte' | 'eq' | 'lt' | 'lte';
+    },
+    fetchOptions?: FetchOptions;
+): Promise<DatabaseResponse<Newsletter>>
+```
+
+See [FetchOptions](/api-reference/data-types/README.md#fetchoptions)
+
+See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
+
+See [Newsletter](/api-reference/data-types/README.md#newsletter)

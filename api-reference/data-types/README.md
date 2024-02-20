@@ -236,3 +236,17 @@ type RealtimeCallback = (rt: {
     sender?: string; // User ID of the sender
 }) => void;
 ```
+
+## Newsletter
+
+```ts
+type Newsletter = {
+    message_id: string; // Message ID of the newsletter
+    timestamp: number; // Timestamp of the newsletter
+    complaint: number; // Number of complaints
+    read: number; // Number of reads
+    subject: string; // Subject of the newsletter
+    bounced: string; // Number of bounces
+    url: string; // URL of the html file of the newsletter
+}
+```

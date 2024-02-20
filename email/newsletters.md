@@ -105,3 +105,59 @@ skapi.unsubscribeNewsletter({
     // user is unsubscribed from the service newsletter
 })
 ```
+
+## Fetching Newsletters
+
+### [`getNewsletters(params, options?): Promise<DatabaseResponse<Newsletter>>`](/api-reference/email/README.md#getnewsletters)
+
+You can fetch newsletters from the database by calling [`getNewsletters()`](/api-reference/email/README.md#getnewsletters).
+By default, it fetches all the public newsletters from the database in descending timestamp.
+
+In the newsletter object, the `url` is the URL of the html file of the newsletter. You can use the URL to fetch the newsletter content.
+
+```js
+skapi.getNewsletters().then(newsletters => {
+    // newsletters.list is an array of newsletters
+    /*
+    {
+        message_id: string; // Message ID of the newsletter
+        timestamp: number; // Timestamp of the newsletter
+        complaint: number; // Number of complaints
+        read: number; // Number of reads
+        subject: string; // Subject of the newsletter
+        bounced: string; // Number of bounces
+        url: string; // URL of the newsletter
+    }  
+    */
+})
+```
+
+### Fetching Newsletters with conditions
+
+You can fetch newsletters from the database with conditions by calling [`getNewsletters()`](/api-reference/email/README.md#getnewsletters).
+
+Below is an example of fetching newsletters that are sent to the service users before 24 hours ago in descending order.
+
+For full parameters and options, see [`getNewsletters(params, options?)`](/api-reference/email/README.md#getnewsletters).
+
+```js
+skapi.getNewsletters({
+    searchFor: 'timestamp',
+    value: Date.now() - 86400000, // 24 hours ago
+    condition: '<',
+    group: 'authorized',
+}, { ascending: false }).then(newsletters => {
+    // newsletters.list is an array of newsletters
+    /*
+    {
+        message_id: string; // Message ID of the newsletter
+        timestamp: number; // Timestamp of the newsletter
+        complaint: number; // Number of complaints
+        read: number; // Number of reads
+        subject: string; // Subject of the newsletter
+        bounced: string; // Number of bounces
+        url: string; // URL of the newsletter
+    }  
+    */
+})
+```
