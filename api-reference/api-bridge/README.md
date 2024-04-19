@@ -19,9 +19,9 @@ clientSecretRequest(
         url: string;
         clientSecretName: string;
         method: 'get' | 'post' | 'GET' | 'POST';
-        headers?: Record<string, string>;
-        data?: Record<string, string>;
-        params?: Record<string, string>;
+        headers?: { [key: string]: string };
+        data?: { [key: string]: any };
+        params?: { [key: string]: string };
     }
 ): Promise<any>
 ```

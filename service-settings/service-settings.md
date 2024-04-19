@@ -1,24 +1,56 @@
 # Service Settings
 
-Skapi provides a security settings to protect your service from unauthorized access. You can set the security setting in your service dashboard.
+You can setup basic settings for your services from your dashboard page.
+
+## Service Name
+
+You can set the service name in your service dashboard.
+
+The service name can be used to identify your service in the **My Services** page, and also can be used to replace [`Automated Email's placeholders`](/email/email-templates.md#template-placeholders).
 
 ## Cors
 
 In your service dashboard, you can set the cors setting to allow the request from the specific domain.
+
 When left empty, the cors setting will be set to `*` by default. Otherwise, you can set the cors setting to the specific domain, for example, `https://example.com`.
-
 You can also set multiple domains by separating them with a comma, for example, `https://example.com,https://example2.com`.
-
 When the cors setting is set, the request from the other domain will be blocked.
 
 ## Secret Key
 
-Skapi provides API bridge to your custom API's. To protect your API from unauthorized access, you can set the secret key in your service dashboard.
+Skapi provides API bridge to your custom APIs.
 
-When you set the secret key, you can do [secure post request](/api-bridge/secure-post-request.html#secure-post-request) to your custom API's.
+Set your own secret key to protect your APIs from unauthorized access.
+When you set the secret key, you can do [secure post request](/api-bridge/secure-post-request.html#secure-post-request) to your custom APIs.
 
-## Client Secret Key
+## User Signup
 
-Skapi provides API bridge to your 3rd party API's. To protect your API from unauthorized access, you can set the client secret key in your service dashboard as a key value.
+You can prevent user signup by setting it to **Only admin allowed**.
 
-When you set the client secret key, you can do [client secret request](/api-bridge/client-secret-request.html#client-secret-request) to your 3rd party API.
+This setting will prevent anyone from signing up to your service. Only the admin can create user accounts from the **Users** page.
+This is useful when you want to create a private service for a specific group of users.
+
+## Disable Service
+
+You can disable your service temporarily from the service dashboard.
+This is useful when you need to go under maintainance while temporarily blocking the access to your service without losing the data.
+When you disable your service, all the requests to your service will be blocked, and the service will be shown as disabled in the **My Services** page.
+
+:::warning
+Disabling your service will not pause your subscription. You will still be charged for the service even when it is disabled.
+:::
+
+## Delete Service
+
+:::tip
+The delete service button will only be shown if your subscription has been expired, or you are in the trial plan.
+:::
+
+You can delete your service from the service dashboard.
+
+The delete service button is located at the bottom of the service dashboard page.
+When you click the delete service button, you will be asked to confirm the deletion of your service.
+
+:::danger
+When you delete your service, all the data related to your service will be deleted permanently, and cannot be recovered.
+:::

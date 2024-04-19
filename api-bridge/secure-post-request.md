@@ -1,4 +1,4 @@
-## Secure Post Request
+# Secure Post Request
 
 You can use [`secureRequest()`](/api-reference/api-bridge/README.md#securerequest) to make a secure `POST` request to your custom API's.
 
@@ -40,7 +40,7 @@ You can have your custom API's to check the secret key in the request data. If t
 
 Below is an example of handling the request from your custom API:
 
-### Node.js Example
+## Node.js Example
 
 ```js
 const http = require('http');
@@ -84,13 +84,17 @@ http.createServer(function (request, response) {
 }).listen(3000);
 ```
 
-### Python Example
+## Python Example
 
 ```py
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 
 class MyServer(BaseHTTPRequestHandler):
+    def do_OPTION(self):
+        self.send_response(200)
+        self.end_headers()
+
     def do_POST(self):
         print("POST")
         content_length = int(self.headers["Content-Length"])

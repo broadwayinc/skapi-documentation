@@ -1,13 +1,32 @@
-## Client Secret Request
+# Client Secret Request
 
 If you are using 3rd party API's that requires a client secret, you can use [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) to make a secure `POST` or `GET` request to your 3rd party API's.
+
+First you need to save your client secret key in your **Client Secret** page.
+
+1. Navigate to the client secret page from your service dashboard.
+  ![Client Secret Page](/clientsecmenu.png)
+
+2. Click on the **Add Key** button to add a new client secret key.
+  ![Add Client Secret](/clientsecret.png)
+
+  From the list of client secret keys, you can see the security settings, the name, and the masked client secret of your keys.
+
+:::tip
+The access setting of the client secret key can be set to either **public** or **private**.
+
+**private** means that only the users that are logged in can have access to your 3rd party api, while **public** means anybody can have access to your 3rd party api.
+**private** keys are indicated with a check mark in the column with the lock icon.
+:::
+
+Once the client secret key is saved, you can use the method below to make secure requests to your 3rd party API's.
 
 ### [`clientSecretRequest(params): Promise<any>`](/api-reference/api-bridge/README.md#clientsecretrequest)
 
 The list parameters of `params` of the method is shown as below:
 
   - `url`: A string representing the URL of your 3rd party API.
-  - `clientSecretName`: A string representing the name of the client secret key you may have saved in your service dashboard.
+  - `clientSecretName`: A string representing the key name of the client secret key you may have saved in your service dashboard.
   - `method`: A string representing the method of the request. It can be either "GET" or "POST".
   - `headers`: An object representing the headers of the request.
   - `data`: An object representing the data to be sent to your 3rd party API. It is only used when `method` is "POST".
