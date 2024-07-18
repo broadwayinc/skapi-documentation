@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: "Skapi"
-  text: Backend API Library for HTML Frontend
-  tagline: Build fullstack web applications directly from your HTML frontend.
+  text: Serverless Backend API =>
+  tagline: Build Full-Stack Web Application from Your HTML Frontend
   
   actions:
     - theme: brand
@@ -15,13 +15,16 @@ hero:
     alt: SkapiLogo
 
 features:
-  - icon: 💯
-    title: Compatible with any framework
-    details: Skapi is compatible with any frontend framework, including React, Vue, Angular, and more.
-  - title: Typescript Support
-    icon: ✏️
-    details: Skapi is written in Typescript and provides full support for Typescript projects.
-  - title: All-in-One Package
-    icon: 📦
-    details: Skapi provides all the backend features you need for your web application right out of the box.
+  - icon: 💎
+    title: Serverless Technology, Scale without limits
+    details: Requires no additional server between your website and your users. Just import the API and start building immediately!
+  - title: User-Centric Database Design
+    icon: ⚡
+    details: Your users own their data, defining access levels and indexing for each piece of data. Skapi introduces a secure, user-centric database approach that requires no pre-configuration.
+  - title: 3rd Party API Integration Made Easy
+    icon: 🔒
+    details: Skapi provides the simplest solution to make secure requests to your 3rd-party APIs.
+  - title: Compatible with Any Frameworks
+    icon: 💯
+    details: Skapi is compatible with vanilla HTML as well as any frontend framework, including React, Vue, Angular, and more.
 ---

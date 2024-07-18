@@ -10,11 +10,22 @@ To create a new account (user) in your service, you can use the [`signup()`](/ap
 ::: code-group
 
 ```html [Form]
-<form onsubmit="skapi.signup(event).then(u=>alert(u))">
-    <input type="email" name="email" placeholder="E-Mail" required><br>
-    <input type="password" name="password" placeholder="Password" required><br>
-    <input name="name" placeholder="Your name"><br>
-    <input type="submit" value="Create Account">
+<form action='login.html' onsubmit="skapi.signup(event).catch(err=>alert(err.message))">
+    <h2>Sign-Up</h2>
+    <hr>
+    <label>
+        Email<br>
+        <input type="email" name="email" placeholder="user@email.com" required>
+    </label><br><br>
+    <label>
+        Password<br>
+        <input type="password" name="password" placeholder="Your password" required>
+    </label><br><br>
+    <label>
+        Name<br>
+        <input name="name" placeholder="Your name">
+    </label><br><br>
+    <input type="submit" value="Sign-Up">
 </form>
 ```
 
@@ -26,19 +37,19 @@ let parameters = {
 };
 
 skapi.signup(parameters)
-  .then(res => window.alert(res))
+  .then(res => window.href = 'login.html')
   .catch(err => window.alert(err.message));
 ```
 
 :::
 
 The example above shows how to let users create their account in your servce.
-
+Once the user signup is successful, the user will be redirected to the login page.
 The first argument takes the user's input (email, password, name) that will be used for signup.
-The second argument takes additional options when creating an account.
 
 ## Login after Signup
 
+The second argument takes additional options when creating an account.
 You can also automatically login the user right after successful signup by setting `options.login` to `true` in options argument.
 
 ::: code-group

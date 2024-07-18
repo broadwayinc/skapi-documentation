@@ -8,6 +8,10 @@ Once a user has signed up, they can log in to your service using their email and
 
 Use the [`login()`](/api-reference/authentication/README.md#login) method to log a user into your service.
 
+If the login is not successful due to invalid password, or user may not have confirm their signup etc... the [`login()`](/api-reference/authentication/README.md#login) method will throw an error.
+
+When successful, it will respond with the [`UserProfile`](/api-reference/data-types/README.md#userprofile) object.
+
 :::warning
 If `signup_confirmation` option was set to `true` during [`signup()`](/api-reference/authentication/README.md#signup),
 users will not be able to log in until they have confirmed their account.
@@ -18,12 +22,23 @@ You can also customize the email template for the signup confirmation email.
 For more info on email templates, see [E-Mail Templates](../email/email-templates.md).
 :::
 
+Below is an example of a login form that uses the [`login()`](/api-reference/authentication/README.md#login) method.
+When the user successfully logs in, they will be redirected to the `welcome.html` page.
+
 ::: code-group
 
 ```html [Form]
-<form onsubmit="skapi.login(event).then(user=>alert('You are logged in!'))">
-    <input type="email" name="email" placeholder="E-Mail" required><br>
-    <input id="password" type="password" name="password" placeholder="Password" required><br>
+<form action='welcome.html' onsubmit="skapi.login(event).catch(err=>alert(err.message))">
+    <h2>Login</h2>
+    <hr>
+    <label>
+        Email<br>
+        <input type="email" name="email" placeholder="user@email.com" required>
+    </label><br><br>
+    <label>
+        Password<br>
+        <input id="password" type="password" name="password" placeholder="Your password" required>
+    </label><br><br>
     <input type="submit" value="Login">
 </form>
 ```
@@ -35,13 +50,10 @@ let parameters = {
 }
 
 skapi.login(parameters)
-  .then(user => window.alert(user.name));
+  .then(user => window.href = 'welcome.html');
 ```
 :::
 
-If the login is not successful due to invalid password, or user may not have confirm their signup etc... the [`login()`](/api-reference/authentication/README.md#login) method will throw an error.
-
-When successful, it will respond with the [`UserProfile`](/api-reference/data-types/README.md#userprofile) object.
 
 ## Checking the Login status
 
@@ -65,14 +77,14 @@ skapi.getProfile().then(profile=>{
 
 ## Auto Login
 
-By default, once user leaves the website, their login session is destroyed.
+By default, once user login to your website, their login session is maintained until they logout.
 
-In order for users to maintain their login session when they revisit your website,
-you can set `options.autoLogin` to `true` in the third argument of the Skapi class constructor.
+In order for users to destroy their login session when they leave your website,
+you can set `options.autoLogin` to `false` in the third argument of the Skapi class constructor.
 
 ```javascript
 const options = {
-  autoLogin: true, // set to true to maintain the user's session
+  autoLogin: false, // set to true to maintain the user's session
 };
 
 const skapi = new Skapi('service_id', 'owner_id', options);

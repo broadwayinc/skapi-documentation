@@ -26,7 +26,7 @@ It takes two arguments:
 
 ```html [Form]
 <form onsubmit="skapi.postRecord(event, { table: 'my_collection'}).then(record => console.log(record))">
-    <input type="text" name="myData"/>
+    <input name="something" placeholder="Say something"/>
     <input type="submit" value="Submit" />
 </form>
 ```
@@ -34,7 +34,7 @@ It takes two arguments:
 ```js [JS]
 // Data to be saved in key:value pairs
 let data = {
-    myData: "Hello World"
+    something: "Hello World"
 }
 
 // Configuration for the record to be uploaded
@@ -47,8 +47,8 @@ skapi.postRecord(data, config).then(record=>{
     /*
     Returns:
     {
-        data: { myData: "Hello World" },
-        table: { name: 'myTable', access_group: 0 },
+        data: { something: "Hello World" },
+        table: { name: 'my_collection', access_group: 'public' },
         ...
     }
     */
@@ -60,7 +60,7 @@ This example demonstrates using the [`postRecord()`](/api-reference/database/REA
 When the request is successful, the [RecordData](/api-reference/data-types/README.md#recorddata) is returned.
 
 In this example, the first argument takes the actual data to be uploaded to the database.
-The data is a Javascript object that has 'myData' keyname inside.
+The data is a Javascript object that has string value in the key 'something'.
 And in the second argument we have set table name to be `my_collection`.
 
 :::tip Note
