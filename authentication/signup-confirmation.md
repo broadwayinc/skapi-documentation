@@ -128,11 +128,8 @@ Then, if the user chooses to, you can use the [`resendSignupConfirmation()`](/ap
 
 You can provide a URL string in the first argument to redirect the user after successful confirmation.
 
-::: info
-To resend signup confirmation emails, users must have at least one login attempt to the service.
-:::
-
 ::: warning
-If the user fails to confirm within a day, their signup will be invalidated, and they will need to sign up again. 
+- To resend signup confirmation emails, users must have at least one login attempt to your service.
+- If the user fails to confirm within 7 days, their signup will be invalidated, and they will need to sign up again. 
 :::
 

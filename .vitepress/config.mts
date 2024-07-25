@@ -84,8 +84,8 @@ export default defineConfig({
       {
         text: 'E-Mail Service',
         items: [
-          { text: 'Automated E-Mails', link: '/email/email-templates.md' },
-          { text: 'Newsletters', link: '/email/newsletters.md' }
+          { text: 'Automated E-Mail', link: '/email/email-templates.md' },
+          { text: 'Bulk Email', link: '/email/newsletters.md' }
         ]
       },
       {

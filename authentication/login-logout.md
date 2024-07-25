@@ -15,8 +15,10 @@ When successful, it will respond with the [`UserProfile`](/api-reference/data-ty
 :::warning
 If `signup_confirmation` option was set to `true` during [`signup()`](/api-reference/authentication/README.md#signup),
 users will not be able to log in until they have confirmed their account.
+:::
 
-Also, when user have successfully confirmed their signup and logged in, user will be sent a welcome email.
+:::info
+When the user have successfully confirmed their signup and logged in, user will be sent a welcome email.
 You can also customize the email template for the signup confirmation email.
 
 For more info on email templates, see [E-Mail Templates](../email/email-templates.md).

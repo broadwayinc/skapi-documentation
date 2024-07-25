@@ -6,8 +6,8 @@ Welcome to Skapi, This guide will walk you through importing the Skapi library i
 ## 1. Create a service
 
 1. Signup for an account at [skapi.com](https://www.skapi.com/signup).
-2. Log in and create a new service from the `My Services` page.
-
+2. Login and go to [My Services](https://www.skapi.com/my-services) page.
+3. Enter your new service name and click 'Create'.
 
 ## 2. Initialize the Skapi library
 
@@ -26,10 +26,6 @@ For vanilla HTML projects, import Skapi in the script tag, and initialize the li
     const skapi = new Skapi('service_id', 'owner_id');
 </script>
 ```
-
-::: warning
-Be sure to replace `'service_id'` and `'owner_id'` in `new Skapi()` with the actual values of your service.
-:::
 
 ### For SPA projects
 
@@ -51,30 +47,34 @@ export { skapi }
 // Now you can import skapi from anywhere in your project.
 ```
 
+::: warning
+Be sure to replace `'service_id'` and `'owner_id'` in `new Skapi()` with the actual values of your service.
+:::
+
 ## 3. Test your connection
 
 After you initialized the Skapi library, you can test your connection by pinging your request with the `mock()` method.
 
-Below is an example of how you can use the `mock()` method in both HTML forms and JavaScript code.
+Below is an example of how you can use the `mock()` method in both HTML forms and SPA code.
 
 ::: code-group
-```html [Form]
+```html [HTML]
 <!-- index.html -->
 <!DOCTYPE html>
 <script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
-
-<form onsubmit='skapi.mock(event).then(ping=>alert(ping.msg))'>
-    <input name='msg' placeholder='Test message'>
-    <input type='submit' value='Test Connection'>
-</form>
-
 <script>
     const skapi = new Skapi('service_id', 'owner_id');
 </script>
+
+<form onsubmit='skapi.mock(event).then(ping => alert(ping.msg))'>
+    <input name='msg' placeholder='Test message'>
+    <input type='submit' value='Test Connection'>
+</form>
 ```
 
-```javascript [JS]
-skapi.mock({msg: 'Hello World!' }).then(ping=>alert(ping.msg))
+```javascript [SPA]
+import { skapi } from '../location/of/your/main.js';
+skapi.mock({msg: 'Hello World!'}).then(ping => alert(ping.msg))
 ```
 :::
 
@@ -86,8 +86,4 @@ The response data will be displayed in an alert box.
 Skapi is capable of handling HTML `onsubmit` event directly.
 
 For more information, see [Working with HTML forms](/introduction/working-with-forms).
-:::
-
-::: warning
-Be sure to replace `'service_id'` and `'owner_id'` in `new Skapi()` with the actual values of your service.
 :::

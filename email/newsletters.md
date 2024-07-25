@@ -1,15 +1,15 @@
-# Sending Newsletters
+# Bulk Email
 
-You can send newsletters to your users by sending your email to the endpoint email address.
+You can send newsletters or service mail to your users by sending your email to the endpoint email address.
 The following example shows the format for email endpoints for sending newsletters:
 
 ```
 xxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@mail.skapi.com
 ```
 
-In the `Mail` page, you can find the following endpoints at the **Newsletters** section.
+Go to `Bulk Email` page, select the email type, and the page will show the email endpoint address to send the newsletter.
 
-## Public Newsletters
+## Sending Public Newsletters
 
 You can send public newsletters to your users by sending your email to the endpoint email.
 
@@ -18,7 +18,7 @@ First, the users must subscribe to the public newsletter to receive your public 
 :::code-group
 ```html [Form]
 <form onsubmit="skapi.subscribeNewsletter(event).then(res => alert(res))">
-    <input type="email" name="email" placeholder='E-Mail address'/>
+    <input type="email" name="email" placeholder='your@email.com'/>
     <input hidden name="redirect" value="https://your.domain.com/successpage"/>
     <input hidden name="group" value="public"/>
     <input type="submit" value="Subscribe"/>
@@ -48,9 +48,10 @@ If the user is logged in, they will not be asked to confirm their email address.
 Instead, they must have their [`email verifed`](/user-account/email-verification).
 :::
 
-## Service Newsletters
+## Sending Service Mail
   
-You can send newsletters to your users with an account. The user with an account in your service receives the email if they have subscribed to the service newsletter.
+You can send service mail to your users with an account. To subscribe to service mails the user must be logged in.
+Service mail can be useful to send information, notifications, and other service-related emails.
 
 First, user must subscribe to the service newsletter to receive the email.
 
@@ -75,11 +76,11 @@ skapi.subscribeNewsletter({
 ```
 :::
 
-The example above shows how to let your visitors subscribe to the service newsletter by calling [`subscribeNewsletter()`](/api-reference/email/README.md#subscribenewsletter).
+The example above shows how to let your visitors subscribe to the service mail by calling [`subscribeNewsletter()`](/api-reference/email/README.md#subscribenewsletter).
 
-### Checking user is subscribed to the service newsletter
+## Checking if the user is subscribed to the service mail
 
-You can let the user check if they have subscribed to the service newsletter by calling [`getNewsletterSubscription()`](/api-reference/email/README.md#getnewslettersubscription).
+You can let the user check if they have subscribed to the service mail by calling [`getNewsletterSubscription()`](/api-reference/email/README.md#getnewslettersubscription).
 
 ```js
 skapi.getNewsletterSubscription({
@@ -94,7 +95,7 @@ skapi.getNewsletterSubscription({
 })
 ```
 
-### Unsubscribing from the service newsletter
+## Unsubscribing from the service mail
 
 You can let the user unsubscribe from the service newsletter by calling [`unsubscribeNewsletter()`](/api-reference/email/README.md#unsubscribenewsletter).
 
@@ -106,11 +107,11 @@ skapi.unsubscribeNewsletter({
 })
 ```
 
-## Fetching Newsletters
+## Fetching Sent Emails
 
 ### [`getNewsletters(params, options?): Promise<DatabaseResponse<Newsletter>>`](/api-reference/email/README.md#getnewsletters)
 
-You can fetch newsletters from the database by calling [`getNewsletters()`](/api-reference/email/README.md#getnewsletters).
+You can fetch sent emails from the database by calling [`getNewsletters()`](/api-reference/email/README.md#getnewsletters).
 By default, it fetches all the public newsletters from the database in descending timestamp.
 
 In the newsletter object, the `url` is the URL of the html file of the newsletter. You can use the URL to fetch the newsletter content.
@@ -132,11 +133,11 @@ skapi.getNewsletters().then(newsletters => {
 })
 ```
 
-### Fetching Newsletters with conditions
+### Fetching Sent Emails with Conditions
 
-You can fetch newsletters from the database with conditions by calling [`getNewsletters()`](/api-reference/email/README.md#getnewsletters).
+You can fetch sent emails from the database with conditions by calling [`getNewsletters()`](/api-reference/email/README.md#getnewsletters).
 
-Below is an example of fetching newsletters that are sent to the service users before 24 hours ago in descending order.
+Below is an example of fetching service mails that are sent to the service users before 24 hours ago in descending order.
 
 For full parameters and options, see [`getNewsletters(params, options?)`](/api-reference/email/README.md#getnewsletters).
 

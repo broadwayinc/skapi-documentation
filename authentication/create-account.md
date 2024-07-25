@@ -79,12 +79,13 @@ skapi.signup(parameters, options)
 ```
 
 :::
+
 When the `options.login` is set to `true`, the method will return the [UserProfile](/api-reference/data-types/README.md#userprofile) object.
 
-::: info
+::: warning
 - If the user have not logged in to your service after account creation,
-They will not appear on your Skapi service dashboard.
+They will **NOT** appear on your user list in Skapi's admin page.
 
-- If 24 hours have passed since the account creation, and user still have not logged in to your service,
+- If 7 days have passed since the account creation, and user still have not logged in to your service,
 user's signup will be automatically invalidated.
 :::
