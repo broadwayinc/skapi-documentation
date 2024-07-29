@@ -47,7 +47,7 @@ Depending on the input type, the resolved data will be structured accordingly.
     <input name="user[skills]" type="radio" value="JavaScript"> JavaScript<br>
     <input name="user[skills]" type="radio" value="Python"> Python<br>
     IDE:<br>
-    <input name="user[ide][]" type="checkbox" value="Vim">Vim<br>
+    <input name="user[ide]" type="checkbox" value="Vim">Vim<br>
     <input name="user[ide]" type="checkbox" value="Emacs">Emacs<br>
     Check:
     <input name="check[]" type="checkbox">
