@@ -30,17 +30,40 @@ When the user is joined to the group successfully, the method will return the fo
 }
 ```
 
-### Leaving, Changing Groups
+:::tip
+Even if the user has joined the group, they can still receive realtime data sent individually to them.
+:::
+
+## Sending Data to a Group
+
+Once the user have joined the group, user can send any JSON data over to a group by using [`postRealtime()`](/api-reference/realtime/README.md#postrealtime) method.
+Any users in the group will receive the data.
+
+The example below shows how to send realtime data to a group named "HelloWorld":
+
+::: code-group
+
+```html [Form]
+<form onsubmit="skapi.postRealtime(event, 'HelloWorld').then(u=>console.log(u))">
+    <input name="msg" required><input type="submit" value="Send">
+</form>
+```
+
+```js [JS]
+skapi.postRealtime({ msg: "Hello World!" }, 'HelloWorld').then(res => console.log(res));
+```
+:::
+
+:::warning
+The user must be joined to the group to send data to the group.
+:::
+
+## Leaving, Changing Groups
 
 Users can join only one group at a time.
 If you want your user to change groups, you can call [`joinRealtime()`](/api-reference/realtime/README.md#joinrealtime) method with a different `params.group` value.
 
 Also, if you want to leave the group, you can call [`joinRealtime()`](/api-reference/realtime/README.md#leaverealtime) method with a `params.group` value as empty `string` or `null`.
-
-
-:::tip
-Even if the user has joined the group, they can still receive realtime data sent individually to them.
-:::
 
 
 ## Listing Groups
@@ -96,27 +119,3 @@ skapi.getRealtimeUsers({ group: 'HelloWorld', user_id: 'user_a' }).then(res => {
     console.log(res.list) // ['user_a']
 });
 ```
-
-## Sending Data to a Group
-
-User can send any JSON data over to a group by using [`postRealtime()`](/api-reference/realtime/README.md#postrealtime) method.
-Any users in the group will receive the data.
-
-The example below shows how to send realtime data to a group named "HelloWorld":
-
-::: code-group
-
-```html [Form]
-<form onsubmit="skapi.postRealtime(event, 'HelloWorld').then(u=>console.log(u))">
-    <input name="msg" required><input type="submit" value="Send">
-</form>
-```
-
-```js [JS]
-skapi.postRealtime({ msg: "Hello World!" }, 'HelloWorld').then(res => console.log(res));
-```
-:::
-
-:::warning
-The user must be joined to the group to send data to the group.
-:::

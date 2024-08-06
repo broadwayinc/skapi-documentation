@@ -1,6 +1,6 @@
 # Sending Realtime Data
 
-Once the realtime connection is established, users can start sending realtime data to other users.
+Once the realtime connection is established, users can start sending realtime data to another user.
 
 ## Sending Data to a User
 

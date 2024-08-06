@@ -13,7 +13,7 @@ User must be logged in to call this method
 Before you start sending realtime data, you must create a realtime connection.
 You can create a realtime connection by calling [`connectRealtime()`](/api-reference/realtime/README.md#connectrealtime) method.
 
-Once the connection is established, users can start receiving realtime data from other users.
+Once the connection is established, you can start receiving realtime data from the [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback).
 
 ```js
 let RealtimeCallback = (rt) => {
@@ -21,7 +21,8 @@ let RealtimeCallback = (rt) => {
     /**
     rt = {
         status: 'message' | 'private' | 'error' | 'success' | 'close' | 'notice',
-        message: '...'
+        message: '...',
+        ...
     }
     */
     console.log(rt);
@@ -48,7 +49,7 @@ When the callback is executed, message will be passed as an object with `status`
   
   "notice": When there is a notice.
 
-- `message` is the data passed from the server. It can be any JSON parsable data.
+- `message` is the data passed from the server. It can be any JSON data.
 - `sender` is the user ID of the message sender. It is only available when `status` is "message" or "private".
 
 
