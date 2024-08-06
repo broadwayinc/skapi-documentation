@@ -59,7 +59,7 @@ Or else, button for verifing user's email will be displayed.
 </form>
 
 <script>
-    const skapi = new Skapi('service_id', 'owner_id', { autoLogin: true });
+    const skapi = new Skapi('service_id', 'owner_id');
     let user = null;
 
     skapi.getProfile().then(u => {
@@ -161,7 +161,7 @@ User will get redirected back to `index.html` once the update is successful.
 <a href="index.html">Back to main</a>
 
 <script>
-    const skapi = new Skapi('service_id', 'owner_id', { autoLogin: true });
+    const skapi = new Skapi('service_id', 'owner_id');
 
     skapi.getProfile().then(user => {
         if (user === null) {
@@ -241,7 +241,7 @@ User will get redirected back to `index.html` once change password is successful
 <a href="index.html">Cancel</a>
 
 <script>
-    const skapi = new Skapi('service_id', 'owner_id', { autoLogin: true });
+    const skapi = new Skapi('service_id', 'owner_id');
 
     skapi.getProfile().then(user => {
         if (user === null) {

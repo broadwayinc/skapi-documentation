@@ -241,7 +241,7 @@ User can also log out of their account by clicking 'Logout' button.
 </form>
 
 <script>
-    const skapi = new Skapi('service_id', 'owner_id', { autoLogin: true });
+    const skapi = new Skapi('service_id', 'owner_id');
     let user = null;
 
     skapi.getProfile().then(u => {

@@ -46,7 +46,7 @@ The `index.html` file is the main page of the application, and the `service.js` 
     The third argument we are passing is an object with a property called autoLogin.
     If autoLogin is set to true, then the user will always be automatically logged in when the page loads.
 */
-const skapi = new Skapi("ap220wfRHl9Cw2QqeFEc", "f8e16604-69e4-451c-9d90-4410f801c006", { autoLogin: true });
+const skapi = new Skapi("ap220wfRHl9Cw2QqeFEc", "f8e16604-69e4-451c-9d90-4410f801c006");
 
 /*
     The following function disableForm() is for disabling the form while the user is submitting.
