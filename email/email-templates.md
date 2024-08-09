@@ -55,17 +55,17 @@ If there is a placeholder character in your email content, it will be replaced w
 
 ## Required Placeholders for signup confirmation email
 
-When sending signup confirmation email, you must include **`${link}`** or set a link with **`${link}`** placeholders in your email content.
-The **`${link}`** placeholder will be replaced with the actual link that confirms the user's signup.
+When sending signup confirmation email, you must include set a link with **`https://link.skapi`** as a url in your email content.
+The dummy url **`https://link.skapi`** will be replaced with the actual link that confirms the user's signup.
 
-Example below shows how to set the link with **`${link}`** placeholders in gmail.
+Example below shows how to set the link with **`https://link.skapi`** url in gmail.
 Any other email service should have similar way to set the link.
 
-![gmail link](/conflink.png)
+![gmail link](/linkexam.png)
 
 Below shows an example of signup confirmation template. In this example we included **`${service_name}`** in the subject, and **`${name}`** with link in the content.
 
-![signup confirmation template](/conftemp.png)
+![signup confirmation template](/conftempexamp.png)
 
 
 ## Required Placeholders for verification email
@@ -83,7 +83,7 @@ Your verification code is: ${code}
 
 Below are the required placeholders for invitation email.
 
-- **`${link}`**: Link to accept the invitation.
+- **`https://link.skapi`**: Link to accept the invitation.
 - **`${email}`**: Invited person's login email.
 - **`${password}`**: Temporary password for the invited person.
 
@@ -100,4 +100,4 @@ To make the invitation email more personal, it would be good idea to include **`
 When user subscribes to your public newsletters user receives subscription confirmation email.
 The subscription confirmation email contains a link to confirm the subscription.
 
-you must include **`${link}`** placeholders in your email content. -->
+you must include **`https://link.skapi`** placeholders in your email content. -->
