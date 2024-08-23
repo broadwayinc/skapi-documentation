@@ -5,7 +5,7 @@ This can be used to create group chats, group notifications, etc.
 
 ## Joining a Group
 
-### [`joinRealtime(params): Promise<{ status: 'success', message: string }>`](/api-reference/realtime/README.md#joinrealtime)
+### [`joinRealtime(params): Promise<{ type: 'success', message: string }>`](/api-reference/realtime/README.md#joinrealtime)
 
 Users can join a group by calling [`joinRealtime()`](/api-reference/realtime/README.md#joinrealtime) method.
 
@@ -25,7 +25,7 @@ When the user is joined to the group successfully, the method will return the fo
 
 ```ts
 {
-  status: 'success',
+  type: 'success',
   message: 'Joined realtime message group: "HelloWorld"'.
 }
 ```

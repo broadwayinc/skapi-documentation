@@ -20,7 +20,7 @@ let RealtimeCallback = (rt) => {
     // Callback executed when there is data transfer between the users.
     /**
     rt = {
-        status: 'message' | 'private' | 'error' | 'success' | 'close' | 'notice',
+        type: 'message' | 'private' | 'error' | 'success' | 'close' | 'notice',
         message: '...',
         ...
     }
@@ -33,9 +33,9 @@ skapi.connectRealtime(RealtimeCallback);
 
 In the example above, the [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback) function will be executed when there is data transfer between the users.
 
-When the callback is executed, message will be passed as an object with `status` and `message` properties.
+When the callback is executed, message will be passed as an object with `type` and `message` properties.
 
-- `status` Shows the type of the received message as below:
+- `type` Shows the type of the received message as below:
   
   "message": When there is data transfer between the users.
 
@@ -50,7 +50,7 @@ When the callback is executed, message will be passed as an object with `status`
   "notice": When there is a notice.
 
 - `message` is the data passed from the server. It can be any JSON data.
-- `sender` is the user ID of the message sender. It is only available when `status` is "message" or "private".
+- `sender` is the user ID of the message sender. It is only available when `type` is "message" or "private".
 
 
 ## Closing Connection
@@ -67,7 +67,7 @@ When the connection is successfully closed, [RealtimeCallback](/api-reference/da
 
 ```ts
 {
-  status: 'close',
+  type: 'close',
   message: 'WebSocket connection closed.'
 }
 ```

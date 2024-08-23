@@ -27,7 +27,7 @@ See [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback)
 postRealtime(
     message: SubmitEvent | any,
     recipient: string // User's ID or a group name
-): Promise<{ status: 'success', message: 'Message sent.' }>
+): Promise<{ type: 'success', message: 'Message sent.' }>
 ```
 
 #### Errors
@@ -54,7 +54,7 @@ postRealtime(
 joinRealtime(SubmitEvent | params: {
     group: string, // Group name
 }
-): Promise<{ status: 'success', message: string }>
+): Promise<{ type: 'success', message: string }>
 ```
 
 #### Errors

@@ -4,7 +4,7 @@ Once the realtime connection is established, users can start sending realtime da
 
 ## Sending Data to a User
 
-### [`postRealtime(message, recipient): Promise<{ status: 'success', message: string }>`](/api-reference/realtime/README.md#postrealtime)
+### [`postRealtime(message, recipient): Promise<{ type: 'success', message: string }>`](/api-reference/realtime/README.md#postrealtime)
 
 User can send any JSON data over to any users by using [`postRealtime()`](/api-reference/realtime/README.md#postrealtime) method.
 
@@ -36,10 +36,10 @@ Example above shows how to send realtime data to a user with an id: 'recipient_u
 When the message is sent successfully, the method will return the following object:
 ```ts
 {
-  status: 'success',
+  type: 'success',
   message: 'Message sent.'
 }
 ```
 
-On the receiver's side, the message will be received as an argument as an object with `status` and `message` properties through the [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback) that has been set when creating the realtime connection via [`connectRealtime()`](/api-reference/realtime/README.md#connectrealtime) method.
+On the receiver's side, the message will be received as an argument as an object with `type` and `message` properties through the [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback) that has been set when creating the realtime connection via [`connectRealtime()`](/api-reference/realtime/README.md#connectrealtime) method.
  

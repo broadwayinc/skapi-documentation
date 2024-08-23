@@ -231,7 +231,7 @@ type Subscription = {
 
 ```ts
 type RealtimeCallback = (rt: {
-    status: 'message' | 'private' | 'error' | 'success' | 'close' | 'notice';
+    type: 'message' | 'private' | 'error' | 'success' | 'close' | 'notice';
     message: any;
     sender?: string; // User ID of the sender
 }) => void;
