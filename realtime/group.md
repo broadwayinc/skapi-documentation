@@ -99,7 +99,7 @@ skapi.getRealtimeGroups({ searchFor: 'number_of_users', value: 10, condition: '>
 
 ## Listing Users in a Group
 
-### [`getRealtimeUsers(params, fetchOptions?): Promise<DatabaseResponse<{ user_id: string; }>>`](/api-reference/realtime/README.md#getrealtimeusers)
+### [`getRealtimeUsers(params, fetchOptions?): Promise<DatabaseResponse<{ user_id:string; connection_id:string; }[]>>`](/api-reference/realtime/README.md#getrealtimeusers)
 
 Users can get a list of users in a group by calling [`getRealtimeUsers()`](/api-reference/realtime/README.md#getrealtimeusers) method.
 
@@ -107,7 +107,7 @@ Example below shows listing all users in the "HelloWorld" group:
 
 ```js
 skapi.getRealtimeUsers({ group: 'HelloWorld' }).then(res => {
-    console.log(res.list) // ['user_a', ...]
+    console.log(res.list) // [{user_id: 'user_a', connection_id: 'user_cid'}, ...]
 });
 ```
 
@@ -116,6 +116,6 @@ This is useful if you want to check if the user is in the group.
 
 ```js
 skapi.getRealtimeUsers({ group: 'HelloWorld', user_id: 'user_a' }).then(res => {
-    console.log(res.list) // ['user_a']
+    console.log(res.list) // [{user_id: 'user_a', connection_id: 'user_cid'}]
 });
 ```

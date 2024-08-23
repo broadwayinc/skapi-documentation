@@ -70,41 +70,42 @@ See the tutorial [Introduction](/full-example/intro.html) for more information.
         <input type="text" name='msg' placeholder="Say something">
         <input type="submit" value="Send">
     </form>
-    <small class='clickable' onclick="privateMsg.close()">Close</small>
+
+    <br>
+
+    <small style='float: right;' class='clickable' onclick="privateMsg.close()">Close</small>
 </dialog>
 
 <main>
-    <div>
-        <div class="spaceBetween">
-            <h2>Chat Room</h2>
-            <a href="../index.html">Back</a>
-        </div>
-        <div id="chatBox">
-            <section id="chatSection">
-                <!--
-                    Following <div> element will show the messages in the chat room.
-                    We will write a javascript code to append the messages to this <div> element later.
-                -->
-                <div id="chat"></div>
-                <!--
-                    Following <form> will send the message to the chat room.
-                    When user submits, we will use the skapi.postRealtime() method to send the message to the chat room.
-                    On the second argument of skapi.postRealtime(), we are giving 'chat' which is the name of the chat room.
-                    We will let the user to join the chat room named 'chat' later on the script tag below.
-                    When the message is sent, it will reset the form.
-                -->
-                <form onsubmit="skapi.postRealtime(event, 'chat').then(()=>this.reset())">
-                    <input id='inputMsg' type="text" name='msg' placeholder="Say something" disabled>
-                    <input id='sendMsg' type="submit" value="Send" disabled>
-                </form>
-            </section>
-            <!--
-                Following <section> element will show the list of users who have joined the chat room.
-                We will write a javascript code to append the users to this <section> element later.
-            -->
-            <section id="joinedUsers"></section>
-        </div>
+    <div class="spaceBetween">
+        <h2>Chat Room</h2>
+        <a href="../index.html">Back</a>
     </div>
+    <div id="chatBox">
+        <!--
+            Following <div> element will show the messages in the chat room.
+            We will write a javascript code to append the messages to this <div> element later.
+        -->
+        <div id="chat">
+            <div class="alignCenter">-- Welcome to the chat room --</div>
+        </div>
+        <!--
+            Following <section> element will show the list of users who have joined the chat room.
+            We will write a javascript code to append the users to this <section> element later.
+        -->
+        <div id="joinedUsers"></div>
+    </div>
+    <!--
+        Following <form> will send the message to the chat room.
+        When user submits, we will use the skapi.postRealtime() method to send the message to the chat room.
+        On the second argument of skapi.postRealtime(), we are giving 'chat' which is the name of the chat room.
+        We will let the user to join the chat room named 'chat' later on the script tag below.
+        When the message is sent, it will reset the form.
+    -->
+    <form onsubmit="skapi.postRealtime(event, 'chat').then(()=>this.reset())">
+        <input id='inputMsg' type="text" name='msg' placeholder="Say something" disabled>
+        <input id='sendMsg' type="submit" value="Send" disabled>
+    </form>
 </main>
 <script>
     /*
@@ -152,14 +153,13 @@ See the tutorial [Introduction](/full-example/intro.html) for more information.
             Following code will create the html content with the user's information.
         */
         let joinedHtml = /*html*/ `
-                        <img src="${u.picture || ''}" class="profilePic">
-                        <b>${u.name}</b>
+                        <img src="${u.picture || ''}" class="chatPic">
+                        <small>${u.name}</small>
                     `;
         let joinedDiv = document.createElement('div');
         joinedDiv.id = u.user_id;
-        joinedDiv.classList.add('clickable');
         joinedDiv.innerHTML = joinedHtml;
-        joinedUsers.append(joinedDiv);
+        joinedUsers.prepend(joinedDiv);
 
         if (u.user_id === me.user_id) {
             return;
@@ -169,6 +169,7 @@ See the tutorial [Introduction](/full-example/intro.html) for more information.
             When the other user is clicked, it will show the <dialog> element to send private message to that user.
             When clicked, it sets the privateChat variable to the user's id so it can be used to send private message to that user.
         */
+        joinedDiv.classList.add('clickable');
         joinedDiv.onclick = () => {
             privateMsg.showModal();
             msgTo.textContent = u.name;
@@ -183,38 +184,40 @@ See the tutorial [Introduction](/full-example/intro.html) for more information.
     */
     let rtCallback = async (rt) => {
         let me = await user; // the user varaible is declared on the top of the script tag. If the promise is resolved, it will contain the user's profile.
-
+        console.log(rt);
         /*
             Following code will check if the realtime message is a notice.
             If the realtime message is a notice, it will check if the notice is about a user joining or leaving the chat room.
             If the notice is about a user joining or leaving the chat room, it will show the notice in the chat room.
         */
-        if (rt.status === 'notice') {
+        if (rt.type === 'notice') {
             if (rt.message.includes('joined the message group.')) {
                 /*
                     Everytime a user message is received, we will get the user's profile information and append the user's name to the chat room.
                 */
                 return getUserInfo(rt.sender).then(async u => {
-                    let html = /*html*/ `
-                    <div class='alignCenter'>-- ${u.name} has joined the chat --</div>
-                `;
-                    let div = document.createElement('div');
-                    div.innerHTML = html;
-                    chat.append(div);
-                    chat.scrollTop = chat.scrollHeight;
+                    // If the user is not the current user, show the notice in the chat room.
+                    if (rt.sender !== (await user).user_id) {
+                        let html = /*html*/ `<div class='alignCenter'>-- ${u.name} has joined the chat --</div>`;
+                        let div = document.createElement('div');
+                        div.innerHTML = html;
+                        chat.append(div);
+                        chat.scrollTop = chat.scrollHeight;
+                    }
 
                     listUser(u);
                 });
             }
             else if (rt.message.includes('left the message group.')) {
                 return getUserInfo(rt.sender).then(async u => {
-                    let html = /*html*/ `
-                    <div class='alignCenter'>-- ${u.name} has left the chat --</div>
-                `;
-                    let div = document.createElement('div');
-                    div.innerHTML = html;
-                    chat.append(div);
-                    chat.scrollTop = chat.scrollHeight;
+                    // If the user is not the current user, show the notice in the chat room.
+                    if (rt.sender !== (await user).user_id) {
+                        let html = /*html*/ `<div class='alignCenter'>-- ${u.name} has left the chat --</div>`;
+                        let div = document.createElement('div');
+                        div.innerHTML = html;
+                        chat.append(div);
+                        chat.scrollTop = chat.scrollHeight;
+                    }
 
                     let joinedDiv = document.getElementById(rt.sender);
                     if (joinedDiv) {
@@ -222,18 +225,20 @@ See the tutorial [Introduction](/full-example/intro.html) for more information.
                     }
                 });
             }
+
+            chat.scrollTop = chat.scrollHeight;
         }
 
         /*
             Following code will check if the realtime message is a message.
             If the realtime message is a message, it will show the message in the chat room.
         */
-        if (rt.status === 'message') {
+        if (rt.type === 'message') {
             let sender = await getUserInfo(rt.sender);
             let html = /*html*/ `
                 <span class='inlineBlock'>
-                    <img src="${sender.picture || ''}" class="profilePic">
-                    <b>${sender.name}</b>
+                    <img src="${sender.picture || ''}" class="chatPic">
+                    <small>${sender.name}</small>
                 </span>
                 <br>
                 <span class='inlineBlock'>${rt.message.msg}</span>
@@ -242,7 +247,6 @@ See the tutorial [Introduction](/full-example/intro.html) for more information.
             div.innerHTML = html;
             div.classList.add('msg');
 
-            let me = await user;
             if (rt.sender === me.user_id) {
                 div.classList.add('alignRight');
             }
@@ -254,7 +258,7 @@ See the tutorial [Introduction](/full-example/intro.html) for more information.
             Following code will check if the realtime message is a private message.
             If the realtime message is a private message, it will show the private message in the <dialog> element.
         */
-        if (rt.status === 'private') {
+        if (rt.type === 'private') {
             if (me.user_id === rt.sender) {
                 return;
             }
@@ -268,64 +272,58 @@ See the tutorial [Introduction](/full-example/intro.html) for more information.
     }
 
     /*
-        Following code will connect to the realtime server.
+        Following code will connect to the realtime server when the page loads.
     */
     skapi.connectRealtime(rtCallback);
 
     /*
         Following code will join the chat room named 'chat'.
-        We are using skapi.joinRealtime() method to let the user joins to the chat room named 'chat'.
+        We are using skapi.joinRealtime() method to let the user join to the chat room named 'chat'.
         When successful, it will call skapi.getRealtimeUsers() method to get the list of users who have joined the chat room.
         Then it will call getUserInfo() function to get each user's information.
         Then it will call listUser() function to append the user's information to the list of joined users in the chat room.
-        Notice that we are using setTimeout() method to delay the process for 1 second.
-        This is because we want to make sure that the previous realtime connection is disconnected before we make new connection to the realtime server again.
-        This can happens when user refreshes the page.
     */
-    setTimeout(() =>
-        skapi.joinRealtime({group: 'chat'}).then(() => {
-            inputMsg.disabled = false;
-            sendMsg.disabled = false;
-            skapi.getRealtimeUsers({
-                group: 'chat'
-            }).then(u => {
-                u.list.forEach(uid => getUserInfo(uid).then(listUser));
-            });
-        }), 1000);
+    skapi.joinRealtime({ group: 'chat' }).then(() => {
+        inputMsg.disabled = false;
+        sendMsg.disabled = false;
+        skapi.getRealtimeUsers({ group: 'chat' }).then(u => {
+            u.list.forEach(user => getUserInfo(user.user_id).then(listUser));
+        });
+    });
 
 </script>
 <style>
-    main {
-        width: 100%;
+    #chatBox {
+        height: calc(100vh - 200px);
         text-align: center;
+    }
+
+    #chatBox>div {
+        background-color: white;
         padding: 8px;
         box-sizing: border-box;
-    }
-
-    main>div {
+        height: 100%;
+        overflow-x: hidden;
+        overflow-y: scroll;
+        vertical-align: top;
         display: inline-block;
         text-align: left;
-        width: 600px;
-        max-width: 100%;
     }
 
-    #chatBox {
-        display: flex;
+    #chat {
+        width: 500px;
+        max-width: calc(100vw - 140px);
     }
 
-    #chatSection {
-        flex-grow: 1;
+    #joinedUsers {
+        width: 120px;
     }
 
     #joinedUsers>div {
         white-space: nowrap;
-    }
-
-    #chat {
-        height: 60vh;
-        padding: 8px;
-        overflow-y: scroll;
-        background-color: white;
+        text-overflow: ellipsis;
+        margin-bottom: 1rem;
+        overflow: hidden;
     }
 
     form {
@@ -336,8 +334,21 @@ See the tutorial [Introduction](/full-example/intro.html) for more information.
         width: 100%;
     }
 
+    .msg {
+        margin-bottom: 1rem;
+    }
+
     .msg>* {
         text-align: left;
+    }
+
+    .chatPic {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        object-fit: cover;
+        vertical-align: middle;
+        position: relative;
     }
 </style>
 ```

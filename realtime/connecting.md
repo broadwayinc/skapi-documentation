@@ -51,7 +51,7 @@ When the callback is executed, message will be passed as an object with `type` a
 
 - `message` is the data passed from the server. It can be any JSON data.
 - `sender` is the user ID of the message sender. It is only available when `type` is "message" or "private".
-
+- `sender_cid` is the connection ID of the message sender. It can be used to track the sender's connection.
 
 ## Closing Connection
 

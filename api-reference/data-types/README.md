@@ -234,6 +234,7 @@ type RealtimeCallback = (rt: {
     type: 'message' | 'private' | 'error' | 'success' | 'close' | 'notice';
     message: any;
     sender?: string; // User ID of the sender
+    sender_cid?: string; // Connection ID of the sender
 }) => void;
 ```
 

@@ -65,7 +65,6 @@ joinRealtime(SubmitEvent | params: {
 }
 ```
 
-
 ## getRealtimeGroups
 
 ```ts
@@ -87,7 +86,7 @@ getRealtimeUsers(SubmitEvent | params?: {
         user_id?: string; // User ID in the group
     },
     fetchOptions?: FetchOptions
-): Promise<DatabaseResponse<string>>
+): Promise<DatabaseResponse<{ user_id:string; connection_id:string; }[]>>
 ```
 
 See [FetchOptions](/api-reference/data-types/README.md#fetchoptions)
