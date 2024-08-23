@@ -100,7 +100,9 @@ User must have access to the record in order to download the file.
 `getFile()` allows you to download the file in various ways:
 - `blob`: Downloads the file as a [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob) object.
 - `base64`: Downloads the file as a base64 string.
-- `endpoint`: Gets the file endpoint URL. If the file access is restricted to the user, the endpoint will be a signed URL.
+- `endpoint`: Gets the file endpoint URL. If the private file access is restricted to the user, the endpoint will be a signed URL.
+
+If no argument is passed, the file will be downloaded from the web browser.
 
 `getFile(dataType?: string, progress?: () => void )` method have two arguments:
 - `dataType`: Type of ways for file to be downloaded. Can be `"blob"` or `"base64"` or `"endpoint"` url. By default, it will trigger download from the web browser.
@@ -111,7 +113,7 @@ The endpoint URL will be a signed URL that can expire after a certain amount of 
 
 If the file is an image or a video, you can use the url on img tag or video tag to display the file.
 
-Below is an example of how you can get the endpoint URL of the access restricted file:
+Below is an example of how you can get the endpoint URL of the access restricted private file (The user must have access to the record):
 
 ```js
 fileToDownload.getFile('endpoint').then(url => {
