@@ -58,7 +58,9 @@ function disableForm(form, disabled) {
         if (input.type !== 'radio' && input.type !== 'checkbox')
             input.disabled = disabled
     });
-
+    form.querySelectorAll('textarea').forEach(textarea => {
+        textarea.disabled = disabled;
+    });
     form.querySelectorAll('a').forEach(a => {
         return disabled ? a.setAttribute('disabled', '') : a.removeAttribute('disabled');
     });

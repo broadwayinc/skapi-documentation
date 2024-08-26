@@ -85,8 +85,24 @@ And the post data should contain properties like `model`, `prompt`, `n`, and `si
 The `$OPENAI_API_KEY` is the API secret key that you have obtained from the OpenAI website. And it is meant to be replaced with your API secret key.
 
 Since we cannot expose the API secret key in the frontend, we will be using the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method to make a secure request to the OpenAI API:
+::: code-group
 
-```js
+```html [Form]
+<form onsubmit="skapi.clientSecretRequest(event).then(r=>console.log(r))">
+  <input name="clientSecretName" hidden value="openai">
+  <input name="url" hidden value="https://api.openai.com/v1/images/generations">
+  <input name="method" hidden value="POST">
+  <input name="headers[Content-Type]" hidden value='application/json'>
+  <input name="headers[Authorization]" hidden value="Bearer $CLIENT_SECRET">
+  <input name="data[model]" hidden value="dall-e-3">
+  <input name="data[n]" hidden type='number' value="1">
+  <input name="data[size]" hidden value="1024x1024">
+  <textarea name='data[prompt]' placeholder="Describe an image" required></textarea>
+  <input type="submit" value="Generate">
+</form>
+```
+
+```js [JS]
 skapi.clientSecretRequest({
     clientSecretName: 'openai',
     url: 'https://api.openai.com/v1/images/generations',
