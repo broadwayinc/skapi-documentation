@@ -4,13 +4,19 @@ If you are using 3rd party API's that requires a client secret, you can use [`cl
 
 First you need to save your client secret key in your **Client Secret** page.
 
-1. Navigate to the client secret page from your service dashboard.
-  ![Client Secret Page](/clientsecmenu.png)
+1. Navigate to the **Client Secret Key** page from your service page.
+  ![Client Secret Key](/clientmen.png)
 
-2. Click on the **Add Key** button to add a new client secret key.
-  ![Add Client Secret](/clientsecret.png)
+1. Click on the **Register Client Secret Key** button to add a new client secret key.
+  ![Register Client Secret Key](/clientinput.png)
 
-  From the list of client secret keys, you can see the security settings, the name, and the masked client secret of your keys.
+You can add a new client secret key by providing a name for the key and the client secret key value.
+
+The checkbox indicates whether the key is public or private.
+The `Name` field is the name of the key that you will use when defining the `clientSecretName` parameter in the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method.
+The `$CLIENT_SECRET` field is the value that you will use as a placeholder in the `data`, `params`, or `headers` or `url` parameter of the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method.
+
+From the list of client secret keys, you can see the security settings, the name, and the masked client secret of your keys.
 
 :::tip
 The access setting of the client secret key can be set to either **public** or **private**.
@@ -33,7 +39,7 @@ The list parameters of `params` of the method is shown as below:
   - `params`: An object representing the query string parameters of the request. It is only used when `method` is "GET".
 
 :::warning
-When using `clientSecretRequest()`, you must include the `$CLIENT_SECRET` placeholder string in the `data` or `params` or `headers` parameter value.
+When using `clientSecretRequest()`, you must include the `$CLIENT_SECRET` placeholder string in the `data` or `params` or `headers` or `url` parameter value.
 :::
 
 ## Example: Making a secure request to OpenAI API image generator.
