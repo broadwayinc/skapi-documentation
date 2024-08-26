@@ -68,65 +68,25 @@ See the tutorial [Introduction](/full-example/intro.html) for more information.
             width: 100%;
         }
     </style>
-    <textarea id='textarea_imageDescription' rows="4" placeholder="Describe an image"></textarea>
-    <style>
-        textarea {
-            width: 100%;
-        }
-    </style>
-    <div class="alignRight">
-        <!--
-            When the user clicks the button, we will call the imgGen() function.
-            We will declare the imgGen() function on the <script> tag below.
-        -->
-        <button id='button_generate' onclick="imgGen()">Generate</button>
-    </div>
-</main>
-<script>
-    /*
-        Following function will generate an image using OpenAI's API.
-        When successful, it will show the generated image.
-        When unsuccessful, it will show an alert with the error message.
-    */
-    function imgGen() {
-        let description = textarea_imageDescription.value;
-        if (description.length === 0) {
-            alert('Please describe an image you want to generate');
-            return;
-        }
-
+    <form onsubmit="
+        /*
+        We will use the clientSecretRequest() method to call the OpenAI's API.
+        We will pass the url, method, headers and post data according to the OpenAI's API documentation.
+        The client secret name is the key name of the client secret you may have saved in the service dashboard.
+        
+        For more information about the setting your client secret keys,
+        visit: https://docs.skapi.com/service-settings/service-settings.html#client-secret-key
+        
+        When successful, it will return the response data.
+        When unsuccessful, it will return the error object.
+        */
         generated.innerHTML = /*html*/ `<p>Generating... Please wait</p>`;
 
-        textarea_imageDescription.disabled = true;
-        button_generate.disabled = true;
+        // Disable the form while the request is being processed.
+        // The function is defined in the service.js file.
+        disableForm(this, true);
 
-        /*
-            We will use the clientSecretRequest() method to call the OpenAI's API.
-            We will pass the url, method, headers and post data according to the OpenAI's API documentation.
-            The client secret name is the key name of the client secret you may have saved in the service dashboard.
-            
-            For more information about the setting your client secret keys,
-            visit: https://docs.skapi.com/service-settings/service-settings.html#client-secret-key
-            
-            When successful, it will return the response data.
-            When unsuccessful, it will return the error object.
-        */
-        skapi.clientSecretRequest({
-            clientSecretName: 'openai',
-            url: 'https://api.openai.com/v1/images/generations',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: 'Bearer $CLIENT_SECRET'
-            },
-            data: {
-                model: "dall-e-3",
-                prompt: description,
-                n: 1,
-                size: "1024x1024",
-                style: "vivid"
-            }
-        }).then(r => {
+        skapi.clientSecretRequest(event).then(r => {
             if (r.error) {
                 generated.innerHTML = /*html*/ `<p>Describe an image you want to generate</p>`;
                 alert(r.error.message);
@@ -135,14 +95,30 @@ See the tutorial [Introduction](/full-example/intro.html) for more information.
 
             let data = r.data[0]
             let html = /*html*/ `
-                <img src="${data.url}">
+                <img src='${data.url}'>
                 <p>${data.revised_prompt}</p>`;
 
             generated.innerHTML = html;
         }).finally(() => {
-            textarea_imageDescription.disabled = false;
-            button_generate.disabled = false;
+            disableForm(this, false);
         });
-    }
-</script>
+    ">
+        <input name="clientSecretName" hidden value="openai">
+        <input name="url" hidden value="https://api.openai.com/v1/images/generations">
+        <input name="method" hidden value="POST">
+        <input name="headers[Content-Type]" hidden value='application/json'>
+        <input name="headers[Authorization]" hidden value="Bearer $CLIENT_SECRET">
+        <input name="data[model]" hidden value="dall-e-3">
+        <input name="data[n]" type='number' hidden value="1">
+        <input name="data[size]" hidden value="1024x1024">
+        <input name="data[style]" hidden value="vivid">
+        <textarea name='data[prompt]' rows="4" placeholder="Describe an image" required></textarea>
+        <input type="submit" value="Generate">
+    </form>
+    <style>
+        textarea {
+            width: 100%;
+        }
+    </style>
+</main>
 ```
