@@ -2,3 +2,4 @@
 .vitepress/dist/
 deploy.py
 package-lock.json
+.vitepress/cache/
