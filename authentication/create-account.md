@@ -3,7 +3,7 @@
 
 ### [`signup(params, options?): Promise<UserProfile | string>`](/api-reference/authentication/README.md#signup)
 
-To create a new account (user) in your service, you can use the [`signup()`](/api-reference/authentication/README.md#signup) method. 
+To create a new account in your service, you can use the [`signup()`](/api-reference/authentication/README.md#signup) method. 
 
 ### Example: Creating an Account
 
