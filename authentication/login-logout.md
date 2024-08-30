@@ -61,7 +61,6 @@ please refer to the API Reference below:
 
 ## Checking the Login status
 
-
 The [`getProfile()`](/api-reference/authentication/README.md#getprofile) method allows you to retrieve the user's information.
 It returns the [UserProfile](/api-reference/data-types/README.md#userprofile) object.
 
@@ -98,7 +97,6 @@ const skapi = new Skapi('service_id', 'owner_id', options);
 ```
 
 ## Logout
-### [`logout(event?:SubmitEvent): Promise<string>`](/api-reference/authentication/README.md#logout)
 
 The [`logout()`](/api-reference/authentication/README.md#logout) method logs the user out from the service.
 
@@ -117,6 +115,11 @@ skapi.logout().then(res=>{
 });
 ```
 :::
+
+For more detailed information on all the parameters and options available with the [`logout()`](/api-reference/authentication/README.md#logout) method, 
+please refer to the API Reference below:
+
+### [`logout(event?:SubmitEvent): Promise<string>`](/api-reference/authentication/README.md#logout)
 
 :::tip
 For convenience, `event`:SubmitEvent argument is there just to use with `<form>` element.
