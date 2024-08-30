@@ -85,14 +85,14 @@ please refer to the API Reference below:
 
 By default, once user login to your website, their login session is maintained until they logout.
 
-In order for users to destroy their login session when they leave your website,
-you can set `options.autoLogin` to `false` in the third argument of the Skapi class constructor.
+To ensure that users' sessions are destroyed when they leave your website, you can set options.autoLogin to false in the third argument when initializing Skapi.
 
 ```javascript
 const options = {
   autoLogin: false, // set to true to maintain the user's session
 };
 
+//Set the third argument as options
 const skapi = new Skapi('service_id', 'owner_id', options);
 ```
 

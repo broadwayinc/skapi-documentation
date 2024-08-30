@@ -8,13 +8,14 @@ You can set the service name in your service dashboard.
 
 The service name can be used to identify your service in the **My Services** page, and also can be used to replace [`Automated Email's placeholders`](/email/email-templates.md#template-placeholders).
 
-## Cors
+## CORS
 
-In your service dashboard, you can set the cors setting to allow the request from the specific domain.
+In your service dashboard, you can set the CORS setting to allow the request from the specific domain.
 
-When left empty, the cors setting will be set to `*` by default. Otherwise, you can set the cors setting to the specific domain, for example, `https://example.com`.
+When left empty, the CORS setting will be set to `*` by default. Otherwise, you can set the CORS setting to the specific domain, for example, `https://example.com`.
 You can also set multiple domains by separating them with a comma, for example, `https://example.com,https://example2.com`.
-When the cors setting is set, the request from the other domain will be blocked.
+
+When the CORS setting is configured, requests from other domains will be blocked.
 
 ## Secret Key
 

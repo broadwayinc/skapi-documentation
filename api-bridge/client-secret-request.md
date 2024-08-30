@@ -25,9 +25,7 @@ The access setting of the client secret key can be set to either **public** or *
 **private** keys are indicated with a check mark in the column with the lock icon.
 :::
 
-Once the client secret key is saved, you can use the method below to make secure requests to your 3rd party API's.
-
-### [`clientSecretRequest(params): Promise<any>`](/api-reference/api-bridge/README.md#clientsecretrequest)
+Once the client secret key is saved, you can use the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method below to make secure requests to your 3rd party API's.
 
 The list parameters of `params` of the method is shown as below:
 
@@ -37,6 +35,11 @@ The list parameters of `params` of the method is shown as below:
   - `headers`: An object representing the headers of the request.
   - `data`: An object representing the data to be sent to your 3rd party API. It is only used when `method` is "POST".
   - `params`: An object representing the query string parameters of the request. It is only used when `method` is "GET".
+
+For more detailed information on all the parameters and options available with the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method, 
+please refer to the API Reference below:
+
+### [`clientSecretRequest(params): Promise<any>`](/api-reference/api-bridge/README.md#clientsecretrequest)
 
 :::warning
 When using `clientSecretRequest()`, you must include the `$CLIENT_SECRET` placeholder string in the `data` or `params` or `headers` or `url` parameter value.
