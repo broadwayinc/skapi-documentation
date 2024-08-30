@@ -4,8 +4,6 @@ Once a user has signed up, they can log in to your service using their email and
 
 ## Login
 
-### [`login(params): Promise<UserProfile>`](/api-reference/authentication/README.md#login)
-
 Use the [`login()`](/api-reference/authentication/README.md#login) method to log a user into your service.
 
 If the login is not successful due to invalid password, or user may not have confirm their signup etc... the [`login()`](/api-reference/authentication/README.md#login) method will throw an error.
@@ -18,7 +16,7 @@ users will not be able to log in until they have confirmed their account.
 :::
 
 :::info
-When the user have successfully confirmed their signup and logged in, user will be sent a welcome email.
+When the user has successfully confirmed their signup and logged in, they will be sent a welcome email.
 You can also customize the email template for the signup confirmation email.
 
 For more info on email templates, see [E-Mail Templates](../email/email-templates.md).
@@ -56,10 +54,13 @@ skapi.login(parameters)
 ```
 :::
 
+For more detailed information on all the parameters and options available with the [`login()`](/api-reference/authentication/README.md#login) method, 
+please refer to the API Reference below:
+
+### [`login(params): Promise<UserProfile>`](/api-reference/authentication/README.md#login)
 
 ## Checking the Login status
 
-### [`getProfile(options?): Promise<UserProfile | null>`](/api-reference/authentication/README.md#getprofile)
 
 The [`getProfile()`](/api-reference/authentication/README.md#getprofile) method allows you to retrieve the user's information.
 It returns the [UserProfile](/api-reference/data-types/README.md#userprofile) object.
@@ -76,6 +77,10 @@ skapi.getProfile().then(profile=>{
 })
 ```
 
+For more detailed information on all the parameters and options available with the [`getProfile()`](/api-reference/authentication/README.md#getprofile) method, 
+please refer to the API Reference below:
+
+### [`getProfile(options?): Promise<UserProfile | null>`](/api-reference/authentication/README.md#getprofile)
 
 ## Auto Login
 

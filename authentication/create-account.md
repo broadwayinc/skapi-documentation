@@ -1,8 +1,6 @@
 
 # Creating an Account
 
-### [`signup(params, options?): Promise<UserProfile | string>`](/api-reference/authentication/README.md#signup)
-
 To create a new account in your service, you can use the [`signup()`](/api-reference/authentication/README.md#signup) method. 
 
 ### Example: Creating an Account
@@ -43,9 +41,17 @@ skapi.signup(parameters)
 
 :::
 
-The example above shows how to let users create their account in your servce.
+The example above shows how to let users create their account in your service.
 Once the user signup is successful, the user will be redirected to the login page.
 The first argument takes the user's input (email, password, name) that will be used for signup.
+
+::: warning
+- If the user have not logged in to your service after account creation,
+they will **NOT** appear on your user list in Skapi's admin page.
+
+- If 7 days have passed since the account creation, and the user still have not logged in to your service,
+user's signup will be automatically invalidated.
+:::
 
 ## Login after Signup
 
@@ -82,10 +88,8 @@ skapi.signup(parameters, options)
 
 When the `options.login` is set to `true`, the method will return the [UserProfile](/api-reference/data-types/README.md#userprofile) object.
 
-::: warning
-- If the user have not logged in to your service after account creation,
-They will **NOT** appear on your user list in Skapi's admin page.
+For more detailed information on all the parameters and options available with the [`signup()`](/api-reference/authentication/README.md#signup) method, 
+please refer to the API Reference below:
 
-- If 7 days have passed since the account creation, and user still have not logged in to your service,
-user's signup will be automatically invalidated.
-:::
+### [`signup(params, options?): Promise<UserProfile | string>`](/api-reference/authentication/README.md#signup)  
+
