@@ -33,7 +33,7 @@ To allow other users to access the records that requires subscription, they must
 Lets assume **user 'B'** is logged in and, **user 'B'** is subscribing to **user 'A'**.
 
 ```js
-// User 'B' subscribes to user 'A' to subscription group 5.
+// User 'B' subscribes to user 'A'.
 skapi.subscribe({
   user_id: 'user_id_of_user_A'
 })
