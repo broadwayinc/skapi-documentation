@@ -1,14 +1,7 @@
 
 # Forgot password
 
-To reset a forgotten password, you can use the following methods:
-
-### [`forgotPassword(params): Promise<string>`](/api-reference/authentication/README.md#forgotpassword)
-
-### [`resetPassword(params): Promise<string>`](/api-reference/authentication/README.md#resetpassword)
-
-
-### Step 1: Request Verification Code
+## Step 1: Request Verification Code
 
 Use the [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword) method to request a verification code.
 
@@ -37,6 +30,11 @@ skapi.forgotPassword({email: 'someone@gmail.com'}).then(res=>{
 ```
 :::
 
+For more detailed information on all the parameters and options available with the [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword) method, 
+please refer to the API Reference below:
+
+### [`forgotPassword(params): Promise<string>`](/api-reference/authentication/README.md#forgotpassword)
+
 ::: info
 Due to security reasons, [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword) will not tell the user whether the email exists.
 :::
@@ -52,11 +50,11 @@ You can also customize the email template for the verification email.
 
 For more info on email templates, see [E-Mail Templates](../email/email-templates.md).
 
-### Step 2: Reset Password
+## Step 2: Reset Password
 
 The user will receive an email containing a verification code. After the user receives the verification code, they can use the [`resetPassword()`](/api-reference/authentication/README.md#resetpassword) method to reset their password.
 
-In this example, the [`resetPassword()`](/api-reference/authentication/README.md#resetpassword) method is called with the user's email, the verification code received via email, and the new password.
+The [`resetPassword()`](/api-reference/authentication/README.md#resetpassword) method is called with the user's email, the verification code received via email, and the new password.
 
 Upon successful password reset, the user's account password will be set to the new password provided.
 
@@ -84,3 +82,8 @@ skapi.resetPassword({
 });
 ```
 :::
+
+For more detailed information on all the parameters and options available with the [`resetPassword()`](/api-reference/authentication/README.md#resetpassword) method, 
+please refer to the API Reference below:
+
+### [`resetPassword(params): Promise<string>`](/api-reference/authentication/README.md#resetpassword)

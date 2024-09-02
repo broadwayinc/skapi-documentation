@@ -1,6 +1,6 @@
 # Getting Started
 
-Welcome to Skapi, This guide will walk you through importing the Skapi library into your project, creating a service, and connecting your application to your Skapi server.
+Welcome to Skapi, this guide will walk you through importing the Skapi library into your project, creating a service, and connecting your application to your Skapi server.
 
 
 ## 1. Create a service

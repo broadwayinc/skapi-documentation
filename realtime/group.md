@@ -5,8 +5,6 @@ This can be used to create group chats, group notifications, etc.
 
 ## Joining a Group
 
-### [`joinRealtime(params): Promise<{ type: 'success', message: string }>`](/api-reference/realtime/README.md#joinrealtime)
-
 Users can join a group by calling [`joinRealtime()`](/api-reference/realtime/README.md#joinrealtime) method.
 
 params argument takes the following parameters:
@@ -29,6 +27,10 @@ When the user is joined to the group successfully, the method will return the fo
   message: 'Joined realtime message group: "HelloWorld"'.
 }
 ```
+For more detailed information on all the parameters and options available with the [`joinRealtime()`](/api-reference/realtime/README.md#joinrealtime) method, 
+please refer to the API Reference below:
+
+### [`joinRealtime(params): Promise<{ type: 'success', message: string }>`](/api-reference/realtime/README.md#joinrealtime)
 
 :::tip
 Even if the user has joined the group, they can still receive realtime data sent individually to them.
@@ -54,6 +56,11 @@ skapi.postRealtime({ msg: "Hello World!" }, 'HelloWorld').then(res => console.lo
 ```
 :::
 
+For more detailed information on all the parameters and options available with the [`postRealtime()`](/api-reference/realtime/README.md#postrealtime) method, 
+please refer to the API Reference below:
+
+### [`postRealtime(message, recipient): Promise<{ type: 'success', message: string }>`](/api-reference/realtime/README.md#postrealtime)
+
 :::warning
 The user must be joined to the group to send data to the group.
 :::
@@ -67,8 +74,6 @@ Also, if you want to leave the group, you can call [`joinRealtime()`](/api-refer
 
 
 ## Listing Groups
-
-### [`getRealtimeGroups(params?, fetchOptions?): Promise<DatabaseResponse<{ group: string; number_of_users: number; }>>`](/api-reference/realtime/README.md#getrealtimegroups)
 
 Users can get a list of realtime groups by calling [`getRealtimeGroups()`](/api-reference/realtime/README.md#getrealtimegroups) method.
 
@@ -97,9 +102,12 @@ skapi.getRealtimeGroups({ searchFor: 'number_of_users', value: 10, condition: '>
 });
 ```
 
-## Listing Users in a Group
+For more detailed information on all the parameters and options available with the [`getRealtimeGroups()`](/api-reference/realtime/README.md#getrealtimegroups) method, 
+please refer to the API Reference below:
 
-### [`getRealtimeUsers(params, fetchOptions?): Promise<DatabaseResponse<{ user_id:string; connection_id:string; }[]>>`](/api-reference/realtime/README.md#getrealtimeusers)
+### [`getRealtimeGroups(params?, fetchOptions?): Promise<DatabaseResponse<{ group: string; number_of_users: number; }>>`](/api-reference/realtime/README.md#getrealtimegroups)
+
+## Listing Users in a Group
 
 Users can get a list of users in a group by calling [`getRealtimeUsers()`](/api-reference/realtime/README.md#getrealtimeusers) method.
 
@@ -119,3 +127,7 @@ skapi.getRealtimeUsers({ group: 'HelloWorld', user_id: 'user_a' }).then(res => {
     console.log(res.list) // [{user_id: 'user_a', connection_id: 'user_cid'}]
 });
 ```
+For more detailed information on all the parameters and options available with the [`getRealtimeUsers()`](/api-reference/realtime/README.md#getrealtimeusers) method, 
+please refer to the API Reference below:
+
+### [`getRealtimeUsers(params, fetchOptions?): Promise<DatabaseResponse<{ user_id:string; connection_id:string; }[]>>`](/api-reference/realtime/README.md#getrealtimeusers)

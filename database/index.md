@@ -245,8 +245,6 @@ You must provide the full **'Band.AsianSpiceHouse.year'** as an index name if yo
 
 ## Fetching Index Information
 
-### [`getIndexes(query, fetchOptions?): Promise<DatabaseResponse<Index>>`](/api-reference/database/README.md#getindex)
-
 :::warning
 User must be logged in to call this method
 :::
@@ -289,6 +287,11 @@ skapi.getIndexes({
     console.log(response.list[0]); // index information of "Vote.Beer"
 });
 ```
+
+For more detailed information on all the parameters and options available with the [`getIndexes()`](/api-reference/database/README.md#getindex) method, 
+please refer to the API Reference below:
+
+### [`getIndexes(query, fetchOptions?): Promise<DatabaseResponse<Index>>`](/api-reference/database/README.md#getindex)
 
 ### Querying index value
 

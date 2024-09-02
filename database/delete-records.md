@@ -1,14 +1,12 @@
 
 # Deleting Records
 
-### [`deleteRecords(params): Promise<string>`](/api-reference/database/README.md#deleterecords)
-
 :::warning
 User must be logged in to call this method
 :::
 
 The [`deleteRecords()`](/api-reference/database/README.md#deleterecords) method allows users to delete records from their tables.
-When record is deleted, all the files that were uploaded to the record will be deleted as well.
+When the record is deleted, all the files that were uploaded to the record will be deleted as well.
 
 The `params` object accepts the following properties:
 
@@ -96,3 +94,8 @@ skapi.deleteRecords(query).then(response => {
 :::warning
 When deleting multiple records, the promise will return success immediately, but it may take some time for the deleted records to be reflected in the database.
 :::
+
+For more detailed information on all the parameters and options available with the [`deleteRecords()`](/api-reference/database/README.md#deleterecords) method, 
+please refer to the API Reference below:
+
+### [`deleteRecords(params): Promise<string>`](/api-reference/database/README.md#deleterecords)

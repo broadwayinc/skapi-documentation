@@ -83,8 +83,6 @@ Promise.all([experimental, indie]).then(res=>{
 
 ## Fetching Tag Information
 
-### [`getTags(query, fetchOptions?): Promise<DatabaseResponse<Tag>>`](/api-reference/database/README.md#gettags)
-
 :::warning
 User must be logged in to call this method
 :::
@@ -98,6 +96,10 @@ skapi.getTags({
     console.log(response); // List of all tags in table named 'MyTable'
 })
 ```
+For more detailed information on all the parameters and options available with the [`getTags()`](/api-reference/database/README.md#gettags) method, 
+please refer to the API Reference below:
+
+### [`getTags(query, fetchOptions?): Promise<DatabaseResponse<Tag>>`](/api-reference/database/README.md#gettags)
 
 ### Querying tags
 

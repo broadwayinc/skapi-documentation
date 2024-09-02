@@ -43,6 +43,11 @@ If the confirmation is successful, the user will be redirected to the redirect u
 All the public newsletters will have unsubscribe link at the bottom of the email.
 When the user clicks the unsubscribe link, they will no longer receive your public newsletters.
 
+For more detailed information on all the parameters and options available with the [`subscribeNewsletter()`](/api-reference/email/README.md#subscribenewsletter) method, 
+please refer to the API Reference below:
+
+### [`subscribeNewsletter(params, callbacks):Promise<string>`](/api-reference/email/README.md#subscribenewsletter)
+
 :::warning
 If the user is logged in, they will not be asked to confirm their email address.
 Instead, they must have their [`email verifed`](/user-account/email-verification).
@@ -109,8 +114,6 @@ skapi.unsubscribeNewsletter({
 
 ## Fetching Sent Emails
 
-### [`getNewsletters(params, options?): Promise<DatabaseResponse<Newsletter>>`](/api-reference/email/README.md#getnewsletters)
-
 You can fetch sent emails from the database by calling [`getNewsletters()`](/api-reference/email/README.md#getnewsletters).
 By default, it fetches all the public newsletters from the database in descending timestamp.
 
@@ -132,6 +135,11 @@ skapi.getNewsletters().then(newsletters => {
     */
 })
 ```
+
+For more detailed information on all the parameters and options available with the [`getNewsletters()`](/api-reference/email/README.md#getnewsletters) method, 
+please refer to the API Reference below:
+
+### [`getNewsletters(params, options?): Promise<DatabaseResponse<Newsletter>>`](/api-reference/email/README.md#getnewsletters)
 
 ### Fetching Sent Emails with Conditions
 

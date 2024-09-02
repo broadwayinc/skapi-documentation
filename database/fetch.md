@@ -1,14 +1,12 @@
 # Fetching Records
 
-### [`getRecords(query, fetchOptions?): Promise<DatabaseResponse<RecordData>>`](/api-reference/database/README.md#getrecords)
-
 The [`getRecords()`](/api-reference/database/README.md#getrecords) method allows you to fetch records from the database. It retrieves records based on the specified query parameters and returns a promise that resolves to the response containing the [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse) object.
 
 It takes two arguments:
 - `query`: Specifies the query parameters for fetching records.
 - `fetchOptions`: (optional)
     Specifies additional configuration options for fetching database records
-    For more information, see [Database Fetch Options](/database/fetch.md#database-fetch-options)
+    For more information, see [Database Fetch Options](/database/fetch.md#database-fetch-options).
 
 ### Fetching Records from a Table
 
@@ -33,6 +31,11 @@ skapi.getRecords(query).then(response=>{
 The example above retrieve records from a table named 'my_collection'.
 The `table` parameter in the `query` argument sets the table name you want to fetch records from.
 The retrieved records are accessed through the `response.list` property.
+
+For more detailed information on all the parameters and options available with the [`getRecords()`](/api-reference/database/README.md#getrecords) method, 
+please refer to the API Reference below:
+
+### [`getRecords(query, fetchOptions?): Promise<DatabaseResponse<RecordData>>`](/api-reference/database/README.md#getrecords)
 
 ### Fetching Record by ID
 
@@ -129,7 +132,7 @@ This allows to fetch the next batch of 100 data on each execution until the end 
 When using the `fetchMore` parameter, you must check if the response's `endOfList` value is `true` before making the next call.
 The database will always return an empty list if the `fetchOptions.fetchMore` is set to `true` and it had reached the end of list and.
 
-You can however, Initialize your fetch and refetch from start by toggling `fetchOptions.fetchMore` back to `false`.
+You can however, initialize your fetch and refetch from start by toggling `fetchOptions.fetchMore` back to `false`.
 :::
 
 :::tip

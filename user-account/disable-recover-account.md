@@ -3,8 +3,6 @@
 
 ## Disabling account
 
-### [`disableAccount(): Promise(string)`](/api-reference/user/README.md#disableaccount)
-
 :::warning
 User must be logged in to call this method
 :::
@@ -20,9 +18,12 @@ skapi.disableAccount().then(()=>{
 });
 ```
 
-## Recovering a Disabled Account
+For more detailed information on all the parameters and options available with the [`disableAccount()`](/api-reference/user/README.md#disableaccount) method, 
+please refer to the API Reference below:
 
-### [`recoverAccount(redirect: boolean | string): Promise<string>`](/api-reference/user/README.md#recoveraccount)
+### [`disableAccount(): Promise(string)`](/api-reference/user/README.md#disableaccount)
+
+## Recovering a Disabled Account
 
 Disabled accounts can be reactivated **within 3 months** using the [`recoverAccount()`](/api-reference/user/README.md#recoveraccount) method. This method allows users to reactivate their disabled accounts under the following conditions:
 
@@ -86,6 +87,11 @@ If the login attempt fails with the error code `"USER_IS_DISABLED"`, user can ch
 
 The [`recoverAccount()`](/api-reference/user/README.md#recoveraccount) method is called to send a recovery email to the user.
 The recovery email contains a link, and when the user clicks on the link, they will be redirected to the relative path of the website URL: `/welcome/back/page` upon successful account recovery.
+
+For more detailed information on all the parameters and options available with the [`recoverAccount()`](/api-reference/user/README.md#recoveraccount) method, 
+please refer to the API Reference below:
+
+### [`recoverAccount(redirect: boolean | string): Promise<string>`](/api-reference/user/README.md#recoveraccount)
  
 :::danger
 User should know their password, and have their account email verified.
