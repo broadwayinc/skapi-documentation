@@ -1,9 +1,7 @@
 # Changing Password
 
-### [`changePassword(params): Promise<string>`](/api-reference/user/README.md#changepassword)
-
 :::warning
-User must be logged in to call this method
+User must be logged in to call this method.
 :::
 
 The [`changePassword()`](/api-reference/user/README.md#changepassword) method allows users who are logged-in to change their password. This method requires the user's current password and the new password as parameters. If the password change is successful, the method will return a success message.
@@ -35,3 +33,9 @@ skapi.changePassword(params)
 ```
 
 :::
+
+For more detailed information on all the parameters and options available with the [`changePassword()`](/api-reference/user/README.md#changepassword) method, 
+please refer to the API Reference below:
+
+
+### [`changePassword(params): Promise<string>`](/api-reference/user/README.md#changepassword)

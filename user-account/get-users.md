@@ -1,7 +1,5 @@
 # Search Users
 
-### [`getUsers(params?, fetchOptions?): Promise<DatabaseResponse<UserPublic>>`](/api-reference/user/README.md#getusers)
-
 :::warning
 User must be logged in to call this method
 :::
@@ -25,6 +23,10 @@ skapi.getUsers().then(u=>{
 In the example above, the [`getUsers()`](/api-reference/user/README.md#getusers) method is called without any parameters.
 This retrieves a list of all user profiles in your service.
 
+For more detailed information on all the parameters and options available with the [`getUsers()`](/api-reference/user/README.md#getusers) method, 
+please refer to the API Reference below:
+
+### [`getUsers(params?, fetchOptions?): Promise<DatabaseResponse<UserPublic>>`](/api-reference/user/README.md#getusers)
 
 ## Searching users with conditions
 
@@ -44,13 +46,13 @@ skapi.getUsers(params).then(u=>{
 });
 ```
 
-#### Search for users who joined before 2023 jan 1
+#### Search for users who joined before 2023 Jan 1
 
 ```js
 let timestampParams = {
   searchFor: 'timestamp',
   condition: '<', // Less than given value
-  value: 1672498800000
+  value: 1672498800000 //2023 Jan 1
 }
 
 skapi.getUsers(timestampParams).then(u=>{

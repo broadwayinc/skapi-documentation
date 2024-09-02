@@ -1,6 +1,10 @@
 
 # Subscription
 
+:::warning
+User must be logged in to call this method
+:::
+
 Skapi database provides subscription access level in its table.
 Records uploaded with subscription access level requires users to subscribe to the uploader to have access to the records.
 
@@ -25,10 +29,6 @@ Since user needs to login to subscribe to other users, the `table.access_group` 
 To allow other users to access the records that requires subscription, they must first subscribe to the uploader using the [`subscribe()`](/api-reference/database/README.md#subscribe) method:
 
 ### [`subscribe(option): Promise<string>`](/api-reference/database/README.md#subscribe)
-
-:::warning
-User must be logged in to call this method
-:::
 
 Lets assume **user 'B'** is logged in and, **user 'B'** is subscribing to **user 'A'**.
 
@@ -61,7 +61,7 @@ that can be retrieved using the [`getUsers()`](/api-reference/database/README.md
 :::
 
 :::danger Warning
-- Do not rely subscription access level as a security restriction.
+- Do not rely on subscription access level as a security restriction.
   Anyone can subscribe to anybody to any subscription group.
   Consider subscription group as a additional layer of database query point that user needs additional action(subscribe) to have access.
 
@@ -70,8 +70,6 @@ that can be retrieved using the [`getUsers()`](/api-reference/database/README.md
 :::
 
 ### Unsubscribing
-
-### [`unsubscribe(option): Promise<User | string>`](/api-reference/database/README.md#unsubscribe)
 
 :::warning
 User must be logged in to call this method
@@ -85,6 +83,10 @@ skapi.unsubscribe({
     user_id: 'user_id_of_user_A'
 })
 ```
+For more detailed information on all the parameters and options available with the [`unsubscribe()`](/api-reference/database/README.md#unsubscribe) method, 
+please refer to the API Reference below:
+
+### [`unsubscribe(option): Promise<User | string>`](/api-reference/database/README.md#unsubscribe)
 
 :::warning
 When unsubscribed, subscription information may need some time to be updated. (Usually almost immediate)
@@ -93,19 +95,16 @@ When unsubscribed, subscription information may need some time to be updated. (U
 
 ## Blocking and Unblocking Subscribers
 
+:::warning
+User must be logged in to call this method
+:::
+
 Main benifit of subscription access level is that users can block certain users from accessing their subscription level records.
 But as metioned above, subscription access level is not meant to be used as a security restriction.
 
 Even when user has blocked certain users, they still have access to the files attached to the records since the file access level is not restricted to the subscription access.
 
 Other than files, blocked users will not have access to any of the record data in the subscription access level.
-
-### [`blockSubscriber(option): Promise<string>`](/api-reference/database/README.md#blocksubscriber)
-### [`unblockSubscriber(option): Promise<string>`](/api-reference/database/README.md#unblocksubscriber)
-
-:::warning
-User must be logged in to call this method
-:::
 
 Users can block certain users from their subscription groups.
 If the user is blocked from a subscription group, they will not have access to the records in that group.
@@ -123,9 +122,13 @@ skapi.blockSubscriber({
 })
 ```
 
-To unblock a subscriber, use the [`unblockSubscriber()`](/api-reference/database/README.md#unblocksubscriber) method:
+For more detailed information on all the parameters and options available with the [`blockSubscriber()`](/api-reference/database/README.md#blocksubscriber) method, 
+please refer to the API Reference below:
 
-### Example: Unblocking a Subscriber
+### [`blockSubscriber(option): Promise<string>`](/api-reference/database/README.md#blocksubscriber)
+
+
+### Unblocking a Subscriber
 
 ```js
 // User 'A' unblocks user 'B' from all subscription group.
@@ -135,11 +138,12 @@ skapi.unblockSubscriber({
     // User 'B' now has access to user A's subscription group records.
 })
 ```
+For more detailed information on all the parameters and options available with the [`unblockSubscriber()`](/api-reference/database/README.md#unblocksubscriber) method, 
+please refer to the API Reference below:
 
+### [`unblockSubscriber(option): Promise<string>`](/api-reference/database/README.md#unblocksubscriber)
 
 ## Listing subscriptions
-
-### [`getSubscriptions(params, fetchOptions?): Promise<DatabaseResponse>`](/api-reference/database/README.md#getsubscriptions)
 
 The [`getSubscriptions()`](/api-reference/database/README.md#getsubscriptions) method retrieves subscription information from the database.
 
@@ -181,3 +185,7 @@ skapi.getSubscriptions({
   console.log(response.list?.[0]);
 });
 ```
+For more detailed information on all the parameters and options available with the [`getSubscriptions()`](/api-reference/database/README.md#getsubscriptions) method, 
+please refer to the API Reference below:
+
+### [`getSubscriptions(params, fetchOptions?): Promise<DatabaseResponse>`](/api-reference/database/README.md#getsubscriptions)

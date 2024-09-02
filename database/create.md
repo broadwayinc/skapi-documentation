@@ -9,8 +9,6 @@ At Skapi, we call each data in the database a "record".
 
 ## Creating a Record
 
-### [`postRecord(data, config):Promise<RecordData>`](/api-reference/database/README.md#postrecord)
-
 :::warning
 User must be logged in to call this method
 :::
@@ -62,6 +60,11 @@ When the request is successful, the [RecordData](/api-reference/data-types/READM
 In this example, the first argument takes the actual data to be uploaded to the database.
 The data is a Javascript object that has string value in the key 'something'.
 And in the second argument we have set table name to be `my_collection`.
+
+For more detailed information on all the parameters and options available with the [`postRecord()`](/api-reference/database/README.md#postrecord) method, 
+please refer to the API Reference below:
+
+### [`postRecord(data, config):Promise<RecordData>`](/api-reference/database/README.md#postrecord)
 
 :::tip Note
 Skapi database does not require you to pre-setup your database schema.

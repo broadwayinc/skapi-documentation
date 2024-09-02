@@ -49,11 +49,11 @@ skapi.signup(parameters, options).then(res => {
 
 The example above shows how you can create a user account with the signup confirmation.
 
-When the signup is successful, User will get an email containing the confirmation link.
-Once clicked, user will be confirmed from your service and be redirected to the given URL.
+When the signup is successful, the user will get an email containing the confirmation link.
+Once clicked, the user will be confirmed by your service and be redirected to the given URL.
 
 If the `signup_confirmation` value was `true`,
-User will see 'Your signup has been successfully confirmed.' message in their blank web browser tab.
+the user will see 'Your signup has been successfully confirmed.' message in their blank web browser tab.
 
 :::danger
 Relative URL path will not work if the website is not hosted.
@@ -67,7 +67,6 @@ For more info on email templates, see [E-Mail Templates](../email/email-template
 
 ## Resending Signup Confirmation Email
 
-### [`resendSignupConfirmation(redirect?): Promise<string>`](/api-reference/authentication/README.md#resendsignupconfirmation)
 
 If you need to resend the confirmation email, use the [`resendSignupConfirmation()`](/api-reference/authentication/README.md#resendsignupconfirmation) method. 
 
@@ -122,14 +121,19 @@ skapi.login({email: 'user@email.com', password: 'password'})
 ```
 :::
 
-In this example, user tries to login and receives a `SIGNUP_CONFIRMATION_NEEDED` error.
+In this example, the user tries to login and receives a `SIGNUP_CONFIRMATION_NEEDED` error.
 
 Then, if the user chooses to, you can use the [`resendSignupConfirmation()`](/api-reference/authentication/README.md#resendsignupconfirmation) method to resend the confirmation email to the user's email address.
 
 You can provide a URL string in the first argument to redirect the user after successful confirmation.
 
+For more detailed information on all the parameters and options available with the [`resendSignupConfirmation()`](/api-reference/authentication/README.md#resendsignupconfirmation) method, 
+please refer to the API Reference below:
+
+### [`resendSignupConfirmation(redirect?): Promise<string>`](/api-reference/authentication/README.md#resendsignupconfirmation)
+
 ::: warning
-- To resend signup confirmation emails, users must have at least one login attempt to your service.
+- To resend signup confirmation emails, the user must have at least one login attempt to your service.
 - If the user fails to confirm within 7 days, their signup will be invalidated, and they will need to sign up again. 
 :::
 

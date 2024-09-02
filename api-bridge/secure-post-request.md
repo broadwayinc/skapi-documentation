@@ -1,20 +1,23 @@
 # Secure Post Request
 
-You can use [`secureRequest()`](/api-reference/api-bridge/README.md#securerequest) to make a secure `POST` request to your custom API's.
-
-### [`secureRequest(params): Promise<any>`](/api-reference/api-bridge/README.md#securerequest)
+You can use [`secureRequest()`](/api-reference/api-bridge/README.md#securerequest) method to make a secure `POST` request to your custom API's.
 
 :::warning
-User must be logged in to call this method
+User must be logged in to call this method.
 :::
 
 :::warning
-[`secureRequest()`](/api-reference/api-bridge/README.md#securerequest) Does not support HTML Forms.
+The [`secureRequest()`](/api-reference/api-bridge/README.md#securerequest) method does not support HTML Forms.
 :::
 
 The `params` object accepts the following properties:
  - `url`: A string representing the URL of your custom API.
  - `data`: An object representing the data to be sent to your custom API.
+
+For more detailed information on all the parameters and options available with the [`secureRequest()`](/api-reference/api-bridge/README.md#securerequest) method, 
+please refer to the API Reference below:
+
+### [`secureRequest(params): Promise<any>`](/api-reference/api-bridge/README.md#securerequest)
 
 ## Example: Making a secure request to your custom API
 
@@ -34,6 +37,7 @@ skapi.secureRequest({
 
 Skapi will mirror your request to your custom API. From your API, it receives user information along with the request data.
 If you have set the secret key in your service dashboard, the request will contain your secret key.
+
 For more information on how to set the secret key, see [Secret Key](/service-settings/service-settings.html#secret-key).
 
 You can have your custom API's to check the secret key in the request data. If the secret key is not matched, you can return the error response.

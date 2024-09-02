@@ -4,14 +4,17 @@ This is useful for creating chat applications, notifications, etc.
 
 ## Creating Connection
 
-### [`connectRealtime(RealtimeCallback): Promise<WebSocket>`](/api-reference/realtime/README.md#connectrealtime)
-
 :::warning
 User must be logged in to call this method
 :::
 
 Before you start sending realtime data, you must create a realtime connection.
 You can create a realtime connection by calling [`connectRealtime()`](/api-reference/realtime/README.md#connectrealtime) method.
+
+For more detailed information on all the parameters and options available with the [`connectRealtime()`](/api-reference/realtime/README.md#connectrealtime) method, 
+please refer to the API Reference below:
+
+### [`connectRealtime(RealtimeCallback): Promise<WebSocket>`](/api-reference/realtime/README.md#connectrealtime)
 
 Once the connection is established, you can start receiving realtime data from the [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback).
 
@@ -55,8 +58,6 @@ When the callback is executed, message will be passed as an object with `type` a
 
 ## Closing Connection
 
-### [`closeRealtime(): Promise<void>`](/api-reference/realtime/README.md#closerealtime)
-
 You can close the realtime connection by calling [`closeRealtime()`](/api-reference/realtime/README.md#closerealtime) method.
 
 ```js
@@ -71,6 +72,11 @@ When the connection is successfully closed, [RealtimeCallback](/api-reference/da
   message: 'WebSocket connection closed.'
 }
 ```
+
+For more detailed information on all the parameters and options available with the [`closeRealtime()`](/api-reference/realtime/README.md#closerealtime) method, 
+please refer to the API Reference below:
+
+### [`closeRealtime(): Promise<void>`](/api-reference/realtime/README.md#closerealtime)
 
 :::tip
 When the user closes the tab or refresh the browser, the connection will be closed automatically.

@@ -96,6 +96,10 @@ For this example, create two HTML files in the same directory.
 ```html [index.html]
 <!DOCTYPE html>
 <script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
+<script>
+    // Replace 'service_id' and 'owner_id' with the appropriate values from your Skapi dashboard.
+    const skapi = new Skapi('service_id', 'owner_id');
+</script>
 
 <form onsubmit="skapi.mock(event)" action="welcome.html">
   <input name="name">
@@ -103,10 +107,6 @@ For this example, create two HTML files in the same directory.
   <input type="submit">
 </form>
 
-<script>
-    // Replace 'service_id' and 'owner_id' with the appropriate values from your Skapi dashboard.
-    const skapi = new Skapi('service_id', 'owner_id');
-</script>
 ```
 
 ```html [welcome.html]

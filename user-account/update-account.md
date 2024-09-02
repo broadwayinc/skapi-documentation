@@ -1,8 +1,6 @@
 
 # Updating User Profile
 
-### [`updateProfile(params, options?): Promise<UserProfile>`](/api-reference/user/README.md#updateprofile)
-
 :::warning
 User must be logged in to call this method
 :::
@@ -11,14 +9,12 @@ User's profile can be updated using [`updateProfile()`](/api-reference/user/READ
 If the update is successful, the updated [UserProfile](/api-reference/data-types/README.md#userprofile) object is returned if the request was successful.
 
 :::danger
-- When the user change their email, They will be also changing their login email as well.
-- When user's email is changed, The email will be unverified.
+- When the user change their email, they will be also changing their login email as well.
+- When user's email is changed, the email will be unverified.
 :::
 
 In this example, the user's name is updated by providing a new `name` value.
 If the update is successful, the updated user profile is returned.
-
-For full list of parameters, see [`updateProfile()`](/api-reference/user/README.md#updateprofile)
 
 :::code-group
 
@@ -52,11 +48,16 @@ skapi.updateProfile(params)
 ```
 :::
 
+For more detailed information on all the parameters and options available with the [`updateProfile()`](/api-reference/user/README.md#updateprofile) method, 
+please refer to the API Reference below:
+
+### [`updateProfile(params, options?): Promise<UserProfile>`](/api-reference/user/README.md#updateprofile)
+
 ## Public Attributes
 
-Couples of user's profile attributes can be set to public or private.
-When the profile is public, the user's profile information can be searched for by other users.
-When the profile is private, the user's profile information cannot be searched for by other users.
+Certain user profile attributes can be configured as public or private.
+When the profile is public, the user's profile information can be searched by other users.
+When the profile is private, the user's profile information cannot be searched by other users.
 
 The following attributes can be set to public or private:
 
@@ -92,4 +93,9 @@ skapi.updateProfile(params)
 ```
 
 :::
+
+For more detailed information on all the parameters and options available with the [`updateProfile()`](/api-reference/user/README.md#updateprofile) method, 
+please refer to the API Reference below:
+
+### [`updateProfile(params, options?): Promise<UserProfile>`](/api-reference/user/README.md#updateprofile)
 

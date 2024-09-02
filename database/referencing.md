@@ -1,8 +1,8 @@
 # Referencing
 
-Users can reference another record when uploading a record.
-When there is records that are being referenced, users can fetch records by the record that is referenced.
-This is useful for building a discussion board where users can post comments referencing the original post.
+Users can reference another record when uploading a new record.
+When records are referenced, users can retrieve records based on the one being referenced.
+This feature is useful for building a discussion board where users can post comments linked to the original post.
 
 To reference a record, you'll need to specify the `record_id` of the record you want to reference in the `reference` parameter in the `config` object.
 
@@ -55,13 +55,13 @@ skapi.getRecords({
 ```
 
 :::tip
-User cannot reference a record that has a 'private' access.
-However if the uploader has granted access to the record to the user, the user will be able to reference the record.
+A user cannot reference a record with 'private' access. 
+However, if the uploader has granted the user access to the record, the user will be able to reference it.
 :::
 
 :::danger
-The user who have access to the private record will have access to all other private records that are referencing that record as well.
-You should not let users to upload a private record referencing other private record if you don't want them to share private records with each other.
+Users who have access to a private record will also have access to all other private records that reference it.
+To avoid unintended sharing of private records, do not permit users to upload a private record that references another private record.
 :::
 
 ## Using reference parameter to fetch certain user's post
