@@ -259,7 +259,7 @@ Once the verification code is sent, user will be redirect to reset password page
         })
         .catch(err => alert(err.message))
 ">
-    <input id="email" type="email" name="email" placeholder="Login email" required>
+    <input id="email" type="email" name="email" placeholder="login@email.com" required>
     <input type="submit" value="Request Code">
 </form>
 ```
