@@ -20,15 +20,18 @@ export default defineConfig({
       {
         text: 'Authentication',
         items: [
+          { text: 'Introduction', link: '/authentication/introduction.md' },
           { text: 'Creating an account', link: '/authentication/create-account.md' },
           { text: 'Signup Confirmation', link: '/authentication/signup-confirmation.md' },
           { text: 'Login / Logout', link: '/authentication/login-logout.md' },
-          { text: 'Forgot Password', link: '/authentication/forgot-password.md' }
+          { text: 'Forgot Password', link: '/authentication/forgot-password.md' },
+          { text: 'Full Example', link: '/authentication/full-example.md' },
         ]
       },
       {
         text: 'User Account',
         items: [
+          { text: 'Introduction', link: '/user-account/introduction.md' },
           { text: 'E-Mail verification', link: '/user-account/email-verification.md' },
           { text: 'Updating User Profile', link: '/user-account/update-account.md' },
           { text: 'Changing Password', link: '/user-account/change-password.md' },
@@ -39,6 +42,7 @@ export default defineConfig({
       {
         text: 'Database',
         items: [
+          { text: 'Introduction', link: '/database/introduction.md' },
           { text: 'Creating Records', link: '/database/create.md' },
           { text: 'Fetching Records', link: '/database/fetch.md' },
           { text: 'Access Restrictions', link: '/database/access-restrictions.md' },
@@ -67,6 +71,7 @@ export default defineConfig({
       {
         text: 'API Bridge',
         items: [
+          { text: 'Introduction', link: '/api-bridge/introduction.md' },
           { text: 'Secure Post Request', link: '/api-bridge/secure-post-request.md' },
           { text: 'Client Secret Request', link: '/api-bridge/client-secret-request.md' },
         ]
@@ -84,6 +89,7 @@ export default defineConfig({
       {
         text: 'E-Mail Service',
         items: [
+          { text: 'Introduction', link: '/email/introduction.md' },
           { text: 'Automated E-Mail', link: '/email/email-templates.md' },
           { text: 'Bulk Email', link: '/email/newsletters.md' }
         ]

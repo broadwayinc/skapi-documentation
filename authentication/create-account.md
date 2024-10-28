@@ -1,7 +1,7 @@
 
 # Creating an Account
 
-To create a new account in your service, you can use the [`signup()`](/api-reference/authentication/README.md#signup) method. 
+To let users create a new account in your service, you can use the [`signup()`](/api-reference/authentication/README.md#signup) method. 
 
 ### Example: Creating an Account
 
