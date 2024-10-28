@@ -1,6 +1,15 @@
 
 # Forgot password
 
+When the user forgets their password, they can request a verification code to reset their password.
+
+:::warning
+If the user's email is not verified, they will not be able to receive a verification code and may lose access to their account permanently.
+
+It is recommended to encourage users to verify their email addresses.
+For more info on email verification, see [Email Verification](../user-account/email-verification.md).
+:::
+
 ## Step 1: Request Verification Code
 
 Use the [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword) method to request a verification code.
@@ -37,13 +46,6 @@ please refer to the API Reference below:
 
 ::: info
 Due to security reasons, [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword) will not tell the user whether the email exists.
-:::
-
-:::warning
-If the user's email is not verified, they will not be able to receive a verification code and may lose access to their account permanently.
-
-It is recommended to encourage users to verify their email addresses.
-For more info on email verification, see [Email Verification](../user-account/email-verification.md).
 :::
 
 You can also customize the email template for the verification email.

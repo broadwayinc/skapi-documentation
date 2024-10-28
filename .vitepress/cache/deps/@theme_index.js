@@ -1,41 +1,41 @@
 import {
   useMediaQuery
-} from "./chunk-LF7U5C6X.js";
+} from "./chunk-KER3KXT3.js";
 import {
   computed,
   ref,
   shallowRef,
   watch
-} from "./chunk-45KCXATN.js";
+} from "./chunk-WFWRDC73.js";
 
 // node_modules/vitepress/dist/client/theme-default/index.js
-import "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/styles/fonts.css";
+import "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/styles/fonts.css";
 
 // node_modules/vitepress/dist/client/theme-default/without-fonts.js
-import "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/styles/vars.css";
-import "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/styles/base.css";
-import "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/styles/icons.css";
-import "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/styles/utils.css";
-import "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/styles/components/custom-block.css";
-import "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/styles/components/vp-code.css";
-import "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/styles/components/vp-code-group.css";
-import "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/styles/components/vp-doc.css";
-import "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/styles/components/vp-sponsor.css";
-import VPBadge from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPBadge.vue";
-import Layout from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/Layout.vue";
-import { default as default2 } from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPBadge.vue";
-import { default as default3 } from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPImage.vue";
-import { default as default4 } from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPButton.vue";
-import { default as default5 } from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPHomeContent.vue";
-import { default as default6 } from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPHomeHero.vue";
-import { default as default7 } from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPHomeFeatures.vue";
-import { default as default8 } from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPHomeSponsors.vue";
-import { default as default9 } from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPDocAsideSponsors.vue";
-import { default as default10 } from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPSponsors.vue";
-import { default as default11 } from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPTeamPage.vue";
-import { default as default12 } from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPTeamPageTitle.vue";
-import { default as default13 } from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPTeamPageSection.vue";
-import { default as default14 } from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPTeamMembers.vue";
+import "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/styles/vars.css";
+import "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/styles/base.css";
+import "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/styles/icons.css";
+import "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/styles/utils.css";
+import "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/styles/components/custom-block.css";
+import "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/styles/components/vp-code.css";
+import "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/styles/components/vp-code-group.css";
+import "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/styles/components/vp-doc.css";
+import "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/styles/components/vp-sponsor.css";
+import VPBadge from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPBadge.vue";
+import Layout from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/Layout.vue";
+import { default as default2 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPBadge.vue";
+import { default as default3 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPImage.vue";
+import { default as default4 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPButton.vue";
+import { default as default5 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPHomeContent.vue";
+import { default as default6 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPHomeHero.vue";
+import { default as default7 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPHomeFeatures.vue";
+import { default as default8 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPHomeSponsors.vue";
+import { default as default9 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPDocAsideSponsors.vue";
+import { default as default10 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPSponsors.vue";
+import { default as default11 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPTeamPage.vue";
+import { default as default12 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPTeamPageTitle.vue";
+import { default as default13 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPTeamPageSection.vue";
+import { default as default14 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPTeamMembers.vue";
 
 // node_modules/vitepress/dist/client/theme-default/support/utils.js
 import { withBase } from "vitepress";
