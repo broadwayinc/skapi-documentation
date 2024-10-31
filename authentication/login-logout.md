@@ -59,9 +59,35 @@ please refer to the API Reference below:
 
 ### [`login(params): Promise<UserProfile>`](/api-reference/authentication/README.md#login)
 
-## Checking the Login status
 
-The [`getProfile()`](/api-reference/authentication/README.md#getprofile) method allows you to retrieve the user's information.
+## Listening to Login Status
+
+You can listen to the login status of the user by setting a callback function in the `onLogin` property of the Skapi object.
+The `onLogin` callback function will be called whenever the user logs in, logs out, or even when their profile is updated.
+The callback function will receive the [UserProfile](/api-reference/data-types/README.md#userprofile) object as an argument.
+
+```js
+skapi.onLogin = (profile) => {
+  console.log(profile); // null when user is logged out, User's information object when logged in.
+}
+```
+
+This handler can be useful for updating the UI when the user logs in or logs out.
+
+
+## Getting User Information
+
+When user is logged in to your service, you can retrieve their information from `user` property of the Skapi object.
+This property is getter-only, and will not be object reference.
+It returns the [UserProfile](/api-reference/data-types/README.md#userprofile) object.
+
+```js
+console.log(skapi.user); // null when user is logged out, User's information object when logged in.
+```
+
+## Requesting User Information
+
+The [`getProfile()`](/api-reference/authentication/README.md#getprofile) method allows you to retrieve the user's information from the backend.
 It returns the [UserProfile](/api-reference/data-types/README.md#userprofile) object.
 
 If the user is not logged in, [`getProfile()`](/api-reference/authentication/README.md#getprofile) returns `null`.
@@ -80,6 +106,7 @@ For more detailed information on all the parameters and options available with t
 please refer to the API Reference below:
 
 ### [`getProfile(options?): Promise<UserProfile | null>`](/api-reference/authentication/README.md#getprofile)
+
 
 ## Auto Login
 

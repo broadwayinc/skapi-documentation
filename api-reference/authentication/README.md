@@ -21,7 +21,7 @@ signup(
         profile?: string; // URL of the profile page.
         website?: string; // URL of the website.
         nickname?: string; // Nickname of the user.
-        misc?: string; // Additional string value that can be used freely. This value is only visible from skapi.getProfile()
+        misc?: string; // Additional string value that can be used freely. This value is only visible to the account owner.
     },
     options?: {
         /**
