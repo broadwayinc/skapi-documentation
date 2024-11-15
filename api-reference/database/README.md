@@ -157,6 +157,7 @@ deleteRecords({
     table?: {
         name: string;
         access_group?: number | 'private' | 'public' | 'authorized';
+        subscription?: boolean; // When true, it will delete records from the subscription table.
     };
 
     reference?: string; // Referenced record ID. when record ID is given, it will delete records that are referencing the given record ID.
