@@ -1,9 +1,11 @@
 
 # Working with HTML forms
 
-Skapi's form handling simplifies the process of handling form submissions in web applications, allowing developers to easily retrieve and process form data without the need for handling it manually.
+Skapi is capable of handling HTML `onsubmit` event directly by passing `SubmitEvent` to the first argument of the Skapi methods.
 
-You can pass `SubmitEvent` to the first argument of the Skapi methods.
+Skapi's form handling simplifies the process of handling form submissions in web applications, allowing users to easily process and send form data without the need to handle it manually.
+
+For this example, we will be using `skapi.mock(event)` method to send a request to the Skapi service and ping back the response.
 
 Here is an example of using a `<form>` with Skapi:
 
@@ -82,7 +84,7 @@ If multiple inputs share the same name with out using `[]` syntax, Skapi will tr
 
 ## Using Input Elements, Textarea, and Select Elements
 
-Skapi can handle various input elements, including text, number, radio, checkbox, textarea, and select elements.
+Skapi can also handle various input elements, including text, number, radio, checkbox, textarea, and select elements.
 
 ```html
 <input name="my_message" id="message_input">
@@ -92,7 +94,7 @@ Skapi can handle various input elements, including text, number, radio, checkbox
   })">Mock</button>
 ```
 
-As shown in the example above, you can use the `id` attribute to reference the input element and pass it to the Skapi method.
+As shown in the example above, we are using the `id` attribute to reference the input element and pass it to the Skapi method.
 
 This is useful when you want to handle single user input from a specific input element.
 
@@ -153,6 +155,7 @@ For this example, create two HTML files in the same directory.
 
 ::: tip
 When building a static website, you can use the `action` attribute to redirect users to a new page after a successful request.
+
 Each of the pages should have the Skapi library imported and initialized.
 
 Wheras in a single-page application, It may not be necessary to redirect users to a new page.

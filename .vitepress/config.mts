@@ -66,7 +66,12 @@ export default defineConfig({
       },
       {
         text: 'Service Settings',
-        link: '/service-settings/service-settings.md'
+        items:[
+          {text: 'Setting Toggles', link: '/service-settings/service-settings.md'},
+          {text: 'Additional Settings', link: '/service-settings/additional.md'},
+          {text: 'Deleting Service', link: '/service-settings/deleteservice.md'},
+        ]
+        
       },
       {
         text: 'API Bridge',
@@ -91,7 +96,8 @@ export default defineConfig({
         items: [
           { text: 'Introduction', link: '/email/introduction.md' },
           { text: 'Automated E-Mail', link: '/email/email-templates.md' },
-          { text: 'Bulk Email', link: '/email/newsletters.md' }
+          { text: 'Bulk Email', link: '/email/newsletters.md' },
+          { text: 'Receiving Inquiries', link: '/email/inquiries.md' }
         ]
       },
       {
