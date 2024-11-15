@@ -113,7 +113,7 @@ type RecordData = {
     updated: number; // Timestamp in milliseconds.
     uploaded: number; // Timestamp in milliseconds.
     ip: string; // IP address of uploader.
-    readonly: boolean; // Is True if this record is readonly.
+    readonly: boolean; // Is true if this record is readonly.
     bin?: { [key: string]: BinaryFile[] }; // List of binary file info the record is holding.
     table: {
         name: string; // Table name
@@ -123,9 +123,9 @@ type RecordData = {
     reference: {
         record_id?: string; // ID of a record that this record is referencing.
         reference_limit: number | null; // Number of reference this record is allowing. Infinite if null.
-        allow_multiple_reference: boolean; // Is True if this record allows other users to upload a record referencing this record multiple times.
+        allow_multiple_reference: boolean; // Is true if this record allows other users to upload a record referencing this record multiple times.
         referenced_count: number; // Number of records that referenced this record.
-        can_remove_reference: boolean; // Is True if the owner of the record can remove the referenced records.
+        can_remove_reference: boolean; // Is true if the owner of the record can remove the referenced records.
     };
     index?: {
         name: string; // Index name.

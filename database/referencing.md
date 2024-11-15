@@ -43,7 +43,7 @@ let commentConfig = {
 skapi.postRecord(commentRecord, commentConfig);
 ```
 
-Now you can query all the records that references the original record by passing the record ID in the `reference` parameter in `getRecords()`:
+Now you can query all the records that references the original record by passing the record ID in the `reference` parameter in [`getRecords()`](/api-reference/database/README.md#getrecords) method.:
 
 ```js
 skapi.getRecords({
@@ -108,6 +108,9 @@ When uploading records, you can set restrictions on referencing from other recor
   If set to `true`, a user will be able to post a record referencing this record multiple times.
   The default value is `true`.
 
+- `reference.can_remove_reference`: If set to `true`, the owner of the record can remove the referenced records.
+  When the owner removes the record, all the referenced records will be removed as well.
+  The default value is `false`.
 
 ## Creating a Poll with Restricted Referencing
 

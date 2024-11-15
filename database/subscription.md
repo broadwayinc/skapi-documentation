@@ -6,6 +6,7 @@ User must be logged in to call this method
 :::
 
 Skapi database provides subscription access level in its table.
+
 Records uploaded with subscription access level requires users to subscribe to the uploader to have access to the records.
 
 You can let users upload records with the subscription access by setting the `table.subscription` to `true`:
@@ -65,9 +66,12 @@ that can be retrieved using the [`getUsers()`](/api-reference/database/README.md
   Anyone can subscribe to anybody to any subscription group.
   Consider subscription group as a additional layer of database query point that user needs additional action(subscribe) to have access.
 
+  The main purpose of subscription record is to give user access to block certain users from accessing their subscription group records.
+
 - The files uploaded to the records are not security restricted to the subscription group.
   Files uploaded to the records are only restricted to the user's access group.
 :::
+
 
 ### Unsubscribing
 
