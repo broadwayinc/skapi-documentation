@@ -36,9 +36,7 @@ skapi.secureRequest({
 ```
 
 Skapi will mirror your request to your custom API. From your API, it receives user information along with the request data.
-If you have set the secret key in your service dashboard, the request will contain your secret key.
-
-For more information on how to set the secret key, see [Secret Key](/service-settings/service-settings.html#secret-key).
+If you have set the secret key in your [service settings](/service-settings/additional.md) page, the request will contain your secret key.
 
 You can have your custom API's to check the secret key in the request data. If the secret key is not matched, you can return the error response.
 
