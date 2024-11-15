@@ -1,9 +1,15 @@
 # Database
 
-Database in your service is where you or your users can store their data. You can store any data you want, from small json data to large files.
+Skapi provides fast, simple, secure, yet flexible way to store, retrieve data from your database.
 
-Files are served from a CDN, and can take up to 5TB per file.
+You can start storing any data from small json data to large binary files up to 5tb per file while Skapi handles the security, indexing, and file storage for you.
 
-Skapi provides fast, simple, yet flexible way to store, retrieve data from your database. Skapi database does not require any setup, or schema definition. You can start storing data right away.
+Files will be served through the CDN, and will have restricted access based on the access group the uploader has set.
 
-In this section, you will learn how to store and retrieve data from your database, and learn how Skapi's powerful indexing system can help you search and filter your data.
+Mind you, Skapi database has completely different approach to database management compared to traditional databases.
+
+We designed the database to be User-Centric, meaning that the end-users(frontend) are the one configuring the database schema and security for you.
+
+By this approach, the database does not require any complex setup, or schema definition that cost time and money just to get things started.
+
+In this section, you will learn how to store and retrieve data from your database, and learn how Skapi's powerful indexing system can help you search your data.
