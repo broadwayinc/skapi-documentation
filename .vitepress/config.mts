@@ -43,10 +43,10 @@ export default defineConfig({
         text: 'Database',
         items: [
           { text: 'Introduction', link: '/database/introduction.md' },
-          { text: 'Creating Records', link: '/database/create.md' },
+          { text: 'Creating a Record', link: '/database/create.md' },
           { text: 'Fetching Records', link: '/database/fetch.md' },
           { text: 'Access Restrictions', link: '/database/access-restrictions.md' },
-          { text: 'Update Record', link: '/database/update-record.md' },
+          { text: 'Updating a Record', link: '/database/update-record.md' },
           { text: 'Handling Files', link: '/database/handling-files.md' },
           { text: 'Deleting Records', link: '/database/delete-records.md' },
           { text: 'Table Information', link: '/database/table-info.md' },
@@ -79,11 +79,11 @@ export default defineConfig({
       {
         text: 'Complete Tutorial',
         items: [
-          { text: 'Introduction', link: '/full-example/intro.md' },
-          { text: 'Authentication / User Profile', link: '/full-example/auth-profile.md' },
-          { text: 'Instaclone', link: '/full-example/instaclone.md' },
-          { text: 'Chat Room', link: '/full-example/chatroom.md' },
-          { text: 'AI Image Generator', link: '/full-example/image-generator.md' }
+          { text: 'Demo', link: '/full-example/intro.md' },
+          // { text: 'Authentication / User Profile', link: '/full-example/auth-profile.md' },
+          // { text: 'Instaclone', link: '/full-example/instaclone.md' },
+          // { text: 'Chat Room', link: '/full-example/chatroom.md' },
+          // { text: 'AI Image Generator', link: '/full-example/image-generator.md' }
         ]
       },
       {

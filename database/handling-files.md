@@ -141,7 +141,7 @@ fileToDownload.getFile('base64', progressInfo).then(b => {
 ## Removing Files
 
 To remove files, use the `remove_bin` parameter in the `config` argument of the [`postRecord()`](/api-reference/database/README.md#postrecord) method.
-When updating a record, you can remove files by passing the `remove_bin` parameter as an array of [BinaryFile](/api-reference/data-types/README.md#binaryfile) objects that need to be removed from the record.
+When updating a record, you can remove files by passing the `remove_bin` parameter as an array of [BinaryFile](/api-reference/data-types/README.md#binaryfile) objects or the endpoint url of the file that need to be removed from the record.
 
 Here's an example demonstrating how you can remove files from a record:
 
@@ -149,4 +149,41 @@ Here's an example demonstrating how you can remove files from a record:
 ...
 let fileToDelete = record.bin.picture[0]; // file object retrieved from the record.
 skapi.postRecord(undefined, { record_id: 'record_id_with_file', remove_bin: [fileToDelete] });
+```
+
+If you have the endpoint URL of the file, you can also just pass the URL as a string in the `remove_bin` parameter:
+
+```js
+skapi.postRecord(undefined, { record_id: 'record_id_with_file', remove_bin: ['https://...'] });
+```
+
+If you want to remove all files from the record, you can pass the `remove_bin` parameter as `null`:
+
+```js
+skapi.postRecord(undefined, { record_id: 'record_id_with_file', remove_bin: null }); // removes all files from the record.
+```
+
+## Get File Information
+
+You can use [`getFile()`](/api-reference/database/README.md#getfile) method to get the file information just from the endpoint URL of the file.
+
+Below is an example of how you can get the file information from the endpoint URL:
+
+```js
+let fileUrl = 'https://...';
+skapi.getFile(fileUrl, { dataType: 'info' }).then(fileInfo => {
+    console.log(fileInfo);
+    /*
+    {
+        url: string,
+        filename: string,
+        access_group: number | 'private' | 'public' | 'authorized',
+        filesize: number,
+        record_id: string,
+        uploader: string,
+        uploaded: number,
+        fileKey: string
+    }
+    */
+});
 ```

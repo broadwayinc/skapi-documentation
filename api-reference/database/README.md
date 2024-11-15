@@ -21,16 +21,21 @@ postRecord(
         tags?: string | <string>[]; // Only alphanumeric and spaces allowed. It can also be an array of strings or a string with comma separated values.
         reference?: {
             record_id?: string; // ID of the record to reference.
-            allow_multiple_reference?: boolean; // default: true
-            reference_limit?: number | null; // Set to 0 to block referencing, null for no limit.
+            allow_multiple_reference?: boolean; // default: true, When false, other users can only reference this record once.
+            reference_limit?: number | null; // default: null, Set to 0 to block other records to reference this record, null for no limit.
+            can_remove_reference?: boolean; // default: false, When true, the owner of the record can remove the referenced records. And all the referenced records will be removed when the owner removes this record.
         };
-        remove_bin?: BinaryFile[] | string[]; // Removes bin data from the record.
+        remove_bin?: BinaryFile[] | string[] | null; // If the BinaryFile object or the url of the file is given, it will remove the bin data(files) from the record. The file should be uploaded to this record. If null is given, it will remove all the bin data(files) from the record.
         progress: ProgressCallback; // Progress callback function. Usefull when uploading files.
     };
 ): Promise<RecordData>
 ```
 
 See [RecordData](/api-reference/data-types/README.md#recorddata)
+
+See [ProgressCallback](/api-reference/data-types/README.md#progresscallback)
+
+See [BinaryFile](/api-reference/data-types/README.md#binaryfile)
 
 ## getRecords
 
@@ -145,12 +150,25 @@ removePrivateRecordAccess(
 
 ```ts
 deleteRecords({
-    record_id?: string | string[],
-    table?: { // ignored if record_id is provided
+    record_id?: string | string[]; // Record ID or an array of record IDs to delete.
+
+    /** Delete bulk records by query. Query will be bypassed when "record_id" is given. */
+    /** When deleteing records by query, It will only delete the record that user owns. */
+    table?: {
         name: string;
-        access_group?: number | 'private' | 'public' | 'authorized'; // Default = 'public'
-        subscription?: boolean; // Delete records in subscription table if true. Default = false
+        access_group?: number | 'private' | 'public' | 'authorized';
     };
+
+    reference?: string; // Referenced record ID. when record ID is given, it will delete records that are referencing the given record ID.
+
+    /** Index condition and range cannot be used simultaneously.*/
+    index?: {
+        name: string | '$updated' | '$uploaded' | '$referenced_count' | '$user_id'; // Not allowed: White space, special characters. Allowed: Periods, alphanumeric.
+        value: string | number | boolean; // Not allowed: Periods, special characters. Allowed: White space, alphanumeric.
+        condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!=';
+        range?: string | number | boolean; // Not allowed: Periods, special characters. Allowed: White space, alphanumeric.
+    };
+    tag?: string; // Not allowed: Periods, special characters. Allowed: White space, alphanumeric.
 }): Promise<string>
 ```
 
@@ -265,3 +283,20 @@ getSubscriptions(
 See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
 
 See [Subscription](/api-reference/data-types/README.md#subscripion)
+
+
+## getFile
+    
+```ts
+getFile(
+    url: string,
+    config?: {
+        dataType: 'base64' | 'download' | 'endpoint' | 'blob' | 'text' | 'info';
+    },
+    progressCallback?: ProgressCallback
+): Promise<Blob | string | FileInfo | void>
+```
+
+See [FileInfo](/api-reference/data-types/README.md#fileinfo)
+
+See [ProgressCallback](/api-reference/data-types/README.md#progresscallback)

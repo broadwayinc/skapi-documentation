@@ -1,13 +1,4 @@
-# Creating Records
-
-Database is a crucial part of any application.
-You may want to store user data, application data, or any other data that is important to your application.
-
-Skapi provides a powerful database that combines the best characteristics of NoSQL and SQL.
-Skapi database does not require any pre configuration or schema design and is ready to use out of the box.
-At Skapi, we call each data in the database a "record".
-
-## Creating a Record
+# Creating a Record
 
 :::warning
 User must be logged in to call this method

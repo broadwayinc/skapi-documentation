@@ -1,14 +1,26 @@
 # Skapi Complete Tutorial
 
-Welcome to the complete tutorial project for Skapi, featuring a web application that allows users to chat, upload posts, and comment, and even provide an AI image generating service via 3rd party API service.
+Welcome to the complete tutorial project for Skapi.
 
-This tutorial focuses on demonstrating the use of Skapi to build a full-fledged application. The emphasis is on functionality over aesthetics.
+The tutorial features a web application that provides:
+  - Full authentication system
+  - Realtime chat
+  - Upload posts, and comment
+  - Use an AI image generating service via 3rd party API service.
+
+The tutorial is designed to help you understand how to build a full-fledged application using Skapi.
+
+The emphasis is on functionality over aesthetics.
 
 ## Demo
 
 Check out the [live demo](https://tutorial.skapi.com) of the project.
 
-To download the source code:
+## Downloading the Source Code
+
+Visit the [GitHub repository](https://github.com/broadwayinc/skapi-tutorial.git)
+
+Or clone the repository using the following command:
 
 ```bash
 git clone https://github.com/broadwayinc/skapi-tutorial.git
@@ -16,13 +28,17 @@ git clone https://github.com/broadwayinc/skapi-tutorial.git
 
 ## Pre Requisites
 
+Create an account on [Skapi](https://skapi.com) and create a new service.
+
 The **service_id** and the **owner_id** values are set in `service.js` file.
+
 Currently, the values are set to:
   - Service ID: **"ap220wfRHl9Cw2QqeFEc"**
   - Owner ID: **"f8e16604-69e4-451c-9d90-4410f801c006"**
 
 Replace the values with your own service ID and owner ID.
-You can retrieve your own service ID and owner ID from your service dashboard.
+
+You can retrieve your own service ID and owner ID from your Skapi service dashboard.
 
 ## Opening the Project
 

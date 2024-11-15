@@ -39,6 +39,8 @@ Above example is equivalent to the following code:
 You can pass nested values and arrays by using the `[]` syntax in the `name` attribute.
 Depending on the input type, the resolved data will be structured accordingly.
 
+If the key name inside the `[]` is a number, Skapi will resolve the value as an array.
+
 ```html
 <form onsubmit="skapi.mock(event).then(r => console.log(r))">
     <input name="user[name]" placeholder="Name"><br>
@@ -72,8 +74,27 @@ The above example will resolve to the following structure:
 ```
 
 As you can see, Skapi provides convenient form data handling by structuring user input data based on the input type and the `name` attribute.
+
 Number inputs will be resolved as numbers, radio inputs will be resolved as chosen value, and checkbox inputs will be resolved as boolean or string if value is given.
+
 If multiple inputs share the same name with out using `[]` syntax, Skapi will try to convert the values in to an array.
+
+
+## Using Input Elements, Textarea, and Select Elements
+
+Skapi can handle various input elements, including text, number, radio, checkbox, textarea, and select elements.
+
+```html
+<input name="my_message" id="message_input">
+<button onclick="skapi.mock(document.getElementById('message_input'))
+  .then(r => {
+    alert(r.my_message);
+  })">Mock</button>
+```
+
+As shown in the example above, you can use the `id` attribute to reference the input element and pass it to the Skapi method.
+
+This is useful when you want to handle single user input from a specific input element.
 
 
 ## Using the `action` attribute in the `<form>` element

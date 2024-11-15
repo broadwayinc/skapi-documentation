@@ -125,6 +125,7 @@ type RecordData = {
         reference_limit: number | null; // Number of reference this record is allowing. Infinite if null.
         allow_multiple_reference: boolean; // Is True if this record allows other users to upload a record referencing this record multiple times.
         referenced_count: number; // Number of records that referenced this record.
+        can_remove_reference: boolean; // Is True if the owner of the record can remove the referenced records.
     };
     index?: {
         name: string; // Index name.
@@ -145,7 +146,7 @@ type BinaryFile = {
     path: string; // Path of the file.
     size: number; // Size of the file in bytes.
     uploaded: number; // Timestamp in milliseconds.
-    getFile: (dataType?: 'base64' | 'endpoint' | 'blob', progress?: ProgressCallback) => Promise<Blob | string | void>;
+    getFile: (dataType?: 'base64' | 'download' | 'endpoint' | 'blob' | 'text' | 'info'; progress?: ProgressCallback) => Promise<Blob | string | void | FileInfo>;
 }
 ```
 
@@ -162,6 +163,21 @@ type ProgressCallback = (p: {
     failed?: File[]; // For files only
     abort: () => void; // Aborts current data transfer. When abort is triggered during fileUpload(), it will continue to next file.
 }) => void;
+```
+
+## FileInfo
+
+```ts
+type FileInfo = {
+    url: string;
+    filename: string;
+    access_group: number | 'private' | 'public' | 'authorized';
+    filesize: number;
+    record_id: string;
+    uploader: string;
+    uploaded: number;
+    fileKey: string;
+}
 ```
 
 ## FetchOptions
