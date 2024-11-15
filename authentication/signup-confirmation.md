@@ -57,13 +57,15 @@ the user will see 'Your signup has been successfully confirmed.' message in thei
 
 :::danger
 Relative URL path will not work if the website is not hosted.
+
 If the website is running on local file system (e.g. `file:///C:/Users/username/Desktop/website/index.html`),
+
 redirect URL of `signup_confirmation` should be the full URL (e.g. `https://your.website.com/path/to/your/success/page`).
 :::
 
 You can also customize the email template for the signup confirmation email.
 
-For more info on email templates, see [E-Mail Templates](../email/email-templates.md).
+For more info on email templates, see [Automated E-Mail](../email/email-templates.md).
 
 ## Resending Signup Confirmation Email
 

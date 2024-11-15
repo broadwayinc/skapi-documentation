@@ -51,7 +51,19 @@ export { skapi }
 Be sure to replace `'service_id'` and `'owner_id'` in `new Skapi()` with the actual values of your service.
 :::
 
-## 3. Test your connection
+
+## 3. Version Check
+
+When the Skapi library is successfully initialized, you can check the version of the library by calling the `version()` method.
+
+```js
+skapi.version();
+```
+
+This method will print the version of the Skapi library in the console.
+
+
+## 4. Test your connection
 
 After you initialized the Skapi library, you can test your connection by pinging your request with the `mock()` method.
 

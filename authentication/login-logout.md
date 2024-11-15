@@ -19,7 +19,7 @@ users will not be able to log in until they have confirmed their account.
 When the user has successfully confirmed their signup and logged in, they will be sent a welcome email.
 You can also customize the email template for the signup confirmation email.
 
-For more info on email templates, see [E-Mail Templates](../email/email-templates.md).
+For more info on email templates, see [Automated E-Mail](../email/email-templates.md).
 :::
 
 Below is an example of a login form that uses the [`login()`](/api-reference/authentication/README.md#login) method.

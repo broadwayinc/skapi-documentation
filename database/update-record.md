@@ -4,6 +4,7 @@
 The [`postRecord()`](/api-reference/database/README.md#postrecord) method can also be used to update an existing record. You can specify the `record_id` in the `config` object in order to do so. 
 
 [`postRecord()`](/api-reference/database/README.md#postrecord) will overwrite the user's record data to a new data.
+
 For record config parameters, you only need to include the parameters you want to update along with the `record_id` parameter.
 All other fields in the record will remain unchanged unless explicitly included in the method call.
 
