@@ -52,9 +52,9 @@ Be sure to replace `'service_id'` and `'owner_id'` in `new Skapi()` with the act
 :::
 
 
-## 3. View connection info
+## 3. Get connection info
 
-When the client has successfully connected to the Skapi server, the `getConnectionInfo()` method will return the connection information.
+When the client has successfully connected to the Skapi server, the [`getConnectionInfo()`](/api-reference/connection/README.md#getconnectioninfo) method will return the connection information.
 
 ::: code-group
 ```html [HTML]
