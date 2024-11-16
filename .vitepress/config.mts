@@ -101,6 +101,14 @@ export default defineConfig({
         ]
       },
       {
+        text: 'Admin Features',
+        items: [
+          { text: 'Introduction', link: '/admin/intro.md' },
+          { text: 'Inviting Users', link: '/admin/invite.md' },
+          { text: 'Managing Users', link: '/admin/account.md' },
+        ]
+      },
+      {
         text: 'Website Hosting',
         link: '/hosting/hosting.md'
       },
@@ -114,6 +122,7 @@ export default defineConfig({
           { text: 'Email', link: '/api-reference/email/README.md' },
           { text: 'Realtime', link: '/api-reference/realtime/README.md' },
           { text: 'API Bridge', link: '/api-reference/api-bridge/README.md' },
+          { text: 'Admin', link: '/api-reference/admin/README.md' },
           { text: 'Data Types', link: '/api-reference/data-types/README.md' }
         ]
       }
