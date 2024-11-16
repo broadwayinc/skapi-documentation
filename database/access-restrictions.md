@@ -69,7 +69,9 @@ skapi.getRecords(config)
 
 ## Private Records
 
-Private records are only accessible to the uploader of the record. Even the admin of the service will not have access to the record data.
+Private records are only accessible to the uploader of the record.
+
+**Even the admin of the service will not have access to view the user's private data.**
 
 The example below demonstrates uploading a private record:
 

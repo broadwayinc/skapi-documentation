@@ -11,6 +11,8 @@ Records uploaded with subscription access level requires users to subscribe to t
 
 You can let users upload records with the subscription access by setting the `table.subscription` to `true`:
 
+Subscription can be useful when owner of the record wants to block certain users from accessing their subscription group records.
+
 Lets assume **user 'A'** uploads a record in table 'Posts' with subscription access level.
 
 ```js

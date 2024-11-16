@@ -4,6 +4,10 @@ Users can reference another record when uploading a new record.
 When records are referenced, users can retrieve records based on the one being referenced.
 This feature is useful for building a discussion board where users can post comments linked to the original post.
 
+Referencing has several powerful features that allow you to build complex data structures.
+
+The source of the reference record can also choose to have authority to remove the referenced records owned by other users, have access to private records, and set restrictions on referencing.
+
 To reference a record, you'll need to specify the `record_id` of the record you want to reference in the `reference` parameter in the `config` object.
 
 ## Uploading a Record to be Referenced and Creating a Referencing Record
@@ -60,7 +64,7 @@ However, if the uploader has granted the user access to the record, the user wil
 :::
 
 :::danger
-Users who have access to a private record will also have access to all other private records that reference it.
+Users who have access to a private record will also have access to all other private records that is referenced.
 To avoid unintended sharing of private records, do not permit users to upload a private record that references another private record.
 :::
 

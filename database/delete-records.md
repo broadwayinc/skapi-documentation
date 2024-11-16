@@ -51,8 +51,14 @@ skapi.deleteRecords(query).then(response => {
 
 You can use the database query however you like to let users delete bulk of records that they own. (e.g. by access group, by table name, index, tag, reference, etc.)
 
-:::warning
+:::tip
 When deleting multiple records, the promise will return success immediately, but it may take some time for the deleted records to be reflected in the database.
+:::
+
+:::warning
+When deleting records by database query, user will not delete records that they do not own, or records that are uploaded as read-only.
+
+However, if the user is an admin, they can delete any records in the database. So be cafeful when admin is using this method.
 :::
 
 For more detailed information on all the parameters and options available with the [`deleteRecords()`](/api-reference/database/README.md#deleterecords) method, 
