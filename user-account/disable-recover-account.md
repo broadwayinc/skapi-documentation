@@ -7,9 +7,15 @@
 User must be logged in to call this method
 :::
 
+:::warning
+If your service does not allow users to signup, the users will not be able to disable their account.
+
+For more information on how to allow/disallow users to signup from your service settings page, please refer to the [Service Settings](/service-settings/service-settings.md#allow-signup) page. 
+:::
+
 If user choose to leave your service, they can disable their account.
 User's can disable their account by calling the [`disableAccount()`](/api-reference/user/README.md#disableaccount) method.
-**All data related to the account will be deleted after 3 months**.
+**All data related to the account will be deleted after 90 days**.
 User will be automatically logged out once their account has been disabled.
 
 ``` js
@@ -25,7 +31,7 @@ please refer to the API Reference below:
 
 ## Recovering a Disabled Account
 
-Disabled accounts can be reactivated **within 3 months** using the [`recoverAccount()`](/api-reference/user/README.md#recoveraccount) method. This method allows users to reactivate their disabled accounts under the following conditions:
+Disabled accounts can be reactivated **within 90 days** using the [`recoverAccount()`](/api-reference/user/README.md#recoveraccount) method. This method allows users to reactivate their disabled accounts under the following conditions:
 
 - The account email must be verified.
 - The [`recoverAccount()`](/api-reference/user/README.md#recoveraccount) method must be called from the `catch` block of a failed [`login()`](/api-reference/authentication/README.md#login) attempt using the disabled account.

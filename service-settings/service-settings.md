@@ -21,8 +21,9 @@ Disabling your service will not pause your subscription. You will still be charg
 ## Allow Signup
 
 You can prevent user signup by turning off this option.
+This setting will prevent anyone to signup or prevent anyone from removing their account in your service.
 
-This setting will prevent anyone from signing up to your service. Only the admin can create user accounts from the **Users** page.
+If this option is turned off, only the admin can create, disable user accounts from the **Users** page.
 This is useful when you want to create a private service for a specific group of users.
 
 
@@ -38,3 +39,4 @@ This is useful when you are not planning to use the [`sendInquiry()`](/api-refer
 You can freeze your database to prevent any write operations.
 
 When you freeze your database, all your user's write operations will be blocked, and only the read operations will be allowed.
+When this in enabled only the service owner can write to the database.

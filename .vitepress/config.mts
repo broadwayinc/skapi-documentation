@@ -107,6 +107,7 @@ export default defineConfig({
       {
         text: 'API Reference',
         items: [
+          { text: 'Connection', link: '/api-reference/connection/README.md' },
           { text: 'Authentication', link: '/api-reference/authentication/README.md' },
           { text: 'User Account', link: '/api-reference/user/README.md' },
           { text: 'Database', link: '/api-reference/database/README.md' },
