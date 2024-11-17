@@ -59,26 +59,11 @@ please refer to the API Reference below:
 
 ### [`login(params): Promise<UserProfile>`](/api-reference/authentication/README.md#login)
 
-
-## Listening to Login Status
-
-You can listen to the login status of the user by setting a callback function in the `onLogin` property of the Skapi object.
-The `onLogin` callback function will be called whenever the user logs in, logs out, or even when their profile is updated.
-The callback function will receive the [UserProfile](/api-reference/data-types/README.md#userprofile) object as an argument.
-
-```js
-skapi.onLogin = (profile) => {
-  console.log(profile); // null when user is logged out, User's information object when logged in.
-}
-```
-
-This handler can be useful for updating the UI when the user logs in or logs out.
-
-
 ## Getting User Information
 
 When user is logged in to your service, you can retrieve their information from `user` property of the Skapi object.
 This property is getter-only, and will not be object reference.
+
 It returns the [UserProfile](/api-reference/data-types/README.md#userprofile) object.
 
 ```js
@@ -122,6 +107,37 @@ const options = {
 //Set the third argument as options
 const skapi = new Skapi('service_id', 'owner_id', options);
 ```
+
+## Listening to Login Status
+
+You can listen to the login status of the user by setting a callback function in the `option.eventListener.onLogin` option argument of the constructor argument in Skapi.
+
+The `onLogin` callback function will be called whenever the user logs in, logs out, or even when their profile is updated.
+
+The callback function will receive the [UserProfile](/api-reference/data-types/README.md#userprofile) object as an argument.
+
+```js
+const options = {
+  eventListener: {
+    onLogin: (profile) => {
+      console.log(profile); // null when user is logged out, User's information object when logged in.
+    }
+  }
+};
+
+const skapi = new Skapi('service_id', 'owner_id', options);
+```
+
+You can also add multiple event listeners to the `onLogin` event after the Skapi object has been initialized.
+
+```js
+skapi.onLogin = (profile) => {
+  console.log(profile); // null when user is logged out, User's information object when logged in.
+}
+```
+
+This handler can be useful for updating the UI when the user logs in or logs out.
+
 
 ## Logout
 
