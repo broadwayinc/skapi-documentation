@@ -6,13 +6,14 @@
 postRecord(
     data: SubmitEvent | { [key: string] : any } | null,
     config: {
+        record_id?: string; // Only used when updating records.
+        unique_id?: string; // Unique ID to set to the record. If null is given, it will remove the previous unique ID when updating.
         // 'table' is optional when record ID is used.
         table: string | {
             name: string; // Other than space and period, special characters are not allowed.
             access_group?: number | 'private' | 'public' | 'authorized';  // Default: 'public'
             subscription?: boolean // Post record to subscription table if true. Default: false
         };
-        record_id?: string; // Only used when updating records.
         readonly?: boolean; // Default: false. When true, the record cannot be updated.
         index?: {
             name: string; // Only alphanumeric and period allowed.
@@ -20,6 +21,7 @@ postRecord(
         };
         tags?: string | <string>[]; // Only alphanumeric and spaces allowed. It can also be an array of strings or a string with comma separated values.
         reference?: {
+            unique_id?: string; // Unique ID of the record to reference. If given, will override the record_id.
             record_id?: string; // ID of the record to reference.
             allow_multiple_reference?: boolean; // default: true, When false, other users can only reference this record once.
             reference_limit?: number | null; // default: null, Set to 0 to block other records to reference this record, null for no limit.
@@ -42,8 +44,8 @@ See [BinaryFile](/api-reference/data-types/README.md#binaryfile)
 ```ts
 getRecords(
     query: {
-        record_id?: string; // When record ID is given, all other parameters are bypassed.
-        
+        record_id?: string; // When record ID is given, it will fetch the record with the given record ID. all other parameters are bypassed.
+        unique_id?: string; // Unique ID of the record. When unique ID is given, it will fetch the record with the given unique ID. It will override the record ID and bypass all other parameters.
         /** When the table is given as a string value, the value is the table name. */
         table: string | {
             name: string,
@@ -52,6 +54,7 @@ getRecords(
         };
 
         /**
+         * When unique ID is given, it will fetch the records referencing the given unique ID.
          * When record ID is given, it will fetch the records referencing the given record ID.
          * When user ID is given, it will fetch the records uploaded by the given user ID.
          */
