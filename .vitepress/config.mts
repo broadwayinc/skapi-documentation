@@ -45,6 +45,7 @@ export default defineConfig({
           { text: 'Introduction', link: '/database/introduction.md' },
           { text: 'Creating a Record', link: '/database/create.md' },
           { text: 'Fetching Records', link: '/database/fetch.md' },
+          { text: 'Unique ID', link: '/database/unique-id.md' },
           { text: 'Access Restrictions', link: '/database/access-restrictions.md' },
           { text: 'Updating a Record', link: '/database/update-record.md' },
           { text: 'Handling Files', link: '/database/handling-files.md' },

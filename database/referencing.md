@@ -6,11 +6,15 @@ This feature is useful for building a discussion board where users can post comm
 
 Referencing has several powerful features that allow you to build complex data structures.
 
-The source of the reference record can also choose to have authority to remove the referenced records owned by other users, have access to private records, and set restrictions on referencing.
+The source of the reference record can also choose to have authority to remove the referenced records owned by other users, give access to private records, and set restrictions on referencing.
 
-To reference a record, you'll need to specify the `record_id` of the record you want to reference in the `reference` parameter in the `config` object.
+To reference a record, you'll need to specify the `record_id` or `unique_id` of the record you want to reference in the `reference` parameter in the `config` object.
 
-## Uploading a Record to be Referenced and Creating a Referencing Record
+:::tip
+You can easily build a discussion board similar to Reddit by chaining the references.
+:::
+
+## Uploading a Record to be Referenced
 
 First lets upload a record to be referenced.
 
@@ -20,6 +24,7 @@ let data = {
 };
 
 let config = {
+    unique_id: 'unique id of the post %$#@',
     table: 'Posts'
 };
 
@@ -27,9 +32,11 @@ let referenced_record_id;
 
 skapi.postRecord(data, config).then(response => {
     // The original post has been uploaded. Now, users can upload another record that references it.
-    let referenced_record_id = response.record_id;  // Record ID of the record to be referenced.
+    referenced_record_id = response.record_id;  // Record ID of the record to be referenced.
 });
 ```
+
+## Creating a Referencing Record
 
 Note that we have uploaded a record to be referenced,
 we can use the record's `record_id` in `reference.record_id` when uploading a comment record.
@@ -47,6 +54,8 @@ let commentConfig = {
 skapi.postRecord(commentRecord, commentConfig);
 ```
 
+## Fetching References
+
 Now you can query all the records that references the original record by passing the record ID in the `reference` parameter in [`getRecords()`](/api-reference/database/README.md#getrecords) method.:
 
 ```js
@@ -59,31 +68,57 @@ skapi.getRecords({
 ```
 
 :::tip
-A user cannot reference a record with 'private' access. 
+A user cannot reference a record with a higher access group or 'private' access.
 However, if the uploader has granted the user access to the record, the user will be able to reference it.
 :::
 
 :::danger
-Users who have access to a private record will also have access to all other private records that is referenced.
-To avoid unintended sharing of private records, do not permit users to upload a private record that references another private record.
+Users who have access granted to a record will also have access to all other private/higher access group records that is referenced.
+To avoid unintended sharing of private records, do not permit users to upload a private record that references another record.
 :::
 
-## Using reference parameter to fetch certain user's post
+## Creating a Referencing Record with Unique ID
+
+When uploading a record, you can also reference the record using the unique ID.
+
+```js
+skapi.postRecord({
+    comment: "I like it!"
+}, {
+    table: 'Comments',
+    reference: { unique_id: 'unique id of the record to reference %$#@' }
+});
+```
+
+
+## Fetching References with Unique ID
+
+If the reference record has a unique ID setup, you can also fetch records based on the unique ID of the record being referenced.
+
+```js
+skapi.getRecords({
+    table: 'Comments',
+    reference: 'unique id of the referenced record %$#@'
+}).then(response => {
+    console.log(response.list);  // Array of records in 'Comments' table referencing the record with the unique ID.
+});
+```
+
+More on unique ID can be found [here](/database/unique-id.md).
+
+
+## Using reference to fetch certain user's post
 
 You can also query all the records posted by certain user giving a `user_id` as a value of `reference` parameter.
 
 ```js
 skapi.getRecords({
     table: 'Comments',
-    reference: 'user_id_whose_post_you_want'
+    reference: 'user-id-whose-post-you-want'
 }).then(response => {
     console.log(response.list);  // Array of records in 'Comments' table posted by a certain user
 });
 ```
-
-:::tip
-You can easily build a discussion board similar to Reddit by chaining the references.
-:::
 
 
 ## Removing a reference
@@ -99,9 +134,9 @@ skapi.postRecord(undefined, {
 });
 ```
 
-## Reference settings
+## Reference settings in [`postRecord()`](/api-reference/database/README.md#postrecord)
 
-When uploading records, you can set restrictions on referencing from other records using additional parameters in `reference`.
+When uploading record via [`postRecord()`](/api-reference/database/README.md#postrecord), you can set restrictions on referencing from other records using additional parameters in `reference`.
 
 - `reference.reference_limit`: Allowed maximum number of times that other records can reference the uploading record.
   If this parameter is set to `null`, the number of references is unlimited. The default value is `null`.

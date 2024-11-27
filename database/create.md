@@ -52,6 +52,8 @@ In this example, the first argument takes the actual data to be uploaded to the 
 The data is a Javascript object that has string value in the key 'something'.
 And in the second argument we have set table name to be `my_collection`.
 
+Table name is a required field in the configuration object and the table name should not contain any special characters.
+
 For more detailed information on all the parameters and options available with the [`postRecord()`](/api-reference/database/README.md#postrecord) method, 
 please refer to the API Reference below:
 

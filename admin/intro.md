@@ -8,8 +8,8 @@ First you should create an admin user from your Skapi service user page and use 
 
 Admins have high access group level (99) and can perform the following actions:
 
-- Read high access level database data.
-- Edit, remove other users' data.
+- Read database data of high access group.
+- Remove other users' data.
 - Invite users to the service.
 - Create users in the service.
 - Grant access level to users.
