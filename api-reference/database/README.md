@@ -21,8 +21,8 @@ postRecord(
         };
         tags?: string | <string>[]; // Only alphanumeric and spaces allowed. It can also be an array of strings or a string with comma separated values.
         reference?: {
-            unique_id?: string; // Unique ID of the record to reference. If given, will override the record_id.
-            record_id?: string; // ID of the record to reference.
+            unique_id?: string; // Unique ID of the record to reference.
+            record_id?: string; // ID of the record to reference. If given, will override the unique_id.
             allow_multiple_reference?: boolean; // default: true, When false, other users can only reference this record once.
             reference_limit?: number | null; // default: null, Set to 0 to block other records to reference this record, null for no limit.
             can_remove_reference?: boolean; // default: false, When true, the owner of the record can remove the referenced records. And all the referenced records will be removed when the owner removes this record.
@@ -44,8 +44,8 @@ See [BinaryFile](/api-reference/data-types/README.md#binaryfile)
 ```ts
 getRecords(
     query: {
-        record_id?: string; // When record ID is given, it will fetch the record with the given record ID. all other parameters are bypassed.
-        unique_id?: string; // Unique ID of the record. When unique ID is given, it will fetch the record with the given unique ID. It will override the record ID and bypass all other parameters.
+        record_id?: string; // When record ID is given, it will fetch the record with the given record ID. all other parameters are bypassed, and will override unique ID.
+        unique_id?: string; // Unique ID of the record. When unique ID is given, it will fetch the record with the given unique ID.
         /** When the table is given as a string value, the value is the table name. */
         table: string | {
             name: string,
@@ -153,8 +153,8 @@ removePrivateRecordAccess(
 
 ```ts
 deleteRecords({
-    record_id?: string | string[]; // Record ID or an array of record IDs to delete.
-
+    record_id?: string | string[]; // Record ID or an array of record IDs to delete. When record ID is given, it will delete the record with the given record ID. It will bypass all other parameters and will override unique ID.
+    unique_id?: string | string[]; // Unique ID or an array of unique IDs to delete. When unique ID is given, it will delete the record with the given unique ID.
     /** Delete bulk records by query. Query will be bypassed when "record_id" is given. */
     /** When deleteing records by query, It will only delete the record that user owns. */
     table?: {
@@ -163,7 +163,7 @@ deleteRecords({
         subscription?: boolean; // When true, it will delete records from the subscription table.
     };
 
-    reference?: string; // Referenced record ID. when record ID is given, it will delete records that are referencing the given record ID.
+    reference?: string; // Referenced record ID or unique ID or user ID. when value is given, it will delete records that are referencing to the given value.
 
     /** Index condition and range cannot be used simultaneously.*/
     index?: {

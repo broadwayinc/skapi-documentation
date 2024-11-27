@@ -3,7 +3,7 @@
 
 Skapi database allows you to set access restrictions to records. This allows you to control who can access your records.
 
-You can add additional settings to your `table` parameter using an `object` instead of a `string` in your `config`.
+You can add additional settings to your `table` parameter using an `object` instead of a `string` in your `config.table`.
 This allows you to set access restrictions to records using the `access_group` parameter.
 
 The following values can be set for `table.access_group`:

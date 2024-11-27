@@ -119,8 +119,8 @@ type DatabaseResponse<T> = {
 
 ```ts
 type RecordData = {
-    service: string; // Service ID of the current service.
     record_id: string; // Record ID of this record
+    unique_id?: string; // Unique ID of this record
     user_id: string; // Uploaders user ID.
     updated: number; // Timestamp in milliseconds.
     uploaded: number; // Timestamp in milliseconds.
