@@ -58,10 +58,7 @@ See [UserProfile](/api-reference/data-types/README.md#userprofile)
 ## resendSignupConfirmation
 
 ```ts
-resendSignupConfirmation(
-    /** URL user to be redirected once they click on the confirmation link in the confirmation email. */
-    redirect?: string;
-): Promise<'SUCCESS: Signup confirmation E-Mail has been sent.'>
+resendSignupConfirmation(): Promise<'SUCCESS: Signup confirmation E-Mail has been sent.'>
 ```
 
 #### Errors

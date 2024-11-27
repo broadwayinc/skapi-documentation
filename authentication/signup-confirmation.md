@@ -79,8 +79,7 @@ If you need to resend the confirmation email, use the [`resendSignupConfirmation
     .catch(err => {
         if(err.code === 'SIGNUP_CONFIRMATION_NEEDED') {
           if(confirm('Your signup confirmation is required. Resend confirmation email?')) {
-            let redirect = 'https://your.website.com/success/page';
-            skapi.resendSignupConfirmation(redirect).then(res=>{
+            skapi.resendSignupConfirmation().then(res=>{
               console.log(res); // 'SUCCESS: Signup confirmation E-Mail has been sent.'
             });
           }
@@ -111,8 +110,7 @@ skapi.login({email: 'user@email.com', password: 'password'})
             
             if(sendConfirmation) {
                 // now you can resend signup confirmation E-Mail to user@email.com.
-                let redirect = 'https://your.website.com/success/page';
-                skapi.resendSignupConfirmation(redirect).then(res=>{
+                skapi.resendSignupConfirmation().then(res=>{
                 console.log(res); // 'SUCCESS: Signup confirmation E-Mail has been sent.'
                 });
             }
@@ -126,8 +124,6 @@ skapi.login({email: 'user@email.com', password: 'password'})
 In this example, the user tries to login and receives a `SIGNUP_CONFIRMATION_NEEDED` error.
 
 Then, if the user chooses to, you can use the [`resendSignupConfirmation()`](/api-reference/authentication/README.md#resendsignupconfirmation) method to resend the confirmation email to the user's email address.
-
-You can provide a URL string in the first argument to redirect the user after successful confirmation.
 
 For more detailed information on all the parameters and options available with the [`resendSignupConfirmation()`](/api-reference/authentication/README.md#resendsignupconfirmation) method, 
 please refer to the API Reference below:
