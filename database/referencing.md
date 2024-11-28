@@ -24,7 +24,7 @@ let data = {
 };
 
 let config = {
-    unique_id: 'unique id of the post %$#@',
+    unique_id: 'unique id of the post',
     table: 'Posts'
 };
 
@@ -86,7 +86,7 @@ skapi.postRecord({
     comment: "I like it!"
 }, {
     table: 'Comments',
-    reference: { unique_id: 'unique id of the record to reference %$#@' }
+    reference: { unique_id: 'unique id of the post' }
 });
 ```
 
@@ -98,7 +98,7 @@ If the reference record has a unique ID setup, you can also fetch records based 
 ```js
 skapi.getRecords({
     table: 'Comments',
-    reference: 'unique id of the referenced record %$#@'
+    reference: 'unique id of the post'
 }).then(response => {
     console.log(response.list);  // Array of records in 'Comments' table referencing the record with the unique ID.
 });
@@ -151,38 +151,75 @@ When uploading record via [`postRecord()`](/api-reference/database/README.md#pos
   When the owner removes the record, all the referenced records will be removed as well.
   The default value is `false`.
 
-## Creating a Poll with Restricted Referencing
+- `reference.index_restrictions`: You can set list of restrictions on the index values of the referencing record.
+  This is useful when you want to restrict the referencing record to have certain index names and values.
 
-Example below shows how you can build a poll where only 10 people are allowed to vote and each user can only vote once.
+
+## Index Restrictions
+
+You can set restrictions on the index values of the referencing record.
+This is useful when you want to restrict the referencing record to have certain index values.
+For example, you can set the index value range so the total rating value does not exceed a certain value.
+
+Example below shows how you can build a review board where only 10 people are allowed to rate 1 to 5 and each user can only rate once.
 
 ```js
 let pollPost = skapi.postRecord({
-    title: "Should we have a beer fridge in our office?",
+    title: `How would you rate DIA's album "Stardust"?`,
     description: "Only 10 people are allowed to vote"
 }, {
-    table: 'PollBoard',
+    unique_id: 'review board for DIA album Stardust',
+    table: 'ReviewBoard',
     reference: {
         allow_multiple_reference: false,
-        reference_limit: 10
+        reference_limit: 10,
+        index_restrictions: [
+            {
+                name: 'Review.Album.Stardust',
+                value: 1,
+                range: 5
+            }
+        ]
     }
 })
 ```
 
-Now people can vote by posting a record referencing the **pollPost**:
+As shown in the example above, the `index_restrictions` parameter is an array of objects that contains the following properties:
+
+- `name`: The name of the index value. (required)
+- `value`: The value of the index. (optional)
+- `range`: The range of the index value. (optional)
+- `condition`: The condition of the index value. (optional)
+
+You can set many index restrictions by adding more objects to the array.
+
+When the index restriction is set, the referencing record must have the same index name with same typed value and within the specified range.
+
+If all optional parameters not set, the referencing record must have the same index name.
+
+If `value` is set, the referencing record must have the same index name with the same value.
+
+If `range` is set, the referencing record must have the same index name with the value within the specified range.
+
+If `condition` is set, the referencing record must have the same index name with the index value that satisfies the condition to the `value`. `condition` can be one of the following: `=`, `!=`, `>`, `<`, `>=`, `<=`. `condition` cannot be used with `range`.
+
+## Creating a Poll with Restricted Referencing
+
+Now people can post a review by referencing the **pollPost**:
 
 ```js
 // Now only 10 people can post references for this record
 skapi.postRecord({
-    comment: "Yes, we should!"
+    comment: "This rocks! I'd give 4.5 out of 5!"
 }, {
-    table: 'VoteBoard',
-    reference: { record_id: pollPost.record_id },
+    table: 'ReviewBoard',
+    reference: { unique_id: 'review board for DIA album Stardust' },
     index: {
-        name: 'Vote.Beer',
-        value: true
+        name: 'Review.Album.Stardust',
+        value: 4.5
     }
 });
 ```
 
-Note that the "Vote.Beer" `index` uses a `value` of type `boolean` so you can later calculate the average vote value.
+Note that the "Review.Album.Stardust" `index` uses a `value` of type `number` so you can later retrieve the average rating and total sum of the values.
 

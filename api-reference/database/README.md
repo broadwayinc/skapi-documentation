@@ -26,6 +26,14 @@ postRecord(
             allow_multiple_reference?: boolean; // default: true, When false, other users can only reference this record once.
             reference_limit?: number | null; // default: null, Set to 0 to block other records to reference this record, null for no limit.
             can_remove_reference?: boolean; // default: false, When true, the owner of the record can remove the referenced records. And all the referenced records will be removed when the owner removes this record.
+            index_restrictions?: {
+                /** Not allowed: White space, special characters. Allowed: Alphanumeric, Periods. */
+                name: string; // Allowed index name
+                /** Not allowed: Periods, special characters. Allowed: Alphanumeric, White space. */
+                value?: string | number | boolean; // Allowed index value
+                range?: string | number | boolean; // Allowed index range
+                condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // Allowed index value condition
+            }[]
         };
         remove_bin?: BinaryFile[] | string[] | null; // If the BinaryFile object or the url of the file is given, it will remove the bin data(files) from the record. The file should be uploaded to this record. If null is given, it will remove all the bin data(files) from the record.
         progress: ProgressCallback; // Progress callback function. Usefull when uploading files.
@@ -44,8 +52,8 @@ See [BinaryFile](/api-reference/data-types/README.md#binaryfile)
 ```ts
 getRecords(
     query: {
-        record_id?: string; // When record ID is given, it will fetch the record with the given record ID. all other parameters are bypassed, and will override unique ID.
-        unique_id?: string; // Unique ID of the record. When unique ID is given, it will fetch the record with the given unique ID.
+        record_id?: string; // When record ID is given, it will fetch the record with the given record ID. all other parameters are bypassed accept reference, and will override unique ID.
+        unique_id?: string; // Unique ID of the record. When unique ID is given, it will fetch the record with the given unique ID. All other parameters are bypassed accept reference.
         /** When the table is given as a string value, the value is the table name. */
         table: string | {
             name: string,
@@ -57,6 +65,7 @@ getRecords(
          * When unique ID is given, it will fetch the records referencing the given unique ID.
          * When record ID is given, it will fetch the records referencing the given record ID.
          * When user ID is given, it will fetch the records uploaded by the given user ID.
+         * When fetching record by record_id or unique_id that user has restricted access, but the user has been granted access to reference, user can fetch the record if the record ID or the unique ID of the reference is set to reference parameter.
          */
         reference?: string;
 
@@ -153,8 +162,9 @@ removePrivateRecordAccess(
 
 ```ts
 deleteRecords({
-    record_id?: string | string[]; // Record ID or an array of record IDs to delete. When record ID is given, it will delete the record with the given record ID. It will bypass all other parameters and will override unique ID.
-    unique_id?: string | string[]; // Unique ID or an array of unique IDs to delete. When unique ID is given, it will delete the record with the given unique ID.
+    record_id?: string | string[]; // Record ID or an array of record IDs to delete. When record ID is given, it will delete the record with the given record ID. It will bypass all other parameters except reference and will override unique ID.
+    unique_id?: string | string[]; // Unique ID or an array of unique IDs to delete. When unique ID is given, it will delete the record with the given unique ID. It will bypass all other parameters except reference and record_id.
+
     /** Delete bulk records by query. Query will be bypassed when "record_id" is given. */
     /** When deleteing records by query, It will only delete the record that user owns. */
     table?: {

@@ -138,6 +138,14 @@ type RecordData = {
         allow_multiple_reference: boolean; // Is true if this record allows other users to upload a record referencing this record multiple times.
         referenced_count: number; // Number of records that referenced this record.
         can_remove_reference: boolean; // Is true if the owner of the record can remove the referenced records.
+        index_restrictions?: { // only appears when the record is fetched via unique_id or record_id or is the resolved record of a postRecord() call.
+            /** Not allowed: White space, special characters. Allowed: Alphanumeric, Periods. */
+            name: string; // Allowed index name
+            /** Not allowed: Periods, special characters. Allowed: Alphanumeric, White space. */
+            value?: string | number | boolean; // Allowed index value
+            range?: string | number | boolean; // Allowed index range
+            condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // Allowed index value condition
+        }[]
     };
     index?: {
         name: string; // Index name.
