@@ -52,8 +52,8 @@ See [BinaryFile](/api-reference/data-types/README.md#binaryfile)
 ```ts
 getRecords(
     query: {
-        record_id?: string; // When record ID is given, it will fetch the record with the given record ID. all other parameters are bypassed accept reference, and will override unique ID.
-        unique_id?: string; // Unique ID of the record. When unique ID is given, it will fetch the record with the given unique ID. All other parameters are bypassed accept reference.
+        record_id?: string; // When record ID is given, it will fetch the record with the given record ID. all other parameters are bypassed and will override unique ID.
+        unique_id?: string; // Unique ID of the record. When unique ID is given, it will fetch the record with the given unique ID. All other parameters are bypassed.
         /** When the table is given as a string value, the value is the table name. */
         table: string | {
             name: string,
@@ -162,8 +162,8 @@ removePrivateRecordAccess(
 
 ```ts
 deleteRecords({
-    record_id?: string | string[]; // Record ID or an array of record IDs to delete. When record ID is given, it will delete the record with the given record ID. It will bypass all other parameters except reference and will override unique ID.
-    unique_id?: string | string[]; // Unique ID or an array of unique IDs to delete. When unique ID is given, it will delete the record with the given unique ID. It will bypass all other parameters except reference and record_id.
+    record_id?: string | string[]; // Record ID or an array of record IDs to delete. When record ID is given, it will delete the record with the given record ID. It will bypass all other parameters and will override unique ID.
+    unique_id?: string | string[]; // Unique ID or an array of unique IDs to delete. When unique ID is given, it will delete the record with the given unique ID. It will bypass all other parameters except record_id.
 
     /** Delete bulk records by query. Query will be bypassed when "record_id" is given. */
     /** When deleteing records by query, It will only delete the record that user owns. */
