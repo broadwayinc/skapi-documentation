@@ -23,7 +23,7 @@ postRecord(
         reference?: {
             unique_id?: string; // Unique ID of the record to reference.
             record_id?: string; // ID of the record to reference. If given, will override the unique_id.
-            prevent_multiple_referencing?: boolean; // default: false, When true, a single user can only reference this record once.
+            prevent_multiple_referencing?: boolean; // default: false, If true this record prevents a single user to upload a record referencing this record multiple times.
             referencing_limit?: number | null; // default: null, Set to 0 to block other records to reference this record, null for no limit.
             can_remove_referencing?: boolean; // default: false, When true, the owner of the record can remove the referenced records. And all the referenced records will be removed when the owner removes this record.
             exclude_from_suscription_feed?: boolean; // default: false, When true, the referenced records will not be included in the subscription feed.
