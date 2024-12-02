@@ -2,7 +2,7 @@
 
 Admins can manage user accounts by creating, deleting, blocking, and unblocking accounts. Admins can also grant access to users and cancel invitations.
 
-## Granting User Access Level
+## Assigning Access Group to Users
 
 Users that have admin access can grant access to other users by using the [`grantAccess()`](/api-reference/admin/README.md#grantaccess) method.
 
@@ -10,7 +10,9 @@ This example demonstrates using the [`grantAccess()`](/api-reference/admin/READM
 
 When the request is successful, the string "SUCCESS: Access has been granted to the user." is returned.
 
-You can grant user access group levels from 1 to 99. 99 is the admin level.
+You can grant user access group levels from 1 to 99.
+
+99 is the admin group.
 
 :::code-group
 ```html [Form]

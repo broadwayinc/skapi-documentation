@@ -6,7 +6,11 @@ This feature is useful for building a discussion board where users can post comm
 
 Referencing has several powerful features that allow you to build complex data structures.
 
-The source of the reference record can also choose to have authority to remove the referenced records owned by other users, give access to private records, and set restrictions on referencing.
+The reference record owns all the referenced records.
+
+Meaning, the user who uploaded the source of the reference record can have authority to remove the referenced records owned by other users, have access to private referenced records, and set restrictions on indexing for referencing records.
+
+When user uploads a private record with a reference, the user who uploaded the source reference record will also have access to the private record that is referenced. In this case both private record owner and the source reference record owner will have access to the private record.
 
 To reference a record, you'll need to specify the `record_id` or `unique_id` of the record you want to reference in the `reference` parameter in the `config` object.
 
@@ -138,16 +142,14 @@ skapi.postRecord(undefined, {
 
 When uploading record via [`postRecord()`](/api-reference/database/README.md#postrecord), you can set restrictions on referencing from other records using additional parameters in `reference`.
 
-- `reference.reference_limit`: Allowed maximum number of times that other records can reference the uploading record.
+- `reference.referencing_limit`: Allowed maximum number of times that other records can reference the uploading record.
   If this parameter is set to `null`, the number of references is unlimited. The default value is `null`.
-  Set `reference_limit` to `0` to prevent others to reference the uploading record.
+  Set `referencing_limit` to `0` to prevent others to reference the uploading record.
 
-- `reference.allow_multiple_reference`: If set to `false`, others will be allowed to reference this record only once.
+- `reference.prevent_multiple_referencing`: If set to `true`, single user will be allowed to reference this record only once.
   This is useful for building a voting system where users are allowed to vote only once.
-  If set to `true`, a user will be able to post a record referencing this record multiple times.
-  The default value is `true`.
 
-- `reference.can_remove_reference`: If set to `true`, the owner of the record can remove the referenced records.
+- `reference.can_remove_referencing`: If set to `true`, the owner of the record can remove the referenced records.
   When the owner removes the record, all the referenced records will be removed as well.
   The default value is `false`.
 
@@ -171,8 +173,8 @@ let pollPost = skapi.postRecord({
     unique_id: 'review board for DIA album Stardust',
     table: 'ReviewBoard',
     reference: {
-        allow_multiple_reference: false,
-        reference_limit: 10,
+        prevent_multiple_referencing: true,
+        referencing_limit: 10,
         index_restrictions: [
             {
                 name: 'Review.Album.Stardust',
