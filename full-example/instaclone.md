@@ -69,7 +69,7 @@ See the tutorial [Introduction](/full-example/intro.html) for more information.
                     access_group: input_private.checked ? 'private' : 'authorized' // Depending on the checkbox, we will set the access_group to private or authorized.
                 },
                 reference: {
-                    allow_multiple_reference: false // We will allow only one reference per post. This will allow us to restrict users to like only once per post.
+                    prevent_multiple_referencing: true // We will allow only one reference per post. This will allow us to restrict users to like only once per post.
                 },
                 progress: p => {
                     if (p.status === 'upload' && p.currentFile) {

@@ -23,9 +23,11 @@ postRecord(
         reference?: {
             unique_id?: string; // Unique ID of the record to reference.
             record_id?: string; // ID of the record to reference. If given, will override the unique_id.
-            allow_multiple_reference?: boolean; // default: true, When false, other users can only reference this record once.
-            reference_limit?: number | null; // default: null, Set to 0 to block other records to reference this record, null for no limit.
-            can_remove_reference?: boolean; // default: false, When true, the owner of the record can remove the referenced records. And all the referenced records will be removed when the owner removes this record.
+            prevent_multiple_referencing?: boolean; // default: false, When true, a single user can only reference this record once.
+            referencing_limit?: number | null; // default: null, Set to 0 to block other records to reference this record, null for no limit.
+            can_remove_referencing?: boolean; // default: false, When true, the owner of the record can remove the referenced records. And all the referenced records will be removed when the owner removes this record.
+            exclude_from_suscription_feed?: boolean; // default: false, When true, the referenced records will not be included in the subscription feed.
+            only_allow_granted: boolean; // default: false, When true, only the users who have been granted access to the record can reference this record.
             index_restrictions?: {
                 /** Not allowed: White space, special characters. Allowed: Alphanumeric, Periods. */
                 name: string; // Allowed index name
@@ -183,7 +185,7 @@ deleteRecords({
         range?: string | number | boolean; // Not allowed: Periods, special characters. Allowed: White space, alphanumeric.
     };
     tag?: string; // Not allowed: Periods, special characters. Allowed: White space, alphanumeric.
-}): Promise<string>
+}): Promise<string | DatabaseResponse<string>>
 ```
 
 ## getTables

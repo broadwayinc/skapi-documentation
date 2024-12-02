@@ -134,10 +134,12 @@ type RecordData = {
     };
     reference: {
         record_id?: string; // ID of a record that this record is referencing.
-        reference_limit: number | null; // Number of reference this record is allowing. Infinite if null.
-        allow_multiple_reference: boolean; // Is true if this record allows other users to upload a record referencing this record multiple times.
+        referencing_limit: number | null; // Number of reference this record is allowing. Infinite if null.
+        prevent_multiple_referencing: boolean; // Is true if this record prevents a single user to upload a record referencing this record multiple times.
         referenced_count: number; // Number of records that referenced this record.
-        can_remove_reference: boolean; // Is true if the owner of the record can remove the referenced records.
+        can_remove_referencing: boolean; // Is true if the owner of the record can remove the referenced records.
+        exclude_from_suscription_feed: boolean; // Is true if this record's referenced records are excluded from the subscription feed.
+        only_allow_granted: boolean; // default: false, When true, only the users who have been granted access to the record can reference this record.
         index_restrictions?: { // only appears when the record is fetched via unique_id or record_id or is the resolved record of a postRecord() call.
             /** Not allowed: White space, special characters. Allowed: Alphanumeric, Periods. */
             name: string; // Allowed index name

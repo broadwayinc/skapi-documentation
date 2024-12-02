@@ -49,7 +49,7 @@ skapi.deleteRecords(query).then(response => {
 });
 ```
 
-You can use the database query however you like to let users delete bulk of records that they own. (e.g. by access group, by table name, index, tag, reference, etc.)
+You can use the database query however you like to let users delete bulk of records that they uploaded. (e.g. by access group, by table name, index, tag, reference, etc.)
 
 :::tip
 When deleting multiple records, the promise will return success immediately, but it may take some time for the deleted records to be reflected in the database.
