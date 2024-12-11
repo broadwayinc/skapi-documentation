@@ -52,7 +52,7 @@ let commentRecord = {
 
 let commentConfig = {
     table: 'Comments',
-    reference: { record_id: referenced_record_id }
+    reference: referenced_record_id
 };
 
 skapi.postRecord(commentRecord, commentConfig);
@@ -90,7 +90,7 @@ skapi.postRecord({
     comment: "I like it!"
 }, {
     table: 'Comments',
-    reference: { unique_id: 'unique id of the post' }
+    reference: 'unique id of the post'
 });
 ```
 
@@ -132,31 +132,32 @@ To remove a reference, set the the `reference.record_id` parameter to `null` whe
 ```js
 skapi.postRecord(undefined, {
     record_id: 'record_id_of_the_comment_to_remove',
-    reference: { record_id: null }
+    reference: null
 }).then(record => {
     console.log(record);  // The reference has been removed.
 });
 ```
 
-## Reference settings in [`postRecord()`](/api-reference/database/README.md#postrecord)
+## Reference source settings in [`postRecord()`](/api-reference/database/README.md#postrecord)
 
-When uploading record via [`postRecord()`](/api-reference/database/README.md#postrecord), you can set restrictions on referencing from other records using additional parameters in `reference`.
+When uploading record via [`postRecord()`](/api-reference/database/README.md#postrecord), you can set restrictions on referencing from other records using additional parameters in `source`.
 
-- `reference.referencing_limit`: Allowed maximum number of times that other records can reference the uploading record.
+- `source.referencing_limit`: Allowed maximum number of times that other records can reference the uploading record.
   If this parameter is set to `null`, the number of references is unlimited. The default value is `null`.
   Set `referencing_limit` to `0` to prevent others to reference the uploading record.
 
-- `reference.prevent_multiple_referencing`: If set to `true`, single user will be allowed to reference this record only once.
+- `source.prevent_multiple_referencing`: If set to `true`, single user will be allowed to reference this record only once.
   This is useful for building a voting system where users are allowed to vote only once.
 
-- `reference.can_remove_referencing`: If set to `true`, the owner of the record can remove the referenced records.
+- `source.can_remove_referencing_records`: If set to `true`, the owner of the record can remove the referenced records.
   When the owner removes the record, all the referenced records will be removed as well.
   The default value is `false`.
 
-- `reference.index_restrictions`: You can set list of restrictions on the index values of the referencing record.
+- `source.referencing_index_restrictions`: You can set list of restrictions on the index values of the referencing record.
   This is useful when you want to restrict the referencing record to have certain index names and values.
 
-
+- `source.only_granted_can_reference`: When true, only the user who has granted private access to the record can reference this record.
+  
 ## Index Restrictions
 
 You can set restrictions on the index values of the referencing record.
@@ -172,10 +173,10 @@ let pollPost = skapi.postRecord({
 }, {
     unique_id: 'review board for DIA album Stardust',
     table: 'ReviewBoard',
-    reference: {
+    source: {
         prevent_multiple_referencing: true,
         referencing_limit: 10,
-        index_restrictions: [
+        referencing_index_restrictions: [
             {
                 name: 'Review.Album.Stardust',
                 value: 1,
@@ -186,7 +187,7 @@ let pollPost = skapi.postRecord({
 })
 ```
 
-As shown in the example above, the `index_restrictions` parameter is an array of objects that contains the following properties:
+As shown in the example above, the `referencing_index_restrictions` parameter is an array of objects that contains the following properties:
 
 - `name`: The name of the index value. (required)
 - `value`: The value of the index. (optional)
@@ -215,7 +216,7 @@ skapi.postRecord({
     comment: "This rocks! I'd give 4.5 out of 5!"
 }, {
     table: 'ReviewBoard',
-    reference: { unique_id: 'review board for DIA album Stardust' },
+    reference: 'review board for DIA album Stardust',
     index: {
         name: 'Review.Album.Stardust',
         value: 4.5
