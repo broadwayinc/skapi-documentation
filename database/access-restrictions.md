@@ -11,9 +11,15 @@ The following values can be set for `table.access_group`:
 - `private`: Only the uploader of the record will have access.
 - `public`: The record will be accessible to everyone.
 - `authorized`: The record will only be accessible to users who are logged into your service.
+- `admin`: The record will only be accessible to the admin of your service.
 
 If `access_group` is not set, the default value is `public`.
 
+::: tip
+Unless the user is referencing a private access granted record, the user cannot upload a record with `access_group` set to higher level than their own access level.
+
+You can read more about referencing records [here](/database/referencing.md).
+:::
 
 ## Creating Record With Access Restrictions
 
@@ -105,7 +111,7 @@ skapi.getRecords(config)
 
 ## Grant Private Access
 
-Users can grant access of their private record to other users by using the [`grantPrivateRecordAccess(params)`](/api-reference/database/README.md#grantprivateaccess) method.
+Users can grant private access of their record to other users by using the [`grantPrivateRecordAccess(params)`](/api-reference/database/README.md#grantprivateaccess) method.
 
 ```js
 skapi.grantPrivateRecordAccess({
@@ -114,6 +120,11 @@ skapi.grantPrivateRecordAccess({
 })
 ```
 
+When the user is granted access to the record, they will be able to fetch the record either if it's private or even if it has higher access group than the user.
+
+Access granted users can also see all the records that is referencing this record at all access groups including private records.
+
+You can read more about referencing records [here](/database/referencing.md).
 
 ## Remove Private Access
 

@@ -126,10 +126,10 @@ type RecordData = {
     uploaded: number; // Timestamp in milliseconds.
     ip: string; // IP address of uploader.
     readonly: boolean; // Is true if this record is readonly.
-    bin?: { [key: string]: BinaryFile[] }; // List of binary file info the record is holding.
+    bin: { [key: string]: BinaryFile[] }; // List of binary file info the record is holding.
     table: {
         name: string; // Table name
-        access_group: number | 'private' | 'public' | 'authorized'; // Allowed access level of this record.
+        access_group: number | 'private' | 'public' | 'authorized' | 'admin'; // Allowed access level of this record.
         subscription?: {
             user_id: string; // User ID of the subscription.
             group: number; // Subscription group 1~99
@@ -141,6 +141,14 @@ type RecordData = {
         can_remove_referencing_records: false, // Is true if the owner of the record can remove the referenced records.
         only_granted_can_reference: false, // Is true if only the users who have been granted access to the record can reference this record.
         feed_referencing_records: false, // Is true if this record's referenced records are included in the subscription feed.
+        referencing_index_restrictions?: {
+            /** Not allowed: White space, special characters. Allowed: Alphanumeric, Periods. */
+            name: string; // Allowed index name
+            /** Not allowed: Periods, special characters. Allowed: Alphanumeric, White space. */
+            value?: string | number | boolean; // Allowed index value
+            range?: string | number | boolean; // Allowed index range
+            condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // Allowed index value condition
+        }[]
     },
     reference?: string; // Reference ID of this record.
     index?: {
