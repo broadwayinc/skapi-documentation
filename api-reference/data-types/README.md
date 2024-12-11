@@ -130,25 +130,19 @@ type RecordData = {
     table: {
         name: string; // Table name
         access_group: number | 'private' | 'public' | 'authorized'; // Allowed access level of this record.
-        subscription?: boolean; // true if the record is in the subscription access level.
+        subscription?: {
+            user_id: string; // User ID of the subscription.
+            group: number; // Subscription group 1~99
+        }
     };
-    reference: {
-        record_id?: string; // ID of a record that this record is referencing.
-        referencing_limit: number | null; // Number of reference this record is allowing. Infinite if null.
-        prevent_multiple_referencing: boolean; // Is true if this record prevents a single user to upload a record referencing this record multiple times.
-        referenced_count: number; // Number of records that referenced this record.
-        can_remove_referencing: boolean; // Is true if the owner of the record can remove the referenced records.
-        exclude_from_suscription_feed: boolean; // Is true if this record's referenced records are excluded from the subscription feed.
-        only_allow_granted: boolean; // default: false, When true, only the users who have been granted access to the record can reference this record.
-        index_restrictions?: { // only appears when the record is fetched via unique_id or record_id or is the resolved record of a postRecord() call.
-            /** Not allowed: White space, special characters. Allowed: Alphanumeric, Periods. */
-            name: string; // Allowed index name
-            /** Not allowed: Periods, special characters. Allowed: Alphanumeric, White space. */
-            value?: string | number | boolean; // Allowed index value
-            range?: string | number | boolean; // Allowed index range
-            condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // Allowed index value condition
-        }[]
-    };
+    source: {
+        referencing_limit: null, // Number of reference this record is allowing. Infinite if null.
+        prevent_multiple_referencing: false, // Is true if this record prevents a single user to upload a record referencing this record multiple times.
+        can_remove_referencing_records: false, // Is true if the owner of the record can remove the referenced records.
+        only_granted_can_reference: false, // Is true if only the users who have been granted access to the record can reference this record.
+        feed_referencing_records: false, // Is true if this record's referenced records are included in the subscription feed.
+    },
+    reference?: string; // Reference ID of this record.
     index?: {
         name: string; // Index name.
         value: string | number | boolean; // Value of the index.

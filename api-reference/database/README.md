@@ -12,7 +12,11 @@ postRecord(
         table: string | {
             name: string; // Other than space and period, special characters are not allowed.
             access_group?: number | 'private' | 'public' | 'authorized';  // Default: 'public'
-            subscription?: boolean // Post record to subscription table if true. Default: false
+            subscription?: {
+                group: number; // subscription group. default 1.
+                exclude_from_feed?: boolean; // When true, record will be excluded from the subscribers feed.
+                notify_subscribers?: boolean; // When true, subscribers will receive notification when the record is uploaded.
+            };
         };
         readonly?: boolean; // Default: false. When true, the record cannot be updated.
         index?: {
@@ -20,23 +24,22 @@ postRecord(
             value: string | number | boolean; // Only alphanumeric and spaces allowed.
         };
         tags?: string | <string>[]; // Only alphanumeric and spaces allowed. It can also be an array of strings or a string with comma separated values.
-        reference?: {
-            unique_id?: string; // Unique ID of the record to reference.
-            record_id?: string; // ID of the record to reference. If given, will override the unique_id.
-            prevent_multiple_referencing?: boolean; // default: false, If true this record prevents a single user to upload a record referencing this record multiple times.
-            referencing_limit?: number | null; // default: null, Set to 0 to block other records to reference this record, null for no limit.
-            can_remove_referencing?: boolean; // default: false, When true, the owner of the record can remove the referenced records. And all the referenced records will be removed when the owner removes this record.
-            exclude_from_suscription_feed?: boolean; // default: false, When true, the referenced records will not be included in the subscription feed.
-            only_allow_granted: boolean; // default: false, When true, only the users who have been granted access to the record can reference this record.
-            index_restrictions?: {
+        source?: {
+            feed_referencing_records?: boolean; // When true, and if this is a record in subscription table, records referencing this record will be included to the subscribers feed.
+            referencing_limit?: number; // Default: null (Infinite)
+            prevent_multiple_referencing?: boolean; // If true, a single user can reference this record only once.
+            can_remove_referencing_records?: boolean; // When true, owner of the record can remove any record that are referencing this record. Also when this record is deleted, all the record referencing this record will be deleted.
+            only_granted_can_reference?: boolean; // When true, only the user who has granted private access to the record can reference this record.
+            referencing_index_restrictions?: {
                 /** Not allowed: White space, special characters. Allowed: Alphanumeric, Periods. */
                 name: string; // Allowed index name
                 /** Not allowed: Periods, special characters. Allowed: Alphanumeric, White space. */
                 value?: string | number | boolean; // Allowed index value
                 range?: string | number | boolean; // Allowed index range
                 condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // Allowed index value condition
-            }[]
+            }[];
         };
+        reference?: string; // Reference to another record. When value is given, it will reference the record with the given value. Can be record ID or unique ID.
         remove_bin?: BinaryFile[] | string[] | null; // If the BinaryFile object or the url of the file is given, it will remove the bin data(files) from the record. The file should be uploaded to this record. If null is given, it will remove all the bin data(files) from the record.
         progress: ProgressCallback; // Progress callback function. Usefull when uploading files.
     };
@@ -59,8 +62,12 @@ getRecords(
         /** When the table is given as a string value, the value is the table name. */
         table: string | {
             name: string,
-            access_group?: number | 'private' | 'public' | 'authorized'; // 0 to 99 if using number. Default: 'public'
-            subscription?: string; // User ID of the subscription (User being subscribed to)
+            access_group?: number | 'private' | 'public' | 'authorized' | 'admin'; // 0 to 99 if using number. Default: 'public'
+            subscription?: {
+                user_id: string;
+                /** Number range: 0 ~ 99 */
+                group: number;
+            };
         };
 
         /**
@@ -169,22 +176,33 @@ deleteRecords({
 
     /** Delete bulk records by query. Query will be bypassed when "record_id" is given. */
     /** When deleteing records by query, It will only delete the record that user owns. */
-    table?: {
-        name: string;
-        access_group?: number | 'private' | 'public' | 'authorized';
-        subscription?: boolean; // When true, it will delete records from the subscription table.
+    table: string | {
+        name: string,
+        access_group?: number | 'private' | 'public' | 'authorized' | 'admin'; // 0 to 99 if using number. Default: 'public'
+        subscription?: {
+            user_id: string;
+            /** Number range: 0 ~ 99 */
+            group: number;
+        };
     };
 
-    reference?: string; // Referenced record ID or unique ID or user ID. when value is given, it will delete records that are referencing to the given value.
+    /**
+     * When unique ID is given, it will fetch the records referencing the given unique ID.
+     * When record ID is given, it will fetch the records referencing the given record ID.
+     * When user ID is given, it will fetch the records uploaded by the given user ID.
+     * When fetching record by record_id or unique_id that user has restricted access, but the user has been granted access to reference, user can fetch the record if the record ID or the unique ID of the reference is set to reference parameter.
+     */
+    reference?: string;
 
-    /** Index condition and range cannot be used simultaneously.*/
     index?: {
-        name: string | '$updated' | '$uploaded' | '$referenced_count' | '$user_id'; // Not allowed: White space, special characters. Allowed: Periods, alphanumeric.
-        value: string | number | boolean; // Not allowed: Periods, special characters. Allowed: White space, alphanumeric.
-        condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!=';
-        range?: string | number | boolean; // Not allowed: Periods, special characters. Allowed: White space, alphanumeric.
+        /** '$updated' | '$uploaded' | '$referenced_count' | '$user_id' are the reserved index names. */
+        name: string | '$updated' | '$uploaded' | '$referenced_count' | '$user_id';
+        value: string | number | boolean;
+        condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // cannot be used with range. Default: '='
+        range?: string | number | boolean; // cannot be used with condition
     };
-    tag?: string; // Not allowed: Periods, special characters. Allowed: White space, alphanumeric.
+
+    tag?: string; // Queries records with the given tag.
 }): Promise<string | DatabaseResponse<string>>
 ```
 
