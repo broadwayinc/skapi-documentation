@@ -31,6 +31,24 @@ skapi.deleteRecords(query).then(response => {
 You can only delete up to 100 record ID at a time.
 :::
 
+## Deleteing Records by Unique IDs
+
+Here's an example that demonstrates how to delete multiple records using an array of unique IDs:
+```js
+let query = {
+    unique_id: ['unique id of the record 1','unique id of the record 2']
+};
+
+skapi.deleteRecords(query).then(response => {
+    // 'SUCCESS: records are being deleted. please give some time to finish the process.'
+    console.log(response);
+});
+```
+
+:::warning
+You can only delete up to 100 unique ID at a time.
+:::
+
 ## Deleting User's Records with Database Query
 
 Here's an example of deleting all user's records uploaded in the "A" table with a public access group.
@@ -59,6 +77,8 @@ When deleting multiple records, the promise will return success immediately, but
 When deleting records by database query, user will not delete records that they do not own, or records that are uploaded as read-only.
 
 However, if the user is an admin, they can delete any records in the database. So be cafeful when admin is using this method.
+
+Read more about admin access [here](/admin/intro.md).
 :::
 
 For more detailed information on all the parameters and options available with the [`deleteRecords()`](/api-reference/database/README.md#deleterecords) method, 

@@ -143,22 +143,25 @@ skapi.postRecord(undefined, {
 When uploading record via [`postRecord()`](/api-reference/database/README.md#postrecord), you can set restrictions on referencing from other records using additional parameters in `source`.
 
 - `source.referencing_limit`: Allowed maximum number of times that other records can reference the uploading record.
+  This is useful if you are building ticketing system where only a certain number of people purchase a ticket.
   If this parameter is set to `null`, the number of references is unlimited. The default value is `null`.
   Set `referencing_limit` to `0` to prevent others to reference the uploading record.
 
 - `source.prevent_multiple_referencing`: If set to `true`, single user will be allowed to reference this record only once.
-  This is useful for building a voting system where users are allowed to vote only once.
+  This is useful for building a voting system where each users are allowed to vote only once.
 
-- `source.can_remove_referencing_records`: If set to `true`, the owner of the record can remove the referenced records.
-  When the owner removes the record, all the referenced records will be removed as well.
+- `source.can_remove_referencing_records`: If set to `true`, the owner of the record has an authority to remove the referencing records.
+  When the owner removes the record, all the referenceing records will be removed.
+  This can be useful when you want to build a discussion board where the owner can remove the comments.
   The default value is `false`.
 
+- `source.only_granted_can_reference`: When set to `true`, only the user who has granted private access to the record can reference this record.
+  
 - `source.referencing_index_restrictions`: You can set list of restrictions on the index values of the referencing record.
   This is useful when you want to restrict the referencing record to have certain index names and values.
 
-- `source.only_granted_can_reference`: When true, only the user who has granted private access to the record can reference this record.
   
-## Index Restrictions
+## Referencing Index Restrictions
 
 You can set restrictions on the index values of the referencing record.
 This is useful when you want to restrict the referencing record to have certain index values.

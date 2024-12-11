@@ -11,7 +11,7 @@ postRecord(
         // 'table' is optional when record ID is used.
         table: string | {
             name: string; // Other than space and period, special characters are not allowed.
-            access_group?: number | 'private' | 'public' | 'authorized';  // Default: 'public'
+            access_group?: number | 'private' | 'public' | 'authorized' | 'admin';  // Default: 'public'
             subscription?: {
                 group: number; // subscription group. default 1.
                 exclude_from_feed?: boolean; // When true, record will be excluded from the subscribers feed.
@@ -25,11 +25,11 @@ postRecord(
         };
         tags?: string | <string>[]; // Only alphanumeric and spaces allowed. It can also be an array of strings or a string with comma separated values.
         source?: {
-            feed_referencing_records?: boolean; // When true, and if this is a record in subscription table, records referencing this record will be included to the subscribers feed.
             referencing_limit?: number; // Default: null (Infinite)
             prevent_multiple_referencing?: boolean; // If true, a single user can reference this record only once.
-            can_remove_referencing_records?: boolean; // When true, owner of the record can remove any record that are referencing this record. Also when this record is deleted, all the record referencing this record will be deleted.
             only_granted_can_reference?: boolean; // When true, only the user who has granted private access to the record can reference this record.
+            can_remove_referencing_records?: boolean; // When true, owner of the record can remove any record that are referencing this record. Also when this record is deleted, all the record referencing this record will be deleted.
+            feed_referencing_records?: boolean; // When true, and if this is a record in subscription table, records referencing this record will be included to the subscribers feed.
             referencing_index_restrictions?: {
                 /** Not allowed: White space, special characters. Allowed: Alphanumeric, Periods. */
                 name: string; // Allowed index name
