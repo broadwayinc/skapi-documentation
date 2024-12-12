@@ -127,6 +127,8 @@ type RecordData = {
     ip: string; // IP address of uploader.
     readonly: boolean; // Is true if this record is readonly.
     bin: { [key: string]: BinaryFile[] }; // List of binary file info the record is holding.
+    referenced_count: number;
+    
     table: {
         name: string; // Table name
         access_group: number | 'private' | 'public' | 'authorized' | 'admin'; // Allowed access level of this record.

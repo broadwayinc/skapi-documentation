@@ -1,22 +1,12 @@
 # Referencing
 
 Users can reference another record when uploading a new record.
+
 When records are referenced, users can retrieve records based on the one being referenced.
-This feature is useful for building a discussion board where users can post comments linked to the original post.
 
-Referencing has several powerful features that allow you to build complex data structures.
-
-The reference record owns all the referenced records.
-
-Meaning, the user who uploaded the source of the reference record can have authority to remove the referenced records owned by other users, have access to private referenced records, and set restrictions on indexing for referencing records.
-
-When user uploads a private record with a reference, the user who uploaded the source reference record will also have access to the private record that is referenced. In this case both private record owner and the source reference record owner will have access to the private record.
+This feature is useful for building a discussion board similar to Reddit, comment section, rating board, tracking purchased items, like buttons etc.
 
 To reference a record, you'll need to specify the `record_id` or `unique_id` of the record you want to reference in the `reference` parameter in the `config` object.
-
-:::tip
-You can easily build a discussion board similar to Reddit by chaining the references.
-:::
 
 ## Uploading a Record to be Referenced
 
@@ -157,10 +147,13 @@ When uploading record via [`postRecord()`](/api-reference/database/README.md#pos
 
 - `source.only_granted_can_reference`: When set to `true`, only the user who has granted private access to the record can reference this record.
   
+- `source.feed_referencing_records`: When set to `true`, and if this is a record in subscription table, records referencing this record will be included to the subscribers feed.
+  For more information on subscription, see [Subscription](/database/subscription.md).
+
 - `source.referencing_index_restrictions`: You can set list of restrictions on the index values of the referencing record.
   This is useful when you want to restrict the referencing record to have certain index names and values.
 
-  
+
 ## Referencing Index Restrictions
 
 You can set restrictions on the index values of the referencing record.
@@ -168,6 +161,8 @@ This is useful when you want to restrict the referencing record to have certain 
 For example, you can set the index value range so the total rating value does not exceed a certain value.
 
 Example below shows how you can build a review board where only 10 people are allowed to rate 1 to 5 and each user can only rate once.
+
+It is important to set restrictions on index values for cases like rating systems where you want to prevent users from posting malicious data to mess up your index informations.
 
 ```js
 let pollPost = skapi.postRecord({
@@ -209,6 +204,7 @@ If `range` is set, the referencing record must have the same index name with the
 
 If `condition` is set, the referencing record must have the same index name with the index value that satisfies the condition to the `value`. `condition` can be one of the following: `=`, `!=`, `>`, `<`, `>=`, `<=`. `condition` cannot be used with `range`.
 
+
 ## Creating a Poll with Restricted Referencing
 
 Now people can post a review by referencing the **pollPost**:
@@ -229,3 +225,23 @@ skapi.postRecord({
 
 Note that the "Review.Album.Stardust" `index` uses a `value` of type `number` so you can later retrieve the average rating and total sum of the values.
 
+
+## Powerful Ways to Use Reference Records
+
+1. Discussion board
+   
+   The owner of the reference record has all access to the referencing records.
+   
+   Meaning, the user who uploaded the source of the reference record can have authority to delete the referencing records owned by other users, have access to all access levels referencing records including private records.
+
+   This is useful when you want to build a discussion board where the owner can remove the comments, let users post private comments to reference owner.
+   
+2. Rating/voting system
+   
+   You can set restrictions on the number of times a record can be referenced, prevent multiple referencing for each users, and restrict the index values of the referencing record.
+
+   While Skapi database works as schema-less in nature, you can use this characteristic to have more control over how your users can post data to your service.
+
+3. Sharing private data between limited users
+   
+   If the reference record has a private access group, only the users who have access to the reference record can access the referencing records.
