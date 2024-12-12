@@ -33,7 +33,7 @@ skapi.postRecord(data, config).then(response => {
 ## Creating a Referencing Record
 
 Note that we have uploaded a record to be referenced,
-we can use the record's `record_id` in `reference.record_id` when uploading a comment record.
+we can use the uploaded record's ID in `reference` when uploading a comment record.
 
 ```js
 let commentRecord = {
@@ -117,7 +117,7 @@ skapi.getRecords({
 
 ## Removing a reference
 
-To remove a reference, set the the `reference.record_id` parameter to `null` when updating the record.
+To remove a reference, set the the `reference` parameter to `null` when updating the record.
 
 ```js
 skapi.postRecord(undefined, {
