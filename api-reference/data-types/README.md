@@ -142,7 +142,7 @@ type RecordData = {
         prevent_multiple_referencing: false, // Is true if this record prevents a single user to upload a record referencing this record multiple times.
         can_remove_referencing_records: false, // Is true if the owner of the record can remove the referenced records.
         only_granted_can_reference: false, // Is true if only the users who have been granted access to the record can reference this record.
-        feed_referencing_records: false, // Is true if this record's referenced records are included in the subscription feed.
+        allow_referencing_to_feed: false, // Is true if this record's referenced records are included in the subscription feed.
         referencing_index_restrictions?: {
             /** Not allowed: White space, special characters. Allowed: Alphanumeric, Periods. */
             name: string; // Allowed index name
