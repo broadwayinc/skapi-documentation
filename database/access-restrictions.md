@@ -11,7 +11,7 @@ The following values can be set for `table.access_group`:
 - `private`: Only the uploader of the record will have access.
 - `public`: The record will be accessible to everyone.
 - `authorized`: The record will only be accessible to users who are logged into your service.
-- `admin`: The record will only be accessible to the admin of your service.
+- `admin`: Only admin can use this group. The record will only be accessible to the admin of your service.
 
 If `access_group` is not set, the default value is `public`.
 
