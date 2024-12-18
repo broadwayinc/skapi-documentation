@@ -13,7 +13,7 @@ postRecord(
             name: string; // Other than space and period, special characters are not allowed.
             access_group?: number | 'private' | 'public' | 'authorized' | 'admin';  // Default: 'public'
             subscription?: {
-                group: number; // subscription group. default 1.
+                group: number; // subscription group. 1~99.
                 exclude_from_feed?: boolean; // When true, record will be excluded from the subscribers feed.
                 notify_subscribers?: boolean; // When true, subscribers will receive notification when the record is uploaded.
             };
@@ -264,8 +264,9 @@ See [Tag](/api-reference/data-types/README.md#tag)
 subscribe(
     {
         user_id: string;
+        group: number | number[];
     }
-): Promise<'SUCCESS: the user has subscribed.'>
+): Promise<'SUCCESS: The user has subscribed.'>
 ```
 
 
@@ -274,8 +275,9 @@ subscribe(
 unsubscribe(
     {
         user_id: string;
+        group: number | number[];
     }
-): Promise<'SUCCESS: the user has unsubscribed.'>
+): Promise<'SUCCESS: The user has unsubscribed.'>
 ```
 
 
@@ -285,8 +287,9 @@ unsubscribe(
 blockSubscriber(
     {
         user_id: string;
+        group: number | number[];
     }
-): Promise<'SUCCESS: blocked user id "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".'>
+): Promise<'SUCCESS: Blocked user id "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".'>
 ```
 
 ## unblockSubscriber
@@ -295,8 +298,9 @@ blockSubscriber(
 unblockSubscriber(
     {
         user_id: string;
+        group: number | number[];
     }
-): Promise<'SUCCESS: unblocked user id "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".'>
+): Promise<'SUCCESS: Unblocked user id "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".'>
 ```
 
 
@@ -308,7 +312,10 @@ getSubscriptions(
         // Must have either subscriber and/or subscription value
 
         subscriber?: string; // User ID of the subscriber (User who subscribed)
-        subscription?: string; // User ID of the subscription (User being subscribed to)
+        subscription?: {
+            user_id: string; // User ID of the subscription (User being subscribed to)
+            group?: number | number[];
+        };
         blocked?: boolean; // When true, fetches only blocked subscribers. Default = false
     },
     fetchOptions?: FetchOptions;
@@ -318,6 +325,12 @@ See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
 
 See [Subscription](/api-reference/data-types/README.md#subscripion)
 
+
+## getFeed
+
+```ts
+getFeed(params: null, fetchOptions?: FetchOptions): Promise<DatabaseResponse<RecordData>>
+```
 
 ## getFile
     

@@ -261,11 +261,14 @@ type Tag = {
 
 ```ts
 type Subscription = {
-    subscriber: string; // User ID of the subscriber
-    subscription: string; // User ID of the user which subscriber has subscribed to
-    group: number; // Subscription group 1~99
-    timestamp: number; // Subscription timestamp(milliseconds)
-    blocked: boolean; // true when subscriber is blocked
+    subscriber: string; // Subscriber ID
+    subscription: string; // Subscription ID
+    group: number; // Subscription group number
+    timestamp: number; // Subscribed UNIX timestamp
+    blocked: boolean; // True when subscriber is blocked by subscription
+    get_feed: boolean; // True when subscriber gets feed
+    get_notified: boolean; // True when subscriber gets notified
+    get_email: boolean; // True when subscriber gets email
 }
 ```
 
