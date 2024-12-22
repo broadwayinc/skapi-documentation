@@ -27,7 +27,7 @@ type UserProfile = {
      This timestamp is generated when the user confirms their signup, or recovers their disabled account.
      [by_skapi | by_admin] : [approved | suspended] : [timestamp]
      */
-    approved: string;
+    approved: 'by_master:approved' | 'by_skapi:approved' | 'by_admin:approved' | 'by_skapi:suspended' | 'by_admin:suspended' | 'by_master:suspended';
     log:number; // Last login timestamp(Seconds).
 
     /**
