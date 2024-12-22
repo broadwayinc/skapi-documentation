@@ -88,7 +88,7 @@ The `searchFor` parameter specifies the attribute to search for, and the value p
 - `locale`: the user's locale, a string representing the country code (e.g "US" for United States).
 - `subscribers`: number of subscribers the user has, number
 - `timestamp`: timestamp of user's sign-up, number(13 digit unix time)
-- `approved`: search by account approval status, object: { by: 'admin' | 'skapi' | 'master'; approved?: boolean }
+- `approved`: search by account approval status, object: ```{ by: 'admin' | 'skapi' | 'master'; approved?: boolean }```
 
 
 #### The `condition` parameter allows you to set the search condition.
