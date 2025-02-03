@@ -29,7 +29,6 @@ postRecord(
             prevent_multiple_referencing?: boolean; // If true, a single user can reference this record only once.
             only_granted_can_reference?: boolean; // When true, only the user who has granted private access to the record can reference this record.
             can_remove_referencing_records?: boolean; // When true, owner of the record can remove any record that are referencing this record. Also when this record is deleted, all the record referencing this record will be deleted.
-            allow_referencing_to_feed?: boolean; // When true, and if this is a record in subscription table, records referencing this record will be included to the subscribers feed.
             referencing_index_restrictions?: {
                 /** Not allowed: White space, special characters. Allowed: Alphanumeric, Periods. */
                 name: string; // Allowed index name

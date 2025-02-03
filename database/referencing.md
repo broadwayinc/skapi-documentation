@@ -146,9 +146,6 @@ When uploading record via [`postRecord()`](/api-reference/database/README.md#pos
   The default value is `false`.
 
 - `source.only_granted_can_reference`: When set to `true`, only the user who has granted private access to the record can reference this record.
-  
-- `source.allow_referencing_to_feed`: When set to `true`, and if this is a record referencing a record in a subscription table, it will be included to the reference record owner's feed.
-  For more information on subscription, see [Subscription](/database/subscription.md).
 
 - `source.referencing_index_restrictions`: You can set list of restrictions on the index values of the referencing record.
   This is useful when you want to restrict the referencing record to have certain index names and values.

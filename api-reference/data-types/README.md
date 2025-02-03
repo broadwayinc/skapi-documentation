@@ -23,14 +23,24 @@ type UserProfile = {
     locale:string; // The country code of the user's location when they signed up.
 
     /**
-     Account approval timestamp.
-     [by_master] is when account approval is done manually from skapi admin panel,
-     [by_skapi] is when account approval is automatically done,
-     [by_admin] is when approval is done by the admin account manually within your service.
-     This timestamp is generated when the user confirms their signup, or recovers their disabled account.
-     [by_skapi | by_admin | by_master] : [approved | suspended] : [timestamp]
+    Account approval info and timestamp.
+    Comes with string with the following format: "{approver}:{approved | suspended}:{approved_timestamp}"
+    
+    {approver} is who approved the account:
+        [by_master] is when account approval is done manually from skapi admin panel,
+        [by_admin] is when approval is done by the admin account with api call within your service.
+        [by_skapi] is when account approval is automatically done.
+        Open ID logger ID will be the value if the user is logged with openIdLogin()
+        This timestamp is generated when the user confirms their signup, or recovers their disabled account.
+    
+    {approved | suspended}
+        [approved] is when the account is approved.
+        [suspended] is when the account is blocked by the admin or the master.
+    
+    {approved_timestamp} is the timestamp when the account is approved or suspended.
+
      */
-    approved: 'by_master:approved' | 'by_skapi:approved' | 'by_admin:approved' | 'by_skapi:suspended' | 'by_admin:suspended' | 'by_master:suspended';
+    approved: string;
     log:number; // Last login timestamp(Seconds).
 
     /**
@@ -52,8 +62,8 @@ type UserProfile = {
     address?:string // The user's address.
     gender?:string // The user's gender. Can be "female" or "male"; or other values if neither of these are applicable.
     birthdate?:string; // The user's birthdate in the format "YYYY-MM-DD".
-    email_public?:boolean; // The user's email is public if this is set to true. The email should be verified.
-    phone_number_public?:boolean; // The user's phone number is public if this is set to true. The phone number should be verified.
+    email_public?:boolean; // The user's email is public if this is set to true.
+    phone_number_public?:boolean; // The user's phone number is public if this is set to true.
     address_public?:boolean; // The user's address is public if this is set to true.
     gender_public?:boolean; // The user's gender is public if this is set to true.
     birthdate_public?:boolean; // The user's birthdate is public if this is set to true.
@@ -145,7 +155,6 @@ type RecordData = {
         prevent_multiple_referencing: false, // Is true if this record prevents a single user to upload a record referencing this record multiple times.
         can_remove_referencing_records: false, // Is true if the owner of the record can remove the referenced records.
         only_granted_can_reference: false, // Is true if only the users who have been granted access to the record can reference this record.
-        allow_referencing_to_feed: false, // Is true if this record's referenced records are included in the subscription feed.
         referencing_index_restrictions?: {
             /** Not allowed: White space, special characters. Allowed: Alphanumeric, Periods. */
             name: string; // Allowed index name
@@ -169,7 +178,7 @@ type RecordData = {
 
 ```ts
 type BinaryFile = {
-    access_group: number | 'private' | 'public' | 'authorized'; // Allowed access level of this file.
+    access_group: number | 'private' | 'public' | 'authorized' | 'admin'; // Allowed access level of this file.
     filename: string; // Filename of the file.
     url: string; // Full URL endpoint of the file.
     path: string; // Path of the file.
