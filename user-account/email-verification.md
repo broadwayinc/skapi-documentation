@@ -29,7 +29,7 @@ The example below shows how you can verify your users email address.
     console.log(res);
 
     // Prompt user to enter the verification code
-    let code = prompt('Enter the verification code');
+    let code = prompt('Enter the verification code sent to your E-Mail');
     
     // Verify E-Mail with the code
     skapi.verifyEmail({ code }).then(res=>{

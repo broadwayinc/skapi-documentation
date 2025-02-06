@@ -19,7 +19,7 @@ users will not be able to log in until they have confirmed their account.
 When the user has successfully confirmed their signup and logged in, they will be sent a welcome email.
 You can also customize the email template for the signup confirmation email.
 
-For more info on email templates, see [E-Mail Templates](../email/email-templates.md).
+For more info on email templates, see [Automated E-Mail](../email/email-templates.md).
 :::
 
 Below is an example of a login form that uses the [`login()`](/api-reference/authentication/README.md#login) method.
@@ -59,9 +59,20 @@ please refer to the API Reference below:
 
 ### [`login(params): Promise<UserProfile>`](/api-reference/authentication/README.md#login)
 
-## Checking the Login status
+## Getting User Information
 
-The [`getProfile()`](/api-reference/authentication/README.md#getprofile) method allows you to retrieve the user's information.
+When user is logged in to your service, you can retrieve their information from `user` property of the Skapi object.
+This property is getter-only, and will not be object reference.
+
+It returns the [UserProfile](/api-reference/data-types/README.md#userprofile) object.
+
+```js
+console.log(skapi.user); // null when user is logged out, User's information object when logged in.
+```
+
+## Requesting User Information
+
+The [`getProfile()`](/api-reference/authentication/README.md#getprofile) method allows you to retrieve the user's information from the backend.
 It returns the [UserProfile](/api-reference/data-types/README.md#userprofile) object.
 
 If the user is not logged in, [`getProfile()`](/api-reference/authentication/README.md#getprofile) returns `null`.
@@ -81,6 +92,7 @@ please refer to the API Reference below:
 
 ### [`getProfile(options?): Promise<UserProfile | null>`](/api-reference/authentication/README.md#getprofile)
 
+
 ## Auto Login
 
 By default, once user login to your website, their login session is maintained until they logout.
@@ -95,6 +107,37 @@ const options = {
 //Set the third argument as options
 const skapi = new Skapi('service_id', 'owner_id', options);
 ```
+
+## Listening to Login Status
+
+You can listen to the login status of the user by setting a callback function in the `option.eventListener.onLogin` option argument of the constructor argument in Skapi.
+
+The `onLogin` callback function will be called whenever the user logs in, logs out, or even when their profile is updated.
+
+The callback function will receive the [UserProfile](/api-reference/data-types/README.md#userprofile) object as an argument.
+
+```js
+const options = {
+  eventListener: {
+    onLogin: (profile) => {
+      console.log(profile); // null when user is logged out, User's information object when logged in.
+    }
+  }
+};
+
+const skapi = new Skapi('service_id', 'owner_id', options);
+```
+
+You can also add multiple event listeners to the `onLogin` event after the Skapi object has been initialized.
+
+```js
+skapi.onLogin = (profile) => {
+  console.log(profile); // null when user is logged out, User's information object when logged in.
+}
+```
+
+This handler can be useful for updating the UI when the user logs in or logs out.
+
 
 ## Logout
 

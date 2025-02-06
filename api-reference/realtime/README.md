@@ -1,4 +1,4 @@
-# Realtime Connection
+# API Reference: Realtime Connection
 
 ## connectRealtime
 

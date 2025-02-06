@@ -6,25 +6,40 @@
 postRecord(
     data: SubmitEvent | { [key: string] : any } | null,
     config: {
+        record_id?: string; // Only used when updating records.
+        unique_id?: string; // Unique ID to set to the record. If null is given, it will remove the previous unique ID when updating.
         // 'table' is optional when record ID is used.
         table: string | {
             name: string; // Other than space and period, special characters are not allowed.
-            access_group?: number | 'private' | 'public' | 'authorized';  // Default: 'public'
-            subscription?: boolean // Post record to subscription table if true. Default: false
+            access_group?: number | 'private' | 'public' | 'authorized' | 'admin';  // Default: 'public'
+            subscription?: {
+                group: number; // subscription group. 1~99.
+                exclude_from_feed?: boolean; // When true, record will be excluded from the subscribers feed.
+                notify_subscribers?: boolean; // When true, subscribers will receive notification when the record is uploaded.
+            };
         };
-        record_id?: string; // Only used when updating records.
         readonly?: boolean; // Default: false. When true, the record cannot be updated.
         index?: {
             name: string; // Only alphanumeric and period allowed.
             value: string | number | boolean; // Only alphanumeric and spaces allowed.
         };
         tags?: string | <string>[]; // Only alphanumeric and spaces allowed. It can also be an array of strings or a string with comma separated values.
-        reference?: {
-            record_id?: string; // ID of the record to reference.
-            allow_multiple_reference?: boolean; // default: true
-            reference_limit?: number | null; // Set to 0 to block referencing, null for no limit.
+        source?: {
+            referencing_limit?: number; // Default: null (Infinite)
+            prevent_multiple_referencing?: boolean; // If true, a single user can reference this record only once.
+            only_granted_can_reference?: boolean; // When true, only the user who has granted private access to the record can reference this record.
+            can_remove_referencing_records?: boolean; // When true, owner of the record can remove any record that are referencing this record. Also when this record is deleted, all the record referencing this record will be deleted.
+            referencing_index_restrictions?: {
+                /** Not allowed: White space, special characters. Allowed: Alphanumeric, Periods. */
+                name: string; // Allowed index name
+                /** Not allowed: Periods, special characters. Allowed: Alphanumeric, White space. */
+                value?: string | number | boolean; // Allowed index value
+                range?: string | number | boolean; // Allowed index range
+                condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // Allowed index value condition
+            }[];
         };
-        remove_bin?: BinaryFile[] | string[]; // Removes bin data from the record.
+        reference?: string; // Reference to another record. When value is given, it will reference the record with the given value. Can be record ID or unique ID.
+        remove_bin?: BinaryFile[] | string[] | null; // If the BinaryFile object or the url of the file is given, it will remove the bin data(files) from the record. The file should be uploaded to this record. If null is given, it will remove all the bin data(files) from the record.
         progress: ProgressCallback; // Progress callback function. Usefull when uploading files.
     };
 ): Promise<RecordData>
@@ -32,23 +47,33 @@ postRecord(
 
 See [RecordData](/api-reference/data-types/README.md#recorddata)
 
+See [ProgressCallback](/api-reference/data-types/README.md#progresscallback)
+
+See [BinaryFile](/api-reference/data-types/README.md#binaryfile)
+
 ## getRecords
 
 ```ts
 getRecords(
     query: {
-        record_id?: string; // When record ID is given, all other parameters are bypassed.
-        
+        record_id?: string; // When record ID is given, it will fetch the record with the given record ID. all other parameters are bypassed and will override unique ID.
+        unique_id?: string; // Unique ID of the record. When unique ID is given, it will fetch the record with the given unique ID. All other parameters are bypassed.
         /** When the table is given as a string value, the value is the table name. */
         table: string | {
             name: string,
-            access_group?: number | 'private' | 'public' | 'authorized'; // 0 to 99 if using number. Default: 'public'
-            subscription?: string; // User ID of the subscription (User being subscribed to)
+            access_group?: number | 'private' | 'public' | 'authorized' | 'admin'; // 0 to 99 if using number. Default: 'public'
+            subscription?: {
+                user_id: string;
+                /** Number range: 0 ~ 99 */
+                group: number;
+            };
         };
 
         /**
+         * When unique ID is given, it will fetch the records referencing the given unique ID.
          * When record ID is given, it will fetch the records referencing the given record ID.
          * When user ID is given, it will fetch the records uploaded by the given user ID.
+         * When fetching record by record_id or unique_id that user has restricted access, but the user has been granted access to reference, user can fetch the record if the record ID or the unique ID of the reference is set to reference parameter.
          */
         reference?: string;
 
@@ -145,13 +170,39 @@ removePrivateRecordAccess(
 
 ```ts
 deleteRecords({
-    record_id?: string | string[],
-    table?: { // ignored if record_id is provided
-        name: string;
-        access_group?: number | 'private' | 'public' | 'authorized'; // Default = 'public'
-        subscription?: boolean; // Delete records in subscription table if true. Default = false
+    record_id?: string | string[]; // Record ID or an array of record IDs to delete. When record ID is given, it will delete the record with the given record ID. It will bypass all other parameters and will override unique ID.
+    unique_id?: string | string[]; // Unique ID or an array of unique IDs to delete. When unique ID is given, it will delete the record with the given unique ID. It will bypass all other parameters except record_id.
+
+    /** Delete bulk records by query. Query will be bypassed when "record_id" is given. */
+    /** When deleteing records by query, It will only delete the record that user owns. */
+    table: string | {
+        name: string,
+        access_group?: number | 'private' | 'public' | 'authorized' | 'admin'; // 0 to 99 if using number. Default: 'public'
+        subscription?: {
+            user_id: string;
+            /** Number range: 0 ~ 99 */
+            group: number;
+        };
     };
-}): Promise<string>
+
+    /**
+     * When unique ID is given, it will fetch the records referencing the given unique ID.
+     * When record ID is given, it will fetch the records referencing the given record ID.
+     * When user ID is given, it will fetch the records uploaded by the given user ID.
+     * When fetching record by record_id or unique_id that user has restricted access, but the user has been granted access to reference, user can fetch the record if the record ID or the unique ID of the reference is set to reference parameter.
+     */
+    reference?: string;
+
+    index?: {
+        /** '$updated' | '$uploaded' | '$referenced_count' | '$user_id' are the reserved index names. */
+        name: string | '$updated' | '$uploaded' | '$referenced_count' | '$user_id';
+        value: string | number | boolean;
+        condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // cannot be used with range. Default: '='
+        range?: string | number | boolean; // cannot be used with condition
+    };
+
+    tag?: string; // Queries records with the given tag.
+}): Promise<string | DatabaseResponse<string>>
 ```
 
 ## getTables
@@ -212,8 +263,9 @@ See [Tag](/api-reference/data-types/README.md#tag)
 subscribe(
     {
         user_id: string;
+        group: number | number[];
     }
-): Promise<'SUCCESS: the user has subscribed.'>
+): Promise<'SUCCESS: The user has subscribed.'>
 ```
 
 
@@ -222,8 +274,9 @@ subscribe(
 unsubscribe(
     {
         user_id: string;
+        group: number | number[];
     }
-): Promise<'SUCCESS: the user has unsubscribed.'>
+): Promise<'SUCCESS: The user has unsubscribed.'>
 ```
 
 
@@ -233,8 +286,9 @@ unsubscribe(
 blockSubscriber(
     {
         user_id: string;
+        group: number | number[];
     }
-): Promise<'SUCCESS: blocked user id "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".'>
+): Promise<'SUCCESS: Blocked user id "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".'>
 ```
 
 ## unblockSubscriber
@@ -243,8 +297,9 @@ blockSubscriber(
 unblockSubscriber(
     {
         user_id: string;
+        group: number | number[];
     }
-): Promise<'SUCCESS: unblocked user id "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".'>
+): Promise<'SUCCESS: Unblocked user id "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".'>
 ```
 
 
@@ -256,7 +311,10 @@ getSubscriptions(
         // Must have either subscriber and/or subscription value
 
         subscriber?: string; // User ID of the subscriber (User who subscribed)
-        subscription?: string; // User ID of the subscription (User being subscribed to)
+        subscription?: {
+            user_id: string; // User ID of the subscription (User being subscribed to)
+            group?: number | number[];
+        };
         blocked?: boolean; // When true, fetches only blocked subscribers. Default = false
     },
     fetchOptions?: FetchOptions;
@@ -265,3 +323,26 @@ getSubscriptions(
 See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
 
 See [Subscription](/api-reference/data-types/README.md#subscripion)
+
+
+## getFeed
+
+```ts
+getFeed(params: null, fetchOptions?: FetchOptions): Promise<DatabaseResponse<RecordData>>
+```
+
+## getFile
+    
+```ts
+getFile(
+    url: string,
+    config?: {
+        dataType: 'base64' | 'download' | 'endpoint' | 'blob' | 'text' | 'info';
+    },
+    progressCallback?: ProgressCallback
+): Promise<Blob | string | FileInfo | void>
+```
+
+See [FileInfo](/api-reference/data-types/README.md#fileinfo)
+
+See [ProgressCallback](/api-reference/data-types/README.md#progresscallback)

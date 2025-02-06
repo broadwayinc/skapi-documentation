@@ -51,11 +51,10 @@ export { skapi }
 Be sure to replace `'service_id'` and `'owner_id'` in `new Skapi()` with the actual values of your service.
 :::
 
-## 3. Test your connection
 
-After you initialized the Skapi library, you can test your connection by pinging your request with the `mock()` method.
+## 3. Get connection info
 
-Below is an example of how you can use the `mock()` method in both HTML forms and SPA code.
+When the client has successfully connected to the Skapi server, the [`getConnectionInfo()`](/api-reference/connection/README.md#getconnectioninfo) method will return the connection information.
 
 ::: code-group
 ```html [HTML]
@@ -65,25 +64,39 @@ Below is an example of how you can use the `mock()` method in both HTML forms an
 <script>
     const skapi = new Skapi('service_id', 'owner_id');
 </script>
-
-<form onsubmit='skapi.mock(event).then(ping => alert(ping.msg))'>
-    <input name='msg' placeholder='Test message'>
-    <input type='submit' value='Test Connection'>
-</form>
+<script>
+skapi.getConnectionInfo().then(info => {
+    console.log(info);
+    /*
+    Returns:
+    {
+        service_name: "Your Service Name",
+        user_ip: "Connected user's IP address",
+        user_agent: "Connected user agent",
+        user_locale: "Connected user's country code",
+        version: 'x.x.x' // Skapi library version
+    }
+    */
+   window.alert(`Connected to ${info.service_name}`);
+});
+</script>
 ```
 
 ```javascript [SPA]
 import { skapi } from '../location/of/your/main.js';
-skapi.mock({msg: 'Hello World!'}).then(ping => alert(ping.msg))
+skapi.getConnectionInfo().then(info => {
+    console.log(info);
+    /*
+    Returns:
+    {
+        service_name: "Your Service Name",
+        user_ip: "Connected user's IP address",
+        user_agent: "Connected user agent",
+        user_locale: "Connected user's country code",
+        version: 'x.x.x' // Skapi library version
+    }
+    */
+   window.alert(`Connected to ${info.service_name}`);
+});
 ```
-:::
-
-This will send a request to your Skapi service and ping back the response.
-When the request is resolved, the `mock()` method will return the response data as a `Promise` object.
-The response data will be displayed in an alert box.
-
-::: tip
-Skapi is capable of handling HTML `onsubmit` event directly.
-
-For more information, see [Working with HTML forms](/introduction/working-with-forms).
 :::

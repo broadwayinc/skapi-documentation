@@ -1,13 +1,4 @@
-# Creating Records
-
-Database is a crucial part of any application.
-You may want to store user data, application data, or any other data that is important to your application.
-
-Skapi provides a powerful database that combines the best characteristics of NoSQL and SQL.
-Skapi database does not require any pre configuration or schema design and is ready to use out of the box.
-At Skapi, we call each data in the database a "record".
-
-## Creating a Record
+# Creating a Record
 
 :::warning
 User must be logged in to call this method
@@ -60,6 +51,8 @@ When the request is successful, the [RecordData](/api-reference/data-types/READM
 In this example, the first argument takes the actual data to be uploaded to the database.
 The data is a Javascript object that has string value in the key 'something'.
 And in the second argument we have set table name to be `my_collection`.
+
+Table name is a required field in the configuration object and the table name should not contain any special characters.
 
 For more detailed information on all the parameters and options available with the [`postRecord()`](/api-reference/database/README.md#postrecord) method, 
 please refer to the API Reference below:
