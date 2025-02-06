@@ -87,7 +87,7 @@ The example above shows how to let your visitors subscribe to the service mail b
 
 The [`adminNewsletterRequest()`](/api-reference/email/README.html#adminnewsletterrequest) method allows administrators to request a personalized email endpoint for sending newsletters. Only users with administrator privileges (access group 99) can request this endpoint.
 
-To send newsletters, an admin must first request a personalized endpoint using skapi.adminNewsletterRequest(). This method verifies admin privileges and returns a unique URL for sending emails.
+To send newsletters, an admin must first request a personalized endpoint using [`adminNewsletterRequest()`](/api-reference/email/README.html#adminnewsletterrequest). This method verifies admin privileges and returns a unique URL for sending emails.
 
 ```js [JS]
 skapi.adminNewsletterRequest().then(response => {
