@@ -26,6 +26,12 @@ unsubscribeNewsletter(
 ): Promise<string>
 ```
 
+## adminNewsletterRequest
+
+```ts
+adminNewsletterRequest(): Promise<string>
+```
+
 ## getNewsletterSubscription
 
 ```ts
