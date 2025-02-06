@@ -57,13 +57,15 @@ the user will see 'Your signup has been successfully confirmed.' message in thei
 
 :::danger
 Relative URL path will not work if the website is not hosted.
+
 If the website is running on local file system (e.g. `file:///C:/Users/username/Desktop/website/index.html`),
+
 redirect URL of `signup_confirmation` should be the full URL (e.g. `https://your.website.com/path/to/your/success/page`).
 :::
 
 You can also customize the email template for the signup confirmation email.
 
-For more info on email templates, see [E-Mail Templates](../email/email-templates.md).
+For more info on email templates, see [Automated E-Mail](../email/email-templates.md).
 
 ## Resending Signup Confirmation Email
 
@@ -77,8 +79,7 @@ If you need to resend the confirmation email, use the [`resendSignupConfirmation
     .catch(err => {
         if(err.code === 'SIGNUP_CONFIRMATION_NEEDED') {
           if(confirm('Your signup confirmation is required. Resend confirmation email?')) {
-            let redirect = 'https://your.website.com/success/page';
-            skapi.resendSignupConfirmation(redirect).then(res=>{
+            skapi.resendSignupConfirmation().then(res=>{
               console.log(res); // 'SUCCESS: Signup confirmation E-Mail has been sent.'
             });
           }
@@ -109,8 +110,7 @@ skapi.login({email: 'user@email.com', password: 'password'})
             
             if(sendConfirmation) {
                 // now you can resend signup confirmation E-Mail to user@email.com.
-                let redirect = 'https://your.website.com/success/page';
-                skapi.resendSignupConfirmation(redirect).then(res=>{
+                skapi.resendSignupConfirmation().then(res=>{
                 console.log(res); // 'SUCCESS: Signup confirmation E-Mail has been sent.'
                 });
             }
@@ -125,12 +125,10 @@ In this example, the user tries to login and receives a `SIGNUP_CONFIRMATION_NEE
 
 Then, if the user chooses to, you can use the [`resendSignupConfirmation()`](/api-reference/authentication/README.md#resendsignupconfirmation) method to resend the confirmation email to the user's email address.
 
-You can provide a URL string in the first argument to redirect the user after successful confirmation.
-
 For more detailed information on all the parameters and options available with the [`resendSignupConfirmation()`](/api-reference/authentication/README.md#resendsignupconfirmation) method, 
 please refer to the API Reference below:
 
-### [`resendSignupConfirmation(redirect?): Promise<string>`](/api-reference/authentication/README.md#resendsignupconfirmation)
+### [`resendSignupConfirmation(): Promise<string>`](/api-reference/authentication/README.md#resendsignupconfirmation)
 
 ::: warning
 - To resend signup confirmation emails, the user must have at least one login attempt to your service.

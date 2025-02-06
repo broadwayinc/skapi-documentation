@@ -88,6 +88,7 @@ The `searchFor` parameter specifies the attribute to search for, and the value p
 - `locale`: the user's locale, a string representing the country code (e.g "US" for United States).
 - `subscribers`: number of subscribers the user has, number
 - `timestamp`: timestamp of user's sign-up, number(13 digit unix time)
+- `approved`: search by account approval status, object: ```{ by: 'admin' | 'skapi' | 'master'; approved?: boolean }```
 
 
 #### The `condition` parameter allows you to set the search condition.
@@ -101,7 +102,7 @@ The `searchFor` parameter specifies the attribute to search for, and the value p
 When searching for a `string` attribute, `>` and `<` will search for strings that are higher or lower in the lexicographical order, respectively. And `>=` operator works as 'start with' condition.
 
 :::info
-- Conditional query does not work on `user_id`, `email`, `phone_number`. It must be searched with the '=' condition.
+- Conditional query does not work on `user_id`, `email`, `phone_number`, `approved`. It must be searched with the '=' condition.
 - Users cannot search for attributes that are not set to public.
 :::
 

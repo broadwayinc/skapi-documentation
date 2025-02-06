@@ -1,5 +1,17 @@
 # API Reference: Data Types
 
+## ConnectionInfo
+
+```ts
+type ConnectionInfo = {
+    service_name: string; // Connected Service Name
+    user_ip: string; // Connected user's IP address
+    user_agent: string; // Connected user agent
+    user_locale: string; // Connected user's country code
+    version: string; // Skapi library version: 'xxx.xxx.xxx' (major.minor.patch)
+}
+```
+
 ## UserProfile
 
 ```ts
@@ -11,9 +23,22 @@ type UserProfile = {
     locale:string; // The country code of the user's location when they signed up.
 
     /**
-     Account approval timestamp.
-     This timestamp is generated when the user confirms their signup, or recovers their disabled account.
-     [by_skapi | by_admin] : [approved | suspended] : [timestamp]
+    Account approval info and timestamp.
+    Comes with string with the following format: "{approver}:{approved | suspended}:{approved_timestamp}"
+    
+    {approver} is who approved the account:
+        [by_master] is when account approval is done manually from skapi admin panel,
+        [by_admin] is when approval is done by the admin account with api call within your service.
+        [by_skapi] is when account approval is automatically done.
+        Open ID logger ID will be the value if the user is logged with openIdLogin()
+        This timestamp is generated when the user confirms their signup, or recovers their disabled account.
+    
+    {approved | suspended}
+        [approved] is when the account is approved.
+        [suspended] is when the account is blocked by the admin or the master.
+    
+    {approved_timestamp} is the timestamp when the account is approved or suspended.
+
      */
     approved: string;
     log:number; // Last login timestamp(Seconds).
@@ -37,8 +62,8 @@ type UserProfile = {
     address?:string // The user's address.
     gender?:string // The user's gender. Can be "female" or "male"; or other values if neither of these are applicable.
     birthdate?:string; // The user's birthdate in the format "YYYY-MM-DD".
-    email_public?:boolean; // The user's email is public if this is set to true. The email should be verified.
-    phone_number_public?:boolean; // The user's phone number is public if this is set to true. The phone number should be verified.
+    email_public?:boolean; // The user's email is public if this is set to true.
+    phone_number_public?:boolean; // The user's phone number is public if this is set to true.
     address_public?:boolean; // The user's address is public if this is set to true.
     gender_public?:boolean; // The user's gender is public if this is set to true.
     birthdate_public?:boolean; // The user's birthdate is public if this is set to true.
@@ -46,7 +71,7 @@ type UserProfile = {
     profile?: string; // URL of the profile page.
     website?: string; // URL of the website.
     nickname?: string; // Nickname of the user.
-    misc?: string; // Additional string value that can be used freely. This value is only visible from skapi.getProfile()
+    misc?: string; // Additional string value that can be used freely. This value is only visible from skapi.getProfile(). Not to others.
 }
 ```
 
@@ -107,25 +132,39 @@ type DatabaseResponse<T> = {
 
 ```ts
 type RecordData = {
-    service: string; // Service ID of the current service.
     record_id: string; // Record ID of this record
+    unique_id?: string; // Unique ID of this record
     user_id: string; // Uploaders user ID.
     updated: number; // Timestamp in milliseconds.
     uploaded: number; // Timestamp in milliseconds.
     ip: string; // IP address of uploader.
-    readonly: boolean; // Is True if this record is readonly.
-    bin?: { [key: string]: BinaryFile[] }; // List of binary file info the record is holding.
+    readonly: boolean; // Is true if this record is readonly.
+    bin: { [key: string]: BinaryFile[] }; // List of binary file info the record is holding.
+    referenced_count: number;
+    
     table: {
         name: string; // Table name
-        access_group: number | 'private' | 'public' | 'authorized'; // Allowed access level of this record.
-        subscription?: boolean; // true if the record is in the subscription access level.
+        access_group: number | 'private' | 'public' | 'authorized' | 'admin'; // Allowed access level of this record.
+        subscription?: {
+            user_id: string; // User ID of the subscription.
+            group: number; // Subscription group 1~99
+        }
     };
-    reference: {
-        record_id?: string; // ID of a record that this record is referencing.
-        reference_limit: number | null; // Number of reference this record is allowing. Infinite if null.
-        allow_multiple_reference: boolean; // Is True if this record allows other users to upload a record referencing this record multiple times.
-        referenced_count: number; // Number of records that referenced this record.
-    };
+    source: {
+        referencing_limit: null, // Number of reference this record is allowing. Infinite if null.
+        prevent_multiple_referencing: false, // Is true if this record prevents a single user to upload a record referencing this record multiple times.
+        can_remove_referencing_records: false, // Is true if the owner of the record can remove the referenced records.
+        only_granted_can_reference: false, // Is true if only the users who have been granted access to the record can reference this record.
+        referencing_index_restrictions?: {
+            /** Not allowed: White space, special characters. Allowed: Alphanumeric, Periods. */
+            name: string; // Allowed index name
+            /** Not allowed: Periods, special characters. Allowed: Alphanumeric, White space. */
+            value?: string | number | boolean; // Allowed index value
+            range?: string | number | boolean; // Allowed index range
+            condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // Allowed index value condition
+        }[]
+    },
+    reference?: string; // Reference ID of this record.
     index?: {
         name: string; // Index name.
         value: string | number | boolean; // Value of the index.
@@ -139,13 +178,13 @@ type RecordData = {
 
 ```ts
 type BinaryFile = {
-    access_group: number | 'private' | 'public' | 'authorized'; // Allowed access level of this file.
+    access_group: number | 'private' | 'public' | 'authorized' | 'admin'; // Allowed access level of this file.
     filename: string; // Filename of the file.
     url: string; // Full URL endpoint of the file.
     path: string; // Path of the file.
     size: number; // Size of the file in bytes.
     uploaded: number; // Timestamp in milliseconds.
-    getFile: (dataType?: 'base64' | 'endpoint' | 'blob', progress?: ProgressCallback) => Promise<Blob | string | void>;
+    getFile: (dataType?: 'base64' | 'download' | 'endpoint' | 'blob' | 'text' | 'info'; progress?: ProgressCallback) => Promise<Blob | string | void | FileInfo>;
 }
 ```
 
@@ -162,6 +201,21 @@ type ProgressCallback = (p: {
     failed?: File[]; // For files only
     abort: () => void; // Aborts current data transfer. When abort is triggered during fileUpload(), it will continue to next file.
 }) => void;
+```
+
+## FileInfo
+
+```ts
+type FileInfo = {
+    url: string;
+    filename: string;
+    access_group: number | 'private' | 'public' | 'authorized';
+    filesize: number;
+    record_id: string;
+    uploader: string;
+    uploaded: number;
+    fileKey: string;
+}
 ```
 
 ## FetchOptions
@@ -219,11 +273,14 @@ type Tag = {
 
 ```ts
 type Subscription = {
-    subscriber: string; // User ID of the subscriber
-    subscription: string; // User ID of the user which subscriber has subscribed to
-    group: number; // Subscription group 1~99
-    timestamp: number; // Subscription timestamp(milliseconds)
-    blocked: boolean; // true when subscriber is blocked
+    subscriber: string; // Subscriber ID
+    subscription: string; // Subscription ID
+    group: number; // Subscription group number
+    timestamp: number; // Subscribed UNIX timestamp
+    blocked: boolean; // True when subscriber is blocked by subscription
+    get_feed: boolean; // True when subscriber gets feed
+    get_notified: boolean; // True when subscriber gets notified
+    get_email: boolean; // True when subscriber gets email
 }
 ```
 

@@ -21,7 +21,7 @@ signup(
         profile?: string; // URL of the profile page.
         website?: string; // URL of the website.
         nickname?: string; // Nickname of the user.
-        misc?: string; // Additional string value that can be used freely. This value is only visible from skapi.getProfile()
+        misc?: string; // Additional string value that can be used freely. This value is only visible to the account owner.
     },
     options?: {
         /**
@@ -58,10 +58,7 @@ See [UserProfile](/api-reference/data-types/README.md#userprofile)
 ## resendSignupConfirmation
 
 ```ts
-resendSignupConfirmation(
-    /** URL user to be redirected once they click on the confirmation link in the confirmation email. */
-    redirect?: string;
-): Promise<'SUCCESS: Signup confirmation E-Mail has been sent.'>
+resendSignupConfirmation(): Promise<'SUCCESS: Signup confirmation E-Mail has been sent.'>
 ```
 
 #### Errors

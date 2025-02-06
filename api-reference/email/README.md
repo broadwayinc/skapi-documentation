@@ -64,3 +64,17 @@ See [FetchOptions](/api-reference/data-types/README.md#fetchoptions)
 See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
 
 See [Newsletter](/api-reference/data-types/README.md#newsletter)
+
+
+## sendInquiry
+
+```ts
+sendInquiry(
+    params: {
+        name: string;
+        email: string;
+        subject: string;
+        message: string;
+    }
+): Promise<'SUCCESS: Inquiry has been sent.'>
+```

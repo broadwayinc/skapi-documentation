@@ -11,11 +11,9 @@ Password should be at least 6 characters and no more than 60 characters.
 :::code-group
 
 ```html [Form]
-<form onsubmit="skapi.changePassword(event).then(res => {
-    console.log(res); // SUCCESS: Password has been changed.
-})">
-    <input id="password" type="password" name="current_password" placeholder="Current Password" required><br>
-    <input id="password" type="password" name="new_password" placeholder="New Password" required><br>
+<form onsubmit="skapi.changePassword(event).then(res => alert(res))">
+    <input type="password" name="current_password" placeholder="Current Password" required><br>
+    <input type="password" name="new_password" placeholder="New Password" required><br>
     <input type="submit" value="Change Password">
 </form>
 ```
@@ -28,7 +26,7 @@ let params = {
 
 skapi.changePassword(params)
   .then(res => {
-    console.log({res}); // SUCCESS: Password has been changed.
+    alert(res); // SUCCESS: Password has been changed.
   });
 ```
 

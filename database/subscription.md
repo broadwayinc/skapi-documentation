@@ -5,12 +5,21 @@
 User must be logged in to call this method
 :::
 
-Skapi database provides subscription access level in its table.
-Records uploaded with subscription access level requires users to subscribe to the uploader to have access to the records.
+Skapi database provides subscription feature.
 
-You can let users upload records with the subscription access by setting the `table.subscription` to `true`:
+Records uploaded with subscription group requires users to subscribe to the uploader to have access to the records.
 
-Lets assume **user 'A'** uploads a record in table 'Posts' with subscription access level.
+You can let users upload records with the subscription group number by setting `table.subscription.group`.
+
+When user uploads a record with subscription group, other users must subscribe to the uploader to have access to the records.
+
+Subscription feature can useful when you are building a social media platform, blog, etc.
+
+With the subscription feature, user can also block certain users from accessing their subscription group records.
+
+It can be used to track the number of subscribers of the user, feed, notify mass users, etc.
+
+Lets assume **user 'A'** uploads a record in table 'Posts' with subscription group 1.
 
 ```js
 // User 'A' uploads record in subscription table.
@@ -18,7 +27,9 @@ skapi.postRecord(null, {
   table: {
     name:'Posts',
     access_group: 'authorized',
-    subscription: true
+    subscription: {
+      group: 1
+    }
 }})
 ```
 
@@ -30,28 +41,34 @@ To allow other users to access the records that requires subscription, they must
 
 ### [`subscribe(option): Promise<string>`](/api-reference/database/README.md#subscribe)
 
-Lets assume **user 'B'** is logged in and, **user 'B'** is subscribing to **user 'A'**.
+Lets assume **user 'B'** wants to access **user 'A'**s subscription record, **user 'B'** will need to subscribe to **user 'A'**.
 
 ```js
-// User 'B' subscribes to user 'A'.
+// User 'B' subscribes to user 'A' to subscription group 1.
 skapi.subscribe({
-  user_id: 'user_id_of_user_A'
+  user_id: 'user_id_of_user_A',
+  group: 1
 })
 ```
 
+Subsciprtion group number can range from 1 to 99.
+
 Once the **user 'B'** has subscribed to **user 'A'**,
-**user 'B'** will have access to the records in that requires subscription access.
+**user 'B'** can now have access to the records in that subscription group.
 
 ```js
-// User 'B' can get records that requires subscription access of user 'A'
+// User 'B' can get records that requires group 1 subscription of user 'A'
 skapi.getRecords({
   table: {
     name: 'Posts',
     access_group: 'authorized',
-    subscription: 'user_id_of_user_A'
+    subscription: {
+      user_id: 'user_id_of_user_A',
+      group: 1
+    }
   }
 }).then(response => {
-    console.log(response.list); // All posts user 'A' uploaded to table 'Posts' in subscription access level.
+    console.log(response.list); // All posts user 'A' uploaded to table 'Posts' in subscription group 1.
 });
 ```
 
@@ -65,9 +82,13 @@ that can be retrieved using the [`getUsers()`](/api-reference/database/README.md
   Anyone can subscribe to anybody to any subscription group.
   Consider subscription group as a additional layer of database query point that user needs additional action(subscribe) to have access.
 
+  The main purpose of subscription record is to give user access to block certain users from accessing their subscription group records,
+  also able to feed, notify mass users, etc.
+
 - The files uploaded to the records are not security restricted to the subscription group.
   Files uploaded to the records are only restricted to the user's access group.
 :::
+
 
 ### Unsubscribing
 
@@ -75,12 +96,13 @@ that can be retrieved using the [`getUsers()`](/api-reference/database/README.md
 User must be logged in to call this method
 :::
 
-Users can unsubscribe from the users they have subscribed to using the [`unsubscribe()`](/api-reference/database/README.md#unsubscribe) method.
+Users can unsubscribe from the subscription group 1 they have subscribed to using the [`unsubscribe()`](/api-reference/database/README.md#unsubscribe) method.
 
 ```js
 // User 'B'
 skapi.unsubscribe({
-    user_id: 'user_id_of_user_A'
+    user_id: 'user_id_of_user_A',
+    group: 1
 })
 ```
 For more detailed information on all the parameters and options available with the [`unsubscribe()`](/api-reference/database/README.md#unsubscribe) method, 
@@ -99,26 +121,24 @@ When unsubscribed, subscription information may need some time to be updated. (U
 User must be logged in to call this method
 :::
 
-Main benifit of subscription access level is that users can block certain users from accessing their subscription level records.
-But as metioned above, subscription access level is not meant to be used as a security restriction.
+One of the benifit of subscription feature is that users can block certain users from accessing their subscription level records.
+But as metioned above, subscription is not meant to be used as a security restriction.
 
-Even when user has blocked certain users, they still have access to the files attached to the records since the file access level is not restricted to the subscription access.
+Even when user has blocked certain users, they still have access to the files attached to the records since the file access level is not restricted to the subscription access unless it's private or higher access group than the accessing user.
 
 Other than files, blocked users will not have access to any of the record data in the subscription access level.
-
-Users can block certain users from their subscription groups.
-If the user is blocked from a subscription group, they will not have access to the records in that group.
 
 To block a subscriber, user can call the [`blockSubscriber()`](/api-reference/database/README.md#blocksubscriber) method:
 
 ### Blocking a Subscriber
 
 ```js
-// User 'A' blocks user 'B' from accessing all subscription group records.
+// User 'A' blocks user 'B' from accessing all subscription group 1.
 skapi.blockSubscriber({
-    user_id: 'user_id_of_user_B'
+    user_id: 'user_id_of_user_B',
+    group: 1
 }).then(res=>{
-    // User 'B' no longer have access to user A's subscription group records.
+    // User 'B' no longer have access to user A's subscription group 1.
 })
 ```
 
@@ -131,11 +151,12 @@ please refer to the API Reference below:
 ### Unblocking a Subscriber
 
 ```js
-// User 'A' unblocks user 'B' from all subscription group.
+// User 'A' unblocks user 'B' from subscription group 1.
 skapi.unblockSubscriber({
-    user_id: 'user_id_of_user_B'
+    user_id: 'user_id_of_user_B',
+    group: 1
 }).then(res=>{
-    // User 'B' now has access to user A's subscription group records.
+    // User 'B' now has access to user A's subscription group 1.
 })
 ```
 For more detailed information on all the parameters and options available with the [`unblockSubscriber()`](/api-reference/database/README.md#unblocksubscriber) method, 
@@ -149,7 +170,7 @@ The [`getSubscriptions()`](/api-reference/database/README.md#getsubscriptions) m
 
 ### params:
 - `subscriber`: The user ID of the subscriber.
-- `subscription`: The user ID of the uploader.
+- `subscription`: The user ID of the uploader and the subscription group.
 - `blocked`: Set to `true` to only retrieve blocked subscriptions.
 
 Either the `params.subscriber` or `params.subscription` value must be provided.
@@ -175,7 +196,7 @@ skapi.getSubscriptions({
   console.log(response.list);
 });
 
-/** 
+/**
  * Check if userB is subscribed to userA
  */
 skapi.getSubscriptions({
@@ -188,4 +209,25 @@ skapi.getSubscriptions({
 For more detailed information on all the parameters and options available with the [`getSubscriptions()`](/api-reference/database/README.md#getsubscriptions) method, 
 please refer to the API Reference below:
 
-### [`getSubscriptions(params, fetchOptions?): Promise<DatabaseResponse>`](/api-reference/database/README.md#getsubscriptions)
+### [`getSubscriptions(params, fetchOptions?): Promise<DatabaseResponse<RecordData>>`](/api-reference/database/README.md#getsubscriptions)
+
+## Getting Feed
+
+The [`getFeed()`](/api-reference/database/README.md#getfeed) method retrieves the feed of the user.
+
+This method retrieves all the records that the user has ever subscribed to.
+
+You can use this method to build a feed page for the user.
+
+### Examples
+
+```js
+/**
+ * Retrieve all feed of userB
+ */
+skapi.getFeed().then((response) => {
+  console.log(response.list); // all records that userB has ever subscribed to.
+});
+```
+
+### [`getFeed(fetchOptions?): Promise<DatabaseResponse<RecordData>>`](/api-reference/database/README.md#getfeed)
