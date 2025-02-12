@@ -149,6 +149,8 @@ When uploading record via [`postRecord()`](/api-reference/database/README.md#pos
 
 - `source.referencing_index_restrictions`: You can set list of restrictions on the index values of the referencing record.
   This is useful when you want to restrict the referencing record to have certain index names and values.
+  This only affects to the records that are being uploaded with reference and index.
+  This does not affect referencing record without any index.
 
 
 ## Referencing Index Restrictions
