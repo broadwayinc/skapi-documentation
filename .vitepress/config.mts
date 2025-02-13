@@ -63,6 +63,7 @@ export default defineConfig({
           { text: 'Connecting to Realtime', link: '/realtime/connecting.md' },
           { text: 'Sending Realtime Data', link: '/realtime/post.md' },
           { text: 'Realtime Groups', link: '/realtime/group.md' },
+          { text: 'Receiving Notifications', link: '/notification/send-notifications.md' },
         ]
       },
       {
