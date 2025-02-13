@@ -4,14 +4,14 @@ Skapi provides methods to manage push notifications, including subscribing, unsu
 
 ## Subscription
 
-To receive push notifications, users must first subscribe. This requires obtaining a VAPID key and registering a service worker. It is possible to get the VAPID key by calling the method [`vapidPublicKey()`](/api-reference/notification/README.md#vapidPublicKey) and after subscribe by using the method [`subscribeNotification()`](/api-reference/notification/README.md#subscribeNotification).
+To receive push notifications, users must first subscribe. This requires obtaining a VAPID key and registering a service worker. It is possible to get the VAPID key by calling the method [`vapidPublicKey()`](/api-reference/realtime/README.md#vapidpublickey) and after subscribe by using the method [`subscribeNotification()`](/api-reference/realtime/README.md#subscribenotification).
 
 ### Steps:
 1. Add the [`sw.js`](#service-worker-sw-js) file to your environment.
-2. Retrieve the VAPID key using [`vapidPublicKey()`](/api-reference/notification/README.md#vapidPublicKey).
+2. Retrieve the VAPID key using [`vapidPublicKey()`](/api-reference/realtime/README.md#vapidpublickey).
 3. Register a service worker and request notification permissions.
 4. Subscribe to push notifications using `navigator.serviceWorker.pushManager.subscribe()`.
-5. Send the subscription details to Skapi using [`subscribeNotification()`](/api-reference/notification/README.md#subscribeNotification).
+5. Send the subscription details to Skapi using [`subscribeNotification()`](/api-reference/realtime/README.md#subscribenotification).
 
 ### Code Example:
 ```jsx
@@ -78,12 +78,12 @@ await skapi.subscribeNotification(subscription.endpoint, subscription.keys);
 
 ## Unsubscribing
 
-To stop receiving notifications, users need to unsubscribe by calling the method [`unsubscribeNotification()`](/api-reference/notification/README.md#unsubscribeNotification) and passing the endpoint and keys as parameters. 
+To stop receiving notifications, users need to unsubscribe by calling the method [`unsubscribenotification()`](/api-reference/realtime/README.md#unsubscribenotification) and passing the endpoint and keys as parameters. 
 
 ### Steps:
 1. Retrieve the current push subscription from `navigator.serviceWorker.ready.pushManager.getSubscription()`.
 2. If a subscription exists, call `unsubscribe()` on it.
-3. Notify Skapi by calling [`unsubscribeNotification()`](/api-reference/notification/README.md#unsubscribeNotification).
+3. Notify Skapi by calling [`unsubscribeNotification()`](/api-reference/realtime/README.md#unsubscribenotification).
 
 ### Code Example:
 ```jsx
@@ -140,10 +140,10 @@ self.addEventListener('notificationclick', function(event) {
 
 ## Sending Notifications
 
-Use the [`pushNotification()`](/api-reference/notification/README.md#pushNotification) method to send notifications to users. Only admins have permission to send notifications. You can target a specific user or multiple users by providing their IDs. If no user IDs are specified, the notification will be sent to all users who have subscribed to notifications in your system.
+Use the [`pushNotification()`](/api-reference/realtime/README.md#pushnotification) method to send notifications to users. Only admins have permission to send notifications. You can target a specific user or multiple users by providing their IDs. If no user IDs are specified, the notification will be sent to all users who have subscribed to notifications in your system.
 
 ### Steps:
-1. Call [`pushNotification()`](/api-reference/notification/README.md#pushNotification) with the title and body.
+1. Call [`pushNotification()`](/api-reference/realtime/README.md#pushnotification) with the title and body.
 2. Optionally, provide user IDs to send notifications to specific users.
 3. If no user IDs are provided, the notification will be sent to all subscribers.
 
