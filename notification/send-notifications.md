@@ -7,7 +7,7 @@ Skapi provides methods to manage push notifications, including subscribing, unsu
 To receive push notifications, users must first subscribe. This requires obtaining a VAPID key and registering a service worker. It is possible to get the VAPID key by calling the method [`vapidPublicKey()`](/api-reference/notification/README.md#vapidPublicKey) and after subscribe by using the method [`subscribeNotification()`](/api-reference/notification/README.md#subscribeNotification).
 
 ### Steps:
-1. Add the [`sw.js`](#service-worker-swjs) file to your environment.
+1. Add the [`sw.js`](#service-worker-sw-js) file to your environment.
 2. Retrieve the VAPID key using [`vapidPublicKey()`](/api-reference/notification/README.md#vapidPublicKey).
 3. Register a service worker and request notification permissions.
 4. Subscribe to push notifications using `navigator.serviceWorker.pushManager.subscribe()`.

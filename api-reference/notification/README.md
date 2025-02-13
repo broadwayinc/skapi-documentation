@@ -3,7 +3,7 @@
 ## vapidPublicKey
 
 ```ts
-vapidPublicKey(): Promise<string>
+vapidPublicKey(): Promise<{ VAPIDPublicKey: string }>
 ```
 
 ## subscribeNotification
