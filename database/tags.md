@@ -12,9 +12,9 @@ Here's an example of how to add tags to a record:
 
 ```js
 let record = {
-    title: "Daepa calling",
+    title: "Dukkha",
     artist: "Asian Spice House",
-    tracks: 5
+    tracks: 7
 };
 
 let config = {

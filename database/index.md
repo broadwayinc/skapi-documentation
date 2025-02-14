@@ -13,8 +13,8 @@ This enables searching for music albums by release year when quering records.
 
 ```js
 let album = {
-    title: "Stardust",
-    artist: "DIA",
+    title: "Getz/Gilberto",
+    artist: "Stan Getz, João Gilberto",
     tracks: 10
 };
 
@@ -22,7 +22,7 @@ let config = {
     table: "Albums",
     index: {
         name: "year",
-        value: 2017
+        value: 1964
     }
 };
 
@@ -39,10 +39,10 @@ skapi.getRecords({
     table: "Albums",
     index: {
         name: "year",
-        value: 2017
+        value: 1964
     }
 }).then(response => {
-    console.log(response.list); // List of albums released on year 2017.
+    console.log(response.list); // List of albums released on year 1964.
 });
 ```
 
@@ -159,8 +159,8 @@ In the example below, we are uploading a record with a compound index name:
 
 ```js
 let album_data = {
-    title: "Daepa calling",
-    tracks: 5
+    title: "Dukkha",
+    tracks: 7
 };
 
 skapi.postRecord(album_data, {
