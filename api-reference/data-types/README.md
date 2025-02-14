@@ -146,8 +146,11 @@ type RecordData = {
         name: string; // Table name
         access_group: number | 'private' | 'public' | 'authorized' | 'admin'; // Allowed access level of this record.
         subscription?: {
-            user_id: string; // User ID of the subscription.
-            group: number; // Subscription group 1~99
+            is_subscription_record: boolean; // true if the record is posted in subscription table.
+            exclude_from_feed: boolean; // When true, record will be excluded from the subscribers feed.
+            notify_subscribers: boolean; // When true, subscribers will receive notification when the record is uploaded.
+            feed_referencing_records: boolean; // When true, records referencing this record will be included to the subscribers feed.
+            notify_referencing_records: boolean; // When true, records referencing this record will be notified to subscribers.
         }
     };
     source: {
@@ -275,7 +278,6 @@ type Tag = {
 type Subscription = {
     subscriber: string; // Subscriber ID
     subscription: string; // Subscription ID
-    group: number; // Subscription group number
     timestamp: number; // Subscribed UNIX timestamp
     blocked: boolean; // True when subscriber is blocked by subscription
     get_feed: boolean; // True when subscriber gets feed
