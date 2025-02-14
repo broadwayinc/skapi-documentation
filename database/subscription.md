@@ -46,6 +46,10 @@ skapi.subscribe({
 })
 ```
 
+:::tip
+To use the  [`getFeed()`](/database/subscription.html#getting-feed) method later, be sure to include the parameter ```get_feed = true``` shown in [`subscribe(option): Promise<string>`](/api-reference/database/README.md#subscribe)
+:::
+
 Once the **user 'B'** has subscribed to **user 'A'**,
 **user 'B'** can now have access to the records in that subscription table.
 
