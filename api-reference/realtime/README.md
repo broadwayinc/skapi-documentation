@@ -100,6 +100,33 @@ See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
 closeRealtime(): Promise<void>
 ```
 
+## connectRTC
+
+```ts
+connectRTC({
+    cid: string; // Client id of the opponent
+    ice?: string; // stun:your.stun.server:3468 (optional)
+    media?: {
+        video: boolean; // When true, video will be streamed
+        audio: boolean; // When true, audio will be streamed
+    } | MediaStream; // MediaStream object can be used
+    channels?: Array<RTCDataChannelInit | "text-chat" | "file-transfer" | "video-chat" | "voice-chat" | "gaming">; // Can create data channels with optimal setting for given task
+})
+```
+
+#### Errors
+```ts
+{
+  code: 'DEVICE_NOT_FOUND';
+  message: "Requested media device not found.";
+}
+|
+{
+  code: 'INVALID_REQUEST';
+  message: 'Data channel with the protocol "{protocol name}$" already exists.';
+}
+```
+
 ## vapidPublicKey
 
 ```ts
