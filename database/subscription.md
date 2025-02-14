@@ -43,7 +43,7 @@ Lets assume **user 'B'** wants to access **user 'A'**s subscription record, **us
 // User 'B' subscribes to user 'A'.
 skapi.subscribe({
   user_id: 'user_id_of_user_A',
-  get_feed: true // Required to enable the get_feed method later
+  get_feed: true // Required to enable the get_feed method
 });
 ```
 
