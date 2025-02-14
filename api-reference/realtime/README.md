@@ -110,9 +110,16 @@ connectRTC({
         video: boolean; // When true, video will be streamed
         audio: boolean; // When true, audio will be streamed
     } | MediaStream; // MediaStream object can be used
-    channels?: Array<RTCDataChannelInit | "text-chat" | "file-transfer" | "video-chat" | "voice-chat" | "gaming">; // Can create data channels with optimal setting for given task
-})
+    channels?: Array<{
+        ordered: 'boolean',
+        maxPacketLifeTime: 'number',
+        maxRetransmits: 'number',
+        protocol: 'string'
+    } | "text-chat" | "file-transfer" | "video-chat" | "voice-chat" | "gaming">; // Can create data channels with optimal setting for given task
+}): Promise<RTCConnector>
 ```
+
+See [RTCConnector](/api-reference/data-types/README.md#RTCConnector)
 
 #### Errors
 ```ts

@@ -19,6 +19,7 @@ Admins have high access group level (99) and can perform the following actions:
 - Block, unblock users from the service.
 - Delete any record, including private and read-only records.
 - Send newsletters to newsletter subscribers.
+- Send notification to users.
 
 ## What Admins Cannot Do
 
