@@ -32,33 +32,34 @@ Below is an example code of the process:
     }
 </style>
 
+<!-- Below are the video elements which it will display incoming / outgoing media streams -->
 <video id="localVideo" autoplay muted></video>
 <video id="remoteVideo" autoplay></video>
 
+<!-- Dialog element opens when making/receiving a call -->
 <dialog id="call_dialog"></dialog>
 
 <script>
-
-    skapi.connectRealtime(RealtimeCallback);
-    skapi.joinRealtime({ group: 'RTCCall' });
+    skapi.connectRealtime(RealtimeCallback); // Connect to realtime
+    skapi.joinRealtime({ group: 'RTCCall' }); // Join a realtime group
 
     let rtcConnection = null;
     let receiver = null;
 
     function RealtimeCallback(rt) {
-        console.log(rt);
-
         if(rt.type === 'notice') {
             if(rt.message.includes('has joined the message group')) {
-                receiver = await skapi.connectRTC({cid: rt.sender_cid}, RTCEvent);
+                // When opponent joins a room, make a RTC call
+                receiver = await skapi.connectRTC({cid: rt.sender_cid, media: { audio:true, video: true}}, RTCEvent);
 
                 call_dialog.innerHTML = /*html*/`
                     <p>Outgoing call</p>
-                    <button onclick="receiver.hangup();call_dialog.close();">Reject</button>
+                    <button onclick="receiver.hangup(); call_dialog.close();">Reject</button>
                 `;
-                call_dialog.showModal()
+                call_dialog.showModal(); // Display outgoing call dialog
 
-                rtcConnection = await receiver.connection;
+                rtcConnection = await receiver.connection; // Save resolved RTC connection object
+                document.getElementById('localVideo').srcObject = rtcConnection.media; // Show outgoing local media stream
             }
         }
 
@@ -70,17 +71,17 @@ Below is an example code of the process:
             call_dialog.innerHTML = /*html*/`
                 <p>Incoming call</p>
                 <button onclick='
-                    receiver.connectRTC({audio: true, video: true}, RTCEvent)
+                    receiver.connectRTC({ media: {audio: true, video: true} }, RTCEvent)
                         .then(rtc => {
-                            rtcConnection = rtc;
-                            document.getElementById("localVideo").srcObject = rtc.media;
+                            rtcConnection = rtc; // Save resolved RTC connection object
+                            document.getElementById("localVideo").srcObject = rtcConnection.media; // Show outgoing local media stream
                             call_dialog.close();
                         })
                 '>Accept</button>
                 <button onclick="receiver.hangup();call_dialog.close();">Reject</button>
             `;
 
-            call_dialog.showModal()
+            call_dialog.showModal(); // Display incoming call dialog
         }
 
         else if (rt.type === 'rtc:closed') {
@@ -91,17 +92,28 @@ Below is an example code of the process:
     function RTCEvent(e) {
         switch (e.type) {
             // RTC Events
-            case 'negotiationneeded':
-                // RTC negotiation needed. Sending offer..
-                break;
-                
             case 'track':
                 // Incoming Media Stream...
                 document.getElementById('remoteVideo').srcObject = e.streams[0];
                 call_dialog.close();
+                // {
+                //     type: 'track',
+                //     target: RTCPeerConnection,
+                //     timeStamp: event.timeStamp,
+                //     streams: event.streams,
+                //     track: event.track,
+                // }
                 break;
 
             case 'connectionstatechange':
+                // {
+                //     type: 'connectionstatechange',
+                //     target: RTCPeerConnection,
+                //     timestamp: new Date().toISOString(),
+                //     state: RTCPeerConnection.connectionState,
+                //     iceState: RTCPeerConnection.iceConnectionState,
+                //     signalingState: RTCPeerConnection.signalingState
+                // }
                 if (state === 'disconnected' || state === 'failed' || state === 'closed') {
                     // is disconnected
                 }
@@ -111,18 +123,115 @@ Below is an example code of the process:
                 break;
 
             // Data Channel Events
-
             case 'close':
                 // `Data Channel:${e.target.label}:${e.type}`
+                // {
+                //     type: event.type,
+                //     target: dataChannel,
+                //     timeStamp: event.timeStamp,
+                //     readyState: dataChannel.readyState,
+                //     label: dataChannel.label,
+                //     id: dataChannel.id
+                // }
                 break;
             case 'message':
                 // `Data Channel:${e.target.label}:${e.type}`
+                // {
+                //     type: event.type,
+                //     target: dataChannel,
+                //     timeStamp: event.timeStamp,
+                //     data: event.data,
+                //     lastEventId: event.lastEventId,
+                //     origin: event.origin,
+                //     readyState: dataChannel.readyState,
+                //     bufferedAmount: dataChannel.bufferedAmount
+                // }
                 break;
             case 'open':
+                // {
+                //     type: event.type,
+                //     target: dataChannel,
+                //     timeStamp: event.timeStamp,
+                //     readyState: dataChannel.readyState,
+                //     label: dataChannel.label,
+                //     id: dataChannel.id,
+                //     ordered: dataChannel.ordered,
+                //     maxRetransmits: dataChannel.maxRetransmits,
+                //     protocol: dataChannel.protocol
+                // }
             case 'bufferedamountlow':
+                // {
+                //     target: dataChannel,
+                //     bufferedAmount: dataChannel.bufferedAmount,
+                //     bufferedAmountLowThreshold: dataChannel.bufferedAmountLowThreshold,
+                //     type: event.type,
+                //     timeStamp: event.timeStamp
+                // }
             case 'error':
                 // `Data Channel:${e.target.label}:${e.type}`
+                // {
+                //     type: event.type,
+                //     target: dataChannel,
+                //     timeStamp: event.timeStamp,
+                //     error: event.error.message,
+                //     errorCode: event.error.errorDetail,
+                //     readyState: dataChannel.readyState,
+                //     label: dataChannel.label
+                // }
                 break;
+            
+            // ICE Events
+            case 'icecandidate':
+                // {
+                //     type: 'icecandidate',
+                //     target: RTCPeerConnection,
+                //     timestamp: new Date().toISOString(),
+                //     candidate: event.candidate.candidate,
+                //     sdpMid: event.candidate.sdpMid,
+                //     sdpMLineIndex: event.candidate.sdpMLineIndex,
+                //     usernameFragment: event.candidate.usernameFragment,
+                //     protocol: event.candidate.protocol,
+                //     gatheringState: RTCPeerConnection.iceGatheringState,
+                //     connectionState: RTCPeerConnection.iceConnectionState
+                // }
+                
+            case 'icecandidateend':
+                // {
+                //     type: 'icecandidateend',
+                //     target: RTCPeerConnection,
+                //     timestamp: new Date().toISOString()
+                // }
+
+            case 'icegatheringstatechange':
+                // {
+                //     type: 'icegatheringstatechange',
+                //     target: RTCPeerConnection,
+                //     timestamp: new Date().toISOString(),
+                //     state: RTCPeerConnection.iceGatheringState,
+                //     connectionState: RTCPeerConnection.iceConnectionState,
+                //     signalingState: RTCPeerConnection.signalingState
+                // }
+            
+            case 'negotiationneeded':
+                // RTC negotiation needed. Sending offer..
+                // {
+                //     type: 'negotiationneeded',
+                //     target: RTCPeerConnection,
+                //     timestamp: new Date().toISOString(),
+                //     signalingState: RTCPeerConnection.signalingState,
+                //     connectionState: RTCPeerConnection.iceConnectionState,
+                //     gatheringState: RTCPeerConnection.iceGatheringState
+                // }
+                
+            case 'signalingstatechange':
+                // {
+                //     type: 'signalingstatechange',
+                //     target: RTCPeerConnection,
+                //     timestamp: new Date().toISOString(),
+                //     state: RTCPeerConnection.signalingState,
+                //     connectionState: RTCPeerConnection.iceConnectionState,
+                //     gatheringState: RTCPeerConnection.iceGatheringState
+                // }
         }
     }
 </script>
