@@ -1,44 +1,41 @@
 import {
   useMediaQuery
-} from "./chunk-3AKN4UHO.js";
+} from "./chunk-LF7U5C6X.js";
 import {
   computed,
   ref,
   shallowRef,
   watch
-} from "./chunk-XYSSNQS4.js";
+} from "./chunk-45KCXATN.js";
 
 // node_modules/vitepress/dist/client/theme-default/index.js
-import "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/styles/fonts.css";
+import "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/styles/fonts.css";
 
 // node_modules/vitepress/dist/client/theme-default/without-fonts.js
-import "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/styles/vars.css";
-import "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/styles/base.css";
-import "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/styles/icons.css";
-import "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/styles/utils.css";
-import "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/styles/components/custom-block.css";
-import "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/styles/components/vp-code.css";
-import "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/styles/components/vp-code-group.css";
-import "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/styles/components/vp-doc.css";
-import "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/styles/components/vp-sponsor.css";
-import VPBadge from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPBadge.vue";
-import Layout from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/Layout.vue";
-import { default as default2 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPBadge.vue";
-import { default as default3 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPImage.vue";
-import { default as default4 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPButton.vue";
-import { default as default5 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPHomeContent.vue";
-import { default as default6 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPHomeHero.vue";
-import { default as default7 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPHomeFeatures.vue";
-import { default as default8 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPHomeSponsors.vue";
-import { default as default9 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPLink.vue";
-import { default as default10 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPDocAsideSponsors.vue";
-import { default as default11 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPSocialLink.vue";
-import { default as default12 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPSocialLinks.vue";
-import { default as default13 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPSponsors.vue";
-import { default as default14 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPTeamPage.vue";
-import { default as default15 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPTeamPageTitle.vue";
-import { default as default16 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPTeamPageSection.vue";
-import { default as default17 } from "/home/ubuntu/skapi/documentation/node_modules/vitepress/dist/client/theme-default/components/VPTeamMembers.vue";
+import "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/styles/vars.css";
+import "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/styles/base.css";
+import "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/styles/icons.css";
+import "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/styles/utils.css";
+import "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/styles/components/custom-block.css";
+import "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/styles/components/vp-code.css";
+import "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/styles/components/vp-code-group.css";
+import "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/styles/components/vp-doc.css";
+import "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/styles/components/vp-sponsor.css";
+import VPBadge from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPBadge.vue";
+import Layout from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/Layout.vue";
+import { default as default2 } from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPBadge.vue";
+import { default as default3 } from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPImage.vue";
+import { default as default4 } from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPButton.vue";
+import { default as default5 } from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPHomeContent.vue";
+import { default as default6 } from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPHomeHero.vue";
+import { default as default7 } from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPHomeFeatures.vue";
+import { default as default8 } from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPHomeSponsors.vue";
+import { default as default9 } from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPDocAsideSponsors.vue";
+import { default as default10 } from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPSponsors.vue";
+import { default as default11 } from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPTeamPage.vue";
+import { default as default12 } from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPTeamPageTitle.vue";
+import { default as default13 } from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPTeamPageSection.vue";
+import { default as default14 } from "/home/vivian-lima/skapi-documentation/node_modules/vitepress/dist/client/theme-default/components/VPTeamMembers.vue";
 
 // node_modules/vitepress/dist/client/theme-default/support/utils.js
 import { withBase } from "vitepress";
@@ -192,33 +189,29 @@ function resolveHeaders(headers, range) {
   }
   const levelsRange = (typeof range === "object" && !Array.isArray(range) ? range.level : range) || 2;
   const [high, low] = typeof levelsRange === "number" ? [levelsRange, levelsRange] : levelsRange === "deep" ? [2, 6] : levelsRange;
-  return buildTree(headers, high, low);
-}
-function buildTree(data, min, max) {
+  headers = headers.filter((h) => h.level >= high && h.level <= low);
   resolvedHeaders.length = 0;
-  const result = [];
-  const stack = [];
-  data.forEach((item) => {
-    const node = { ...item, children: [] };
-    let parent = stack[stack.length - 1];
-    while (parent && parent.level >= node.level) {
-      stack.pop();
-      parent = stack[stack.length - 1];
+  for (const { element, link } of headers) {
+    resolvedHeaders.push({ element, link });
+  }
+  const ret = [];
+  outer: for (let i = 0; i < headers.length; i++) {
+    const cur = headers[i];
+    if (i === 0) {
+      ret.push(cur);
+    } else {
+      for (let j = i - 1; j >= 0; j--) {
+        const prev = headers[j];
+        if (prev.level < cur.level) {
+          ;
+          (prev.children || (prev.children = [])).push(cur);
+          continue outer;
+        }
+      }
+      ret.push(cur);
     }
-    if (node.element.classList.contains("ignore-header") || parent && "shouldIgnore" in parent) {
-      stack.push({ level: node.level, shouldIgnore: true });
-      return;
-    }
-    if (node.level > max || node.level < min)
-      return;
-    resolvedHeaders.push({ element: node.element, link: node.link });
-    if (parent)
-      parent.children.push(node);
-    else
-      result.push(node);
-    stack.push(node);
-  });
-  return result;
+  }
+  return ret;
 }
 
 // node_modules/vitepress/dist/client/theme-default/composables/local-nav.js
@@ -248,20 +241,17 @@ var without_fonts_default = theme;
 export {
   default2 as VPBadge,
   default4 as VPButton,
-  default10 as VPDocAsideSponsors,
+  default9 as VPDocAsideSponsors,
   default5 as VPHomeContent,
   default7 as VPHomeFeatures,
   default6 as VPHomeHero,
   default8 as VPHomeSponsors,
   default3 as VPImage,
-  default9 as VPLink,
-  default11 as VPSocialLink,
-  default12 as VPSocialLinks,
-  default13 as VPSponsors,
-  default17 as VPTeamMembers,
-  default14 as VPTeamPage,
-  default16 as VPTeamPageSection,
-  default15 as VPTeamPageTitle,
+  default10 as VPSponsors,
+  default14 as VPTeamMembers,
+  default11 as VPTeamPage,
+  default13 as VPTeamPageSection,
+  default12 as VPTeamPageTitle,
   without_fonts_default as default,
   useLocalNav,
   useSidebar
