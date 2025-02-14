@@ -149,15 +149,18 @@ When uploading record via [`postRecord()`](/api-reference/database/README.md#pos
 
 - `source.referencing_index_restrictions`: You can set list of restrictions on the index values of the referencing record.
   This is useful when you want to restrict the referencing record to have certain index names and values.
+  This only affects referencing records that has an index.
 
 
 ## Referencing Index Restrictions
 
 You can set restrictions on the index values of the referencing record.
 This is useful when you want to restrict the referencing record to have certain index values.
+This only affects referencing records that has an index.
+
 For example, you can set the index value range so the total rating value does not exceed a certain value.
 
-Example below shows how you can build a review board where only 10 people are allowed to rate 1 to 5 and each user can only rate once.
+Example below shows how you can build a review board where only **10** people are allowed to rate **1** to **5** and each user can only rate once.
 
 It is important to set restrictions on index values for cases like rating systems where you want to prevent users from posting malicious data to mess up your index informations.
 
@@ -199,7 +202,33 @@ If `value` is set, the referencing record must have the same index name with the
 
 If `range` is set, the referencing record must have the same index name with the value within the specified range.
 
-If `condition` is set, the referencing record must have the same index name with the index value that satisfies the condition to the `value`. `condition` can be one of the following: `=`, `!=`, `>`, `<`, `>=`, `<=`. `condition` cannot be used with `range`.
+If `condition` is set, the referencing record must have the same index name with the index value that satisfies the condition to the `value`.
+For example, if you want your referencing record's index value to be less than **5**, you can set the parameter as shown below:
+
+```js
+let pollPost = skapi.postRecord({
+    title: `How would you rate DIA's album "Stardust"?`,
+    description: "Only 10 people are allowed to vote"
+}, {
+    unique_id: 'review board for DIA album Stardust',
+    table: 'ReviewBoard',
+    source: {
+        prevent_multiple_referencing: true,
+        referencing_limit: 10,
+        referencing_index_restrictions: [
+            {
+                name: 'Review.Album.Stardust',
+                value: 5,
+                condition: '<'
+            }
+        ]
+    }
+})
+```
+
+`condition` can be one of the following: `=`, `!=`, `>`, `<`, `>=`, `<=`.
+
+`condition` cannot be used with `range`.
 
 
 ## Creating a Poll with Restricted Referencing
