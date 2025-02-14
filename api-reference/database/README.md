@@ -13,9 +13,11 @@ postRecord(
             name: string; // Other than space and period, special characters are not allowed.
             access_group?: number | 'private' | 'public' | 'authorized' | 'admin';  // Default: 'public'
             subscription?: {
-                group: number; // subscription group. 1~99.
+                is_subscription_record?: boolean; // When true, record will be uploaded to subscription table.
                 exclude_from_feed?: boolean; // When true, record will be excluded from the subscribers feed.
                 notify_subscribers?: boolean; // When true, subscribers will receive notification when the record is uploaded.
+                feed_referencing_records?: boolean; // When true, records referencing this record will be included to the subscribers feed.
+                notify_referencing_records?: boolean; // When true, records referencing this record will be notified to subscribers.
             };
         };
         readonly?: boolean; // Default: false. When true, the record cannot be updated.
@@ -62,11 +64,7 @@ getRecords(
         table: string | {
             name: string,
             access_group?: number | 'private' | 'public' | 'authorized' | 'admin'; // 0 to 99 if using number. Default: 'public'
-            subscription?: {
-                user_id: string;
-                /** Number range: 0 ~ 99 */
-                group: number;
-            };
+            subscription?: string; // User ID that requester is subscribed to.
         };
 
         /**
@@ -261,10 +259,7 @@ See [Tag](/api-reference/data-types/README.md#tag)
 ## subscribe
 ```ts
 subscribe(
-    {
-        user_id: string;
-        group: number | number[];
-    }
+    { user_id: string; get_feed?: boolean; get_notified?: boolean; get_email?: boolean; }
 ): Promise<'SUCCESS: The user has subscribed.'>
 ```
 
@@ -274,7 +269,6 @@ subscribe(
 unsubscribe(
     {
         user_id: string;
-        group: number | number[];
     }
 ): Promise<'SUCCESS: The user has unsubscribed.'>
 ```
@@ -286,7 +280,6 @@ unsubscribe(
 blockSubscriber(
     {
         user_id: string;
-        group: number | number[];
     }
 ): Promise<'SUCCESS: Blocked user id "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".'>
 ```
@@ -297,7 +290,6 @@ blockSubscriber(
 unblockSubscriber(
     {
         user_id: string;
-        group: number | number[];
     }
 ): Promise<'SUCCESS: Unblocked user id "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".'>
 ```
@@ -309,12 +301,8 @@ unblockSubscriber(
 getSubscriptions(
     params: {
         // Must have either subscriber and/or subscription value
-
         subscriber?: string; // User ID of the subscriber (User who subscribed)
-        subscription?: {
-            user_id: string; // User ID of the subscription (User being subscribed to)
-            group?: number | number[];
-        };
+        subscription?: string; // User ID of the subscription (User being subscribed to)
         blocked?: boolean; // When true, fetches only blocked subscribers. Default = false
     },
     fetchOptions?: FetchOptions;
@@ -328,7 +316,7 @@ See [Subscription](/api-reference/data-types/README.md#subscripion)
 ## getFeed
 
 ```ts
-getFeed(params: null, fetchOptions?: FetchOptions): Promise<DatabaseResponse<RecordData>>
+getFeed(params?: { access_group?: number; }, fetchOptions?: FetchOptions): Promise<DatabaseResponse<RecordData>>
 ```
 
 ## getFile
