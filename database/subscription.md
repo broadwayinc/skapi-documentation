@@ -42,12 +42,13 @@ Lets assume **user 'B'** wants to access **user 'A'**s subscription record, **us
 ```js
 // User 'B' subscribes to user 'A'.
 skapi.subscribe({
-  user_id: 'user_id_of_user_A'
-})
+  user_id: 'user_id_of_user_A',
+  get_feed: true // Required to enable the get_feed method later
+});
 ```
 
 :::tip
-To use the  [`getFeed()`](/database/subscription.html#getting-feed) method later, be sure to include the parameter ```get_feed = true``` shown in [`subscribe(option): Promise<string>`](/api-reference/database/README.md#subscribe)
+To use the  [`getFeed()`](/database/subscription.html#getting-feed) method later, be sure to include the parameter ```get_feed: true``` shown in [`subscribe(option): Promise<string>`](/api-reference/database/README.md#subscribe)
 :::
 
 Once the **user 'B'** has subscribed to **user 'A'**,
