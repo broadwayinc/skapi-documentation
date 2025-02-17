@@ -91,7 +91,8 @@ type UserPublic = {
     approved: string;
     timestamp:number; // Account created timestamp(milliseconds).
     log:number; // Last login timestamp(milliseconds).
-    subscribers: number; // Number of subscribers.
+    subscribers: number; // The number of accounts subscribed to the user.  
+    subscribed: number; // The number of accounts the user is subscribed to.  
     records: number; // Total number of records user has produced in the database.
     /**
      The user's email address.
