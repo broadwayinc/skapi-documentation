@@ -97,7 +97,7 @@ getUsers({
         range?: string | number | boolean; // Cannot be used with condition.
     } | null;
     fetchOptions?: FetchOptions
-}): Promise<DatabaseResponse<UserProfile>>;
+}): Promise<DatabaseResponse<UserPublic>>;
 
 ```
 
