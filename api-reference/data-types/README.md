@@ -291,10 +291,13 @@ type Subscription = {
 
 ```ts
 type RealtimeCallback = (rt: {
-    type: 'message' | 'private' | 'error' | 'success' | 'close' | 'notice';
-    message: any;
-    sender?: string; // User ID of the sender
-    sender_cid?: string; // Connection ID of the sender
+    type: 'message' | 'error' | 'success' | 'close' | 'notice' | 'private' | 'rtc:incoming' | 'rtc:closed';
+    message?: any;
+    connectRTC?: (params: RTCReceiverParams, callback: RTCEvent) => Promise<RTCResolved>; // Incoming RTC
+    hangup?: () => void; // Reject incoming RTC connection.
+    sender?: string; // user_id of the sender
+    sender_cid?: string; // scid of the sender
+    sender_rid?: string; // group of the sender
 }) => void;
 ```
 
@@ -310,4 +313,35 @@ type Newsletter = {
     bounced: string; // Number of bounces
     url: string; // URL of the html file of the newsletter
 }
+```
+
+## RTCConnector
+
+```ts
+type RTCConnector = {
+    hangup: () => void; // When executed, user can hangup before the opponent accepts the call.
+    connection: Promise<RTCResolved>; // Resolves RTC object.
+}
+```
+
+## RTCResolved
+
+```ts
+type RTCResolved = {
+    target: RTCPeerConnection;
+    channels: {
+        [protocol: string]: RTCDataChannel
+    };
+    hangup: () => void;
+    media: MediaStream;
+}
+```
+
+## RTCEvent
+
+```ts
+type RTCEvent = (e: {
+    type: string;
+    [key: string]: any;
+}) => void
 ```

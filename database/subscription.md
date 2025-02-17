@@ -1,9 +1,6 @@
 
 # Subscription
 
-:::warning
-User must be logged in to call this method
-:::
 
 Skapi database provides subscription feature.
 
@@ -36,6 +33,10 @@ skapi.postRecord(null, {
 To allow other users to access the records that requires subscription, they must first subscribe to the uploader using the [`subscribe()`](/api-reference/database/README.md#subscribe) method:
 
 ### [`subscribe(option): Promise<string>`](/api-reference/database/README.md#subscribe)
+
+:::warning
+User must be logged in to call this method
+:::
 
 Lets assume **user 'B'** wants to access **user 'A'**s subscription record, **user 'B'** will need to subscribe to **user 'A'**.
 
@@ -70,15 +71,6 @@ skapi.getRecords({
 :::tip
 Number of subscribers of the user will be tracked in [UserPublic](/api-reference/data-types/README.md#userpublic) object
 that can be retrieved using the [`getUsers()`](/api-reference/database/README.md#getusers) method.
-:::
-
-:::danger Warning
-Since anyone can subscribe to anybody to any subscription group, do not rely on subscription table as a security restriction.
-  
-Consider subscription group as a additional layer of database query point that user needs additional action(subscribe) to have access.
-
-The main purpose of subscription record is to give user access to block certain users from accessing their subscription group records,
-and feed, notify mass subscribers.
 :::
 
 

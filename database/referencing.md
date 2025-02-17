@@ -166,17 +166,17 @@ It is important to set restrictions on index values for cases like rating system
 
 ```js
 let pollPost = skapi.postRecord({
-    title: `How would you rate DIA's album "Stardust"?`,
+    title: `How would you rate Stan Getz, João Gilberto's album "Getz/Gilberto"?`,
     description: "Only 10 people are allowed to vote"
 }, {
-    unique_id: 'review board for DIA album Stardust',
+    unique_id: 'Review board of GetzGilberto',
     table: 'ReviewBoard',
     source: {
         prevent_multiple_referencing: true,
         referencing_limit: 10,
         referencing_index_restrictions: [
             {
-                name: 'Review.Album.Stardust',
+                name: 'Review.Album.GetzGilberto',
                 value: 1,
                 range: 5
             }
@@ -207,17 +207,17 @@ For example, if you want your referencing record's index value to be less than *
 
 ```js
 let pollPost = skapi.postRecord({
-    title: `How would you rate DIA's album "Stardust"?`,
+    title: `How would you rate Stan Getz, João Gilberto's album "Getz/Gilberto"?`,
     description: "Only 10 people are allowed to vote"
 }, {
-    unique_id: 'review board for DIA album Stardust',
+    unique_id: 'Review board of GetzGilberto',
     table: 'ReviewBoard',
     source: {
         prevent_multiple_referencing: true,
         referencing_limit: 10,
         referencing_index_restrictions: [
             {
-                name: 'Review.Album.Stardust',
+                name: 'Review.Album.GetzGilberto',
                 value: 5,
                 condition: '<'
             }
@@ -241,15 +241,15 @@ skapi.postRecord({
     comment: "This rocks! I'd give 4.5 out of 5!"
 }, {
     table: 'ReviewBoard',
-    reference: 'review board for DIA album Stardust',
+    reference: 'Review board of GetzGilberto',
     index: {
-        name: 'Review.Album.Stardust',
+        name: 'Review.Album.GetzGilberto',
         value: 4.5
     }
 });
 ```
 
-Note that the "Review.Album.Stardust" `index` uses a `value` of type `number` so you can later retrieve the average rating and total sum of the values.
+Note that the "Review.Album.GetzGilberto" `index` uses a `value` of type `number` so you can later retrieve the average rating and total sum of the values.
 
 
 ## Powerful Ways to Use Reference Records
