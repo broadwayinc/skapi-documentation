@@ -13,8 +13,8 @@ This enables searching for music albums by release year when quering records.
 
 ```js
 let album = {
-    title: "Stardust",
-    artist: "DIA",
+    title: "Getz/Gilberto",
+    artist: "Stan Getz, João Gilberto",
     tracks: 10
 };
 
@@ -22,7 +22,7 @@ let config = {
     table: "Albums",
     index: {
         name: "year",
-        value: 2017
+        value: 1964
     }
 };
 
@@ -39,10 +39,10 @@ skapi.getRecords({
     table: "Albums",
     index: {
         name: "year",
-        value: 2017
+        value: 1964
     }
 }).then(response => {
-    console.log(response.list); // List of albums released on year 2017.
+    console.log(response.list); // List of albums released on year 1964.
 });
 ```
 
@@ -56,11 +56,11 @@ skapi.getRecords({
     table: "Albums",
     index: {
         name: "year",
-        value: 2010,
+        value: 1960,
         condition: '>' // Greater than given value
     }
 }).then(response => {
-    console.log(response.list); // List of albums released after the year 2010.
+    console.log(response.list); // List of albums released after the year 1960.
 });
 ```
 
@@ -99,15 +99,15 @@ skapi.getRecords({
     table: "Albums",
     index: {
         name: "year",
-        value: 2015,
-        range: 2020
+        value: 1960,
+        range: 1970
     }
 }).then(response => {
-    console.log(response.list); // List of albums released from 2015 to 2020.
+    console.log(response.list); // List of albums released from 1960 to 1970.
 });
 ```
 
-In the example above, the [`getRecords()`](/api-reference/database/README.md#getrecords) method will retrieve all records in the "Albums" table that have a "year" index value between 2015 and 2020 (inclusive).
+In the example above, the [`getRecords()`](/api-reference/database/README.md#getrecords) method will retrieve all records in the "Albums" table that have a "year" index value between 1960 and 1970 (inclusive).
 
 :::warning
 - When using the `range` parameter, the `value` and `range` parameter values should be same type of data.
@@ -159,8 +159,8 @@ In the example below, we are uploading a record with a compound index name:
 
 ```js
 let album_data = {
-    title: "Daepa calling",
-    tracks: 5
+    title: "Dukkha",
+    tracks: 7
 };
 
 skapi.postRecord(album_data, {
