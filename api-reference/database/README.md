@@ -25,7 +25,7 @@ postRecord(
             name: string; // Only alphanumeric and period allowed.
             value: string | number | boolean; // Only alphanumeric and spaces allowed.
         };
-        tags?: string | <string>[]; // Only alphanumeric and spaces allowed. It can also be an array of strings or a string with comma separated values.
+        tags?: string | string[]; // Only alphanumeric and spaces allowed. It can also be an array of strings or a string with comma separated values.
         source?: {
             referencing_limit?: number; // Default: null (Infinite)
             prevent_multiple_referencing?: boolean; // If true, a single user can reference this record only once.
