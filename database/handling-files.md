@@ -100,7 +100,7 @@ User must have access to the record in order to download the file.
 `getFile()` allows you to download the file in various ways:
 - `blob`: Downloads the file as a [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob) object.
 - `base64`: Downloads the file as a base64 string.
-- `endpoint`: If the private file access is restricted to the user, you can request the a signed URL. (The user must have private access granted.)
+- `endpoint`: If the file access requires authentication or needs token update, you can request the a updated endpoint of the file.
 
 If no argument is passed, the file will be downloaded from the web browser.
 

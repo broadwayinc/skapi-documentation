@@ -184,7 +184,7 @@ type RecordData = {
 type BinaryFile = {
     access_group: number | 'private' | 'public' | 'authorized' | 'admin'; // Allowed access level of this file.
     filename: string; // Filename of the file.
-    url: string; // Full URL endpoint of the file.
+    url: string; // Full URL endpoint of the file including the token. Token can be expired and will require to be updated by calling getFile('endpoint')
     path: string; // Path of the file.
     size: number; // Size of the file in bytes.
     uploaded: number; // Timestamp in milliseconds.
