@@ -26,7 +26,11 @@ See [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback)
 ```ts
 postRealtime(
     message: SubmitEvent | any,
-    recipient: string // User's ID or a group name
+    recipient: string, // User's ID or a group name
+    notification?: {
+      title: string;
+      body: string;
+    }
 ): Promise<{ type: 'success', message: 'Message sent.' }>
 ```
 

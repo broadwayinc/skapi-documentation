@@ -1,8 +1,8 @@
-# Send Notifications
+# Notifications
 
 Skapi provides methods to manage push notifications, including subscribing, unsubscribing, and sending notifications. This guide explains how to implement push notifications using Skapi from the client side.
 
-## Subscription
+## Subscribing to Notifications
 
 To receive push notifications, users must first subscribe. This requires obtaining a VAPID key and registering a service worker. It is possible to get the VAPID key by calling the method [`vapidPublicKey()`](/api-reference/realtime/README.md#vapidpublickey) and after subscribe by using the method [`subscribeNotification()`](/api-reference/realtime/README.md#subscribenotification).
 
@@ -76,7 +76,7 @@ To receive push notifications, users must first subscribe. This requires obtaini
 })()
 ```
 
-## Unsubscribing
+## Unsubscribing to Notifications
 
 To stop receiving notifications, users need to unsubscribe by calling the method [`unsubscribenotification()`](/api-reference/realtime/README.md#unsubscribenotification) and passing the endpoint and keys as parameters. 
 
