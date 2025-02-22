@@ -17,7 +17,7 @@ hero:
 features:
   - icon: 💎
     title: Serverless Technology
-    details: Requires no additional server between your HTML website and your users. Just import the library and start building immediately!
+    details: Requires no additional server between your HTML website and your users. Just import the library and start building!
   - title: User-Centric Database Design
     icon: ⚡
     details: A secure, database design that requires no pre-configuration and scales without limits!
