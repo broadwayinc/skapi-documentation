@@ -2,13 +2,15 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  lang: 'en-US',
+  
   title: "Skapi",
-  description: "One Line of Code => Full Backend API",
+  description: "Serverless Backend API for HTML frontend",
   head: [['link', { rel: 'icon', href: '/favicon.ico' }]],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     logo: '/logo-sml.png',
-
+    
     sidebar: [
       {
         text: 'Introduction',
