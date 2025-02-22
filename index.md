@@ -16,12 +16,12 @@ hero:
 
 features:
   - icon: 💎
-    title: Serverless Technology, Scale without limits
-    details: Requires no additional server between your HTML website and your users. Just import the API and start building immediately!
+    title: Serverless Technology
+    details: Requires no additional server between your HTML website and your users. Just import the library and start building immediately!
   - title: User-Centric Database Design
     icon: ⚡
-    details: A secure, user-centric database design that requires no pre-configuration!
+    details: A secure, database design that requires no pre-configuration and scales without limits!
   - title: Compatible with Any Frameworks
     icon: 💯
-    details: Compatible with vanilla HTML as well as any frontend framework, including React, Vue, Angular, and more!
+    details: Compatible with vanilla HTML as well as any frontend frameworks!
 ---
