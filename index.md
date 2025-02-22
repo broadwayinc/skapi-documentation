@@ -23,5 +23,5 @@ features:
     details: A secure, database design that requires no pre-configuration and scales without limits!
   - title: Compatible with Any Frameworks
     icon: 💯
-    details: Compatible with vanilla HTML as well as any frontend frameworks!
+    details: Compatible with vanilla HTML as well as any frontend JS frameworks!
 ---
