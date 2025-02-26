@@ -16,10 +16,12 @@ If you have access to OpenID providers API, you can register your open ID logger
 2. Click on the service you wish to register your OpenID Logger.
 3. From the side menu, click on **OpenID Logger**
 4. Click **Register Logger**
-5. Set your *Logger ID*, *Username Key*, and all the request parameter to make to your Open ID API service.
-6. Click **Save**
+5. Setup the *Logger ID*. This is an identifier when using [`openidLogin()`](/api-reference/authentication/README.md#openidlogin).
+6. Setup the *Username Key*. It should be an OpenID attribute name that hold unique identifier. Usually this can be **sub** or **email**.
+7. Setup request parameters for your OpenID API.
+8. Click **Save**
 
-Once you have setup your *OpenID Logger*, you can let your users to obtain the JWT Token and use it to make request to Skapi to automatically login/create an account for your service with [`openidLogin()`](/api-reference/authentication/README.md#openidlogin)
+Once you have set up your *OpenID Logger*, your users can obtain a JWT Token from the OpenID provider. They can then use this token with Skapi to fetch their OpenID profile and automatically log in or create an account for your service using [`openidLogin()`](/api-reference/authentication/README.md#openidlogin).
 
 ```js
 skapi.openidLogin({
