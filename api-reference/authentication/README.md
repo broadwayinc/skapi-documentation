@@ -153,3 +153,17 @@ resetPassword(
     }
 ): Promise<'SUCCESS: New password has been set.'>
 ```
+
+## openidLogin
+
+```ts
+openidLogin(
+    params: SubmitEvent | {
+        token: string; // ID/Access token fetched from open id API service
+        id: string; // OpenID Logger ID registered in the service page.
+    }
+): Promise<{
+    userProfile: UserProfile;
+    openid: { [attribute:string]: any };
+}>
+```
