@@ -41,3 +41,5 @@ skapi.openidLogin({
     // }
 });
 ```
+
+### [`openidLogin(event?:SubmitEvent | params): Promise<string>`](/api-reference/authentication/README.md#openidlogin)
