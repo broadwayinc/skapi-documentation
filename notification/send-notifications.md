@@ -146,7 +146,14 @@ You can let users use [`postRealtime()`](/api-reference/realtime/README.md#postr
 In case the recipient is not connected to realtime, you can set the `notification` argument to notify user with notification message.
 
 ```js
-skapi.postRealtime({ msg: "Hello World!" }, 'recipient_user_id', { title: "New Message", body: "Someone sent you a message!" }).then(res => console.log(res));
+skapi.postRealtime(
+    { msg: "Hello World!" },
+    'recipient_user_id',
+    { 
+        title: "New Message",
+        body: "Someone sent you a message!"
+    }
+).then(res => console.log(res));
 ```
 
 If the receiver has subscribed to push notification API, they will receive the notification message that is set in `notification` argument.
@@ -154,10 +161,16 @@ If the receiver has subscribed to push notification API, they will receive the n
 Below example shows how to send notification regardless user is connected to realtime connection. By setting `always` options to `true`, notification will always be triggered or the receiver.
 
 ```js
-skapi.postRealtime({ msg: "Hello World!" }, 'recipient_user_id', { title: "New Message", body: "Someone sent you a message!", config: { always: true } }).then(res => console.log(res));
+skapi.postRealtime(
+    { msg: "Hello World!" },
+    'recipient_user_id',
+    { 
+        title: "New Message",
+        body: "Someone sent you a message!",
+        config: { always: true }
+    }
+).then(res => console.log(res));
 ```
-
-
 
 ## Sending Notifications (For Admins)
 Admins can use the [`pushNotification()`](/api-reference/realtime/README.md#pushnotification) method to send notifications to users.
@@ -171,9 +184,20 @@ You can also target a specific user or multiple users by providing their IDs. If
 
 ### Code Examples:
 ```js
-skapi.pushNotification({ title: "Hello", body: "Hi there!" }); // Sends to all subscribers
+skapi.pushNotification(
+    { 
+        title: "Hello",
+        body: "Hi there!"
+    }
+); // Sends to all subscribers
 ```
 
 ```js
-skapi.pushNotification({ title: "Admin Alert", body: "Only for selected users" }, ["user1", "user2"]);
+skapi.pushNotification(
+    { 
+        title: "Admin Alert",
+        body: "Only for selected users"
+    },
+    ["user1", "user2"]
+);
 ```
