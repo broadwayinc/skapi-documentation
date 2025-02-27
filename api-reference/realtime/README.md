@@ -30,6 +30,9 @@ postRealtime(
     notification?: {
       title: string;
       body: string;
+      config?: {
+        always: boolean; // When true, notification will always trigger the receiver's device regardless their connection state.
+      }
     }
 ): Promise<{ type: 'success', message: 'Message sent.' }>
 ```
