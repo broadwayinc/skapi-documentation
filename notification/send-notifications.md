@@ -142,7 +142,27 @@ self.addEventListener('notificationclick', function(event) {
 
 ## Sending Notifications
 
-Use the [`pushNotification()`](/api-reference/realtime/README.md#pushnotification) method to send notifications to users. **Only admins** have permission to send notifications. You can target a specific user or multiple users by providing their IDs. If no user IDs are specified, the notification will be sent to all users who have subscribed to notifications in your system.
+You can let users use [`postRealtime()`](/api-reference/realtime/README.md#postrealtime) to send notification to each other.
+In case the recipient is not connected to realtime, you can set the `notification` argument to notify user with notification message.
+
+```js
+skapi.postRealtime({ msg: "Hello World!" }, 'recipient_user_id', { title: "New Message", body: "Someone sent you a message!" }).then(res => console.log(res));
+```
+
+If the receiver has subscribed to push notification API, they will receive the notification message that is set in `notification` argument.
+
+Below example shows how to send notification regardless user is connected to realtime connection. By setting `always` options to `true`, notification will always be triggered or the receiver.
+
+```js
+skapi.postRealtime({ msg: "Hello World!" }, 'recipient_user_id', { title: "New Message", body: "Someone sent you a message!", config: { always: true } }).then(res => console.log(res));
+```
+
+
+
+## Sending Notifications (For Admins)
+Admins can use the [`pushNotification()`](/api-reference/realtime/README.md#pushnotification) method to send notifications to users.
+**Only admins** can use this method to send notifications to **all** users.
+You can also target a specific user or multiple users by providing their IDs. If no user IDs are specified, the notification will be sent to all users who have subscribed to notifications in your system.
 
 ### Steps:
 1. Call [`pushNotification()`](/api-reference/realtime/README.md#pushnotification) with the title and body.
@@ -157,4 +177,3 @@ skapi.pushNotification({ title: "Hello", body: "Hi there!" }); // Sends to all s
 ```js
 skapi.pushNotification({ title: "Admin Alert", body: "Only for selected users" }, ["user1", "user2"]);
 ```
-
