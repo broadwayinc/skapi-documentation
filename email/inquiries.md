@@ -8,7 +8,9 @@ You can use [`sendInquiry()`](/api-reference/email/README.md#sendinquiry) to let
 
 :::code-group
 ```html [Form]
-<form id="inquiry-form">
+<form id="inquiry-form" onsubmit="skapi.sendInquiry(event).then(res => {
+    alert(res) // 'SUCCESS: Inquiry has been sent.'
+})">
     <label for="name">Name:</label>
     <input type="text" id="name" name="name" required>
     <label for="email">Email:</label>
