@@ -79,7 +79,7 @@ getRecords(
             /** '$updated' | '$uploaded' | '$referenced_count' | '$user_id' are the reserved index names. */
             name: string | '$updated' | '$uploaded' | '$referenced_count' | '$user_id';
             value: string | number | boolean;
-            condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // cannot be used with range. Default: '='
+            condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '='; // cannot be used with range. Default: '='
             range?: string | number | boolean; // cannot be used with condition
         };
 
@@ -209,7 +209,7 @@ deleteRecords({
 getTables(
     query: {
         table: string;
-        condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!=';
+        condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '=';
     },
     fetchOptions?: FetchOptions;
 ): Promise<DatabaseResponse<Table>>
@@ -229,7 +229,7 @@ getIndexes(
         order?: {
             by: 'average_number' | 'total_number' | 'number_count' | 'average_bool' | 'total_bool' | 'bool_count' | 'string_count' | 'index_name';
             value?: number | boolean | string;
-            condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!=';
+            condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '=';
         };
     },
     fetchOptions?: FetchOptions;
@@ -247,7 +247,7 @@ getTags(
     query: {
         table: string;
         tag?: string;
-        condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!=';
+        condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '=';
     },
     fetchOptions?: FetchOptions;
 ): Promise<DatabaseResponse<Tag>>
