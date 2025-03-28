@@ -2,9 +2,9 @@
   "scripts": {
     "dev": "vitepress dev --host",
     "docs:build": "vitepress build",
-    "docs:preview": "vitepress preview"
+    "prev": "vitepress build;vitepress preview"
   },
-  "devDependencies": {
-    "vitepress": "^1.5.0"
+  "dependencies": {
+    "vitepress": "^1.6.3"
   }
 }

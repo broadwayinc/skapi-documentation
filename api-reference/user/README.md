@@ -93,7 +93,7 @@ getUsers({
          * '>' means more than. '<' means less than.
          * For strings, '>=' means 'starts with'.
          */
-        condition?: '>' | '>=' | '=' | '<' | '<=' | '!=' | 'gt' | 'gte' | 'eq' | 'lt' | 'lte' | 'ne';
+        condition?: '>' | '>=' | '=' | '<' | '<=' | 'gt' | 'gte' | 'eq' | 'lt' | 'lte';
         range?: string | number | boolean; // Cannot be used with condition.
     } | null;
     fetchOptions?: FetchOptions

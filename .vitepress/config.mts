@@ -2,8 +2,10 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  lang: 'en-US',
+
   title: "Skapi",
-  description: "One Line of Code => Full Backend API",
+  description: "Serverless Backend API for HTML frontend",
   head: [['link', { rel: 'icon', href: '/favicon.ico' }]],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
@@ -25,6 +27,7 @@ export default defineConfig({
           { text: 'Signup Confirmation', link: '/authentication/signup-confirmation.md' },
           { text: 'Login / Logout', link: '/authentication/login-logout.md' },
           { text: 'Forgot Password', link: '/authentication/forgot-password.md' },
+          { text: 'OpenID Login', link: '/authentication/openid-login.md' },
           { text: 'Full Example', link: '/authentication/full-example.md' },
         ]
       },
@@ -63,18 +66,18 @@ export default defineConfig({
           { text: 'Connecting to Realtime', link: '/realtime/connecting.md' },
           { text: 'Sending Realtime Data', link: '/realtime/post.md' },
           { text: 'Realtime Groups', link: '/realtime/group.md' },
+          { text: 'Notifications', link: '/notification/send-notifications.md' },
           { text: 'WebRTC', link: '/realtime/webRTC.md' },
-          { text: 'Receiving Notifications', link: '/notification/send-notifications.md' },
         ]
       },
       {
         text: 'Service Settings',
-        items:[
-          {text: 'Setting Toggles', link: '/service-settings/service-settings.md'},
-          {text: 'Additional Settings', link: '/service-settings/additional.md'},
-          {text: 'Deleting Service', link: '/service-settings/deleteservice.md'},
+        items: [
+          { text: 'Setting Toggles', link: '/service-settings/service-settings.md' },
+          { text: 'Additional Settings', link: '/service-settings/additional.md' },
+          { text: 'Deleting Service', link: '/service-settings/deleteservice.md' },
         ]
-        
+
       },
       {
         text: 'API Bridge',
@@ -134,5 +137,10 @@ export default defineConfig({
     socialLinks: [
       { icon: 'github', link: 'https://github.com/broadwayinc/skapi-js' }
     ]
+  },
+  vite: {
+    server: {
+      allowedHosts: ['seoul.broadwayinc.computer'],
+    }
   }
 })
