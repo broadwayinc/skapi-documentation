@@ -58,7 +58,7 @@ Additionally, you can provide an optional `string` argument to the [`recoverAcco
             });
           }
         }
-    )">
+    })">
     <input type="email" name="email" placeholder="E-Mail" required><br>
     <input id="password" type="password" name="password" placeholder="Password" required><br>
     <input type="submit" value="Login">
