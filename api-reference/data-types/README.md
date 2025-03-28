@@ -86,9 +86,12 @@ type UserPublic = {
     /**
      Account approval timestamp.
      This timestamp is generated when the user confirms their signup, or recovers their disabled account.
-     [by_skapi | by_admin] : [approved | suspended] : [timestamp]
+     [by_skapi | by_admin | by_master] : [approved | suspended] : [timestamp]
+     [by_master | by_admin]: When the account is created by either master or admin.
+     [by_skapi]: When the user account is created by either signup confirmation or invitation.
+     [other]: When logged in by openidLogger, the approval indicating string will be the OpenID Logger's ID that the master has setup in the service.
      */
-    approved: string;
+    approved: string; // 
     timestamp:number; // Account created timestamp(milliseconds).
     log:number; // Last login timestamp(milliseconds).
     subscribers: number; // The number of accounts subscribed to the user.  
@@ -184,7 +187,7 @@ type RecordData = {
 type BinaryFile = {
     access_group: number | 'private' | 'public' | 'authorized' | 'admin'; // Allowed access level of this file.
     filename: string; // Filename of the file.
-    url: string; // Full URL endpoint of the file.
+    url: string; // Full URL endpoint of the file including the token. Token can be expired and will require to be updated by calling getFile('endpoint')
     path: string; // Path of the file.
     size: number; // Size of the file in bytes.
     uploaded: number; // Timestamp in milliseconds.

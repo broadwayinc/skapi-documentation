@@ -72,7 +72,7 @@ console.log(skapi.user); // null when user is logged out, User's information obj
 
 ## Requesting User Information
 
-The [`getProfile()`](/api-reference/authentication/README.md#getprofile) method allows you to retrieve the user's information from the backend.
+The [`getProfile()`](/api-reference/authentication/README.md#getprofile) method allows you to retrieve the user's information via promise method.
 It returns the [UserProfile](/api-reference/data-types/README.md#userprofile) object.
 
 If the user is not logged in, [`getProfile()`](/api-reference/authentication/README.md#getprofile) returns `null`.
@@ -86,6 +86,20 @@ skapi.getProfile().then(profile=>{
   }
 })
 ```
+
+You can also refresh the auth token and fetch the updated profile by passing `options.refreshToken` to `true`.
+
+```js
+skapi.getProfile({ refreshToken: true }).then(profile=>{
+  console.log(profile); // Updated user's information
+
+  if(profile === null) {
+    // The user is not logged in
+  }
+})
+```
+
+This can be useful when the user needs to get their updated profile when it's updated from another device, or admin might have made change to the users profile, or you just want your users to update their token for some other security reasons.
 
 For more detailed information on all the parameters and options available with the [`getProfile()`](/api-reference/authentication/README.md#getprofile) method, 
 please refer to the API Reference below:
@@ -112,7 +126,7 @@ const skapi = new Skapi('service_id', 'owner_id', options);
 
 You can listen to the login status of the user by setting a callback function in the `option.eventListener.onLogin` option argument of the constructor argument in Skapi.
 
-The `onLogin` callback function will be called whenever the user logs in, logs out, or even when their profile is updated.
+The `onLogin` callback function will be called when Skapi instance is ready with user's login status (either logged in or out), whenever the user logs in, logs out, or even when their profile is updated.
 
 The callback function will receive the [UserProfile](/api-reference/data-types/README.md#userprofile) object as an argument.
 
