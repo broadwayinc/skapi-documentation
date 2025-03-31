@@ -28,7 +28,7 @@ export default defineConfig({
           { text: 'Login / Logout', link: '/authentication/login-logout.md' },
           { text: 'Forgot Password', link: '/authentication/forgot-password.md' },
           { text: 'OpenID Login', link: '/authentication/openid-login.md' },
-          { text: 'Full Example', link: '/authentication/full-example.md' },
+          // { text: 'Full Example', link: '/authentication/full-example.md' },
         ]
       },
       {
@@ -40,6 +40,12 @@ export default defineConfig({
           { text: 'Changing Password', link: '/user-account/change-password.md' },
           { text: 'Disable / Recover Account', link: '/user-account/disable-recover-account.md' },
           { text: 'Search Users', link: '/user-account/get-users.md' }
+        ]
+      },
+      {
+        text: 'Templates: Authentication',
+        items: [
+          { text: 'HTML', link: '/authentication/full-example.md' },
         ]
       },
       {
@@ -87,16 +93,16 @@ export default defineConfig({
           { text: 'Client Secret Request', link: '/api-bridge/client-secret-request.md' },
         ]
       },
-      {
-        text: 'Complete Tutorial',
-        items: [
-          { text: 'Demo', link: '/full-example/intro.md' },
-          // { text: 'Authentication / User Profile', link: '/full-example/auth-profile.md' },
-          // { text: 'Instaclone', link: '/full-example/instaclone.md' },
-          // { text: 'Chat Room', link: '/full-example/chatroom.md' },
-          // { text: 'AI Image Generator', link: '/full-example/image-generator.md' }
-        ]
-      },
+      // {
+      //   text: 'Complete Tutorial',
+      //   items: [
+      //     { text: 'Demo', link: '/full-example/intro.md' },
+      //     // { text: 'Authentication / User Profile', link: '/full-example/auth-profile.md' },
+      //     // { text: 'Instaclone', link: '/full-example/instaclone.md' },
+      //     // { text: 'Chat Room', link: '/full-example/chatroom.md' },
+      //     // { text: 'AI Image Generator', link: '/full-example/image-generator.md' }
+      //   ]
+      // },
       {
         text: 'E-Mail Service',
         items: [
