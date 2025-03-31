@@ -71,7 +71,6 @@ getRecords(
          * When unique ID is given, it will fetch the records referencing the given unique ID.
          * When record ID is given, it will fetch the records referencing the given record ID.
          * When user ID is given, it will fetch the records uploaded by the given user ID.
-         * When fetching record by record_id or unique_id that user has restricted access, but the user has been granted access to reference, user can fetch the record if the record ID or the unique ID of the reference is set to reference parameter.
          */
         reference?: string;
 
