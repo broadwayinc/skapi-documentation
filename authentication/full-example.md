@@ -1,8 +1,6 @@
-# HTML Authentication Template
+# Skapi HTML Authentication Template
 
 This is a plain HTML template for Skapi's authentication features.
-
-No CSS is used in this template so don't let the design fool you.
 
 This template packs all the authentication features you can use in your HTML application:
 
