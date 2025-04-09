@@ -121,7 +121,7 @@ See [UserProfile](/api-reference/data-types/README.md#userprofile)
 ## logout
 
 ```ts
-logout(event:SubmitEvent): Promise<'SUCCESS: The user has been logged out.'>
+logout(params?: { global: boolean; }): Promise<'SUCCESS: The user has been logged out.'>
 ```
 
 ## forgotPassword
