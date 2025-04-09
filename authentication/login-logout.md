@@ -173,12 +173,30 @@ skapi.logout().then(res=>{
 ```
 :::
 
+
+### Global Logout
+
+You can let the users logout and invalidate all tokens across all the users devices by setting `params.global` to `true`.
+
+:::code-group
+
+```html [Form]
+<form onsubmit='skapi.logout(event)' action='page_to_show_after_logout.html'>
+  <input type='checkbox' name='global' checked>
+  <input type='submit' value='Logout'>
+</form>
+```
+
+```js [JS]
+skapi.logout({global: true}).then(res=>{
+  console.log(res); // 'SUCCESS: The user has been logged out.'
+  window.location.replace("page_to_show_after_logout.html");
+});
+```
+:::
+
+
 For more detailed information on all the parameters and options available with the [`logout()`](/api-reference/authentication/README.md#logout) method, 
 please refer to the API Reference below:
 
-### [`logout(event?:SubmitEvent): Promise<string>`](/api-reference/authentication/README.md#logout)
-
-:::tip
-For convenience, `event`:SubmitEvent argument is there just to use with `<form>` element.
-You can use `action` attributes in form to redirect user after logout.
-:::
+### [`logout(params?): Promise<string>`](/api-reference/authentication/README.md#logout)
