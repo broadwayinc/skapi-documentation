@@ -4,7 +4,7 @@ layout: home
 hero:
   name: "Skapi"
   text: Serverless Backend API =>
-  tagline: Build Full-Stack Web Application from HTML Frontend
+  tagline: Build full-featured web applications faster with Skapi
   
   actions:
     - theme: brand
@@ -17,11 +17,11 @@ hero:
 features:
   - icon: 💎
     title: Serverless Technology
-    details: Requires no additional server between your HTML website and your users. Just import the library and start building!
-  - title: User-Centric Database Design
+    details: Zero-setup backend API that runs entirely serverless. No servers. No deployment.
+  - title: Everything You Need in One API
     icon: ⚡
-    details: A secure, database design that requires no pre-configuration and scales without limits!
+    details: Essential services bundled into a single JavaScript library, delivered instantly.
   - title: Compatible with Any Frameworks
     icon: 💯
-    details: Compatible with vanilla HTML as well as any JS frameworks!
+    details: Compatible with plain HTML as well as any JS frameworks!
 ---
