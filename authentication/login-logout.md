@@ -174,7 +174,7 @@ skapi.logout().then(res=>{
 :::
 
 
-### Global Logout
+## Global Logout
 
 You can let the users logout and invalidate all tokens across all the users devices by setting `params.global` to `true`.
 
