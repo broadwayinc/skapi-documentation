@@ -255,6 +255,23 @@ See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
 
 See [Tag](/api-reference/data-types/README.md#tag)
 
+
+## getUniqueId
+
+```ts
+getUniqueId(
+    query: {
+        unique_id?: string;
+        condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '=';
+    },
+    fetchOptions?: FetchOptions;
+): Promise<DatabaseResponse<UniqueId>>
+```
+See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
+
+See [UniqueId](/api-reference/data-types/README.md#uniqueid)
+
+
 ## subscribe
 ```ts
 subscribe(

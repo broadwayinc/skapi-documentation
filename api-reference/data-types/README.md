@@ -276,6 +276,15 @@ type Tag = {
 }
 ```
 
+## UniqueId
+
+```ts
+type UniqueId = {
+    unqiue_id: string; // Unique ID of the record
+    record_id: string; // Record ID of the unique ID
+}
+```
+
 ## Subscription
 
 ```ts

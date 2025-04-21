@@ -52,3 +52,20 @@ skapi.getRecords(params).then(response => {
     console.log(response.list);  // record with the unique ID
 });
 ```
+
+## Fetching Unique ID List
+
+By using [`getUniqueId()`](/api-reference/database/README.md#getuniqueid) method, you can fetch list of unique ID's that are registered in your database.
+
+Below is an example where you can fetch list of unique ID that starts with **"guitar_"**
+
+```js
+let params = {
+    unique_id: 'guitar_',
+    condition: '>='
+};
+
+skapi.getUniqueId(params).then(response => {
+    console.log(response.list);  // [{unique_id: "...", record_id: "..."}, ...]
+});
+```
