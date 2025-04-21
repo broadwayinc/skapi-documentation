@@ -8,6 +8,15 @@ getConnectionInfo(): Promise<ConnectionInfo>
 
 See [ConnectionInfo](/api-reference/data-types/README.md#connectioninfo)
 
+#### Errors
+
+```ts
+{
+    code: "NOT_EXISTS";
+    message: "Service does not exists. Register your service at skapi.com"
+}
+```
+
 ## mock
 
 ```ts
