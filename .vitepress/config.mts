@@ -67,6 +67,12 @@ export default defineConfig({
         ]
       },
       {
+        text: 'Full Example: Database',
+        items: [
+          { text: 'HTML', link: '/database/full-example.md' },
+        ]
+      },
+      {
         text: 'Realtime Connection',
         items: [
           { text: 'Connecting to Realtime', link: '/realtime/connecting.md' },
