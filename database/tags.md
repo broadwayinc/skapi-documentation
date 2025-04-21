@@ -83,10 +83,6 @@ Promise.all([experimental, indie]).then(res=>{
 
 ## Fetching Tag Information
 
-:::warning
-User must be logged in to call this method
-:::
-
 You can fetch all tags used in a table with [`getTags()`](/api-reference/database/README.md#gettags).
 
 ```js
