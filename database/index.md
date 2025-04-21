@@ -245,10 +245,6 @@ You must provide the full **'Band.AsianSpiceHouse.year'** as an index name if yo
 
 ## Fetching Index Information
 
-:::warning
-User must be logged in to call this method
-:::
-
 Skapi tracks the index information in each table. You can fetch the index information using the [`getIndexes()`](/api-reference/database/README.md#getindex) method.
 
 Index information is useful when you want to list all index names used in a table or find out the total number of the records indexed to that index name or average/total value of the index values.

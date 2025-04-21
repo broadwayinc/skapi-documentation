@@ -1,9 +1,5 @@
 # Table Information
 
-:::warning
-User must be logged in to call this method
-:::
-
 Skapi keeps track of all the tables in your database.
 You can fetch a list of table names and number of records in each tables and total database size consumed in the table using the [`getTables()`](/api-reference/database/README.md#gettables) method.
 
