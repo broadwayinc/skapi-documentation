@@ -83,6 +83,12 @@ export default defineConfig({
         ]
       },
       {
+        text: 'Full Example: Websocket Chat',
+        items: [
+          { text: 'HTML', link: '/realtime/chat-example.md' },
+        ]
+      },
+      {
         text: 'Service Settings',
         items: [
           { text: 'Setting Toggles', link: '/service-settings/service-settings.md' },
