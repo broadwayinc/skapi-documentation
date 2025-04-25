@@ -93,7 +93,7 @@ getRealtimeUsers(SubmitEvent | params?: {
         user_id?: string; // User ID in the group
     },
     fetchOptions?: FetchOptions
-): Promise<DatabaseResponse<{ user_id:string; connection_id:string; }[]>>
+): Promise<DatabaseResponse<{ user_id:string; cid:string; }[]>>
 ```
 
 See [FetchOptions](/api-reference/data-types/README.md#fetchoptions)
