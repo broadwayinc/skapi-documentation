@@ -126,7 +126,7 @@ connectRTC({
 }): Promise<RTCConnector>
 ```
 
-See [RTCConnector](/api-reference/data-types/README.md#RTCConnector)
+See [RTCConnector](/api-reference/data-types/README.md#rtcconnector)
 
 #### Errors
 ```ts
