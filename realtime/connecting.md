@@ -23,9 +23,14 @@ let RealtimeCallback = (rt) => {
     // Callback executed when there is data transfer between the users.
     /**
     rt = {
-        type: 'message' | 'private' | 'error' | 'success' | 'close' | 'notice',
-        message: '...',
-        ...
+      type: 'message' | 'error' | 'success' | 'close' | 'notice' | 'private' | 'reconnect' | 'rtc:incoming' | 'rtc:closed';
+      message?: any;
+      connectRTC?: (params: RTCReceiverParams, callback: RTCEvent) => Promise<RTCResolved>; // Incoming RTC
+      hangup?: () => void; // Reject incoming RTC connection.
+      sender?: string; // user_id of the sender
+      sender_cid?: string; // scid of the sender
+      sender_rid?: string; // group of the sender
+      code?: 'USER_LEFT' | 'USER_DISCONNECTED' | 'USER_JOINED' | null; // code for notice messeges
     }
     */
     console.log(rt);
@@ -42,19 +47,22 @@ When the callback is executed, message will be passed as an object with `type` a
   
   "message": When there is data transfer between the users.
 
+  "error": When there is an error. Usually websocket connection has an error and will be disconnected.
+
+  "success": When the connection is established. This may fire on initial connection, or when the reconnection attempt is successful.
+
+  "close": When the connection is intentionally closed by the user.
+
+  "notice": When there is a notice. Usually notice users when the user in a room has joined, left, or being disconnected.
+
   "private": When there is private data transfer between the users.
+
+  "reconnect": When there is reconnection attempt. This happens after user leaves the browser tab or device screen is lock for certain amount of time, and the user comes back to the application. The websocket can disconnect when the application is left unfocus for some period of time.
   
-  "error": When there is an error.
-  
-  "success": When the connection is established.
-  
-  "close": When the connection is closed.
-  
-  "notice": When there is a notice.
 
 - `message` is the data passed from the server. It can be any JSON data.
 - `sender` is the user ID of the message sender. It is only available when `type` is "message" or "private".
-- `sender_cid` is the connection ID of the message sender. It can be used to track the sender's connection.
+- `sender_cid` is the connection ID of the message sender. It can be used to track the sender's connected device.
 
 ## Closing Connection
 
