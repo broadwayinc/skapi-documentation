@@ -354,7 +354,7 @@ type RTCResolved = {
 
 ```ts
 type RTCEvent = (e: {
-    type: string;
+    type: 'track' | 'connectionstatechange' | 'close' | 'message' | 'open' | 'bufferedamountlow' | 'error' | 'icecandidate' | 'icecandidateend' | 'icegatheringstatechange' | 'negotiationneeded' | 'signalingstatechange';
     [key: string]: any;
 }) => void
 ```
