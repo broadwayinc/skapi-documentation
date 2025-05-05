@@ -89,6 +89,12 @@ export default defineConfig({
         ]
       },
       {
+        text: 'Full Example: Video Call',
+        items: [
+          { text: 'HTML', link: '/realtime/rtc-example.md' },
+        ]
+      },
+      {
         text: 'Service Settings',
         items: [
           { text: 'Setting Toggles', link: '/service-settings/service-settings.md' },
