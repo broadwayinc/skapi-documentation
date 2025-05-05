@@ -16,7 +16,7 @@ This example features complex database examples such as:
 
 Users must login to post and fetch uploaded photos.
 
-## Recommeded VSCode Extention
+## Recommended VSCode Extention
 
 For HTML projects we often tend to use element.innerHTML.
 

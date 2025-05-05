@@ -13,7 +13,7 @@ This example features:
 
 All the main code is in **welcome.html**
 
-## Recommeded VSCode Extention
+## Recommended VSCode Extention
 
 For HTML projects we often tend to use element.innerHTML.
 
