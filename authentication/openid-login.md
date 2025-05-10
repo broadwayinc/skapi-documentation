@@ -94,7 +94,7 @@ Create a link url and the button to google OAuth login page.
 ### 5. Setup to Retrieve Access Token
 
 When user is authenticated and redirected back to your web application,
-Use [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) to retrieve the access token.
+Use [`clientSecretRequest()`](/api-bridge/client-secret-request) to retrieve the access token.
 You need to add code that runs when the user is redirected back from the google login page.
 
 Once the access token is fetched, you can call [`openidLogin(event?:SubmitEvent | params): Promise<string>`](/api-reference/authentication/README.md#openidlogin) to actually log your users to your web application.
@@ -126,6 +126,7 @@ Once the access token is fetched, you can call [`openidLogin(event?:SubmitEvent 
 
     if (urlParams.get('code')) { // When the webpage is loaded, check if it's redirected from the google login page.
         (async ()=>{
+            // Safely retrieve access token using clientSecretRequest
             const data = await skapi.clientSecretRequest({
                 clientSecretName: "ggltoken",
                 url: 'https://oauth2.googleapis.com/token',
@@ -147,12 +148,8 @@ Once the access token is fetched, you can call [`openidLogin(event?:SubmitEvent 
                 throw data
             }
 
-            const { access_token, refresh_token, expires_in } = data;
-            localStorage.setItem('accessToken', access_token);
-            localStorage.setItem('refreshToken', refresh_token);
-
             // use openIdLogin to login
-            await skapi.openIdLogin({ id: 'google', token: access_token });
+            await skapi.openIdLogin({ id: 'google', token: data.access_token });
             window.location.href = '/';
         })()
     }
