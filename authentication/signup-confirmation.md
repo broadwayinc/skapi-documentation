@@ -56,11 +56,11 @@ If the `signup_confirmation` value was `true`,
 the user will see 'Your signup has been successfully confirmed.' message in their blank web browser tab.
 
 :::danger
-Relative URL path will not work if the website is not hosted.
+When setting the `signup_confirmation` value to a relative URL path (e.g. `/relative/path.html`), it will not work if the website is not hosted.
 
-If the website is running on local file system (e.g. `file:///C:/Users/username/Desktop/website/index.html`),
+It's because on local file systems your actual file url would be something like: `file:///C:/Users/username/Desktop/website/index.html`. And skapi does not collect folder informations of the user's local computer.
 
-redirect URL of `signup_confirmation` should be the full URL (e.g. `https://your.website.com/path/to/your/success/page`).
+Set your redirect URL of `signup_confirmation` to be the full URL (e.g. `https://your.website.com/path/to/your/success/page`).
 :::
 
 You can also customize the email template for the signup confirmation email.

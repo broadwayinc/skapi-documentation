@@ -39,7 +39,7 @@ Make sure to setup correct redirect URL that points to your web application.
 3. From the side menu, click on **OpenID Logger**
 4. Click **Register Logger**
 5. Setup the *Logger ID*. This is an identifier when using [`openidLogin()`](/api-reference/authentication/README.md#openidlogin). It can be anything you want. But for this example set it to **google**
-6. Setup request URL to Google API where you can retrieve user's profile. Set it to **https://www.googleapis.com/oauth2/v3/userinfo**
+6. Setup request URL to Google API where you can retrieve user's profile. Set it to `https://www.googleapis.com/oauth2/v3/userinfo`
 7. Setup the *Username Key*. It should be an OpenID attribute name that hold unique identifier. For this example set it to **email**.
 8. Setup request headers as below:
     ```
