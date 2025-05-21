@@ -136,3 +136,25 @@ skapi.removePrivateRecordAccess({
     user_id: 'user_id_to_remove_access'
 })
 ```
+
+## Allowing Others to Grant Private Access to Others
+
+By default, The owner of the record has access to grant private access of the uploaded record to others.
+
+The owner of the record can also allow other granted users to grant private access of the uploaded record to others.
+
+When uploading a record, if the uploader set `source.allow_granted_to_grant_others` to `true` users with private access to the record can grant access to other users as well.
+
+```js
+skapi.postRecord(null, {
+    table: {
+        name: 'record_can_be_granted',
+        access_group: 'private'
+    },
+    source: {
+        allow_granted_to_grant_others: true
+    }
+}).then(r=>{
+    // now other users with an private access can also grant private access to the record (r) to others.
+})
+```
