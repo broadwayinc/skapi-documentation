@@ -39,6 +39,7 @@ postRecord(
                 range?: string | number | boolean; // Allowed index range
                 condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // Allowed index value condition
             }[];
+            allow_granted_to_grant_others?: boolean; // When true, the user who has granted private access to the record can grant access to other users.
         };
         reference?: string; // Reference to another record. When value is given, it will reference the record with the given value. Can be record ID or unique ID.
         remove_bin?: BinaryFile[] | string[] | null; // If the BinaryFile object or the url of the file is given, it will remove the bin data(files) from the record. The file should be uploaded to this record. If null is given, it will remove all the bin data(files) from the record.
