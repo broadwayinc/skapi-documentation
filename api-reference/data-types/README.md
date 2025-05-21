@@ -169,7 +169,8 @@ type RecordData = {
             value?: string | number | boolean; // Allowed index value
             range?: string | number | boolean; // Allowed index range
             condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // Allowed index value condition
-        }[]
+        }[],
+        allow_granted_to_grant_others?: boolean; // When true, the user who has granted private access to the record can grant access to other users.
     },
     reference?: string; // Reference ID of this record.
     index?: {
