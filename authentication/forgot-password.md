@@ -7,7 +7,7 @@ When the user forgets their password, they can request a verification code to re
 If the user's email is not verified, they will not be able to receive a verification code and may lose access to their account permanently.
 
 It is recommended to encourage users to verify their email addresses.
-For more info on email verification, see [Email Verification](../user-account/email-verification.md).
+For more info on email verification, see [Email Verification](/user-account/email-verification.md).
 :::
 
 ## Step 1: Request Verification Code
@@ -50,7 +50,7 @@ Due to security reasons, [`forgotPassword()`](/api-reference/authentication/READ
 
 You can also customize the email template for the verification email.
 
-For more info on email templates, see [E-Mail Templates](../email/email-templates.md).
+For more info on email templates, see [E-Mail Templates](/email/email-templates.md).
 
 ## Step 2: Reset Password
 
