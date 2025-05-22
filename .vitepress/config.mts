@@ -155,6 +155,12 @@ export default defineConfig({
           { text: 'Admin', link: '/api-reference/admin/README.md' },
           { text: 'Data Types', link: '/api-reference/data-types/README.md' }
         ]
+      },
+      {
+        text: 'For AI reading',
+        items: [
+          { text: 'Full Context', link: 'all_files_concatenated.md' },
+        ]
       }
     ],
 
