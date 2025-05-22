@@ -443,7 +443,7 @@ Set your redirect URL of `signup_confirmation` to be the full URL (e.g. `https:/
 
 You can also customize the email template for the signup confirmation email.
 
-For more info on email templates, see [Automated E-Mail](../email/email-templates.md).
+For more info on email templates, see [Automated E-Mail](/email/email-templates.md).
 
 ## Resending Signup Confirmation Email
 
@@ -536,7 +536,7 @@ users will not be able to log in until they have confirmed their account.
 When the user has successfully confirmed their signup and logged in, they will be sent a welcome email.
 You can also customize the email template for the signup confirmation email.
 
-For more info on email templates, see [Automated E-Mail](../email/email-templates.md).
+For more info on email templates, see [Automated E-Mail](/email/email-templates.md).
 :::
 
 Below is an example of a login form that uses the [`login()`](/api-reference/authentication/README.md#login) method.
@@ -728,7 +728,7 @@ When the user forgets their password, they can request a verification code to re
 If the user's email is not verified, they will not be able to receive a verification code and may lose access to their account permanently.
 
 It is recommended to encourage users to verify their email addresses.
-For more info on email verification, see [Email Verification](../user-account/email-verification.md).
+For more info on email verification, see [Email Verification](/user-account/email-verification.md).
 :::
 
 ## Step 1: Request Verification Code
@@ -771,7 +771,7 @@ Due to security reasons, [`forgotPassword()`](/api-reference/authentication/READ
 
 You can also customize the email template for the verification email.
 
-For more info on email templates, see [E-Mail Templates](../email/email-templates.md).
+For more info on email templates, see [E-Mail Templates](/email/email-templates.md).
 
 ## Step 2: Reset Password
 

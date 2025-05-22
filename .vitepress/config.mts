@@ -159,7 +159,7 @@ export default defineConfig({
       {
         text: 'For AI reading',
         items: [
-          { text: 'Full Context', link: 'all_files_concatenated.md' },
+          { text: 'Full Context', link: 'SKAPIDOC.md' },
         ]
       }
     ],
