@@ -1,7 +1,3 @@
-[Full API Documentation Download](https://broadwayinc.com/aidocs/skapi.md)
-
-<br>
-
 # Getting Started
 
 Welcome to Skapi, this guide will walk you through importing the Skapi library into your project, creating a service, and connecting your application to your Skapi server.
