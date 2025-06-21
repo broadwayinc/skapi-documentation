@@ -168,4 +168,4 @@ for (const file of files) {
         console.error(`Error reading file ${file}:`, err);
     }
 }
-fs.writeFileSync('SKAPIDOC.md', concatenatedContent);
+fs.writeFileSync('skapi.md', concatenatedContent);
