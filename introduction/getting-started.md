@@ -1,4 +1,4 @@
-[Full API Documentation Download](https://broadwayinc.com/aidocs/SKAPIDOC.md)
+[Full API Documentation Download](https://broadwayinc.com/aidocs/skapi.md)
 
 <br>
 
