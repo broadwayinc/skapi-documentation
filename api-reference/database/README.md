@@ -8,7 +8,8 @@ postRecord(
     config: {
         record_id?: string; // Only used when updating records.
         unique_id?: string; // Unique ID to set to the record. If null is given, it will remove the previous unique ID when updating.
-        // 'table' is optional when record ID is used.
+        /** When the table is given as a string value, the value is the table name. */
+        /** 'table' is optional when 'record_id' or 'unique_id' is used. */
         table: string | {
             name: string; // Other than space and period, special characters are not allowed.
             access_group?: number | 'private' | 'public' | 'authorized' | 'admin';  // Default: 'public'
@@ -62,6 +63,7 @@ getRecords(
         record_id?: string; // When record ID is given, it will fetch the record with the given record ID. all other parameters are bypassed and will override unique ID.
         unique_id?: string; // Unique ID of the record. When unique ID is given, it will fetch the record with the given unique ID. All other parameters are bypassed.
         /** When the table is given as a string value, the value is the table name. */
+        /** 'table' is optional when 'record_id' or 'unique_id' is used. */
         table: string | {
             name: string,
             access_group?: number | 'private' | 'public' | 'authorized' | 'admin'; // 0 to 99 if using number. Default: 'public'
@@ -173,6 +175,8 @@ deleteRecords({
 
     /** Delete bulk records by query. Query will be bypassed when "record_id" is given. */
     /** When deleteing records by query, It will only delete the record that user owns. */
+    /** When the table is given as a string value, the value is the table name. */
+    /** 'table' is optional when 'record_id' or 'unique_id' is used. */
     table: string | {
         name: string,
         access_group?: number | 'private' | 'public' | 'authorized' | 'admin'; // 0 to 99 if using number. Default: 'public'
