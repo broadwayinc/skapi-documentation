@@ -1986,6 +1986,22 @@ This process is handled seamlessly without any complicated file handling require
 
 Once the files are uploaded, Skapi serves the files using a CDN with no additional setup required.
 
+## Progress Information
+
+When uploading files via [`postRecord()`](/api-reference/database/README.md#postrecord) method, you can attach a [ProgressCallback](/api-reference/data-types/README.md#progresscallback) in the `progress` parameter when uploading files.
+The [ProgressCallback](/api-reference/data-types/README.md#progresscallback) will trigger whenever there is a byte loaded to/from the backend.
+
+```js
+let progressCallback = (p) => {
+    if(p.status === 'upload' && p.currentFile) {
+        console.log(`Progress: ${p.progress}%`);
+        console.log('Current uploading file:' + p.currentFile.name);
+    }
+}
+skapi.postRecord(someData, { table: 'my_photos', progress: progressCallback })
+```
+
+
 ## Downloading Files
 
 To download files from the record, you can use the `getFile()` method on the [BinaryFile](/api-reference/data-types/README.md#binaryfile) object in the record.
@@ -6395,11 +6411,11 @@ type BinaryFile = {
 type ProgressCallback = (p: {
     status: 'download' | 'upload'; // Current status
     progress: number; // Progress in percentage
-    loaded: number; // Loaded size of the data
-    total: number; // Total size of the data
-    currentFile?: File, // For files only
-    completed?: File[]; // For files only
-    failed?: File[]; // For files only
+    loaded: number; // Loaded bytes of the data
+    total: number; // Total bytes of the data
+    currentFile?: File, // Current loading file.
+    completed?: File[]; // Current files that completed loading.
+    failed?: File[]; // Failed files.
     abort: () => void; // Aborts current data transfer. When abort is triggered during fileUpload(), it will continue to next file.
 }) => void;
 ```
