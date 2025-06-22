@@ -564,23 +564,14 @@ please refer to the API Reference below:
 
 ### [`login(params): Promise<UserProfile>`](/api-reference/authentication/README.md#login)
 
-## Getting User Information
-
-When user is logged in to your service, you can retrieve their information from `user` property of the Skapi object.
-This property is getter-only, and will not be object reference.
-
-It returns the [UserProfile](/api-reference/data-types/README.md#userprofile) object.
-
-```js
-console.log(skapi.user); // null when user is logged out, User's information object when logged in.
-```
-
 ## Requesting User Information
 
 The [`getProfile()`](/api-reference/authentication/README.md#getprofile) method allows you to retrieve the user's information via promise method.
 It returns the [UserProfile](/api-reference/data-types/README.md#userprofile) object.
 
 If the user is not logged in, [`getProfile()`](/api-reference/authentication/README.md#getprofile) returns `null`.
+
+This method is particularly useful for determining the user's authentication state when they first visit or reload your website.
 
 ```js
 skapi.getProfile().then(profile=>{
@@ -631,15 +622,14 @@ const skapi = new Skapi('service_id', 'owner_id', options);
 
 You can listen to the login status of the user by setting a callback function in the `option.eventListener.onLogin` option argument of the constructor argument in Skapi.
 
-The `onLogin` callback function will be called when Skapi instance is ready with user's login status (either logged in or out), whenever the user logs in, logs out, or even when their profile is updated.
+The `onLogin` callback function will be triggered in the following scenarios: when the webpage loads and the Skapi instance is initialized with the user's current authentication state, when a user logs in or logs out, and when their profile information is updated.
 
 The callback function will receive the [UserProfile](/api-reference/data-types/README.md#userprofile) object as an argument.
-
 ```js
 const options = {
   eventListener: {
     onLogin: (profile) => {
-      console.log(profile); // null when user is logged out, User's information object when logged in.
+      console.log(profile); // is null when user is logged out, User's information object when logged in.
     }
   }
 };
