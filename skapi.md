@@ -5242,7 +5242,7 @@ getProfile(
         /** When true, JWT token is refreshed before fetching the user attributes. (Default = false) */
         refreshToken: boolean;
     }
-): Promise<UserProfile>
+): Promise<null | UserProfile>
 ```
 
 See [UserProfile](/api-reference/data-types/README.md#userprofile)
