@@ -202,11 +202,11 @@ type BinaryFile = {
 type ProgressCallback = (p: {
     status: 'download' | 'upload'; // Current status
     progress: number; // Progress in percentage
-    loaded: number; // Loaded size of the data
-    total: number; // Total size of the data
-    currentFile?: File, // For files only
-    completed?: File[]; // For files only
-    failed?: File[]; // For files only
+    loaded: number; // Loaded bytes of the data
+    total: number; // Total bytes of the data
+    currentFile?: File, // Current loading file.
+    completed?: File[]; // Current files that completed loading.
+    failed?: File[]; // Failed files.
     abort: () => void; // Aborts current data transfer. When abort is triggered during fileUpload(), it will continue to next file.
 }) => void;
 ```
