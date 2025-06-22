@@ -50,6 +50,22 @@ This process is handled seamlessly without any complicated file handling require
 
 Once the files are uploaded, Skapi serves the files using a CDN with no additional setup required.
 
+## Progress Information
+
+When uploading files via [`postRecord()`](/api-reference/database/README.md#postrecord) method, you can attach a [ProgressCallback](/api-reference/data-types/README.md#progresscallback) in the `progress` parameter when uploading files.
+The [ProgressCallback](/api-reference/data-types/README.md#progresscallback) will trigger whenever there is a byte loaded to/from the backend.
+
+```js
+let progressCallback = (p) => {
+    if(p.status === 'upload' && p.currentFile) {
+        console.log(`Progress: ${p.progress}%`);
+        console.log('Current uploading file:' + p.currentFile.name);
+    }
+}
+skapi.postRecord(someData, { table: 'my_photos', progress: progressCallback })
+```
+
+
 ## Downloading Files
 
 To download files from the record, you can use the `getFile()` method on the [BinaryFile](/api-reference/data-types/README.md#binaryfile) object in the record.
