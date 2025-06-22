@@ -159,7 +159,7 @@ export default defineConfig({
       {
         text: 'For AI Developers',
         items: [
-          { text: 'Full Markdown', link: 'https://broadwayinc.com/aidocs/skapi.md' },
+          { text: 'Full Markdown', link: 'https://docs.skapi.com/skapi.md' },
         ]
       }
     ],
