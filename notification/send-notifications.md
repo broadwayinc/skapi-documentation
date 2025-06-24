@@ -2,6 +2,13 @@
 
 Skapi provides methods to manage push notifications, including subscribing, unsubscribing, and sending notifications. This guide explains how to implement push notifications using Skapi from the client side.
 
+:::danger HTTPS REQUIRED.
+Notifications only works on HTTPS environment.
+You need to setup a HTTPS environment when developing a notifications feature for your web application.
+
+You can host your application in skapi.com or host from your personal servers.
+:::
+
 ## Subscribing to Notifications
 
 To receive push notifications, users must first subscribe. This requires obtaining a VAPID key and registering a service worker. It is possible to get the VAPID key by calling the method [`vapidPublicKey()`](/api-reference/realtime/README.md#vapidpublickey) and after subscribe by using the method [`subscribeNotification()`](/api-reference/realtime/README.md#subscribenotification).

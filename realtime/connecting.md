@@ -1,4 +1,5 @@
-# Realtime Connection
+# Connecting to Realtime
+
 Skapi's realtime connection let's you transfer JSON data between users in realtime.
 This is useful for creating chat applications, notifications, etc.
 
