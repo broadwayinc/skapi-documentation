@@ -1,22 +1,23 @@
 # Getting Started
 
-Welcome to Skapi, this guide will walk you through importing the Skapi library into your project, creating a service, and connecting your application to your Skapi server.
+Welcome to Skapi! This guide will walk you through the essential steps to get started: creating a service, importing the Skapi library into your project, and establishing a connection between your application and the Skapi server.
 
 
-## 1. Create a service
+## 1. Create a Service
 
-1. Signup for an account at [skapi.com](https://www.skapi.com/signup).
-2. Login and go to [My Services](https://www.skapi.com/my-services) page.
-3. Enter your new service name and click 'Create'.
+1. Sign up for an account at [skapi.com](https://www.skapi.com/signup).
+2. Log in and navigate to the [My Services](https://www.skapi.com/my-services) page.
+3. Click on **Create New Service**
 
-## 2. Initialize the Skapi library
+## 2. Initialize the Skapi Library
 
-Skapi is compatible with both vanilla HTML and webpack-based projects (ex. Vue, React, Angular... etc).
-You need to import the library using the `<script>` tag or install via npm.
+Skapi is compatible with both vanilla HTML and webpack-based projects (e.g., Vue, React, Angular, etc.).
+You can import the library using a `<script>` tag or install it via npm.
 
-### For HTML projects
+### For HTML Projects
 
-For vanilla HTML projects, import Skapi in the script tag, and initialize the library.
+For vanilla HTML projects, import Skapi using a script tag and initialize the library.
+For static HTML projects, ensure that the Skapi class is initialized in the HTML header on all pages. 
 
 ```html
 <!-- index.html -->
@@ -27,15 +28,15 @@ For vanilla HTML projects, import Skapi in the script tag, and initialize the li
 </script>
 ```
 
-### For SPA projects
+### For SPA Projects
 
-To use Skapi in a SPA projects (such as Vue, React, or Angular), you can install skapi-js via npm.
+To use Skapi in Single Page Application (SPA) projects such as Vue, React, or Angular, install skapi-js via npm.
 
 ```sh
 $ npm i skapi-js
 ```
 
-Then, import the library into your main JavaScript file.
+Then, import the library into your main JavaScript file:
 
 ```javascript
 // main.js
@@ -44,17 +45,17 @@ const skapi = new Skapi('service_id', 'owner_id');
 
 export { skapi }
 
-// Now you can import skapi from anywhere in your project.
+// You can now import skapi from anywhere in your project.
 ```
 
 ::: warning
-Be sure to replace `'service_id'` and `'owner_id'` in `new Skapi()` with the actual values of your service.
+Make sure to replace `'service_id'` and `'owner_id'` in `new Skapi()` with the actual values from your service.
 :::
 
 
-## 3. Get connection info
+## 3. Get Connection Information
 
-When the client has successfully connected to the Skapi server, the [`getConnectionInfo()`](/api-reference/connection/README.md#getconnectioninfo) method will return the connection information.
+When your client has successfully connected to the Skapi server, you can use the [`getConnectionInfo()`](/api-reference/connection/README.md#getconnectioninfo) method to retrieve connection information.
 
 ::: code-group
 ```html [HTML]
@@ -100,13 +101,13 @@ skapi.getConnectionInfo().then(info => {
 });
 ```
 :::<br><br>
-# Working with HTML forms
+# Working with HTML Forms
 
-Skapi is capable of handling HTML `onsubmit` event directly by passing `SubmitEvent` to the first argument of the Skapi methods.
+Skapi can handle HTML `onsubmit` events directly by passing the `SubmitEvent` as the first argument to Skapi methods.
 
-Skapi's form handling simplifies the process of handling form submissions in web applications, allowing users to easily process and send form data without the need to handle it manually.
+Skapi's form handling simplifies the process of managing form submissions in web applications, allowing developers to easily process and send form data without manual handling.
 
-For this example, we will be using [`skapi.mock()`](/api-reference/connection/README.md#mock) method to send a request to the Skapi service and ping back the response.
+In this example, we'll use the [`skapi.mock()`](/api-reference/connection/README.md#mock) method to send a request to the Skapi service and receive a response.
 
 Here is an example of using a `<form>` with Skapi:
 
@@ -117,7 +118,7 @@ Here is an example of using a `<form>` with Skapi:
 </form>
 ```
 
-Above example is equivalent to the following code:
+The above example is equivalent to the following code:
 
 ```html
 <input id="hello" placeholder="Say Hi">
@@ -137,12 +138,14 @@ Above example is equivalent to the following code:
 </script>
 ```
 
-## Nested values and arrays
+As you can see, when a form submit event is passed as the first argument to a Skapi method, Skapi automatically converts your form input values into key-value JavaScript data. The input `name` becomes the key, and depending on the input type, the value corresponds to what the user has entered. 
 
-You can pass nested values and arrays by using the `[]` syntax in the `name` attribute.
-Depending on the input type, the resolved data will be structured accordingly.
+## Nested Values and Arrays
 
-If the key name inside the `[]` is a number, Skapi will resolve the value as an array.
+You can create nested values and arrays by using the `[]` syntax in the `name` attribute.
+The resolved data structure will depend on the input type.
+
+When the key name inside the `[]` is a number, Skapi will resolve the value as an array.
 
 ```html
 <form onsubmit="skapi.mock(event).then(r => console.log(r))">
@@ -176,16 +179,16 @@ The above example will resolve to the following structure:
 }
 ```
 
-As you can see, Skapi provides convenient form data handling by structuring user input data based on the input type and the `name` attribute.
+As you can see, Skapi provides convenient form data handling by automatically structuring user input data based on the input type and the `name` attribute.
 
-Number inputs will be resolved as numbers, radio inputs will be resolved as chosen value, and checkbox inputs will be resolved as boolean or string if value is given.
+Number inputs are resolved as numbers, radio inputs are resolved as the selected value, and checkbox inputs are resolved as boolean values or strings if a value is specified.
 
-If multiple inputs share the same name with out using `[]` syntax, Skapi will try to convert the values in to an array.
+When multiple inputs share the same name without using `[]` syntax, Skapi will attempt to convert the values into an array.
 
 
 ## Using Input Elements, Textarea, and Select Elements
 
-Skapi can also handle various input elements, including text, number, radio, checkbox, textarea, and select elements.
+Skapi can handle various input elements, including text, number, radio, checkbox, textarea, and select elements.
 
 ```html
 <input name="my_message" id="message_input">
@@ -195,18 +198,18 @@ Skapi can also handle various input elements, including text, number, radio, che
   })">Mock</button>
 ```
 
-As shown in the example above, we are using the `id` attribute to reference the input element and pass it to the Skapi method.
+In the example above, we use the `id` attribute to reference the input element and pass it directly to the Skapi method.
 
-This is useful when you want to handle single user input from a specific input element.
+This approach is useful when you want to handle individual user input from a specific input element.
 
 
-## Using the `action` attribute in the `<form>` element
+## Using the `action` Attribute in the `<form>` Element
 
-If you specify a URL in the `action` attribute of the `<form>` element, the user will be redirected to that page upon a successful request.
+When you specify a URL in the `action` attribute of a `<form>` element, the user will be redirected to that page upon a successful request.
 
-On the new page, you can use the [`skapi.getFormResponse()`](/api-reference/connection/README.md#getformresponse) method to retrieve the resolved data from the previous page.
+On the destination page, you can use the [`skapi.getFormResponse()`](/api-reference/connection/README.md#getformresponse) method to retrieve the resolved data from the previous page.
 
-Example below shows how users can submit a form in `index.html`, then fetch the resolved data from a new redirected page `welcome.html`.
+The example below demonstrates how users can submit a form in `index.html` and then fetch the resolved data from the redirected page `welcome.html`.
 
 For this example, create two HTML files in the same directory.
 
@@ -257,9 +260,9 @@ For this example, create two HTML files in the same directory.
 ::: tip
 When building a static website, you can use the `action` attribute to redirect users to a new page after a successful request.
 
-Each of the pages should have the Skapi library imported and initialized.
+Each page should have the Skapi library imported and initialized.
 
-Wheras in a single-page application, It may not be necessary to redirect users to a new page.
+In contrast, in a single-page application, it may not be necessary to redirect users to a new page.
 :::<br><br># Authentication
 
 Authentication is the process of verifying the identity of a user.
@@ -785,9 +788,9 @@ skapi.resetPassword({
 For more detailed information on all the parameters and options available with the [`resetPassword()`](/api-reference/authentication/README.md#resetpassword) method, 
 please refer to the API Reference below:
 
-### [`resetPassword(params): Promise<string>`](/api-reference/authentication/README.md#resetpassword)<br><br># Open ID Login
+### [`resetPassword(params): Promise<string>`](/api-reference/authentication/README.md#resetpassword)<br><br># OpenID Login
 
-Skapi provides logger for OpenID profiles.
+Skapi provides support for OpenID authentication profiles.
 
 ## What is OpenID?
 
@@ -795,74 +798,72 @@ OpenID is an open standard and decentralized authentication protocol that allows
 
 With OpenID, users can log in to multiple websites using a single set of credentials from an OpenID provider such as Google, Facebook, or other identity providers. This process involves redirecting the user to the OpenID provider's login page, where they authenticate themselves, and then returning to the original website with a token that confirms their identity.
 
-## Login with OpenID profile
+## Login with OpenID Profile
 
-If you have access to OpenID providers API, you can register your open ID logger from your Skapi's service page.
+If you have access to an OpenID provider's API, you can register your OpenID logger from your Skapi service page.
 
-Although all OpenID providers have different ways to authenticate their users, generally it follows such process:
+Although OpenID providers have different authentication methods, the general process follows these steps:
 
-1. Register open ID logger in Skapi
-2. Redirect user to OpenID provider's login page
-3. Redirect authenticated user's back to your webpage
-4. Retrive access token to call [`openidLogin()`](/api-reference/authentication/README.md#openidlogin)
-5. User will get logged in to your Skapi application.
+1. Register an OpenID logger in Skapi
+2. Redirect the user to the OpenID provider's login page
+3. Redirect the authenticated user back to your webpage
+4. Retrieve the access token to call [`openidLogin()`](/api-reference/authentication/README.md#openidlogin)
+5. The user will be logged into your Skapi application
 
 ## Google OAuth Example
 
-In this example, we will show implementing Google OAuth as an example.
+In this example, we'll demonstrate implementing Google OAuth authentication.
 
-### 1. Setup Google OAuth Service
+### 1. Set Up Google OAuth Service
 
-Go to your [Google Cloud Console](https://console.cloud.google.com/)
-and create your OAuth service.
+Go to the [Google Cloud Console](https://console.cloud.google.com/) and create your OAuth service.
 
-Follow their [Instructions](https://support.google.com/googleapi/answer/6158849?hl=en).
-Make sure to setup correct redirect URL that points to your web application.
+Follow their [instructions](https://support.google.com/googleapi/answer/6158849?hl=en). Make sure to set up the correct redirect URL that points to your web application.
 
-### 2. Register Your OpenID logger in Skapi
+### 2. Register Your OpenID Logger in Skapi
 
-1. Login to [skapi.com](https://www.skapi.com).
-2. Click on the service you wish to register your OpenID Logger.
-3. From the side menu, click on **OpenID Logger**
-4. Click **Register Logger**
-5. Setup the *Logger ID*. This is an identifier when using [`openidLogin()`](/api-reference/authentication/README.md#openidlogin). It can be anything you want. But for this example set it to **google**
-6. Setup request URL to Google API where you can retrieve user's profile. Set it to `https://www.googleapis.com/oauth2/v3/userinfo`
-7. Setup the *Username Key*. It should be an OpenID attribute name that hold unique identifier. For this example set it to **email**.
-8. Setup request headers as below:
+1. Log in to [skapi.com](https://www.skapi.com).
+2. Click on the service where you want to register your OpenID Logger.
+3. From the side menu, click on **OpenID Logger**.
+4. Click **Register Logger**.
+5. Set up the *Logger ID*. This is an identifier used when calling [`openidLogin()`](/api-reference/authentication/README.md#openidlogin). You can use any name, but for this example, set it to **google**.
+6. Set up the request URL to the Google API where you can retrieve the user's profile. Set it to `https://www.googleapis.com/oauth2/v3/userinfo`.
+7. Set up the *Username Key*. This should be an OpenID attribute name that holds a unique identifier. For this example, set it to **email**.
+8. Set up the request headers as shown below:
     ```
     {
         "Authorization": "Bearer $TOKEN"
     }
     ```
-9. Click **Save**
+9. Click **Save**.
 
 
 ### 3. Register Client Secret Key
 
-When retriving token for Google OAuth authentication, Google API requires client secret key.
+When retrieving an access token for Google OAuth, the Google API requires a client secret key.
 
-Since client secret key should not be exposed, register the client secret key of your OAuth service in Skapi.
+Since the client secret key should not be exposed, register the client secret key of your OAuth service in Skapi.
 
-1. In the service page, click on **Client Secret Key** menu.
+1. In the service page, click on the **Client Secret Key** menu.
 2. Click on **Register Client Secret Key**.
-3. Give a name to your secret key. It can be anything you want. But for this example, lets set it to **ggltoken**
-4. Enter the client secret key you obtained from your new google OAuth service.
-5. Click on the check to save.
+3. Give a name to your secret key. You can use any name, but for this example, set it to **ggltoken**.
+4. Enter the client secret key you obtained from your Google OAuth service.
+5. Click the checkmark to save.
 
-### 4. Setup Link To Google Login
+### 4. Set Up Link to Google Login
 
-Create a link url and the button to google OAuth login page.
+Create a link URL and button for the Google OAuth login page.
 
 ```html
 <button onclick='googleLogin()'>Google Login</button>
 <script>
-    const GOOGLE_CLIENT_ID = "1234567890123-your.google.client.id"; // Replace this to your actual client id
-    const REDIRECT_URL = window.location.href.split('?')[0]; // current URL to redirect back from google login page.
+    const GOOGLE_CLIENT_ID = "1234567890123-your.google.client.id"; // Replace this with your actual client ID
+    const REDIRECT_URL = window.location.href.split('?')[0]; // Current URL to redirect back from Google login page
 
     function googleLogin() {
         let rnd = Math.random().toString(36).substring(2); // Generate a random string
 
-        // Bulid link to login page
+        // Build link to login page
         let url = 'https://accounts.google.com/o/oauth2/v2/auth';
         url += '?client_id=' + GOOGLE_CLIENT_ID;
         url += '&redirect_uri=' + encodeURIComponent(REDIRECT_URL);
@@ -872,30 +873,28 @@ Create a link url and the button to google OAuth login page.
         url += '&state=' + encodeURIComponent(rnd);
         url += '&access_type=offline';
 
-        // Redirect user to the url
+        // Redirect user to the URL
         window.location.href = url;
     }
 </script>
 ```
 
-### 5. Setup to Retrieve Access Token
+### 5. Set Up Access Token Retrieval
 
-When user is authenticated and redirected back to your web application,
-Use [`clientSecretRequest()`](/api-bridge/client-secret-request) to retrieve the access token.
-You need to add code that runs when the user is redirected back from the google login page.
+When the user is authenticated and redirected back to your web application, use [`clientSecretRequest()`](/api-bridge/client-secret-request) to retrieve the access token. You need to add code that runs when the user is redirected back from the Google login page.
 
-Once the access token is fetched, you can call [`openidLogin(event?:SubmitEvent | params): Promise<string>`](/api-reference/authentication/README.md#openidlogin) to actually log your users to your web application.
+Once the access token is fetched, you can call [`openidLogin(event?:SubmitEvent | params): Promise<string>`](/api-reference/authentication/README.md#openidlogin) to log your users into your web application.
 
 ```html
 <button onclick='googleLogin()'>Google Login</button>
 <script>
-    const GOOGLE_CLIENT_ID = "1234567890123-your.google.client.id"; // Replace this to your actual client id
-    const REDIRECT_URL = window.location.href.split('?')[0]; // current URL to redirect back from google login page.
+    const GOOGLE_CLIENT_ID = "1234567890123-your.google.client.id"; // Replace this with your actual client ID
+    const REDIRECT_URL = window.location.href.split('?')[0]; // Current URL to redirect back from Google login page
 
     function googleLogin() {
         let rnd = Math.random().toString(36).substring(2); // Generate a random string
 
-        // Bulid link to login page
+        // Build link to login page
         let url = 'https://accounts.google.com/o/oauth2/v2/auth';
         url += '?client_id=' + GOOGLE_CLIENT_ID;
         url += '&redirect_uri=' + encodeURIComponent(REDIRECT_URL);
@@ -905,13 +904,13 @@ Once the access token is fetched, you can call [`openidLogin(event?:SubmitEvent 
         url += '&state=' + encodeURIComponent(rnd);
         url += '&access_type=offline';
 
-        // Redirect user to the url
+        // Redirect user to the URL
         window.location.href = url;
     }
 
     const urlParams = new URLSearchParams(window.location.search);
 
-    if (urlParams.get('code')) { // When the webpage is loaded, check if it's redirected from the google login page.
+    if (urlParams.get('code')) { // When the webpage is loaded, check if it's redirected from the Google login page.
         (async ()=>{
             // Safely retrieve access token using clientSecretRequest
             const data = await skapi.clientSecretRequest({
@@ -935,7 +934,7 @@ Once the access token is fetched, you can call [`openidLogin(event?:SubmitEvent 
                 throw data
             }
 
-            // use openIdLogin to login
+            // Use openIdLogin to log in
             await skapi.openIdLogin({ id: 'google', token: data.access_token });
             window.location.href = '/';
         })()
@@ -943,6 +942,11 @@ Once the access token is fetched, you can call [`openidLogin(event?:SubmitEvent 
 </script>
 ```
 
+:::warning
+For this Google OAuth example, we use [`clientSecretRequest()`](/api-bridge/client-secret-request) to request an access token with a secured client secret key, and [`openidLogin()`](/api-reference/authentication/README.md#openidlogin) to actually sign up/log in the user to your service using the obtained access token.
+
+Be sure to set up both Client Secret Keys and OpenID Loggers, and use the clientSecretName and OpenID Logger ID to securely make requests from the frontend.
+:::
 
 ### [`openidLogin(event?:SubmitEvent | params): Promise<string>`](/api-reference/authentication/README.md#openidlogin)<br><br># User's Account
 
@@ -1427,7 +1431,7 @@ Users can create [`postRecord()`](/api-reference/database/README.md#postrecord) 
 
 It takes two arguments:
 
-- `data`: The data to be saved in key-value pairs. It can be an object literal, `null`, `undefined` or a form `SubmitEvent`.
+- `data` The data to be saved in key-value pairs. It can be an object literal, `null`, `undefined` or a form `SubmitEvent`.
 - `config` (required): Configuration for the record to be uploaded. This is where you specify the table name, access group, index values, etc.
 
 :::code-group
@@ -3272,7 +3276,8 @@ Currently the service is running on **Trial Mode**.
 
 **All the user data will be deleted every 14 days.**
 
-You can get your own service ID from [Skapi](https://www.skapi.com)<br><br># Realtime Connection
+You can get your own service ID from [Skapi](https://www.skapi.com)<br><br># Connecting to Realtime
+
 Skapi's realtime connection let's you transfer JSON data between users in realtime.
 This is useful for creating chat applications, notifications, etc.
 
@@ -3546,6 +3551,13 @@ please refer to the API Reference below:
 ### [`getRealtimeUsers(params, fetchOptions?): Promise<DatabaseResponse<{ user_id:string; connection_id:string; }[]>>`](/api-reference/realtime/README.md#getrealtimeusers)<br><br># Notifications
 
 Skapi provides methods to manage push notifications, including subscribing, unsubscribing, and sending notifications. This guide explains how to implement push notifications using Skapi from the client side.
+
+:::danger HTTPS REQUIRED.
+Notifications only works on HTTPS environment.
+You need to setup a HTTPS environment when developing a notifications feature for your web application.
+
+You can host your application in skapi.com or host from your personal servers.
+:::
 
 ## Subscribing to Notifications
 
