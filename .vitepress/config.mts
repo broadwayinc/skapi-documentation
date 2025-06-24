@@ -75,11 +75,12 @@ export default defineConfig({
       {
         text: 'Realtime Connection',
         items: [
+          { text: 'Introduction', link: '/realtime/introduction.md' },
           { text: 'Connecting to Realtime', link: '/realtime/connecting.md' },
           { text: 'Sending Realtime Data', link: '/realtime/post.md' },
           { text: 'Realtime Groups', link: '/realtime/group.md' },
-          { text: 'Notifications', link: '/notification/send-notifications.md' },
           { text: 'WebRTC', link: '/realtime/webRTC.md' },
+          { text: 'Notifications', link: '/notification/send-notifications.md' }
         ]
       },
       {

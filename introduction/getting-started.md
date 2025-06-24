@@ -1,22 +1,23 @@
 # Getting Started
 
-Welcome to Skapi, this guide will walk you through importing the Skapi library into your project, creating a service, and connecting your application to your Skapi server.
+Welcome to Skapi! This guide will walk you through the essential steps to get started: creating a service, importing the Skapi library into your project, and establishing a connection between your application and the Skapi server.
 
 
-## 1. Create a service
+## 1. Create a Service
 
-1. Signup for an account at [skapi.com](https://www.skapi.com/signup).
-2. Login and go to [My Services](https://www.skapi.com/my-services) page.
-3. Enter your new service name and click 'Create'.
+1. Sign up for an account at [skapi.com](https://www.skapi.com/signup).
+2. Log in and navigate to the [My Services](https://www.skapi.com/my-services) page.
+3. Click on **Create New Service**
 
-## 2. Initialize the Skapi library
+## 2. Initialize the Skapi Library
 
-Skapi is compatible with both vanilla HTML and webpack-based projects (ex. Vue, React, Angular... etc).
-You need to import the library using the `<script>` tag or install via npm.
+Skapi is compatible with both vanilla HTML and webpack-based projects (e.g., Vue, React, Angular, etc.).
+You can import the library using a `<script>` tag or install it via npm.
 
-### For HTML projects
+### For HTML Projects
 
-For vanilla HTML projects, import Skapi in the script tag, and initialize the library.
+For vanilla HTML projects, import Skapi using a script tag and initialize the library.
+For static HTML projects, ensure that the Skapi class is initialized in the HTML header on all pages. 
 
 ```html
 <!-- index.html -->
@@ -27,15 +28,15 @@ For vanilla HTML projects, import Skapi in the script tag, and initialize the li
 </script>
 ```
 
-### For SPA projects
+### For SPA Projects
 
-To use Skapi in a SPA projects (such as Vue, React, or Angular), you can install skapi-js via npm.
+To use Skapi in Single Page Application (SPA) projects such as Vue, React, or Angular, install skapi-js via npm.
 
 ```sh
 $ npm i skapi-js
 ```
 
-Then, import the library into your main JavaScript file.
+Then, import the library into your main JavaScript file:
 
 ```javascript
 // main.js
@@ -44,17 +45,17 @@ const skapi = new Skapi('service_id', 'owner_id');
 
 export { skapi }
 
-// Now you can import skapi from anywhere in your project.
+// You can now import skapi from anywhere in your project.
 ```
 
 ::: warning
-Be sure to replace `'service_id'` and `'owner_id'` in `new Skapi()` with the actual values of your service.
+Make sure to replace `'service_id'` and `'owner_id'` in `new Skapi()` with the actual values from your service.
 :::
 
 
-## 3. Get connection info
+## 3. Get Connection Information
 
-When the client has successfully connected to the Skapi server, the [`getConnectionInfo()`](/api-reference/connection/README.md#getconnectioninfo) method will return the connection information.
+When your client has successfully connected to the Skapi server, you can use the [`getConnectionInfo()`](/api-reference/connection/README.md#getconnectioninfo) method to retrieve connection information.
 
 ::: code-group
 ```html [HTML]
