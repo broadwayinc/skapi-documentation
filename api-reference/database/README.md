@@ -10,7 +10,7 @@ postRecord(
         unique_id?: string; // Unique ID to set to the record. If null is given, it will remove the previous unique ID when updating.
         /** When the table is given as a string value, the value is the table name. */
         /** 'table' is optional when 'record_id' or 'unique_id' is used. */
-        /** If 'table' value is given as string, the given value will be set as table.name and table.access_group is uploaded as 'public' **/
+        /** When the table is given as a string value, the given value will be set as table.name and table.access_group will be 'public' **/
         table: string | {
             name: string; // Other than space and period, special characters are not allowed.
             access_group?: number | 'private' | 'public' | 'authorized' | 'admin';  // Default: 'public'
@@ -63,7 +63,7 @@ getRecords(
     query: {
         record_id?: string; // When record ID is given, it will fetch the record with the given record ID. all other parameters are bypassed and will override unique ID.
         unique_id?: string; // Unique ID of the record. When unique ID is given, it will fetch the record with the given unique ID. All other parameters are bypassed.
-        /** When the table is given as a string value, the value is the table name. */
+        /** When the table is given as a string value, the given value will be set as table.name and table.access_group will be 'public' **/
         /** 'table' is optional when 'record_id' or 'unique_id' is used. */
         table: string | {
             name: string,
