@@ -100,7 +100,9 @@ skapi.getConnectionInfo().then(info => {
    window.alert(`Connected to ${info.service_name}`);
 });
 ```
-:::<br><br>
+:::
+<br><br>
+
 # Working with HTML Forms
 
 Skapi can handle HTML `onsubmit` events directly by passing the `SubmitEvent` as the first argument to Skapi methods.
@@ -263,7 +265,9 @@ When building a static website, you can use the `action` attribute to redirect u
 Each page should have the Skapi library imported and initialized.
 
 In contrast, in a single-page application, it may not be necessary to redirect users to a new page.
-:::<br><br># Authentication
+:::
+<br><br>
+# Authentication
 
 Authentication is the process of verifying the identity of a user.
 
@@ -274,7 +278,9 @@ Authenticated users can have access to post data to your database, and also can 
 Skapi provides a full featured authentication system out of the box without the need for any additional configuration.
 
 In this section, you will learn how to let users create an account, login, and logout from your service, or recover their account if they have forgotten their password.
+
 <br><br>
+
 # Creating an Account
 
 To let users create a new account in your service, you can use the [`signup()`](/api-reference/authentication/README.md#signup) method. 
@@ -369,7 +375,9 @@ please refer to the API Reference below:
 
 ### [`signup(params, options?): Promise<UserProfile | string>`](/api-reference/authentication/README.md#signup)  
 
+
 <br><br>
+
 # Signup Confirmation
 
 When an account is created with `options.signup_confirmation` set to `true` or URL string,
@@ -506,7 +514,9 @@ please refer to the API Reference below:
 - If the user fails to confirm within 7 days, their signup will be invalidated, and they will need to sign up again. 
 :::
 
-<br><br># Login / Logout
+
+<br><br>
+# Login / Logout
 
 Once a user has signed up, they can log in to your service using their email and password.
 
@@ -698,7 +708,9 @@ For more detailed information on all the parameters and options available with t
 please refer to the API Reference below:
 
 ### [`logout(params?): Promise<string>`](/api-reference/authentication/README.md#logout)
+
 <br><br>
+
 # Forgot password
 
 When the user forgets their password, they can request a verification code to reset their password.
@@ -788,7 +800,9 @@ skapi.resetPassword({
 For more detailed information on all the parameters and options available with the [`resetPassword()`](/api-reference/authentication/README.md#resetpassword) method, 
 please refer to the API Reference below:
 
-### [`resetPassword(params): Promise<string>`](/api-reference/authentication/README.md#resetpassword)<br><br># OpenID Login
+### [`resetPassword(params): Promise<string>`](/api-reference/authentication/README.md#resetpassword)
+<br><br>
+# OpenID Login
 
 Skapi provides support for OpenID authentication profiles.
 
@@ -948,11 +962,15 @@ For this Google OAuth example, we use [`clientSecretRequest()`](/api-bridge/clie
 Be sure to set up both Client Secret Keys and OpenID Loggers, and use the clientSecretName and OpenID Logger ID to securely make requests from the frontend.
 :::
 
-### [`openidLogin(event?:SubmitEvent | params): Promise<string>`](/api-reference/authentication/README.md#openidlogin)<br><br># User's Account
+### [`openidLogin(event?:SubmitEvent | params): Promise<string>`](/api-reference/authentication/README.md#openidlogin)
+<br><br>
+# User's Account
 
 When a user creates an account in your service, user's can access and manage their account information.
 
-In this section, you will learn how to let users verify their email, change their password, update their profile, and remove their account from your service.<br><br># E-Mail Verification
+In this section, you will learn how to let users verify their email, change their password, update their profile, and remove their account from your service.
+<br><br>
+# E-Mail Verification
 
 :::warning
 User must be logged in to call this method
@@ -1001,7 +1019,9 @@ please refer to the API Reference below:
 :::warning
 The user's email verified state will be lost if the user had changed their email address.
 :::
+
 <br><br>
+
 # Updating User Profile
 
 :::warning
@@ -1102,7 +1122,9 @@ please refer to the API Reference below:
 
 ### [`updateProfile(params, options?): Promise<UserProfile>`](/api-reference/user/README.md#updateprofile)
 
-<br><br># Changing Password
+
+<br><br>
+# Changing Password
 
 :::warning
 User must be logged in to call this method.
@@ -1140,7 +1162,9 @@ For more detailed information on all the parameters and options available with t
 please refer to the API Reference below:
 
 
-### [`changePassword(params): Promise<string>`](/api-reference/user/README.md#changepassword)<br><br># Disable / Recover Account
+### [`changePassword(params): Promise<string>`](/api-reference/user/README.md#changepassword)
+<br><br>
+# Disable / Recover Account
 
 
 ## Disabling account
@@ -1245,7 +1269,9 @@ please refer to the API Reference below:
 User should know their password, and have their account email verified.
 Otherwise user's account cannot be recovered.
 :::
-<br><br># Search Users
+
+<br><br>
+# Search Users
 
 :::warning
 User must be logged in to call this method
@@ -1358,7 +1384,9 @@ The `range` parameter enables searching for users based on a specific attribute 
 
 :::warning
 The `range` parameter cannot be used with the `condition` parameter.
-:::<br><br># Skapi HTML Authentication Template
+:::
+<br><br>
+# Skapi HTML Authentication Template
 
 This is a plain HTML template for Skapi's authentication features.
 
@@ -1407,7 +1435,9 @@ Currently the service is running on **Trial Mode**.
 
 **All the user data will be deleted every 14 days.**
 
-You can get your own service ID from [Skapi](https://www.skapi.com)<br><br># Database
+You can get your own service ID from [Skapi](https://www.skapi.com)
+<br><br>
+# Database
 
 Skapi provides fast, simple, secure, yet flexible way to store, retrieve data from your database.
 
@@ -1421,7 +1451,9 @@ We designed the database to be User-Centric, meaning that the end-users(frontend
 
 By this approach, the database does not require any complex setup, or schema definition that cost time and money just to get things started.
 
-In this section, you will learn how to store and retrieve data from your database, and learn how Skapi's powerful indexing system can help you search your data.<br><br># Creating a Record
+In this section, you will learn how to store and retrieve data from your database, and learn how Skapi's powerful indexing system can help you search your data.
+<br><br>
+# Creating a Record
 
 :::warning
 User must be logged in to call this method
@@ -1476,6 +1508,9 @@ The data is a Javascript object that has string value in the key 'something'.
 And in the second argument we have set table name to be `my_collection`.
 
 Table name is a required field in the configuration object and the table name should not contain any special characters.
+If `config.table` is given as **string**, the record will be uploaded as `access_group` to `"public"`.
+
+When uploading the record with access restrictions, see [`Access Restrictions`](/database/access-restrictions.md).
 
 For more detailed information on all the parameters and options available with the [`postRecord()`](/api-reference/database/README.md#postrecord) method, 
 please refer to the API Reference below:
@@ -1487,7 +1522,9 @@ Skapi database does not require you to pre-setup your database schema.
 
 If the specified table does not exist, it will be automatically created when you create the record.
 Conversely, if a table has no records, it will be automatically deleted.
-:::<br><br># Fetching Records
+:::
+<br><br>
+# Fetching Records
 
 The [`getRecords()`](/api-reference/database/README.md#getrecords) method allows you to fetch records from the database. It retrieves records based on the specified query parameters and returns a promise that resolves to the [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse) containing the [RecordData](/api-reference/data-types/README.md#recorddata) object.
 
@@ -1517,9 +1554,11 @@ skapi.getRecords(query).then(response=>{
 });
 ```
 
-The example above retrieve records from a table named 'my_collection'.
+The example above retrieve records from a table named 'my_collection' with `access_group` that are `public`
 The `table` parameter in the `query` argument sets the table name you want to fetch records from.
 The retrieved records are accessed through the `response.list` property.
+
+When fetching the records with access restrictions, see [`Access Restrictions`](/database/access-restrictions.md).
 
 For more detailed information on all the parameters and options available with the [`getRecords()`](/api-reference/database/README.md#getrecords) method, 
 please refer to the API Reference below:
@@ -1627,7 +1666,9 @@ You can however, initialize your fetch and refetch from start by toggling `fetch
 :::tip
 You can fetch all the data at once by recursively calling the method until the `endOfList` value is `true`.
 However for efficiency, avoid trying to fetch all the data at once. Fetch only data the user needs and paginate when necessary.
-:::<br><br># Unique ID
+:::
+<br><br>
+# Unique ID
 
 When uploading a record with [`postRecord()`](/api-reference/database/README.md#postrecord), you can set a unique ID for the record. This unique ID can be used to fetch the record later.
 Unique ID must be a string and must be unique across all records in the table.
@@ -1697,7 +1738,9 @@ let params = {
 skapi.getUniqueId(params).then(response => {
     console.log(response.list);  // [{unique_id: "...", record_id: "..."}, ...]
 });
-```<br><br>
+```
+<br><br>
+
 # Access Restrictions
 
 Skapi database allows you to set access restrictions to records. This allows you to control who can access your records.
@@ -1857,7 +1900,9 @@ skapi.postRecord(null, {
     // now other users with an private access can also grant private access to the record (r) to others.
 })
 ```
+
 <br><br>
+
 # Updating a Record
 
 The [`postRecord()`](/api-reference/database/README.md#postrecord) method can also be used to update an existing record. You can specify the `record_id` in the `config` object in order to do so. 
@@ -1938,7 +1983,9 @@ When the record is created with `readonly` set to `true`, the user will not be a
 skapi.postRecord({ myData: "Can this be updated?" }, { record_id: read_only_record_id }).catch(err=>{
     alert(err.message); // Record is readonly.
 })
-```<br><br># Handling Files
+```
+<br><br>
+# Handling Files
 
 Skapi database is integrated with Skapi's cloud storage and CDN.
 This allows you to upload any size of binary files to the database without any additional setup.
@@ -1962,7 +2009,7 @@ Here's an example demonstrating how you can upload files using Skapi:
 ```
 
 The `name` attribute of the `FormData` will serve as the key name of the file data.
-The file(s) will be uploaded under the key name `picture` in the `bin` key of the [RecordData](/api-reference/data-types/README.md#recorddata) as shown below:
+The file(s) will be uploaded under the key name `picture`(the name of the file input element) in the `bin` key of the [RecordData](/api-reference/data-types/README.md#recorddata) as shown below:
 ```js
 // record data
 {
@@ -2142,7 +2189,9 @@ skapi.getFile(fileUrl, { dataType: 'info' }).then(fileInfo => {
     }
     */
 });
-```<br><br>
+```
+<br><br>
+
 # Deleting Records
 
 :::warning
@@ -2228,7 +2277,9 @@ Read more about admin access [here](/admin/intro.md).
 For more detailed information on all the parameters and options available with the [`deleteRecords()`](/api-reference/database/README.md#deleterecords) method, 
 please refer to the API Reference below:
 
-### [`deleteRecords(params): Promise<string>`](/api-reference/database/README.md#deleterecords)<br><br># Table Information
+### [`deleteRecords(params): Promise<string>`](/api-reference/database/README.md#deleterecords)
+<br><br>
+# Table Information
 
 Skapi keeps track of all the tables in your database.
 You can fetch a list of table names and number of records in each tables and total database size consumed in the table using the [`getTables()`](/api-reference/database/README.md#gettables) method.
@@ -2263,7 +2314,9 @@ For more detailed information on all the parameters and options available with t
 please refer to the API Reference below:
 
 ### [`getTables(query, fetchOptions?): Promise<DatabaseResponse<Table>>`](/api-reference/database/README.md#gettables)
+
 <br><br>
+
 # Indexing
 
 When uploading records, you can set additional configurations in the `index` property.
@@ -2614,7 +2667,9 @@ skapi.getIndexes(query, config).then(response => {
     console.log(response.list); // List of votes that rates higher then 50%, ordered from high votes.
 });
 ```
+
 <br><br>
+
 # Tags
 
 Tags are additional information that can be associated with a record. They provide additional search criteria to perform more detailed queries, either on their own or in combination with indexes. Unlike indexes, tags cannot be queried with conditional operators.
@@ -2728,7 +2783,9 @@ skapi.getTags({
 ```
 
 In this example, the condition property is set to `>`, and `table` is set to `A`.  This query will return the table names that come after table 'A' in lexographic order, such as 'Ab', 'B', 'C', 'D' and so on.
-<br><br># Referencing
+
+<br><br>
+# Referencing
 
 Users can reference another record when uploading a new record.
 
@@ -3001,7 +3058,9 @@ Note that the "Review.Album.GetzGilberto" `index` uses a `value` of type `number
 3. Sharing private data between limited users
    
    If the reference record has a private access group, only the users who have access to the reference record can access the referencing records.
+
 <br><br>
+
 # Subscription
 
 
@@ -3214,7 +3273,9 @@ skapi.getFeed({access_group: 1}).then((response) => {
 });
 ```
 
-### [`getFeed(fetchOptions?): Promise<DatabaseResponse<RecordData>>`](/api-reference/database/README.md#getfeed)<br><br># Skapi HTML Database Full Example
+### [`getFeed(fetchOptions?): Promise<DatabaseResponse<RecordData>>`](/api-reference/database/README.md#getfeed)
+<br><br>
+# Skapi HTML Database Full Example
 
 This is a HTML example for building photo uploading application using Skapi's database features.
 
@@ -3276,7 +3337,9 @@ Currently the service is running on **Trial Mode**.
 
 **All the user data will be deleted every 14 days.**
 
-You can get your own service ID from [Skapi](https://www.skapi.com)<br><br># Connecting to Realtime
+You can get your own service ID from [Skapi](https://www.skapi.com)
+<br><br>
+# Connecting to Realtime
 
 Skapi's realtime connection let's you transfer JSON data between users in realtime.
 This is useful for creating chat applications, notifications, etc.
@@ -3368,7 +3431,9 @@ please refer to the API Reference below:
 :::tip
 When the user closes the tab or refresh the browser, the connection will be closed automatically.
 And when the connection is closed user will be removed from the group.
-:::<br><br># Sending Realtime Data
+:::
+<br><br>
+# Sending Realtime Data
 
 Once the realtime connection is established, users can start sending realtime data to another user.
 
@@ -3416,7 +3481,9 @@ When the message is sent successfully, the method will return the following obje
 ```
 
 On the receiver's side, the message will be received as an argument as an object with `type` and `message` properties through the [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback) that has been set when creating the realtime connection via [`connectRealtime()`](/api-reference/realtime/README.md#connectrealtime) method.
-<br><br># Realtime Groups
+
+<br><br>
+# Realtime Groups
 
 Realtime groups are used to send realtime data to multiple users at once.
 This can be used to create group chats, group notifications, etc.
@@ -3548,7 +3615,9 @@ skapi.getRealtimeUsers({ group: 'HelloWorld', user_id: 'user_a' }).then(res => {
 For more detailed information on all the parameters and options available with the [`getRealtimeUsers()`](/api-reference/realtime/README.md#getrealtimeusers) method, 
 please refer to the API Reference below:
 
-### [`getRealtimeUsers(params, fetchOptions?): Promise<DatabaseResponse<{ user_id:string; connection_id:string; }[]>>`](/api-reference/realtime/README.md#getrealtimeusers)<br><br># Notifications
+### [`getRealtimeUsers(params, fetchOptions?): Promise<DatabaseResponse<{ user_id:string; connection_id:string; }[]>>`](/api-reference/realtime/README.md#getrealtimeusers)
+<br><br>
+# Notifications
 
 Skapi provides methods to manage push notifications, including subscribing, unsubscribing, and sending notifications. This guide explains how to implement push notifications using Skapi from the client side.
 
@@ -3756,7 +3825,9 @@ skapi.pushNotification(
     ["user1", "user2"]
 );
 ```
-<br><br># WebRTC
+
+<br><br>
+# WebRTC
 
 Skapi provides easy integration of WebRTC, allowing developers to quickly set up real-time communication features in their applications.
 
@@ -3879,7 +3950,9 @@ function RealtimeCallback(rt) {
 
 skapi.connectRealtime(RealtimeCallback); // Connect to realtime
 skapi.joinRealtime({ group: 'RTCCall' }); // Join a realtime group
-```<br><br># Skapi HTML Chat Full Example
+```
+<br><br>
+# Skapi HTML Chat Full Example
 
 This is a HTML example for building basic chat application using Skapi's realtime features.
 
@@ -3938,7 +4011,9 @@ Currently the service is running on **Trial Mode**.
 
 **All the user data will be deleted every 14 days.**
 
-You can get your own service ID from [Skapi](https://www.skapi.com)<br><br># Skapi HTML Video Call Example
+You can get your own service ID from [Skapi](https://www.skapi.com)
+<br><br>
+# Skapi HTML Video Call Example
 
 This is a HTML example for building basic video call application using Skapi's webrtc features.
 
@@ -4004,7 +4079,9 @@ Currently the service is running on **Trial Mode**.
 
 **All the user data will be deleted every 14 days.**
 
-You can get your own service ID from [Skapi](https://www.skapi.com)<br><br># Service Settings
+You can get your own service ID from [Skapi](https://www.skapi.com)
+<br><br>
+# Service Settings
 
 Go to your service page, and click on the **Service Settings** tab.
 
@@ -4045,7 +4122,9 @@ This is useful when you are not planning to use the [`sendInquiry()`](/api-refer
 You can freeze your database to prevent any write operations.
 
 When you freeze your database, all your user's write operations will be blocked, and only the read operations will be allowed.
-When this in enabled only the service owner can write to the database.<br><br># Additional Settings
+When this in enabled only the service owner can write to the database.
+<br><br>
+# Additional Settings
 
 Go to your service page, and click on the **Service Settings** tab.
 
@@ -4078,7 +4157,9 @@ For example, you might have your own external server that you want your users to
 
 You can set your own secret key to protect your own APIs from unauthorized access.
 
-For more information, refer [secure post request](/api-bridge/secure-post-request.html#secure-post-request) to your custom APIs.<br><br># Delete Service
+For more information, refer [secure post request](/api-bridge/secure-post-request.html#secure-post-request) to your custom APIs.
+<br><br>
+# Delete Service
 
 :::tip
 The delete service button will only be shown if your subscription has been expired, or you are in the trial plan.
@@ -4092,14 +4173,18 @@ When you click the delete service button, you will be asked to confirm the delet
 
 :::danger
 When you delete your service, all the data related to your service will be deleted permanently, and cannot be recovered.
-:::<br><br># API Bridge
+:::
+<br><br>
+# API Bridge
 
 Skapi's API Bridge allows your service to connect external API's.
 
 API Bridge provides [`secureRequest()`](/api-reference/api-bridge/README.md#securerequest) and [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) methods to make secure requests to your custom API's.
 
 [`secureRequest()`](/api-reference/api-bridge/README.md#securerequest) is used to make a secure request to your custom API's.
-[`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) is used to make a request to your 3rd party API with a client secret key.<br><br># Secure Post Request
+[`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) is used to make a request to your 3rd party API with a client secret key.
+<br><br>
+# Secure Post Request
 
 You can use [`secureRequest()`](/api-reference/api-bridge/README.md#securerequest) method to make a secure `POST` request to your custom API's.
 
@@ -4233,7 +4318,9 @@ try:
 except KeyboardInterrupt:
     myServer.server_close()
 ```
-<br><br># Client Secret Request
+
+<br><br>
+# Client Secret Request
 
 If you are using 3rd party API's that requires a client secret, you can use [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) to make a secure `POST` or `GET` request to your 3rd party API's.
 
@@ -4362,7 +4449,9 @@ The example above shows how we can compose the request headers and data to make 
 Note that we have used the `$CLIENT_SECRET` placeholder string in the `Authorization` header value,
 and we have set `clientSecretName` to `openai` which is the key name that you may have saved your OpenAI API key in the service dashboard.
 
-When the request is made, Skapi will replace the placeholder string with the client secret key that you have saved in your service dashboard, and return the response from the OpenAI API.<br><br># E-Mail Service
+When the request is made, Skapi will replace the placeholder string with the client secret key that you have saved in your service dashboard, and return the response from the OpenAI API.
+<br><br>
+# E-Mail Service
 
 Skapi provides three very convenient email services:
 
@@ -4380,7 +4469,9 @@ Skapi provides three very convenient email services:
     Skapi provides a built-in E-Mail service that allows you to receive inquiries from your users.
     You can immediately receive inquiries from your visitors, using Skapi's E-Mail service.
 
-In this section, you will learn how to setup automated emails for your service, and how to send bulk emails to your users.<br><br># Automated E-Mail
+In this section, you will learn how to setup automated emails for your service, and how to send bulk emails to your users.
+<br><br>
+# Automated E-Mail
 
 When the user signup, reset password, or change email, subscribes to public newsletters, get invited to your service,
 the system will send an automated email to the user.
@@ -4483,7 +4574,9 @@ When user subscribes to your public newsletters user receives subscription confi
 The subscription confirmation email contains a link to confirm the subscription.
 
 you must include **`https://link.skapi`** placeholders in your email content. -->
-<br><br># Bulk Email
+
+<br><br>
+# Bulk Email
 
 You can send newsletters or service mail to your users by sending your email to the endpoint email address.
 The following example shows the format for email endpoints for sending newsletters:
@@ -4669,7 +4762,9 @@ skapi.getNewsletters({
     }  
     */
 })
-```<br><br># Receiving Inquiries
+```
+<br><br>
+# Receiving Inquiries
 
 Skapi provides a built-in E-Mail service that allows you to receive inquiries from your users.
 
@@ -4711,7 +4806,9 @@ Inquires do not require the user to be logged in.
 
 If you are not planning to use the [`sendInquiry()`](/api-reference/email/README.md#sendinquiry) method,
 Be sure to turn on the `Prevent Inquiry` option in the [Service Settings](/service-settings/service-settings.md) page to prevent spam.
-:::<br><br># Admin Features
+:::
+<br><br>
+# Admin Features
 
 Skapi provides a set of methods to manage your service.
 
@@ -4755,7 +4852,9 @@ Admins have the ability to delete user accounts and data which can cause irrever
 ## What Both Admins and Service Owners Cannot Do
 
 - Change or view user account's password.
-- View private database data of other users.<br><br># Inviting Users
+- View private database data of other users.
+<br><br>
+# Inviting Users
 
 Admins can invite users to the service by using the [`inviteUser()`](/api-reference/admin/README.md#inviteuser) method.
 
@@ -4906,7 +5005,9 @@ skapi.cancelInvitation(
 });
 ```
 :::
-<br><br># Managing Users
+
+<br><br>
+# Managing Users
 
 Admins can manage user accounts by creating, deleting, blocking, and unblocking accounts. Admins can also grant access to users and cancel invitations.
 
@@ -5067,7 +5168,9 @@ skapi.unblockAccount(
 });
 ```
 
-<br><br># Hosting your website
+
+<br><br>
+# Hosting your website
 
 Skapi provides a straight forward hosting service for your website.
 You can host your website with Skapi by simply uploading your website files in your `File Hosting` page.
@@ -5115,7 +5218,9 @@ This HTML file will be served when the user visits a page that does not exist in
 If you are using **SPA framework** such as Vue, React, or Angular, **YOU MUST** set the 404 page to your **`index.html`** file.
 :::
 
-<br><br># API Reference: Connection
+
+<br><br>
+# API Reference: Connection
 
 ## getConnectionInfo
 
@@ -5155,7 +5260,9 @@ See [ProgressCallback](/api-reference/data-types/README.md#progresscallback)
 
 ```ts
 getFormResponse(): Promise<any>
-```<br><br># API Reference: Authentication
+```
+<br><br>
+# API Reference: Authentication
 
 ## signup
 
@@ -5323,7 +5430,9 @@ openidLogin(
     userProfile: UserProfile;
     openid: { [attribute:string]: any };
 }>
-```<br><br># API Reference: User Account
+```
+<br><br>
+# API Reference: User Account
 
 ## updateProfile
 
@@ -5438,7 +5547,9 @@ See [UserPublic](/api-reference/data-types/README.md#userpublic)
 ```ts
 recoverAccount(redirect: boolean | string): Promise<'SUCCESS: Recovery e-mail has been sent.'>;
 ```
-<br><br># API Reference: Database
+
+<br><br>
+# API Reference: Database
 
 ## postRecord
 
@@ -5450,6 +5561,7 @@ postRecord(
         unique_id?: string; // Unique ID to set to the record. If null is given, it will remove the previous unique ID when updating.
         /** When the table is given as a string value, the value is the table name. */
         /** 'table' is optional when 'record_id' or 'unique_id' is used. */
+        /** When the table is given as a string value, the given value will be set as table.name and table.access_group will be 'public' **/
         table: string | {
             name: string; // Other than space and period, special characters are not allowed.
             access_group?: number | 'private' | 'public' | 'authorized' | 'admin';  // Default: 'public'
@@ -5502,7 +5614,7 @@ getRecords(
     query: {
         record_id?: string; // When record ID is given, it will fetch the record with the given record ID. all other parameters are bypassed and will override unique ID.
         unique_id?: string; // Unique ID of the record. When unique ID is given, it will fetch the record with the given unique ID. All other parameters are bypassed.
-        /** When the table is given as a string value, the value is the table name. */
+        /** When the table is given as a string value, the given value will be set as table.name and table.access_group will be 'public' **/
         /** 'table' is optional when 'record_id' or 'unique_id' is used. */
         table: string | {
             name: string,
@@ -5794,7 +5906,9 @@ getFile(
 
 See [FileInfo](/api-reference/data-types/README.md#fileinfo)
 
-See [ProgressCallback](/api-reference/data-types/README.md#progresscallback)<br><br># API Reference: Email
+See [ProgressCallback](/api-reference/data-types/README.md#progresscallback)
+<br><br>
+# API Reference: Email
 
 ## subscribeNewsletter
 
@@ -5879,7 +5993,9 @@ sendInquiry(
         message: string;
     }
 ): Promise<'SUCCESS: Inquiry has been sent.'>
-```<br><br># API Reference: Realtime Connection
+```
+<br><br>
+# API Reference: Realtime Connection
 
 ## connectRealtime
 
@@ -6068,7 +6184,9 @@ pushNotification({
         user_ids?: string | string[]; // Optional parameter to specify the user(s) for whom to send the notification.
     }
 }): Promise<"SUCCESS: Notification sent.">
-```<br><br># API Reference: API Bridge
+```
+<br><br>
+# API Reference: API Bridge
 
 ## secureRequest
 
@@ -6094,7 +6212,9 @@ clientSecretRequest(
         params?: { [key: string]: string };
     }
 ): Promise<any>
-```<br><br># API Reference: Admin
+```
+<br><br>
+# API Reference: Admin
 
 ## inviteUser
 
@@ -6219,7 +6339,9 @@ unblockAccount(params: {
     user_id: string;
 }): Promise<'SUCCESS: The user has been unblocked.'>
 ```
-<br><br># API Reference: Data Types
+
+<br><br>
+# API Reference: Data Types
 
 ## ConnectionInfo
 
@@ -6364,7 +6486,7 @@ type RecordData = {
     uploaded: number; // Timestamp in milliseconds.
     ip: string; // IP address of uploader.
     readonly: boolean; // Is true if this record is readonly.
-    bin: { [key: string]: BinaryFile[] }; // List of binary file info the record is holding.
+    bin: { [fileKey: string]: BinaryFile[] }; // List of file info the record is holding in each fileKey.
     referenced_count: number;
     
     table: {
@@ -6579,4 +6701,5 @@ type RTCEvent = (e: {
     type: 'track' | 'connectionstatechange' | 'close' | 'message' | 'open' | 'bufferedamountlow' | 'error' | 'icecandidate' | 'icecandidateend' | 'icegatheringstatechange' | 'negotiationneeded' | 'signalingstatechange';
     [key: string]: any;
 }) => void
-```<br><br>
+```
+<br><br>
