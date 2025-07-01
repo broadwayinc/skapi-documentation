@@ -161,6 +161,8 @@ export default defineConfig({
         text: 'For AI Developers',
         items: [
           { text: 'Full Markdown', link: 'https://docs.skapi.com/skapi.md' },
+          { text: 'Codex AGENTS', link: 'https://docs.skapi.com/AGENTS.md' },
+
         ]
       }
     ],
