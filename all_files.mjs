@@ -163,7 +163,7 @@ let concatenatedContent = '';
 for (const file of files) {
     try {
         const content = fs.readFileSync(file, 'utf-8');
-        concatenatedContent += content + `\n<br><br>\n`;
+        concatenatedContent += content + `\n\n<br>\n\n`;
     } catch (err) {
         console.error(`Error reading file ${file}:`, err);
     }
