@@ -28,9 +28,11 @@ skapi.getRecords(query).then(response=>{
 });
 ```
 
-The example above retrieve records from a table named 'my_collection'.
+The example above retrieve records from a table named 'my_collection' with `access_group` that are `public`
 The `table` parameter in the `query` argument sets the table name you want to fetch records from.
 The retrieved records are accessed through the `response.list` property.
+
+When fetching the records with access restrictions, see [`Access Restrictions`](/database/access-restrictions.md).
 
 For more detailed information on all the parameters and options available with the [`getRecords()`](/api-reference/database/README.md#getrecords) method, 
 please refer to the API Reference below:
