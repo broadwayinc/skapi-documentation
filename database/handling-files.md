@@ -21,8 +21,9 @@ Here's an example demonstrating how you can upload files using Skapi:
 </form>
 ```
 
-The `name` attribute of the `FormData` will serve as the key name of the file data.
-The file(s) will be uploaded under the key name `picture`(the name of the file input element) in the `bin` key of the [RecordData](/api-reference/data-types/README.md#recorddata) as shown below:
+The `name` attribute of the file input element will serve as the key name of the file data.
+Regarless the file input is multi or single, the file(s) will **ALWAYS** be uploaded as an array of [BinaryFile](/api-reference/data-types/README.md#binaryfile) object under the key name `picture`(the name of the file input element) in the `bin` key of the [RecordData](/api-reference/data-types/README.md#recorddata) as shown below:
+
 ```js
 // record data
 {
@@ -45,7 +46,7 @@ The file(s) will be uploaded under the key name `picture`(the name of the file i
 }
 ```
 
-The `bin` data will contain lists of [BinaryFile](/api-reference/data-types/README.md#binaryfile) objects.
+The `bin` data will contain array of [BinaryFile](/api-reference/data-types/README.md#binaryfile) objects.
 This process is handled seamlessly without any complicated file handling required.
 
 Once the files are uploaded, Skapi serves the files using a CDN with no additional setup required.

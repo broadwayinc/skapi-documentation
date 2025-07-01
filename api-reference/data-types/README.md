@@ -143,7 +143,7 @@ type RecordData = {
     uploaded: number; // Timestamp in milliseconds.
     ip: string; // IP address of uploader.
     readonly: boolean; // Is true if this record is readonly.
-    bin: { [fileKey: string]: BinaryFile[] }; // List of file info the record is holding in each fileKey.
+    bin: { [fileKeyName: string]: BinaryFile[] }; // List of file info the record is holding in each fileKeyName.
     referenced_count: number;
     
     table: {
