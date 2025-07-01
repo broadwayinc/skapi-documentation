@@ -53,6 +53,9 @@ The data is a Javascript object that has string value in the key 'something'.
 And in the second argument we have set table name to be `my_collection`.
 
 Table name is a required field in the configuration object and the table name should not contain any special characters.
+If `config.table` is given as **string**, the data will be uploaded as `access_group` to `"public"`.
+
+When uploading the data with access restrictions, see [`Access Restrictions`](/database/access-restrictions.md).
 
 For more detailed information on all the parameters and options available with the [`postRecord()`](/api-reference/database/README.md#postrecord) method, 
 please refer to the API Reference below:

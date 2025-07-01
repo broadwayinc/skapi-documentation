@@ -10,6 +10,7 @@ postRecord(
         unique_id?: string; // Unique ID to set to the record. If null is given, it will remove the previous unique ID when updating.
         /** When the table is given as a string value, the value is the table name. */
         /** 'table' is optional when 'record_id' or 'unique_id' is used. */
+        /** If 'table' value is given as string, the given value will be set as table.name and table.access_group is uploaded as 'public' **/
         table: string | {
             name: string; // Other than space and period, special characters are not allowed.
             access_group?: number | 'private' | 'public' | 'authorized' | 'admin';  // Default: 'public'
