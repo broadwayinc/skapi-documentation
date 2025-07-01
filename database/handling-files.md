@@ -22,7 +22,7 @@ Here's an example demonstrating how you can upload files using Skapi:
 ```
 
 The `name` attribute of the `FormData` will serve as the key name of the file data.
-The file(s) will be uploaded under the key name `picture` in the `bin` key of the [RecordData](/api-reference/data-types/README.md#recorddata) as shown below:
+The file(s) will be uploaded under the key name `picture`(the name of the file input element) in the `bin` key of the [RecordData](/api-reference/data-types/README.md#recorddata) as shown below:
 ```js
 // record data
 {
