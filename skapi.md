@@ -3118,7 +3118,7 @@ Note that the "Review.Album.GetzGilberto" `index` uses a `value` of type `number
 
 # Subscription
 
-### Posting Feeds
+## Posting Feeds
 
 Skapi database provides subscription feature.
 
