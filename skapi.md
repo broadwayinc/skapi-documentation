@@ -3118,14 +3118,15 @@ Note that the "Review.Album.GetzGilberto" `index` uses a `value` of type `number
 
 # Subscription
 
+### Posting Feeds
 
 Skapi database provides subscription feature.
 
-Records uploaded with subscription group requires users to subscribe to the uploader to have access to the records.
+Records uploaded with subscription parameters allows users to fetch records from subscription feeds.
 
-You can let users upload records to the subscription table number by setting `table.subscription.is_subscription_record` to `true`.
+You can let users upload records to the subscription table by setting `table.subscription.is_subscription_record` to `true` in [`postRecord()`](/api-reference/database/README.md#postrecord) parameters.
 
-When user uploads a record to the subscription table, other users must subscribe to the uploader to have access to the records.
+When user uploads a record to the subscription table, subscribed users can fetch all the posts of the users that they are subscribing to.
 
 Subscription feature can useful when you are building a social media platform, blog, etc.
 
@@ -3148,6 +3149,10 @@ skapi.postRecord(null, {
 ```
 
 To allow other users to access the records that requires subscription, they must first subscribe to the uploader using the [`subscribe()`](/api-reference/database/README.md#subscribe) method:
+
+:::warning
+Subscribers cannot get feeds that are posted prior to the subscription.
+:::
 
 ### [`subscribe(option): Promise<string>`](/api-reference/database/README.md#subscribe)
 
@@ -5990,7 +5995,7 @@ getSubscriptions(
 ```
 See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
 
-See [Subscription](/api-reference/data-types/README.md#subscripion)
+See [Subscription](/api-reference/data-types/README.md#subscription)
 
 
 ## getFeed
