@@ -3154,6 +3154,8 @@ To allow other users to access the records that requires subscription, they must
 Subscribers cannot get feeds that are posted prior to the subscription.
 :::
 
+## Subscribing
+
 ### [`subscribe(option): Promise<string>`](/api-reference/database/README.md#subscribe)
 
 :::warning
@@ -3196,7 +3198,7 @@ that can be retrieved using the [`getUsers()`](/api-reference/database/README.md
 :::
 
 
-### Unsubscribing
+## Unsubscribing
 
 :::warning
 User must be logged in to call this method
