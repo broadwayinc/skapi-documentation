@@ -1,7 +1,7 @@
 
 # Subscription
 
-### Posting Feeds
+## Posting Feeds
 
 Skapi database provides subscription feature.
 
