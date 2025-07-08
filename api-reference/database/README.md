@@ -332,7 +332,7 @@ getSubscriptions(
 ```
 See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
 
-See [Subscription](/api-reference/data-types/README.md#subscripion)
+See [Subscription](/api-reference/data-types/README.md#subscription)
 
 
 ## getFeed
