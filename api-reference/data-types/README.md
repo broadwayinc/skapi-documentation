@@ -151,7 +151,7 @@ type RecordData = {
         access_group: number | 'private' | 'public' | 'authorized' | 'admin'; // Allowed access level of this record.
         subscription?: {
             is_subscription_record: boolean; // true if the record is posted in subscription table.
-            exclude_from_feed: boolean; // When true, record will be excluded from the subscribers feed.
+            upload_to_feed: boolean; // When true, record will be shown in the subscribers feeds that is retrieved via getFeed() method.
             notify_subscribers: boolean; // When true, subscribers will receive notification when the record is uploaded.
             feed_referencing_records: boolean; // When true, records referencing this record will be included to the subscribers feed.
             notify_referencing_records: boolean; // When true, records referencing this record will be notified to subscribers.

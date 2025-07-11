@@ -9,13 +9,13 @@ Records uploaded with subscription parameters allows users to fetch records from
 
 You can let users upload records to the subscription table by setting `table.subscription.is_subscription_record` to `true` in [`postRecord()`](/api-reference/database/README.md#postrecord) parameters.
 
-When user uploads a record to the subscription table, subscribed users can fetch all the posts of the users that they are subscribing to.
+When `table.subscription.upload_to_feed` is set to `true`, subscribed users can later fetch all the posts of the users that they are subscribing to with [`getFeed()`](/api-reference/database/README.md#getfeed) method.
 
 Subscription feature can useful when you are building a social media platform, blog, etc.
 
 With the subscription feature, user can also block certain users from accessing their subscription group records.
 
-It can be used to track the number of subscribers of the user, feed, notify mass users, etc.
+Subscription feature can track the number of subscribers of the user, feed, notify mass users, etc.
 
 Lets assume **user 'A'** uploads a record in table 'Posts' with subscription group 1.
 
@@ -26,7 +26,8 @@ skapi.postRecord(null, {
     name:'Posts',
     access_group: 'authorized',
     subscription: {
-      is_subscription_record: true
+      is_subscription_record: true,
+      upload_to_feed: true
     }
 }})
 ```
@@ -80,6 +81,17 @@ Number of subscribers of the user will be tracked in [UserPublic](/api-reference
 that can be retrieved using the [`getUsers()`](/api-reference/database/README.md#getusers) method.
 :::
 
+:::danger
+`table.subscription.is_subscription_record` should be set to `true` for record to show up in subscription table.
+:::
+
+:::tip
+It is possible to set `table.subscription.is_subscription_record` to `false` while still setting `table.subscription.upload_to_feed` to `true`.
+
+With this configuration, the record will be uploaded as an ordinary table record that can be queried alongside other records in the table while still appearing in the subscribers' feed.
+
+The downside is that the uploader cannot prevent blocked subscribers from seeing the record in the feed.
+:::
 
 ## Unsubscribing
 
@@ -206,6 +218,10 @@ The [`getFeed()`](/api-reference/database/README.md#getfeed) method retrieves th
 This method retrieves all the records that the user has ever subscribed to.
 
 You can use this method to build a feed page for the user.
+
+:::danger
+If the record was NOT uploaded with `table.subscription.upload_to_feed` to `true`, it will not show up in the feed.
+:::
 
 ### Examples
 
