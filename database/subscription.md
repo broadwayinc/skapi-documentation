@@ -9,7 +9,7 @@ Records uploaded with subscription parameters allows users to fetch records from
 
 You can let users upload records to the subscription table by setting `table.subscription.is_subscription_record` to `true` in [`postRecord()`](/api-reference/database/README.md#postrecord) parameters.
 
-When `table.subscription.upload_to_feed` is set to `true`, subscribed users can later fetch all the posts of the users that they are subscribing to with [`getFeed()`](/api-reference/database/README.md#getfeed) method.
+When `table.subscription.upload_to_feed` is set to `true`, subscribed users can later fetch all the feeds from all the users they are subscribed to at once using the [`getFeed()`](/api-reference/database/README.md#getfeed) method.
 
 Subscription feature can useful when you are building a social media platform, blog, etc.
 
