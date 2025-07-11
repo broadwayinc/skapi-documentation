@@ -3344,7 +3344,7 @@ If the record was NOT uploaded with `table.subscription.upload_to_feed` to `true
 
 ```js
 /**
- * Retrieve all feed of userB that are records of access_group is 1
+ * Retrieve all feed of access_group 1
  */
 skapi.getFeed({access_group: 1}).then((response) => {
   console.log(response.list); // all records that is access_group 1 that userB has ever subscribed to.
