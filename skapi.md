@@ -3157,8 +3157,6 @@ Subscribers cannot get feeds that are posted prior to the subscription.
 
 ## Subscribing
 
-### [`subscribe(option): Promise<string>`](/api-reference/database/README.md#subscribe)
-
 :::warning
 User must be logged in to call this method
 :::
@@ -3209,6 +3207,9 @@ With this configuration, the record will be uploaded as an ordinary table record
 
 The downside is that the uploader cannot prevent blocked subscribers from seeing the record in the feed.
 :::
+
+### [`subscribe(option): Promise<Subscription>`](/api-reference/database/README.md#subscribe)
+
 
 ## Unsubscribing
 
@@ -3326,7 +3327,7 @@ skapi.getSubscriptions({
 For more detailed information on all the parameters and options available with the [`getSubscriptions()`](/api-reference/database/README.md#getsubscriptions) method, 
 please refer to the API Reference below:
 
-### [`getSubscriptions(params, fetchOptions?): Promise<DatabaseResponse<RecordData>>`](/api-reference/database/README.md#getsubscriptions)
+### [`getSubscriptions(params, fetchOptions?): Promise<DatabaseResponse<Subscription>>`](/api-reference/database/README.md#getsubscriptions)
 
 ## Getting Feed
 
@@ -5963,8 +5964,10 @@ See [UniqueId](/api-reference/data-types/README.md#uniqueid)
 ```ts
 subscribe(
     { user_id: string; get_feed?: boolean; get_notified?: boolean; get_email?: boolean; }
-): Promise<'SUCCESS: The user has subscribed.'>
+): Promise<Subscription>
 ```
+
+See [Subscription](/api-reference/data-types/README.md#subscription)
 
 
 ## unsubscribe
