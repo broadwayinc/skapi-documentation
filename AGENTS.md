@@ -38,6 +38,6 @@ If the application needs to call 3rd party APIs requiring secret keys:
 
 ## Styling Guidelines
 
-- Use a modern, material-style design.
+- Use a modern, material-style design unless requested otherwise.
 - Ensure buttons and input elements are sized appropriately to match current UI standards.
 - Use consistent box-sizing (e.g., border-box) to prevent layout issues, especially for elements with width: 100%.
