@@ -282,8 +282,10 @@ See [UniqueId](/api-reference/data-types/README.md#uniqueid)
 ```ts
 subscribe(
     { user_id: string; get_feed?: boolean; get_notified?: boolean; get_email?: boolean; }
-): Promise<'SUCCESS: The user has subscribed.'>
+): Promise<Subscription>
 ```
+
+See [Subscription](/api-reference/data-types/README.md#subscription)
 
 
 ## unsubscribe
