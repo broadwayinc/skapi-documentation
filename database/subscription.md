@@ -3,21 +3,23 @@
 
 ## Posting Feeds
 
-Skapi database provides subscription feature.
+Skapi database provides a subscription feature.
 
-Records uploaded with subscription parameters allows users to fetch records from subscription feeds.
+The subscription feature is useful when you want users to subscribe to certain users and fetch feeds from their subscriptions.
+
+With subscription features, the uploader can also restrict certain users from accessing their specific posts that are uploaded to the subscription table.
 
 You can let users upload records to the subscription table by setting `table.subscription.is_subscription_record` to `true` in [`postRecord()`](/api-reference/database/README.md#postrecord) parameters.
 
 When `table.subscription.upload_to_feed` is set to `true`, subscribed users can later fetch all the feeds from all the users they are subscribed to at once using the [`getFeed()`](/api-reference/database/README.md#getfeed) method.
 
-Subscription feature can useful when you are building a social media platform, blog, etc.
+The subscription feature can be useful when you are building a social media platform where users can follow each other contents and fetch their feeds.
 
-With the subscription feature, user can also block certain users from accessing their subscription group records.
+With the subscription feature, users can also block certain users from accessing their subscription group records.
 
-Subscription feature can track the number of subscribers of the user, feed, notify mass users, etc.
+The subscription feature can track the number of subscribers of the user, feed, notify mass users, etc.
 
-Lets assume **user 'A'** uploads a record in table 'Posts' with subscription group 1.
+Let's assume **user 'A'** uploads a record in table 'Posts' with subscription group 1.
 
 ```js
 // User 'A' uploads record in subscription table.

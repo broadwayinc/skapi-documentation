@@ -91,9 +91,9 @@ type UserPublic = {
      [by_skapi]: When the user account is created by either signup confirmation or invitation.
      [other]: When logged in by openidLogger, the approval indicating string will be the OpenID Logger's ID that the master has setup in the service.
      */
-    approved: string; // 
-    timestamp:number; // Account created timestamp(milliseconds).
-    log:number; // Last login timestamp(milliseconds).
+    approved: string;
+    timestamp:number; // Account created timestamp(13 digit milliseconds).
+    log:number; // Last login timestamp(13 digit milliseconds).
     subscribers: number; // The number of accounts subscribed to the user.  
     subscribed: number; // The number of accounts the user is subscribed to.  
     records: number; // Total number of records user has produced in the database.
