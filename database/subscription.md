@@ -222,10 +222,6 @@ This method retrieves all the records that the user has ever subscribed to.
 
 You can use this method to build a feed page for the user.
 
-:::danger
-If the record was NOT uploaded with `table.subscription.upload_to_feed` to `true`, it will not show up in the feed.
-:::
-
 ### Examples
 
 ```js
@@ -236,5 +232,17 @@ skapi.getFeed({access_group: 1}).then((response) => {
   console.log(response.list); // all records that is access_group 1 that userB has ever subscribed to.
 });
 ```
+
+:::danger
+If the record was NOT uploaded with `table.subscription.upload_to_feed` set to `true`, it will not show up in the feed.
+:::
+
+:::danger
+When a user unsubscribes from another user, all past records from that user will no longer show in their feed.
+:::
+
+:::warning
+Users will only see record feeds from the time they subscribed to the user onwards.
+:::
 
 ### [`getFeed(fetchOptions?): Promise<DatabaseResponse<RecordData>>`](/api-reference/database/README.md#getfeed)
