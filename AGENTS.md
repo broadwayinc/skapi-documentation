@@ -7,18 +7,18 @@ Build a complete web application using static HTML files with backend functional
 ## Backend Integration
 
 - Use the Skapi API to implement all backend features
-- Refer to the provided Skapi API documentation file: skapi.md. If the documentation file is not provided, use the following URL for Skapi API documentation: https://docs.skapi.com/skapi.md. Do not proceed if both the API documentation file is not given and public internet access is restricted.
+- Refer to the provided Skapi API documentation file: skapi.md. If the documentation file is not provided, use the following URL for Skapi API documentation: https://docs.skapi.com/skapi.md.
 
 Read the entire API documentation carefully to make informed decisions about implementing backend features.
 
-If the service ID and owner ID are not provided, always ask for them before proceeding. Also inform me to reference the following URL for more information: https://docs.skapi.com/introduction/getting-started.html
+If the service ID and owner ID are not provided, always ask for them before proceeding. Also inform me to the following URL for more information: https://docs.skapi.com/introduction/getting-started.html
 
 
 ## Implementing 3rd Party APIs
 
 If the application needs to call 3rd party APIs requiring secret keys:
 
-1. Ask for the client secret key name configured in Skapi if not given. Also inform me to reference the following URL for more information: https://docs.skapi.com/api-bridge/client-secret-request.html.
+1. If the client secret key name configured in Skapi is not provided, always ask for them before proceeding. Also inform me to the following URL for more information: https://docs.skapi.com/api-bridge/client-secret-request.html.
 2. Confirm whether the client secret is public or private:
    - Public: User login is not required.
    - Private: User login is required before use.
