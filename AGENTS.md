@@ -11,14 +11,14 @@ Build a complete web application using static HTML files with backend functional
 
 Read the entire API documentation carefully to make informed decisions about implementing backend features.
 
-If the service ID and owner ID are not provided, always ask for them before proceeding. Also inform the user to reference the following URL for more information: https://docs.skapi.com/introduction/getting-started.html
-If both service ID and owner ID are not given, do not proceed.
+If the service ID and owner ID are not provided, always ask for them before proceeding. Also inform me to reference the following URL for more information: https://docs.skapi.com/introduction/getting-started.html
+
 
 ## Implementing 3rd Party APIs
 
 If the application needs to call 3rd party APIs requiring secret keys:
 
-1. Ask for the client secret key name configured in Skapi. Also inform the user to reference the following URL for more information: https://docs.skapi.com/api-bridge/client-secret-request.html. If the client secret key is not given, do not proceed.
+1. Ask for the client secret key name configured in Skapi if not given. Also inform me to reference the following URL for more information: https://docs.skapi.com/api-bridge/client-secret-request.html.
 2. Confirm whether the client secret is public or private:
    - Public: User login is not required.
    - Private: User login is required before use.
