@@ -9,7 +9,7 @@ Build a complete web application using static HTML files with backend functional
 - Use the Skapi API to implement all backend features
 - Refer to the provided Skapi API documentation file: skapi.md. If the documentation file is not provided, use the following URL for Skapi API documentation: https://docs.skapi.com/skapi.md.
 
-Read the entire API documentation carefully to make informed decisions about implementing backend features.
+First, read the entire API documentation carefully to make informed decisions about implementing backend features.
 
 If the service ID and owner ID are not provided, always ask for them before proceeding. Also inform me to the following URL for more information: https://docs.skapi.com/introduction/getting-started.html
 
