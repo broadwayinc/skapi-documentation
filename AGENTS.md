@@ -7,34 +7,33 @@ Build a complete web application using static HTML files with backend functional
 ## Backend Integration
 
 - Use the Skapi API to implement all backend features
-- Refer to the provided Skapi API documentation file: skapi.md. If the documentation file is not provided, use the following URL for Skapi API documentation: https://docs.skapi.com/skapi.md.
+- Refer to the Skapi API documentation: https://docs.skapi.com/skapi.md
 
-First, read the entire API documentation carefully to make informed decisions about implementing backend features.
+**Important:** Read the entire API documentation carefully to make informed decisions about implementing backend features.
 
-If the service ID and owner ID are not provided, always ask for them before proceeding. Also inform me to the following URL for more information: https://docs.skapi.com/introduction/getting-started.html
-
+If the service ID and owner ID are not provided, always ask for them before proceeding.
 
 ## Implementing 3rd Party APIs
 
 If the application needs to call 3rd party APIs requiring secret keys:
 
-1. If the client secret key name configured in Skapi is not provided, always ask for them before proceeding. Also inform me to the following URL for more information: https://docs.skapi.com/api-bridge/client-secret-request.html.
+1. If the client secret key name configured in Skapi is not provided, always ask for it before proceeding.
 2. Confirm whether the client secret is public or private:
-   - Public: User login is not required.
-   - Private: User login is required before use.
-3. Use `skapi.clientSecretRequest()` with the provided secret key name.
+   - **Public:** User login is not required
+   - **Private:** User login is required before use
+3. Use `skapi.clientSecretRequest()` with the provided secret key name to make requests to 3rd party APIs.
 
 ## Coding Guidelines
 
-- Always pass HTML form onsubmit events directly to the Skapi API method if the method takes `SubmitEvent` as the first argument. Be aware that not all Skapi API methods take `SubmitEvent` as an argument.
-- Always check the data types and structure from the documentation when using the Skapi API.
+- Always pass HTML form `onsubmit` events directly to the Skapi API method if the method takes `SubmitEvent` as the first argument. Note that not all Skapi API methods accept `SubmitEvent` as an argument.
+- Always verify data types and structure from the documentation when using the Skapi API.
 - Use defensive programming practices when accessing data fetched from the database.
-- Handle potential null/undefined values and implement proper error handling.
+- Handle potential `null`/`undefined` values and implement proper error handling.
 
 ## Page Routing and Navigation
 
 - Set the starting page as `index.html`.
-- Ensure all form actions point to their correct destination pages so the app functions correctly when opened locally (e.g., via the `file://` protocol).
+- Ensure all form actions point to their correct destination pages so the application functions correctly when opened locally (e.g., via the `file://` protocol).
 
 ## Authentication and Initialization
 
