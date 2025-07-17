@@ -29,6 +29,10 @@ let config = {
 skapi.postRecord(record, config);
 ```
 
+:::danger
+Tags should not have special characters. Only allowed special characters are: [ ] ^ _ ` : ; < = > ? @ and white space.
+:::
+
 ## Querying Records by Tag
 
 You can also utilize tags in your queries.
