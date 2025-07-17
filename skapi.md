@@ -2453,6 +2453,11 @@ When querying an index with conditions, it will only return records with the sam
 ex) '2' and 2 are different values.
 :::
 
+:::danger
+index.name should not have special characters. Only allowed special characters are: [ ] ^ _ ` : ; < = > ? @ and period.
+index.value should not have special characters. Only allowed special characters are: [ ] ^ _ ` : ; < = > ? @ and white space.
+:::
+
 
 ## Query Index with Range
 
@@ -2750,6 +2755,10 @@ let config = {
 
 skapi.postRecord(record, config);
 ```
+
+:::danger
+Tags should not have special characters. Only allowed special characters are: [ ] ^ _ ` : ; < = > ? @ and white space.
+:::
 
 ## Querying Records by Tag
 
