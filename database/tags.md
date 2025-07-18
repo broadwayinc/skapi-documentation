@@ -30,7 +30,7 @@ skapi.postRecord(record, config);
 ```
 
 :::danger
-Tags should not have special characters. Only allowed special characters are: [ ] ^ _ ` : ; < = > ? @ and white space.
+Tags should NOT have special characters. Only allowed special characters are: [ ] ^ _ ` : ; < = > ? @ and white space.
 :::
 
 ## Querying Records by Tag
