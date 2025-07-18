@@ -51,6 +51,10 @@ This process is handled seamlessly without any complicated file handling require
 
 Once the files are uploaded, Skapi serves the files using a CDN with no additional setup required.
 
+:::danger
+If the file is uploaded in a record where the access group is not 'public', the URL value in the [BinaryFile](/api-reference/data-types/README.md#binaryfile) objects will expire for security reasons.
+:::
+
 ## Progress Information
 
 When uploading files via [`postRecord()`](/api-reference/database/README.md#postrecord) method, you can attach a [ProgressCallback](/api-reference/data-types/README.md#progresscallback) in the `progress` parameter when uploading files.
