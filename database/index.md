@@ -87,8 +87,9 @@ ex) '2' and 2 are different values.
 :::
 
 :::danger
-`index.name` should not have special characters. Only allowed special characters are: [ ] ^ _ \` : ; < = > ? @ and period.
-`index.value` should not have special characters. Only allowed special characters are: [ ] ^ _ \` : ; < = > ? @ and white space.
+`index.name` should NOT have special characters. Only allowed special characters are: [ ] ^ _ \` : ; < = > ? @ and period.
+
+`index.value` should NOT have special characters. Only allowed special characters are: [ ] ^ _ \` : ; < = > ? @ and white space.
 :::
 
 
