@@ -1427,62 +1427,6 @@ The `range` parameter cannot be used with the `condition` parameter.
 
 <br>
 
-# Skapi HTML Authentication Template
-
-This is a plain HTML template for Skapi's authentication features.
-
-This template packs all the authentication features you can use in your HTML application:
-
-- Signup
-- Signup email verification
-- Login
-- Forgot password
-- Change password
-- Update account profile
-- Remove account
-- Recover account
-
-## Download
-
-Download the full project [Here](https://github.com/broadwayinc/skapi-auth-html-template/archive/refs/heads/main.zip)
-
-Or visit our [Github page](https://github.com/broadwayinc/skapi-auth-html-template)
-
-## How To Run
-
-Download the project, unzip, and open the `index.html`.
-
-### Remote Server
-
-For hosting on remote server, install package:
-
-```
-npm i
-```
-
-Then run:
-
-```
-npm run dev
-```
-
-The application will be hosted on port `3300`
-
-
-:::danger Important!
-
-Replace the `SERVICE_ID` and `OWNER_ID` value to your own service in `service.js`
-
-Currently the service is running on **Trial Mode**.
-
-**All the user data will be deleted every 14 days.**
-
-You can get your own service ID from [Skapi](https://www.skapi.com)
-
-:::
-
-<br>
-
 # Database
 
 Skapi provides fast, simple, secure, yet flexible way to store, retrieve data from your database.
@@ -3485,6 +3429,1030 @@ You can get your own service ID from [Skapi](https://www.skapi.com)
 
 :::
 
+
+## Example
+
+Below is part of the repository code. You can see how it handles complex database examples.
+
+Since this is a portion of the complete repository code and doesn't include supporting files like `service.js`, direct copy and paste will not work.
+
+**welcome.html**
+
+```html
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
+<script src="service.js"></script>
+<link rel="stylesheet" href="main.css" />
+
+<main>
+    <h1>Login Success</h1>
+    <p id="WelcomeMessage"></p>
+    <a href="logout.html">Logout</a>
+
+    <script>
+        /* 
+            Get user profile and display it on the page, 
+            Set user variable to use it later.
+        */
+        let user = skapi.getProfile().then(u => {
+            if (u) {
+                let welcomeMessage = document.getElementById("WelcomeMessage");
+                if (welcomeMessage) {
+                    welcomeMessage.innerHTML = `Welcome, ${u.name || u.email || u.user_id}!`;
+                }
+            }
+            return u;
+        });
+
+        /*
+            The following function disableForm() is for disabling the form while the user is submitting.
+            It can be useful if you want to prevent the user from editing the form while it's uploading.
+            You will see this function being used in the form submission thoughout the project.
+        */
+        function disableForm(form, disabled) {
+            form.querySelectorAll('input').forEach(input => {
+                input.disabled = disabled;
+            });
+            form.querySelectorAll('textarea').forEach(textarea => {
+                textarea.disabled = disabled;
+            });
+            form.querySelectorAll('a').forEach(a => {
+                return disabled ? a.setAttribute('disabled', '') : a.removeAttribute('disabled');
+            });
+        }
+    </script>
+
+    <br>
+    <br>
+
+    <!--
+        Following <section> will allow the user to upload a post.
+        When the user clicks the "Update" button, we will call the skapi.postRecord() function.
+        skapi.postRecord() function will upload the image and description, tags to the database.
+        When successful, it will prepend the post to the top of the page.
+        When unsuccessful, it will show an alert with the error message.
+    -->
+    <section style="padding: 20px 0;">
+        <script>
+            function postPhoto(form, event) {
+                disableForm(form, true);
+                postButton.value = '0%';
+
+                // Following params object will be passed to the skapi.postRecord() method.
+                let params = {
+                    table: {
+                        name: 'posts',
+                        access_group: input_private.checked ? 'private' : 'authorized', // Depending on the checkbox, we will set the access_group to private or authorized.
+                        subscription: {
+                            is_subscription_record: false, // We will set is_subscription_record to false so the posts can be queried alongside with all other peoples posts in the table.
+                            upload_to_feed: true // We will upload the post to the feed so subscribed users can also fetch all the posts from all the users they subscribed at once.
+                        }
+                    },
+                    source: {
+                        allow_multiple_reference: false // For each posts, we will allow posting only one reference per user. This will allow us to restrict users to like only once per post.
+                    },
+                    progress: p => {
+                        // When the file is uploading, we will set the value of the postButton to the progress percentage.
+                        // The p object will have the status of the upload, the current file, and the progress percentage.
+                        if (p.status === 'upload' && p.currentFile) {
+                            postButton.value = `${Math.floor(p.progress)}%`;
+                        }
+                    },
+                    tags: input_tags.value || null
+                }
+
+                // Following code will upload the post to the database.
+                skapi.postRecord(event, params).then(async r => {
+                    // If the section_posts was initially empty, we will set it to empty string.
+                    if (section_posts.innerHTML === 'No posts found.') {
+                        section_posts.innerHTML = '';
+                    }
+
+                    /*
+                        When the post is successful, we will prepend the post to the top of the page.
+                        We will call createArticleContent() function that we will declare later.
+                    */
+                    section_posts.prepend(await createArticleContent(r));
+
+                    // We will reset the form and set the image preview to empty.
+                    img_preview.src = '';
+                    form.reset();
+
+                })
+                    .catch(err => alert(err.message))
+                    .finally(() => {
+                        // Finally, we will set the value of the postButton to 'Update' and enable the form.
+                        postButton.value = 'Post';
+                        disableForm(form, false);
+                    });
+            }
+        </script>
+        <style>
+            /*
+                Following class will make the element clickable.
+            */
+            .clickable {
+                cursor: pointer;
+                color: blue;
+            }
+
+            .clickable:active {
+                color: purple;
+            }
+
+            /*
+                Following will style the image element.
+                When the user clicks on the image preview, it will open the file input.
+                If the user does not select a file, it will show "Choose Image" text.
+            */
+            img {
+                width: 100%;
+            }
+
+            #img_preview[src=""]::before {
+                content: '[Click to Select Photo]';
+                font-weight: bold;
+                color: #007bff;
+                text-decoration: underline;
+            }
+        </style>
+        <form onsubmit="postPhoto(this, event)">
+            <h1>Post Photo</h1>
+            <label for='input_fileInput' class="clickable">
+                <img id='img_preview' src="">
+            </label>
+
+            <br><br>
+
+            <small>Description (required)</small><br>
+            <input name="description" placeholder="Describe the picture." required></input>
+
+            <small>Tags (optional)</small><br>
+            <input id='input_tags' pattern="[a-zA-Z0-9 ,]+"
+                title="Only alphanumeric characters, spaces, and commas are allowed"
+                placeholder="tag1, tag2, ..."></input>
+
+            <br>
+
+            <small>
+                <label>
+                    <input id="input_private" type="checkbox" name="private" value="private"> Make This Post Private
+                </label>
+            </small>
+
+            <br><br>
+
+            <input id='input_fileInput' type="file" name="pic" accept="image/*" hidden required>
+            <input id='postButton' type="submit" value="Post">
+
+            <style>
+                /*
+                        Following <style> will disable the submit button when the file input is empty.
+                    */
+                #input_fileInput:invalid+input[type=submit] {
+                    pointer-events: none;
+                    opacity: 0.5;
+                }
+            </style>
+
+            <!--
+                    Following <script> will preview the image file that the user will upload.
+                    When the user selects a file, it will read the file and set the src attribute of the image tag to the data url(base64) of the file.
+                -->
+            <script>
+                input_fileInput.onchange = function () {
+                    let file = this.files[0];
+                    if (!file) {
+                        img_preview.src = '';
+                        return;
+                    }
+
+                    let reader = new FileReader();
+                    reader.onload = function () {
+                        img_preview.src = reader.result;
+                    };
+                    reader.readAsDataURL(file);
+                };
+            </script>
+        </form>
+    </section>
+
+    <!--
+        Following <nav> will allow the user to filter the posts.
+        When the user clicks the "Most Recent" link, it will show the most recent posts.
+        When the user clicks the "Most Liked" link, it will show the most liked posts.
+        When the user clicks the "Most Comment" link, it will show the most commented posts.
+        When the user clicks the "My Posts" link, it will show the posts that the user has uploaded.
+        When the user clicks the "My Private" link, it will show the posts that the user has uploaded and set to private.
+        We will use the hash(#) in the url to identify how the posts should be fetched.
+    -->
+    <br><br>
+
+    <nav style="text-align: center;">
+        <a href="welcome.html">Most Recent</a>
+        |
+        <a href="#mostliked">Most Liked</a>
+        |
+        <a href="#mostcomment">Most Comment</a>
+        |
+        <a href="#myposts">My Posts</a>
+        |
+        <a href="#myprivate">My Private Posts</a>
+        |
+        <a href="#feed">Feed</a>
+
+        <style>
+            nav>a {
+                display: inline-block;
+            }
+        </style>
+    </nav>
+
+    <br>
+
+    <!--
+        Following <section> will show the posts.
+    -->
+    <section id="section_posts" style="text-align: center;"></section>
+
+    <br>
+
+    <div style='text-align: center'>
+        <!--
+            Following <button> will allow the user to fetch more posts.
+            If there are more posts to fetch, it will enable the button.
+            When the user clicks the button, it will call the getPosts() function.
+            We will declare the getPosts() function and onclick event later.
+        -->
+        <button id="fetchMoreButton" disabled>Fetch More Posts</button>
+    </div>
+    <br>
+    <br>
+    <br>
+    <br>
+
+    <style>
+        /*
+            #section_posts is the <section> tag that will show the posts.
+            It will be empty when the page loads.
+            Following css will allow us to show the loading message while the posts are being fetched.
+        */
+        #section_posts:empty::before {
+            content: 'Fetching posts...';
+            display: block;
+        }
+
+        article {
+            text-align: left;
+            border: solid;
+            vertical-align: top;
+            width: 100%;
+            margin: 8px auto;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        /*
+            Following css will style the LIKE button.
+            data-like attribute will show the like status of the post.
+            When the user clicks the LIKE button, it will change the data-like attribute to '❤️' or '🩶'.
+        */
+        article .like::before {
+            content: attr(data-like);
+        }
+
+
+        /*
+            Following css will style the Subscribe button.
+            data-subscribe attribute will show the subscribtion status of the user.
+            When the user clicks the Subscribe button, it will change the data-subscribe attribute value to 'Subscribe' or 'Subscribed'.
+            The color and font-weight will change based on the value of the data-subscribe attribute.
+        */
+        article .subscribe::before {
+            content: attr(data-subscribe);
+        }
+
+        article .subscribe[data-subscribe='Subscribe']::before {
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        article .subscribe[data-subscribe='Subscribed']::before {
+            color: #28a745;
+            font-weight: bold;
+        }
+    </style>
+</main>
+<script>
+    /*
+        Following variable fetchQuery will be later set and used as a parameter for getRecords().
+    */
+    let fetchQuery = {
+        // table: {
+        //     name: 'posts',
+        //     access_group: 'authorized' || 'private'
+        // }
+    };
+
+    /*
+        Following variable subscription_list will be used to store the subscription status of the user.
+    */
+    let subscription_list = {
+        // user_id: subscription object // if the user is not subscribed value is false
+    }
+
+    /*
+        Following variable likeId will be used to store the users likeed record_id.
+        We will use this to save the users like status.
+        This way we can show the user if they have liked the post or not, and also save unnecessary API calls.
+    */
+    let likeId = {};
+
+    /*
+        Following variable userInfo will be used to store the fetched user information of the post uploader.
+        We will use this to save unnecessary API calls.
+    */
+    let userInfo = {};
+
+    /*
+        Following function will fetch the user information of the uploader.
+    */
+    async function getUserInfo(user_id) {
+        // If the user information is not fetched, we will fetch the user information by the user_id.
+        if (!userInfo[user_id]) {
+            let user = await skapi.getUsers({
+                searchFor: 'user_id',
+                value: user_id
+            });
+
+            if (user.list.length === 0) {
+                return {
+                    email: 'User not found',
+                    name: 'User not found',
+                    picture: ''
+                };
+            }
+
+            userInfo[user_id] = user.list[0];
+        }
+
+        return userInfo[user_id];
+    }
+
+    /*
+        Following function will fetch posts from the database.
+    */
+    async function getPosts(fetchMore = true) {
+        // While the user is trying to fetch posts, we will disable the fetchMore button.
+        fetchMoreButton.disabled = true;
+
+        /*
+            In skapi.getRecords() method, we are passing the fetchQuery variable that we have declared above.
+            In the second argument we are setting the fetch option to fetch 4 posts per call.
+            The ascending is set to false so that we can get the most recent posts, or the most liked posts, most commented posts depending on the query.
+            When the ascending is set to false, Skapi database fetches the records in descending order.
+            The fetchMore option will allow us to fetch more posts when the user clicks the fetchMore button.
+        */
+        let posts = await skapi.getRecords(fetchQuery, { ascending: false, limit: 4, fetchMore });
+
+        /*
+            When fetchMore is false, it means the user will be fetching the posts from the start.
+            When the user is trying to fetch post from the start, we should clear the #section_posts.
+            If there are no posts, we will show "No posts found." message.
+        */
+        if (!fetchMore) {
+            section_posts.innerHTML = '';
+            if (posts.list.length === 0) {
+                section_posts.innerHTML = 'No posts found.';
+                return;
+            }
+        }
+
+        /*
+            When there is post, it will show the posts by creating the html elements and appending them to the #section_posts.
+            The createArticleContent() function will create the html elements, and we will declare it later.
+        */
+        let articles = await Promise.all(posts.list.map(p => createArticleContent(p)))
+        for (let articleEl of articles) {
+            section_posts.appendChild(articleEl);
+        }
+
+        /*
+            When there are no more posts to fetch, we will disable the fetchMore button.
+            posts.endOfList will be true when there are no more posts to fetch.
+            When there are more posts to fetch, it will enable the fetchMore button.
+            We will also set the onclick event of the fetchMore button to call the getPosts() function.
+            The reason we are setting the onclick event manually is
+            because there is a case where the user may want to fetch post ordered by most commented,
+            which we may have to call getMostCommentedPost() function instead. (we will write a script for this later)
+        */
+        fetchMoreButton.disabled = posts.endOfList;
+        fetchMoreButton.onclick = () => getPosts();
+    }
+
+    async function getFeed(fetchMore = true) {
+        // While the user is trying to fetch posts, we will disable the fetchMore button.
+        fetchMoreButton.disabled = true;
+
+        let posts = await skapi.getFeed({
+            access_group: 'authorized',
+        }, { ascending: false, limit: 4, fetchMore });
+
+        if (!fetchMore) {
+            section_posts.innerHTML = '';
+            if (posts.list.length === 0) {
+                section_posts.innerHTML = 'No posts found.';
+                return;
+            }
+        }
+
+        let articles = await Promise.all(posts.list.map(p => createArticleContent(p)))
+        for (let articleEl of articles) {
+            section_posts.appendChild(articleEl);
+        }
+
+        fetchMoreButton.disabled = posts.endOfList;
+        fetchMoreButton.onclick = () => getFeed();
+    }
+
+    /*
+        Following function will create the html elements for the post.
+    */
+    async function createArticleContent(p) {
+        // p is the post object.
+
+        /*
+            Following code will get the user id of the logged in user.
+            The user variable is declared on the <script> tag above where we check if the user is logged in.
+            The user variable is a promise that will resolve to the user information.
+        */
+        let logged_user_id = (await user).user_id;
+
+        let record_id = p.record_id;
+        let uploader = await getUserInfo(p.user_id); // get user information of the post uploader
+
+        /*
+            Following variable html will compose the html string for the post.
+            Notice that we are using the record_id of the post as the part of the element ID in various places.
+            Will use these element id to identify the element later.
+
+            If you are using VSCode, you can use the following extension to get syntax highlighting for html strings.
+            https://marketplace.visualstudio.com/items?itemName=Tobermory.es6-string-html
+        */
+        let html = /*html*/`
+
+            <span style='font-weight:bold'>${uploader.name}</span>
+            
+            <!--
+                Following <strong> tag will allow the user to subscribe to the uploader.
+                When the user clicks the <strong> element, it will call the subscribe() function.
+                We will declare the subscribe() function later.    
+            -->
+            <strong
+                class='clickable subscribe strong_subs-${p.user_id}'
+                onclick='subscribe(this, "${p.user_id}")'
+                data-subscribe=''>
+            </strong>
+
+            <!--
+                Following <button> will allow the user to delete the post.
+                When the user clicks the <button>, it will show a confirmation dialog.
+                If the user confirms, it will delete the post from the database.
+                This will not show if the post is not uploaded by the uploader.
+            -->
+            <button
+                style='float:right; width:auto; margin:0; margin-bottom:10px;'
+                onclick='
+                    let del = confirm("Would you like to remove this post?");
+                    if(del) {
+                    this.closest("article").remove();
+                    if(!section_posts.innerHTML) {
+                        section_posts.innerHTML = "No posts found.";
+                    }
+                    skapi.deleteRecords({record_id: "${record_id}"});
+                }'
+                ${logged_user_id !== p.user_id ? "hidden" : ""}>Delete Post
+            </button>
+
+            <br>
+            
+            <small>Posted: ${new Date(p.updated).toLocaleString()}</small>
+
+            <br>
+
+            <!--
+                Following <img> will show the image of the post.
+                All the files uploaded to the database are stored in the bin.
+                The endpoint of the image is in bin.pic[0].url.
+            -->
+            <img src='${p.bin.pic[0].url}'>
+
+            <br>
+            
+            <small>Liked: <span id="span_likedCount-${p.record_id}">${p.referenced_count}</span></small>
+            
+            <!--
+                Following <strong> tag will allow the user to like the post.
+                When the user clicks the <strong> element, it will call the like() function.
+                We will declare the like() function later.
+            -->
+            <strong
+                class='clickable like'
+                style='float:right'
+                id='strong_like-${p.record_id}'
+                onclick='like("${p.record_id}")'
+                data-like=''>
+            </strong>
+
+            <!--
+                Following <p> will show the description of the post.
+            -->
+            <p>
+                ${p.data?.description}
+            </p>
+
+            <!--
+                Following <small> will show the tags of the post.
+                When the user clicks the tag, it will redirect the user to the welcome.html page with the tag in the hash.
+            -->
+            <small>${p.tags ? 'Tags: ' + p.tags.map(t => `<a href='welcome.html#tag=${t}'>${t}</a>`).join(', ') : ''}</small>
+
+            <!--
+                Following <small> will show the comment count of the post.
+                We will later fetch the comment count and set the textContent of the <span> tag.
+            -->
+            <small>Comments (<span id='span_commentCount-${p.record_id}'>0</span>)</small>
+
+            <br><br>
+
+            <!--
+                Following <form> will allow the user to add a comment to the post.
+                When the user submits the form, it will call the addComment() function.
+                We will declare the addComment() function later.
+            -->
+            <form onsubmit='addComment(event, "${p.record_id}");' style='display:flex; flex-wrap:wrap; gap:8px; max-width:100%'>
+                <input name='comment' placeholder='Write Comment' style="width: 0; flex-grow:9;">
+                <input type='submit' style="width: unset; flex-grow:1;">
+            </form>
+            
+            <!--
+                Following <div> will show the comments of the post.
+                We will later fetch the comments and append the <div> to the <div> tag.
+            -->
+            <div id='div_commentSection-${p.record_id}'></div>
+
+            <!--
+                Following <small> will allow the user to fetch more comments.
+                When the user clicks the <small> element, it will call the getComments() function.
+                We will declare the getComments() function later.
+            -->
+            <small
+                style="text-align:right"
+                class='clickable'
+                id='small_moreComments-${p.record_id}'
+                onclick='getComments("${p.record_id}", true).then(c=>{
+                    for (let div of c.commentDivs) {
+                        document.getElementById("div_commentSection-" + "${record_id}").appendChild(div);
+                    }
+                    document.getElementById("small_moreComments-${record_id}").style.display = c.endOfList ? "none" : "block";})'
+                >Show More Comments</small>`;
+
+        if (subscription_list.hasOwnProperty(p.user_id)) {
+            let subbed = subscription_list[p.user_id];
+            if (subbed) {
+                html = html.replace("data-subscribe=''", 'data-subscribe="Subscribed"');
+            } else {
+                html = html.replace("data-subscribe=''", 'data-subscribe="Subscribe"');
+            }
+        }
+
+        else if (p.user_id !== logged_user_id) {
+            if(subscription_list[p.user_id]) {
+                html = html.replace("data-subscribe=''", 'data-subscribe="Subscribed"');
+            } else {
+                if(subscription_list.hasOwnProperty(p.user_id)) {
+                    html = html.replace("data-subscribe=''", 'data-subscribe="Subscribe"');
+                }
+                else {
+                    skapi.getSubscriptions({
+                        subscriber: logged_user_id,
+                        subscription: p.user_id
+                    }).then((response) => {
+                        if (response.list.length) {
+                            subscription_list[p.user_id] = response.list[0];
+                            Array.from(document.querySelectorAll(`.strong_subs-${p.user_id}`)).forEach(el => { el.setAttribute('data-subscribe', 'Subscribed') });
+                        } else {
+                            subscription_list[p.user_id] = false;
+                            Array.from(document.querySelectorAll(`.strong_subs-${p.user_id}`)).forEach(el => { el.setAttribute('data-subscribe', 'Subscribe') });
+                        }
+                    });
+                }
+            }
+        }
+
+        /*
+            Following code will create the <article> tag and set the innerHTML to the html string we have composed above.
+            We will also set the id of the <article> tag to the record_id of the post.
+            We will use this id to identify the post.
+        */
+        let article = document.createElement('article');
+        article.innerHTML = html;
+        article.id = record_id;
+
+        /*
+            Following function getComments() will fetch the comments of the post and return the html elements.
+            When resolved We will append the comments to the article element.
+            We will declare the getComments() function later.
+        */
+        getComments(record_id).then(c => {
+            for (let div of c.commentDivs) {
+                article.querySelector(`#div_commentSection-${record_id}`).appendChild(div);
+            }
+            article.querySelector(`#small_moreComments-${record_id}`).style.display = c.endOfList ? 'none' : 'block';
+        });
+
+        /*
+            Following code will fetch the comment count of the post and set the textContent of the <span> tag.
+            Since indexed values and record counts are tracked, we are using skapi.getIndexes() method to get the comment count.
+        */
+        skapi.getIndexes({
+            table: 'comments',
+            index: 'comment.' + record_id
+        }).then(commentInfo => {
+            if (commentInfo.list.length) {
+                let count = commentInfo.list[0].number_of_records;
+                if (count) {
+                    let commentCount = article.querySelector('#span_commentCount-' + record_id)
+                    commentCount.innerHTML = count;
+                }
+            }
+        });
+
+        /*
+            Following code will fetch the like status of the post and set the textContent of the <strong> tag.
+            The likes will be stored in the reference of the post.
+            We will use the skapi.getRecords() method to get the like status.
+        */
+        skapi.getRecords({
+            table: 'likes',
+            index: {
+                name: '$user_id',
+                value: logged_user_id
+            },
+            reference: record_id
+        }).then(myLike => {
+            if (myLike.list.length) {
+                likeId[record_id] = myLike.list[0].record_id;
+            }
+            let likeButton = article.querySelector(`#strong_like-${record_id}`);
+            likeButton.textContent = '';
+            likeButton.setAttribute('data-like', myLike.list.length ? '❤️' : '🩶');
+        });
+
+        return article;
+    }
+
+    /*
+        Following function getComments() will fetch the comments of the post and return the html elements.
+        When resolved, we are appending the comments to the article element above.
+        We are using the skapi.getRecords() method to get the comments.
+        The comments are uploaded using compond index names. (ex: comment.1234)
+    */
+    async function getComments(record_id, fetchMore = false) {
+        // get recent 4 comments (initial fetch)
+        let comments = await skapi.getRecords(
+            {
+                table: {
+                    name: 'comments',
+                    access_group: "authorized"
+                },
+                index: {
+                    name: 'comment.' + record_id,
+                    value: true
+                }
+            },
+            {
+                ascending: false,
+                limit: 4,
+                fetchMore
+            }
+        );
+
+        let commentDivs = [];
+        for (let c of comments.list) {
+            let div = document.createElement('div');
+            let commenter = await getUserInfo(c.user_id);
+
+            let commentHtml = /*html*/ `
+                <small>
+                    <strong>${commenter.name}</strong>
+                    <span>(${new Date(c.updated).toLocaleString()})</span>
+                    <br>
+                    <span>${c.data.comment}</span>
+                </small>`;
+            div.innerHTML = commentHtml;
+            commentDivs.push(div);
+        }
+
+        return { commentDivs, endOfList: comments.endOfList };
+    }
+
+    /*
+        Following function addComment() will add a comment to the post.
+        When the user submits the form, it will call the addComment() function.
+        We are using the skapi.postRecord() method to upload the comment.
+        The comments are uploaded using compond index names using the record ID. (ex: comment.record_id)
+        This way we can get the comments of a post and also fetch the posts ordered by most commented.
+    */
+    async function addComment(event, record_id) {
+        let userInfo = await user;
+
+        disableForm(event.target, true);
+        let postComment = await skapi.postRecord(event, {
+            table: {
+                name: "comments",
+                access_group: "authorized"
+            },
+            index: {
+                name: "comment." + record_id,
+                value: true
+            }
+        }).finally(() => disableForm(event.target, false));
+
+        // Following code will update the comment count of the post.
+        let commentCounter = document.getElementById(`span_commentCount-${record_id}`);
+        if (commentCounter) {
+            commentCounter.textContent = Number(commentCounter.textContent) + 1;
+        }
+
+        event.target.reset();
+
+        let div = document.createElement('div');
+        let commentHtml = /*html*/ `
+        <small>
+            <strong>${userInfo.name}</strong>
+            <span>(${new Date(postComment.updated).toLocaleString()})</span>    
+            <br>
+            <span>${postComment.data.comment}</span>
+        </small>`;
+
+        div.innerHTML = commentHtml;
+        document.getElementById(`div_commentSection-${record_id}`).prepend(div);
+    }
+
+    /*
+        Following function like() will allow the user to like the post.
+        When the user clicks the <strong> element, it will call the like() function.
+        We are using the skapi.postRecord() method to upload the like.
+        The likes will be stored in the reference of the post.
+        This way we can get the like count of a post and fetch the posts ordered by most liked.
+        Also, using the reference, we can restrict the user to like only once per post.
+    */
+    async function like(record_id) {
+        let likeButton = document.getElementById(`strong_like-${record_id}`);
+        let likedStatus = likeButton.getAttribute('data-like');
+        let likedCount = Number(document.getElementById(`span_likedCount-${record_id}`).textContent);
+
+        if (likedStatus === '🩶') {
+            likeId[record_id] = (await skapi.postRecord(null, {
+                table: 'likes',
+                reference: record_id
+            })).record_id;
+            likeButton.setAttribute('data-like', '❤️');
+            likedCount++;
+        }
+        else {
+            await skapi.deleteRecords({ record_id: likeId[record_id] });
+            likeButton.setAttribute('data-like', '🩶');
+            likedCount--;
+        }
+
+        likeButton.textContent = '';
+        document.getElementById(`span_likedCount-${record_id}`).textContent = likedCount.toString();
+    }
+
+    /*
+        Following function subscribe() will allow the user to subscribe to the uploader.
+        When the user clicks the <strong> element, it will call the subscribe() function.
+        We are using the skapi.subscribe() method to subscribe the user.
+        If the user is already subscribed, it will unsubscribe the user.
+        The subscription status will be stored in the subscription_list variable that we have declared above.
+    */
+    async function subscribe(el, user_id) {
+        let data_subscribe = el.getAttribute('data-subscribe');
+        if (!data_subscribe) {
+            return;
+        }
+        if (data_subscribe === 'Subscribe') {
+            // If the user is not subscribed, we will subscribe the user.
+            skapi.subscribe({
+                user_id: user_id,
+                get_feed: true // We will set get_feed to true so that the user can fetch the posts from the feed.
+            }).then(sub => {
+                subscription_list[user_id] = sub
+            });
+
+            let className = `strong_subs-${user_id}`;
+            // If the user is not subscribed, we will set the data-subscribe attribute to 'Subscribed'.
+            Array.from(document.querySelectorAll(`.${className}`)).forEach(el => {
+                el.setAttribute('data-subscribe', 'Subscribed');
+            });
+        } else {
+            // If the user is already subscribed, we will unsubscribe the user.
+            skapi.unsubscribe({
+                user_id: user_id,
+            });
+
+            subscription_list[user_id] = false;
+            // If the user is already subscribed, we will set the data-subscribe attribute to 'Subscribe'.
+            Array.from(document.querySelectorAll(`.strong_subs-${user_id}`)).forEach(el => {
+                el.setAttribute('data-subscribe', 'Subscribe');
+            });
+        }
+    }
+
+    /*
+        Following function initialFetch() will fetch the posts when the page loads, or when the url hash changes.
+        We will use the location.hash to identify how the posts should be fetched.
+    */
+    async function initialFetch() {
+        let hash = location.hash ? location.hash.slice(1) : '';
+
+        switch (hash) {
+            case 'mostliked':
+                /*
+                    For most liked posts, we will use the indexed values to get the most liked posts.
+                    We can get posts ordered by referenced count by setting the reserved index name to '$referenced_count'.
+                    Argument of getPosts() is set to false so that we can fetch the most liked posts from the start.
+                */
+                fetchQuery = {
+                    table: {
+                        name: 'posts',
+                        access_group: 'authorized'
+                    },
+                    index: {
+                        name: '$referenced_count',
+                        value: 0,
+                        condition: '>'
+                    }
+                };
+
+                getPosts(false);
+                break;
+
+            case 'mostcomment':
+                /*
+                    For most commented posts, we will use getMostCommentedPost() function.
+                    We will declare the getMostCommentedPost() function below.
+                    Argument of getMostCommentedPost() is set to false so that we can fetch the most commented posts from the start.
+                */
+                getMostCommentedPost(false);
+                break;
+            case 'myposts':
+                /*
+                    For my posts, we will use the indexed values to get the posts uploaded by the logged in user.
+                    We can get posts uploaded by the logged in user by setting the reserved index name to '$user_id'.
+                */
+                fetchQuery = {
+                    table: {
+                        name: 'posts',
+                        access_group: 'authorized'
+                    },
+                    index: {
+                        name: '$user_id',
+                        value: (await user).user_id,
+                    }
+                };
+
+                getPosts(false);
+                break;
+            case 'myprivate':
+                /*
+                    For my private posts, we can get posts uploaded by the logged in user by setting the reserved index name to '$user_id'.
+                    And the table access_group is set to private.
+                */
+                fetchQuery = {
+                    table: {
+                        name: 'posts',
+                        access_group: 'private'
+                    },
+                    index: {
+                        name: '$user_id',
+                        value: (await user).user_id,
+                    }
+                };
+
+                getPosts(false);
+                break;
+
+            case 'feed':
+                /*
+                    For feed, we will use the getFeed() function.
+                    We will declare the getFeed() function below.
+                    Argument of getFeed() is set to false so that we can fetch the feed from the start.
+                */
+                getFeed(false);
+                break;
+
+            default:
+                /*
+                    By default, we will fetch all the post under the table 'posts'.
+                    The posts is Skapi database are always ordered by the time it was uploaded.
+                    Since we have set the fetch option ascending to false, we will get the most recent posts.
+                */
+                fetchQuery = {
+                    table: {
+                        name: 'posts',
+                        access_group: 'authorized'
+                    }
+                };
+
+                /*
+                    If the hash starts with 'tag=', we will fetch the posts with the tag.
+                    We will use the location.hash to identify how the posts should be fetched.
+                    And we will set the fetchQuery.tag to the tag value.
+                */
+                if (hash.startsWith('tag=')) {
+                    fetchQuery.tag = hash.slice(4);
+                }
+
+                getPosts(false);
+                break;
+        }
+    }
+
+    /*
+        Following function getMostCommentedPost() will fetch the most commented posts.
+    */
+    async function getMostCommentedPost(fetchMore = true) {
+        fetchMoreButton.disabled = true;
+
+        /*
+            We are using skapi.getIndexes() method to get all the index information of the comment.
+            Since we are using the compond index names, we can get index information ordered by total index value under the compond index name 'comment.'.
+            Ascending is set to false so that we can get the index information ordered by most commented posts.
+        */
+        let commentIndex = await skapi.getIndexes(
+            {
+                table: 'comments',
+                index: 'comment.',
+                order: {
+                    by: 'total_bool'
+                }
+            },
+            {
+                ascending: false,
+                limit: 4,
+                fetchMore
+            }
+        );
+
+        if (!fetchMore) {
+            // clear the section_posts when fetching posts with fetchMore = false.
+            section_posts.innerHTML = '';
+            if (commentIndex.list.length === 0) {
+                section_posts.innerHTML = 'No posts found.';
+                return;
+            }
+        }
+
+        /*
+            Following code will get each comment post by the record_id.
+            We know the record_id from the compond index name: (comment.record_id).
+            Then we will call the createArticleContent() function that we have declared above to create the html elements.
+            Lastly, we will append the html elements to the #section_posts.
+        */
+        let posts = await Promise.all(commentIndex.list.map(i => skapi.getRecords({
+            record_id: i.index.split('.')[1],
+        }).catch(err => null)));
+
+        let articles = await Promise.all(posts.map(p => p ? createArticleContent(p.list[0]) : null));
+
+        for (let articleEl of articles) {
+            if (articleEl) {
+                section_posts.appendChild(articleEl);
+            }
+        }
+
+        /*
+            When there are no more posts to fetch, we will disable the fetchMore button.
+            When there are more posts to fetch, we will enable the fetchMore button.
+            We will also set the onclick event of the fetchMore button to call the getMostCommentedPost() function.
+        */
+        fetchMoreButton.disabled = commentIndex.endOfList;
+        fetchMoreButton.onclick = () => getMostCommentedPost();
+    }
+
+    /*
+        We will call the initialFetch() function when the page loads, or when the url hash changes.
+    */
+    initialFetch();
+    window.addEventListener('hashchange', initialFetch);
+</script>
+```
+
 <br>
 
 # Connecting to Realtime
@@ -4107,245 +5075,6 @@ function RealtimeCallback(rt) {
 skapi.connectRealtime(RealtimeCallback); // Connect to realtime
 skapi.joinRealtime({ group: 'RTCCall' }); // Join a realtime group
 ```
-
-<br>
-
-# Skapi HTML Chat Full Example
-
-This is a HTML example for building basic chat application using Skapi's realtime features.
-
-Users must login to post and fetch realtime messages.
-
-This example features:
-
-- Creating, joining, and leaving chat rooms
-- Sending and receiving websocket messages
-- Fetching messengers info
-- Sending private messeges to user
-
-All the main code is in **welcome.html**
-
-## Recommended VSCode Extention
-
-For HTML projects we often tend to use element.innerHTML.
-
-So we recommend installing innerHTML string highlighting extention like one below:
-
-[es6-string-html](https://marketplace.visualstudio.com/items/?itemName=Tobermory.es6-string-html)
-
-
-## Download
-
-Download the full project [Here](https://github.com/broadwayinc/skapi-chat-html-template/archive/refs/heads/main.zip)
-
-Or visit our [Github page](https://github.com/broadwayinc/skapi-chat-html-template)
-
-
-## How To Run
-
-Download the project, unzip, and open the `index.html`.
-
-### Remote Server
-
-For hosting on remote server, install package:
-
-```
-npm i
-```
-
-Then run:
-
-```
-npm run dev
-```
-
-The application will be hosted on port `3300`
-
-
-:::danger Important!
-
-Replace the `SERVICE_ID` and `OWNER_ID` value to your own service in `service.js`
-
-Currently the service is running on **Trial Mode**.
-
-**All the user data will be deleted every 14 days.**
-
-You can get your own service ID from [Skapi](https://www.skapi.com)
-
-:::
-
-<br>
-
-# Skapi HTML Video Call Example
-
-This is a HTML example for building basic video call application using Skapi's webrtc features.
-
-Users must login to request or receive video calls.
-
-This example features:
-
-- List available receivers
-- Requesting video call
-- Receive incomming video call
-- Hangup incomming, outgoing calls
-
-All the main code is in **welcome.html**
-
-## Recommended VSCode Extention
-
-For HTML projects we often tend to use element.innerHTML.
-
-So we recommend installing innerHTML string highlighting extention like one below:
-
-[es6-string-html](https://marketplace.visualstudio.com/items/?itemName=Tobermory.es6-string-html)
-
-
-## Download
-
-Download the full project [Here](https://github.com/broadwayinc/skapi-webrtc-html-template/archive/refs/heads/main.zip)
-
-Or visit our [Github page](https://github.com/broadwayinc/skapi-webrtc-html-template)
-
-
-## How To Run
-
-Download the project, unzip, and open the `index.html`.
-
-### Remote Server
-
-For hosting on remote server, install package:
-
-```
-npm i
-```
-
-Then run:
-
-```
-npm run dev
-```
-
-The application will be hosted on port `3333`
-
-:::danger HTTPS REQUIRED.
-WebRTC only works on HTTPS environment.
-You need to setup a HTTPS environment when developing a WebRTC feature for your web application.
-
-You can host your application in skapi.com or host from your personal servers.
-:::
-
-
-:::danger Important!
-
-Replace the `SERVICE_ID` and `OWNER_ID` value to your own service in `service.js`
-
-Currently the service is running on **Trial Mode**.
-
-**All the user data will be deleted every 14 days.**
-
-You can get your own service ID from [Skapi](https://www.skapi.com)
-
-:::
-
-<br>
-
-# Service Settings
-
-Go to your service page, and click on the **Service Settings** tab.
-
-Here, you can see the information of your service data usage, subscription model for your service.
-
-Below are some toggle settings you can configure for your service.
-
-## Disable/Enable
-
-You can disable your service temporarily from the service dashboard.
-
-This is useful when you need to go under maintainance while temporarily blocking the access to your service without losing the data.
-When you disable your service, all the requests to your service will be blocked, and the service will be shown as disabled in the **My Services** page.
-
-:::warning
-Disabling your service will not pause your subscription. You will still be charged for the service even when it is disabled.
-:::
-
-
-## Allow Signup
-
-You can prevent user signup by turning off this option.
-This setting will prevent anyone to signup or prevent anyone from removing their account in your service.
-
-If this option is turned off, only the admin can create, disable user accounts from the **Users** page.
-This is useful when you want to create a private service for a specific group of users.
-
-
-## Prevent Inquiry
-
-You can prevent users from sending inquiries to your service by turning off this option.
-
-This is useful when you are not planning to use the [`sendInquiry()`](/api-reference/email/README.md#sendinquiry) method, and want to prevent spam.
-
-
-## Freeze Database
-
-You can freeze your database to prevent any write operations.
-
-When you freeze your database, all your user's write operations will be blocked, and only the read operations will be allowed.
-When this in enabled only the service owner can write to the database.
-
-<br>
-
-# Additional Settings
-
-Go to your service page, and click on the **Service Settings** tab.
-
-Below the toggle settings, you can see the additional settings you can configure for your service.
-
-## Service Name
-
-You can set the service name in your service settings.
-
-The service name can be used to identify your service in the **My Services** page, and also can be used to replace [`Automated Email's placeholders`](/email/email-templates.md#template-placeholders).
-
-
-## CORS
-
-In your service settings, you can set the CORS setting to allow the request from the specific domain.
-
-When left empty, the CORS setting will be set to `*` by default. Otherwise, you can set the CORS setting to the specific domain, for example, `https://example.com`.
-You can also set multiple domains by separating them with a comma, for example, `https://example.com,https://example2.com`.
-
-When the CORS setting is configured, requests from other domains will be blocked.
-
-In production, it is recommended to set the CORS setting to the specific domain to prevent unauthorized access to your service.
-
-
-## Secret Key
-
-Skapi provides API bridge to your custom APIs.
-
-For example, you might have your own external server that you want your users to connect to.
-
-You can set your own secret key to protect your own APIs from unauthorized access.
-
-For more information, refer [secure post request](/api-bridge/secure-post-request.html#secure-post-request) to your custom APIs.
-
-<br>
-
-# Delete Service
-
-:::tip
-The delete service button will only be shown if your subscription has been expired, or you are in the trial plan.
-:::
-
-You can delete your service from the service settings page.
-
-The delete service button is located at the bottom of the service settings page.
-
-When you click the delete service button, you will be asked to confirm the deletion of your service.
-
-:::danger
-When you delete your service, all the data related to your service will be deleted permanently, and cannot be recovered.
-:::
 
 <br>
 
@@ -5361,1579 +6090,6 @@ skapi.unblockAccount(
 ```
 
 
-
-<br>
-
-# Hosting your website
-
-Skapi provides a straight forward hosting service for your website.
-You can host your website with Skapi by simply uploading your website files in your `File Hosting` page.
-
-## Registering Your Subdomain
-
-Before you upload your website files, you must register a subdomain for your website.
-Go to `File Hosting` page. If the service does not have a subdomain, it will ask you to make one.
-
-<!-- 
-![subdomain register](/hosting.png)
- -->
-
-## Uploading Your Website Files
-
-Once you have registered your subdomain, you can upload your website files by drag and dropping your files in the file section which is at the bottom section of your `File Hosting` page.
-
-When the files are uploaded, all the files will be hosted in your subdomain.
-For example, if you registered `mywebsite` as your subdomain, and have uploaded a file named `yourfile.ext`, the file will be hosted publicly in `https://mywebsite.skapi.com/yourfile.ext`.
-
-:::info
-- When you overwrite a file with the same name, the file will be replaced with the new file.
-- When overwriting or deleting a file, please allow couple of minutes for CDN to update it's cache.
-:::
-
-:::danger
-Since the files are hosted publicly, **DO NOT** upload any sensitive files in your hosting page.
-:::
-## index.html
-
-If you have an `index.html` file in your root level, it will be hosted in your subdomain's root directory.
-<!-- 
-![hosting uploaded](/hostuploaded.png) -->
-
-For example, if `index.html` file is hosted in the root directory of the subdomain.
-The `index.html` will also be served when the user visits `https://mywebsite.skapi.com/`.
-
-
-## Setting the 404 Page
-
-You can set the 404 page for your website by clicking `[UPLOAD]` at `404 Page`, which is in the upper section form on your `File Hosting` page.
-This HTML file will be served when the user visits a page that does not exist in your website.
-
-:::danger
-If you are using **SPA framework** such as Vue, React, or Angular, **YOU MUST** set the 404 page to your **`index.html`** file.
-:::
-
-
-
-<br>
-
-# API Reference: Connection
-
-Below are the parameters and return data type references for the methods in TypeScript format.
-
-## getConnectionInfo
-
-```ts
-getConnectionInfo(): Promise<ConnectionInfo>
-```
-
-See [ConnectionInfo](/api-reference/data-types/README.md#connectioninfo)
-
-#### Errors
-
-```ts
-{
-    code: "NOT_EXISTS";
-    message: "Service does not exists. Register your service at skapi.com"
-}
-```
-
-## mock
-
-```ts
-mock(
-    data: SubmitEvent | { [key: string]: any } & { raise?: 'ERR_INVALID_REQUEST' | 'ERR_INVALID_PARAMETER' | 'SOMETHING_WENT_WRONG' | 'ERR_EXISTS' | 'ERR_NOT_EXISTS'; },
-    options?: {
-        auth?: boolean; // Requires authentication
-        method?: string; // HTTP method. Default is 'POST'
-        responseType?: 'blob' | 'json' | 'text' | 'arrayBuffer' | 'formData' | 'document'; // Response data type. Default is 'json'
-        contentType?: string; // Content-Type header. Default is 'application/json'
-        progress?: ProgressCallback;
-    }
-): Promise<{[key:string]: any}>
-```
-
-See [ProgressCallback](/api-reference/data-types/README.md#progresscallback)
-
-## getFormResponse
-
-```ts
-getFormResponse(): Promise<any>
-```
-
-<br>
-
-# API Reference: Authentication
-
-Below are the parameters and return data type references for the methods in TypeScript format.
-
-## signup
-
-```ts
-signup(
-    params: SubmitEvent | { 
-        email: string; // Must be in email format. ex) user@email.com
-        password: string; // At least 6 characters and a maximum of 60 characters.
-        name?: string;
-        phone_number?: string; // Must be in "+0012341234" format.
-        address?: string; // or you can use OpenID Standard Claims https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
-        gender?: string;
-        birthdate?: string; // Must be in YYYY-MM-DD format
-        email_public?: boolean; // Default = false
-        phone_number_public?: boolean; // Default = false
-        address_public?: boolean; // Default = false
-        gender_public?: boolean; // Default = false
-        birthdate_public?: boolean; // Default = false
-        picture?: string; // URL of the profile picture.
-        profile?: string; // URL of the profile page.
-        website?: string; // URL of the website.
-        nickname?: string; // Nickname of the user.
-        misc?: string; // Additional string value that can be used freely. This value is only visible to the account owner.
-    },
-    options?: {
-        /**
-         * When true, user is required to confirm their signup confirmation on first login. (Default = false).
-         * When URL or relative path of the website is given, It will redirect the user after successful confirmation.
-         * NOTE: Relative path will not work if the website is not hosted.
-         */
-        signup_confirmation?: boolean | string;
-
-        /** When true, user can receive newsletter from the admin. (Default = false) */
-        email_subscription?: boolean;
-
-        /** When true, user is logged in soon as the signup process is sucessful.
-         * Cannot use with 'signup_confirmation'. (Default = false)
-         */
-        login?: boolean;
-    }
-): Promise<
-    UserProfile |
-    "SUCCESS: The account has been created. User's signup confirmation is required." |
-    "SUCCESS: The account has been created.">
-```
-
-See [UserProfile](/api-reference/data-types/README.md#userprofile)
-
-#### Errors
-```ts
-{
-  code: 'EXISTS';
-  message: "user already exists.";
-}
-```
-
-## resendSignupConfirmation
-
-```ts
-resendSignupConfirmation(): Promise<'SUCCESS: Signup confirmation E-Mail has been sent.'>
-```
-
-#### Errors
-```ts
-{
-  code: 'INVALID_REQUEST',
-  message: 'Least one login attempt is required.'
-}
-```
-
-## login
-
-```ts
-login(
-    params: SubmitEvent | {
-        email: string; 
-        password: string;
-    }
-): Promise<UserProfile>
-```
-
-See [UserProfile](/api-reference/data-types/README.md#userprofile)
-
-#### Errors
-```ts
-{
-  code: "SIGNUP_CONFIRMATION_NEEDED";
-  message: "User's signup confirmation is required.";
-}
-|
-{
-  code: 'USER_IS_DISABLED';
-  message: 'This account is disabled.';
-}
-|
-{
-  code: 'INCORRECT_USERNAME_OR_PASSWORD';
-  message: 'Incorrect username or password.';
-}
-|
-{
-  code: 'REQUEST_EXCEED';
-  message: 'Too many attempts. Please try again later.';
-}
-```
-
-## getProfile
-
-```ts
-getProfile(
-    options?: {
-        /** When true, JWT token is refreshed before fetching the user attributes. (Default = false) */
-        refreshToken: boolean;
-    }
-): Promise<null | UserProfile>
-```
-
-See [UserProfile](/api-reference/data-types/README.md#userprofile)
-
-## logout
-
-```ts
-logout(params?: { global: boolean; }): Promise<'SUCCESS: The user has been logged out.'>
-```
-
-## forgotPassword
-
-```ts
-forgotPassword(
-    params: SubmitEvent | {
-        email: string;
-    }
-): Promise<'SUCCESS: Verification code has been sent.'>
-```
-
-#### Errors
-```ts
-{
-    code: "LimitExceededException";
-    message: "Attempt limit exceeded, please try after some time."
-}
-```
-
-## resetPassword
-
-```ts
-resetPassword(
-    params: SubmitEvent | {
-        email: string;
-        code: string | number;
-        new_password: string; // At least 6 characters and a maximum of 60 characters.
-    }
-): Promise<'SUCCESS: New password has been set.'>
-```
-
-## openidLogin
-
-```ts
-openidLogin(
-    params: SubmitEvent | {
-        token: string; // ID/Access token fetched from open id API service
-        id: string; // OpenID Logger ID registered in the service page.
-    }
-): Promise<{
-    userProfile: UserProfile;
-    openid: { [attribute:string]: any };
-}>
-```
-
-<br>
-
-# API Reference: User Account
-
-Below are the parameters and return data type references for the methods in TypeScript format.
-
-## updateProfile
-
-```ts
-updateProfile(
-    params: SubmitEvent | {
-        name?: string; // Name of the user.
-        email?: string; // Max 64 characters.
-        phone_number?: string; // Must be in "+0012341234" format.
-        address?: string; // or you can use OpenID Standard Claims https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
-        gender?: string; // Can be any string
-        birthdate?: string; // Must be in YYYY-MM-DD format
-        email_public?: boolean; // When set to true, email attribute is visible to others.
-        phone_number_public?: boolean; // When set to true, phone_number attribute is visible to others.
-        address_public?: boolean; // When set to true, address attribute is visible to others.
-        gender_public?: boolean; // When set to true, gender attribute is visible to others.
-        birthdate_public?: boolean; // When set to true, birthdate attribute is visible to others.
-        picture?: string; // URL of the profile picture.
-        profile?: string; // URL of the profile page.
-        website?: string; // URL of the website.
-        nickname?: string; // Nickname of the user.
-        misc?: string; // Additional string value that can be used freely. This value is only visible from skapi.getProfile()
-    }
-): Promise<UserProfile>
-```
-
-See [UserProfile](/api-reference/data-types/README.md#userprofile)
-
-## changePassword
-
-```ts
-changePassword(params: SubmitEvent | {
-    new_password: string; // At least 6 characters and a maximum of 60 characters.
-    current_password: string;
-}): Promise<`SUCCESS: Password has been changed.`>
-```
-
-
-## verifyEmail
-
-```ts
-verifyEmail(params?: SubmitEvent | {
-    /**
-     * When code value is given, Skapi will try to verify the code.
-     * When Called with out any argument, Skapi will issue a new verification.
-     */
-    code: string;
-}): Promise<'SUCCESS: Verification code has been sent.' | 'SUCCESS: "email" is verified.'>
-```
-
-#### Errors
-```ts
-{
-    code: "LimitExceededException";
-    message: "Attempt limit exceeded, please try after some time.";
-}
-|
-{
-    code: "CodeMismatchException";
-    message: "Invalid verification code provided, please try again.";
-}
-```
-
-## disableAccount
-
-```ts
-disableAccount(): Promise<'SUCCESS: account has been disabled.'>;
-```
-
-
-## getUsers
-
-```ts
-getUsers({ 
-    params?: {
-        searchFor:
-            'user_id' |
-            'name' |
-            'email' |
-            'phone_number' |
-            'address' |
-            'gender' |
-            'birthdate' |
-            'locale' |
-            'subscribers' |
-            'timestamp' |
-            'approved';
-        value: string | number | boolean | { by: 'admin' | 'skapi' | 'master'; approved?: boolean }; // Appropriate value type for searchFor, Object for 'approved'
-        
-        /**
-         * Cannot be used with range. Default = '='.
-         * '>' means more than. '<' means less than.
-         * For strings, '>=' means 'starts with'.
-         */
-        condition?: '>' | '>=' | '=' | '<' | '<=' | 'gt' | 'gte' | 'eq' | 'lt' | 'lte';
-        range?: string | number | boolean; // Cannot be used with condition.
-    } | null;
-    fetchOptions?: FetchOptions
-}): Promise<DatabaseResponse<UserPublic>>;
-
-```
-
-See [FetchOptions](/api-reference/data-types/README.md#fetchoptions)
-
-See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
-
-See [UserPublic](/api-reference/data-types/README.md#userpublic)
-
-
-## recoverAccount
-
-```ts
-recoverAccount(redirect: boolean | string): Promise<'SUCCESS: Recovery e-mail has been sent.'>;
-```
-
-
-<br>
-
-# API Reference: Database
-
-Below are the parameters and return data type references for the methods in TypeScript format.
-
-## postRecord
-
-```ts
-postRecord(
-    data: SubmitEvent | { [key: string] : any } | null,
-    config: {
-        record_id?: string; // Only used when updating records.
-        unique_id?: string; // Unique ID to set to the record. If null is given, it will remove the previous unique ID when updating.
-        /** When the table is given as a string value, the value is the table name. */
-        /** 'table' is optional when 'record_id' or 'unique_id' is used. */
-        /** When the table is given as a string value, the given value will be set as table.name and table.access_group will be 'public' **/
-        table: string | {
-            name: string; // Other than space and period, special characters are not allowed.
-            access_group?: number | 'private' | 'public' | 'authorized' | 'admin';  // Default: 'public'
-            subscription?: {
-                is_subscription_record?: boolean; // When true, record will be uploaded to subscription table.
-                upload_to_feed: boolean; // When true, record will be shown in the subscribers feeds that is retrieved via getFeed() method.
-                notify_subscribers?: boolean; // When true, subscribers will receive notification when the record is uploaded.
-                feed_referencing_records?: boolean; // When true, records referencing this record will be included to the subscribers feed.
-                notify_referencing_records?: boolean; // When true, records referencing this record will be notified to subscribers.
-            };
-        };
-        readonly?: boolean; // Default: false. When true, the record cannot be updated.
-        index?: {
-            name: string; // Only alphanumeric and period allowed.
-            value: string | number | boolean; // Only alphanumeric and spaces allowed.
-        };
-        tags?: string | string[]; // Only alphanumeric and spaces allowed. It can also be an array of strings or a string with comma separated values.
-        source?: {
-            referencing_limit?: number; // Default: null (Infinite)
-            prevent_multiple_referencing?: boolean; // If true, a single user can reference this record only once.
-            only_granted_can_reference?: boolean; // When true, only the user who has granted private access to the record can reference this record.
-            can_remove_referencing_records?: boolean; // When true, owner of the record can remove any record that are referencing this record. Also when this record is deleted, all the record referencing this record will be deleted.
-            referencing_index_restrictions?: {
-                /** Not allowed: White space, special characters. Allowed: Alphanumeric, Periods. */
-                name: string; // Allowed index name
-                /** Not allowed: Periods, special characters. Allowed: Alphanumeric, White space. */
-                value?: string | number | boolean; // Allowed index value
-                range?: string | number | boolean; // Allowed index range
-                condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // Allowed index value condition
-            }[];
-            allow_granted_to_grant_others?: boolean; // When true, the user who has granted private access to the record can grant access to other users.
-        };
-        reference?: string; // Reference to another record. When value is given, it will reference the record with the given value. Can be record ID or unique ID.
-        remove_bin?: BinaryFile[] | string[] | null; // If the BinaryFile object or the url of the file is given, it will remove the bin data(files) from the record. The file should be uploaded to this record. If null is given, it will remove all the bin data(files) from the record.
-        progress: ProgressCallback; // Progress callback function. Usefull when uploading files.
-    };
-): Promise<RecordData>
-```
-
-See [RecordData](/api-reference/data-types/README.md#recorddata)
-
-See [ProgressCallback](/api-reference/data-types/README.md#progresscallback)
-
-See [BinaryFile](/api-reference/data-types/README.md#binaryfile)
-
-## getRecords
-
-```ts
-getRecords(
-    query: {
-        record_id?: string; // When record ID is given, it will fetch the record with the given record ID. all other parameters are bypassed and will override unique ID.
-        unique_id?: string; // Unique ID of the record. When unique ID is given, it will fetch the record with the given unique ID. All other parameters are bypassed.
-        /** When the table is given as a string value, the given value will be set as table.name and table.access_group will be 'public' **/
-        /** 'table' is optional when 'record_id' or 'unique_id' is used. */
-        table: string | {
-            name: string,
-            access_group?: number | 'private' | 'public' | 'authorized' | 'admin'; // 0 to 99 if using number. Default: 'public'
-            subscription?: string; // User ID that requester is subscribed to.
-        };
-
-        /**
-         * When unique ID is given, it will fetch the records referencing the given unique ID.
-         * When record ID is given, it will fetch the records referencing the given record ID.
-         * When user ID is given, it will fetch the records uploaded by the given user ID.
-         */
-        reference?: string;
-
-        index?: {
-            /** '$updated' | '$uploaded' | '$referenced_count' | '$user_id' are the reserved index names. */
-            name: string | '$updated' | '$uploaded' | '$referenced_count' | '$user_id';
-            value: string | number | boolean;
-            condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '='; // cannot be used with range. Default: '='
-            range?: string | number | boolean; // cannot be used with condition
-        };
-
-        tag?: string; // Queries records with the given tag.
-    },
-    fetchOptions?: FetchOptions;
-): Promise<DatabaseResponse<RecordData>>
-```
-
-See [RecordData](/api-reference/data-types/README.md#recorddata)
-
-See [FetchOptions](/api-reference/data-types/README.md#fetchoptions)
-
-See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
-
-## grantPrivateAccess
-```ts
-grantPrivateRecordAccess(
-    params: {
-        record_id: string;
-        user_id: string | string[];
-    }
-): Promise<'SUCCESS: granted x users private access to record: xxxx...'>
-  
-```
-
-#### Errors
-```ts
-{
-    code: "INVALID_REQUEST";
-    message: "Private access cannot be granted to service owners.";
-}
-|
-{
-    code: "INVALID_REQUEST";
-    message: "Record should be owned by the user.";
-}
-|
-{
-    code: "INVALID_REQUEST";
-    message: "cannot process more than 100 users at once.";
-}
-|
-{
-    code: "INVALID_REQUEST";
-    message: "At least 1 user id is required.";
-}
-```
-
-
-## removePrivateAccess
-```ts
-removePrivateRecordAccess(
-    params: {
-        record_id: string;
-        user_id: string | string[];
-    }
-): Promise<'SUCCESS: granted x users private access to record: xxxx...'>
-  
-```
-
-#### Errors
-```ts
-{
-    code: "INVALID_REQUEST";
-    message: "Private access cannot be granted to service owners.";
-}
-|
-{
-    code: "INVALID_REQUEST";
-    message: "Record should be owned by the user.";
-}
-|
-{
-    code: "INVALID_REQUEST";
-    message: "cannot process more than 100 users at once.";
-}
-|
-{
-    code: "INVALID_REQUEST";
-    message: "At least 1 user id is required.";
-}
-```
-
-## deleteRecords
-
-```ts
-deleteRecords({
-    record_id?: string | string[]; // Record ID or an array of record IDs to delete. When record ID is given, it will delete the record with the given record ID. It will bypass all other parameters and will override unique ID.
-    unique_id?: string | string[]; // Unique ID or an array of unique IDs to delete. When unique ID is given, it will delete the record with the given unique ID. It will bypass all other parameters except record_id.
-
-    /** Delete bulk records by query. Query will be bypassed when "record_id" is given. */
-    /** When deleteing records by query, It will only delete the record that user owns. */
-    /** When the table is given as a string value, the value is the table name. */
-    /** 'table' is optional when 'record_id' or 'unique_id' is used. */
-    table: string | {
-        name: string,
-        access_group?: number | 'private' | 'public' | 'authorized' | 'admin'; // 0 to 99 if using number. Default: 'public'
-        subscription?: {
-            user_id: string;
-            /** Number range: 0 ~ 99 */
-            group: number;
-        };
-    };
-
-    /**
-     * When unique ID is given, it will fetch the records referencing the given unique ID.
-     * When record ID is given, it will fetch the records referencing the given record ID.
-     * When user ID is given, it will fetch the records uploaded by the given user ID.
-     * When fetching record by record_id or unique_id that user has restricted access, but the user has been granted access to reference, user can fetch the record if the record ID or the unique ID of the reference is set to reference parameter.
-     */
-    reference?: string;
-
-    index?: {
-        /** '$updated' | '$uploaded' | '$referenced_count' | '$user_id' are the reserved index names. */
-        name: string | '$updated' | '$uploaded' | '$referenced_count' | '$user_id';
-        value: string | number | boolean;
-        condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // cannot be used with range. Default: '='
-        range?: string | number | boolean; // cannot be used with condition
-    };
-
-    tag?: string; // Queries records with the given tag.
-}): Promise<string | DatabaseResponse<string>>
-```
-
-## getTables
-
-```ts
-getTables(
-    query: {
-        table: string;
-        condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '=';
-    },
-    fetchOptions?: FetchOptions;
-): Promise<DatabaseResponse<Table>>
-```
-See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
-
-See [Table](/api-reference/data-types/README.md#table)
-
-
-## getIndex
-
-```ts
-getIndexes(
-    query: {
-        table: string;
-        index?: string;
-        order?: {
-            by: 'average_number' | 'total_number' | 'number_count' | 'average_bool' | 'total_bool' | 'bool_count' | 'string_count' | 'index_name';
-            value?: number | boolean | string;
-            condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '=';
-        };
-    },
-    fetchOptions?: FetchOptions;
-): Promise<DatabaseResponse<Index>>
-```
-See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
-
-See [Index](/api-reference/data-types/README.md#index)
-
-
-## getTags
-
-```ts
-getTags(
-    query: {
-        table: string;
-        tag?: string;
-        condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '=';
-    },
-    fetchOptions?: FetchOptions;
-): Promise<DatabaseResponse<Tag>>
-```
-See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
-
-See [Tag](/api-reference/data-types/README.md#tag)
-
-
-## getUniqueId
-
-```ts
-getUniqueId(
-    query: {
-        unique_id?: string;
-        condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '=';
-    },
-    fetchOptions?: FetchOptions;
-): Promise<DatabaseResponse<UniqueId>>
-```
-See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
-
-See [UniqueId](/api-reference/data-types/README.md#uniqueid)
-
-
-## subscribe
-```ts
-subscribe(
-    { user_id: string; get_feed?: boolean; get_notified?: boolean; get_email?: boolean; }
-): Promise<Subscription>
-```
-
-See [Subscription](/api-reference/data-types/README.md#subscription)
-
-
-## unsubscribe
-```ts
-unsubscribe(
-    {
-        user_id: string;
-    }
-): Promise<'SUCCESS: The user has unsubscribed.'>
-```
-
-
-## blockSubscriber
-
-```ts
-blockSubscriber(
-    {
-        user_id: string;
-    }
-): Promise<'SUCCESS: Blocked user id "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".'>
-```
-
-## unblockSubscriber
-
-```ts
-unblockSubscriber(
-    {
-        user_id: string;
-    }
-): Promise<'SUCCESS: Unblocked user id "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".'>
-```
-
-
-## getSubscriptions
-
-```ts
-getSubscriptions(
-    params: {
-        // Must have either subscriber and/or subscription value
-        subscriber?: string; // User ID of the subscriber (User who subscribed)
-        subscription?: string; // User ID of the subscription (User being subscribed to)
-        blocked?: boolean; // When true, fetches only blocked subscribers. Default = false
-    },
-    fetchOptions?: FetchOptions;
-): Promise<DatabaseResponse<Subscription>>
-```
-See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
-
-See [Subscription](/api-reference/data-types/README.md#subscription)
-
-
-## getFeed
-
-```ts
-getFeed(params?: { access_group?: number; }, fetchOptions?: FetchOptions): Promise<DatabaseResponse<RecordData>>
-```
-
-## getFile
-    
-```ts
-getFile(
-    url: string,
-    config?: {
-        dataType: 'base64' | 'download' | 'endpoint' | 'blob' | 'text' | 'info';
-    },
-    progressCallback?: ProgressCallback
-): Promise<Blob | string | FileInfo | void>
-```
-
-See [FileInfo](/api-reference/data-types/README.md#fileinfo)
-
-See [ProgressCallback](/api-reference/data-types/README.md#progresscallback)
-
-<br>
-
-# API Reference: Email
-
-Below are the parameters and return data type references for the methods in TypeScript format.
-
-## subscribeNewsletter
-
-```ts
-subscribeNewsletter({
-    params: SubmitEvent | <{
-        group: 'public' | 'authorized';
-        email?: string; // only for public newsletters
-        redirect?: string; // only for public newsletters. User will be redirected to this URL when confirmation link is clicked.
-    }>,
-    callbacks: {
-        response?(response: any): any;
-        onerror?(error: Error): any;
-    }
-}): Promise<string>
-```
-
-## unsubscribeNewsletter
-
-```ts
-unsubscribeNewsletter(
-    params: { 
-        group: 'authorized';
-    }
-): Promise<string>
-```
-
-## adminNewsletterRequest
-
-```ts
-adminNewsletterRequest(): Promise<string>
-```
-
-## getNewsletterSubscription
-
-```ts
-getNewsletterSubscription(
-    params: { 
-        group: 'authorized';
-    }
-): Promise<any[]>
-```
-
-## getNewsletters
-
-```ts
-getNewsletters(
-    params?: {
-        /**
-         * Search points.
-         * 'message_id' and 'subject' value should be string.
-         * Others in numbers.
-         */
-        searchFor: 'message_id' | 'timestamp' | 'read' | 'complaint' | 'subject';
-        value: string | number;
-        group: 'public' | 'authorized' | number;
-        range?: string | number;
-        /**
-         * Defaults to '='
-         */
-        condition?: '>' | '>=' | '=' | '<' | '<=' | 'gt' | 'gte' | 'eq' | 'lt' | 'lte';
-    },
-    fetchOptions?: FetchOptions;
-): Promise<DatabaseResponse<Newsletter>>
-```
-
-See [FetchOptions](/api-reference/data-types/README.md#fetchoptions)
-
-See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
-
-See [Newsletter](/api-reference/data-types/README.md#newsletter)
-
-
-## sendInquiry
-
-```ts
-sendInquiry(
-    params: {
-        name: string;
-        email: string;
-        subject: string;
-        message: string;
-    }
-): Promise<'SUCCESS: Inquiry has been sent.'>
-```
-
-<br>
-
-# API Reference: Realtime Connection
-
-Below are the parameters and return data type references for the methods in TypeScript format.
-
-## connectRealtime
-
-```ts
-connectRealtime(cb: RealtimeCallback): Promise<WebSocket>
-```
-
-See [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback)
-
-#### Errors
-```ts
-{
-  code: 'INVALID_REQUEST';
-  message: "Callback must be a function.";
-}
-|
-{
-  code: 'ERROR';
-  message: "Skapi: WebSocket connection error.";
-}
-```
-
-## postRealtime
-
-```ts
-postRealtime(
-    message: SubmitEvent | any,
-    recipient: string, // User's ID or a group name
-    notification?: {
-      title: string;
-      body: string;
-      config?: {
-        always: boolean; // When true, notification will always trigger the receiver's device regardless their connection state.
-      }
-    }
-): Promise<{ type: 'success', message: 'Message sent.' }>
-```
-
-#### Errors
-```ts
-{
-  code: 'INVALID_REQUEST';
-  message: "No realtime connection. Execute connectRealtime() before this method.";
-}
-|
-{
-  code: 'INVALID_REQUEST';
-  message: "User has not joined to the recipient group. Run joinRealtime('...')";
-}
-|
-{
-  code: 'INVALID_REQUEST';
-  message: "Realtime connection is not open. Try reconnecting with connectRealtime().";
-}
-```
-
-## joinRealtime
-
-```ts
-joinRealtime(SubmitEvent | params: {
-    group: string, // Group name
-}
-): Promise<{ type: 'success', message: string }>
-```
-
-#### Errors
-```ts
-{
-  code: 'INVALID_REQUEST';
-  message: "No realtime connection. Execute connectRealtime() before this method.";
-}
-```
-
-## getRealtimeGroups
-
-```ts
-getRealtimeGroups(SubmitEvent | params?: {
-        searchFor: 'group' | 'number_of_users';
-        value?: string | number; // Group name or number of users
-        condition?: '>' | '>=' | '=' | '<' | '<=' | '!=' | 'gt' | 'gte' | 'eq' | 'lt' | 'lte' | 'ne';
-        range?: string | number | boolean; // Cannot be used with condition.
-    } | null,
-    fetchOptions?: FetchOptions
-): Promise<DatabaseResponse<{ group: string; number_of_users: number; }>>
-```
-
-## getRealtimeUsers
-
-```ts
-getRealtimeUsers(SubmitEvent | params?: {
-        group: string; // Group name
-        user_id?: string; // User ID in the group
-    },
-    fetchOptions?: FetchOptions
-): Promise<DatabaseResponse<{ user_id:string; cid:string; }[]>>
-```
-
-See [FetchOptions](/api-reference/data-types/README.md#fetchoptions)
-
-See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
-
-
-## closeRealtime
-    
-```ts
-closeRealtime(): Promise<void>
-```
-
-## connectRTC
-
-```ts
-connectRTC({
-    cid: string; // Client id of the opponent
-    ice?: string; // stun:your.stun.server:3468 (optional)
-    media?: {
-        video: boolean; // When true, video will be streamed
-        audio: boolean; // When true, audio will be streamed
-    } | MediaStream; // MediaStream object can be used
-    channels?: Array<{
-        ordered: 'boolean',
-        maxPacketLifeTime: 'number',
-        maxRetransmits: 'number',
-        protocol: 'string'
-    } | "text-chat" | "file-transfer" | "video-chat" | "voice-chat" | "gaming">; // Can create data channels with optimal setting for given task
-}): Promise<RTCConnector>
-```
-
-See [RTCConnector](/api-reference/data-types/README.md#rtcconnector)
-
-#### Errors
-```ts
-{
-  code: 'DEVICE_NOT_FOUND';
-  message: "Requested media device not found.";
-}
-|
-{
-  code: 'INVALID_REQUEST';
-  message: 'Data channel with the protocol "{protocol name}$" already exists.';
-}
-```
-
-## vapidPublicKey
-
-```ts
-vapidPublicKey(): Promise<{ VAPIDPublicKey: string }>
-```
-
-## subscribeNotification
-
-```ts
-subscribeNotification({
-    params: {
-        endpoint: string; // The endpoint URL for the device to subscribe to notifications.
-        keys: {
-            p256dh: string; // The encryption key to secure the communication channel.
-            auth: string; // The authentication key to authenticate the subscription.
-        };
-    }
-}): Promise<'SUCCESS: Subscribed to receive notifications.'>
-```
-
-## unsubscribeNotification
-
-```ts
-unsubscribeNotification({
-    params: {
-        endpoint: string; // The endpoint URL for the device to unsubscribe from notifications.
-        keys: {
-            p256dh: string; // The encryption key to secure the communication channel.
-            auth: string; // The authentication key to authenticate the unsubscription.
-        };
-    }
-}): Promise<'SUCCESS: Unsubscribed from notifications.'>
-```
-
-## pushNotification
-
-```ts
-pushNotification({
-    params: {
-        {
-            title: string; // The title of the notification.
-            body: string; // The body content of the notification.
-        },
-        user_ids?: string | string[]; // Optional parameter to specify the user(s) for whom to send the notification.
-    }
-}): Promise<"SUCCESS: Notification sent.">
-```
-
-<br>
-
-# API Reference: API Bridge
-
-Below are the parameters and return data type references for the methods in TypeScript format.
-
-## secureRequest
-
-```ts
-secureRequest(
-    params: {
-        url: string;
-        data?: any;
-    }
-): Promise<any>
-```
-
-## clientSecretRequest
-
-```ts
-clientSecretRequest(
-    params: {
-        url: string;
-        clientSecretName: string;
-        method: 'get' | 'post' | 'GET' | 'POST';
-        headers?: { [key: string]: string };
-        data?: { [key: string]: any };
-        params?: { [key: string]: string };
-    }
-): Promise<any>
-```
-
-<br>
-
-# API Reference: Admin
-
-Below are the parameters and return data type references for the methods in TypeScript format.
-
-## inviteUser
-
-```ts
-inviteUser(
-    userAttributes: {
-        email: string; // Required. Max 64 characters.
-        name?: string; // Name of the user.
-        access_group: number; // Access group level of the user. (1~99) 99 is admin level.
-        phone_number?: string; // Must be in "+0012341234" format.
-        address?: string; // or you can use OpenID Standard Claims https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
-        gender?: string; // Can be any string
-        birthdate?: string; // Must be in YYYY-MM-DD format
-        email_public?: boolean; // When set to true, email attribute is visible to others.
-        phone_number_public?: boolean; // When set to true, phone_number attribute is visible to others.
-        address_public?: boolean; // When set to true, address attribute is visible to others.
-        gender_public?: boolean; // When set to true, gender attribute is visible to others.
-        birthdate_public?: boolean; // When set to true, birthdate attribute is visible to others.
-        picture?: string; // URL of the profile picture.
-        profile?: string; // URL of the profile page.
-        website?: string; // URL of the website.
-        nickname?: string; // Nickname of the user.
-        misc?: string; // Additional string value that can be used freely. This value is only visible from skapi.getProfile()
-    },
-    options?: {
-        confirmation_url?: string; // URL to redirect the user after the invitation is accepted.
-        email_subscription: boolean; // When true, the user will receive service newsletters.
-    }
-): Promise<'SUCCESS: Invitation has been sent. (User ID: xxx...)'>
-```
-
-## resendInvitation
-
-```ts
-resendInvitation(
-    userAttributes: {
-        email: string; // Required. Max 64 characters.
-    }
-): Promise<'SUCCESS: Invitation has been re-sent. (User ID: xxx...)'>
-```
-
-## getInvitations
-
-```ts
-getInvitations(params: {
-    email?: string; // When set, only invitations with the email starting with the given string will be returned.
-}, fetchOptions: FetchOptions): Promise<DatabaseResponse<UserProfile>>
-```
-
-See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse).
-
-See [UserProfile](/api-reference/data-types/README.md#userprofile).
-
-See [FetchOptions](/api-reference/data-types/README.md#fetchoptions).
-
-
-## cancelInvitation
-
-```ts
-cancelInvitation(params: {
-    email: string; // email of the user to cancel the invitation.
-}): Promise<"SUCCESS: Invitation has been canceled.">
-```
-
-## grantAccess
-
-```ts
-grantAccess(params: {
-    user_id: string; // User ID to grant access.
-    access_group: number; // Access group level of the user. (1~99) 99 is admin level.
-}): Promise<'SUCCESS: Access has been granted to the user.'>
-```
-
-## createAccount
-
-```ts
-createAccount(
-    userAttributes: {
-        email: string; // Required. Max 64 characters.
-        password: string; // Required. At least 6 characters and a maximum of 60 characters.
-        name?: string; // Name of the user.
-        phone_number?: string; // Must be in "+0012341234" format.
-        address?: string; // or you can use OpenID Standard Claims https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
-        gender?: string; // Can be any string
-        birthdate?: string; // Must be in YYYY-MM-DD format
-        email_public?: boolean; // When set to true, email attribute is visible to others when the user confirms the email later.
-        phone_number_public?: boolean; // When set to true, phone_number attribute is visible to others when the user confirms the phone umber later.
-        address_public?: boolean; // When set to true, address attribute is visible to others.
-        gender_public?: boolean; // When set to true, gender attribute is visible to others.
-        birthdate_public?: boolean; // When set to true, birthdate attribute is visible to others.
-        picture?: string; // URL of the profile picture.
-        profile?: string; // URL of the profile page.
-        website?: string; // URL of the website.
-        nickname?: string; // Nickname of the user.
-        misc?: string; // Additional string value that can be used freely. This value is only visible from skapi.getProfile(). Not to others.
-    }
-): Promise<UserProfile>
-```
-
-See [UserProfile](/api-reference/data-types/README.md#userprofile).
-
-## deleteAccount
-
-```ts
-deleteAccount(params: {
-    user_id: string;
-}): Promise<'SUCCESS: Account has been deleted.'>
-```
-
-## blockAccount
-
-```ts
-blockAccount(params: {
-    user_id: string;
-}): Promise<'SUCCESS: The user has been blocked.'>
-```
-
-## unblockAccount
-
-```ts
-unblockAccount(params: {
-    user_id: string;
-}): Promise<'SUCCESS: The user has been unblocked.'>
-```
-
-
-<br>
-
-# API Reference: Data Types
-
-Below are the data type references in TypeScript format.
-
-## ConnectionInfo
-
-```ts
-type ConnectionInfo = {
-    service_name: string; // Connected Service Name
-    user_ip: string; // Connected user's IP address
-    user_agent: string; // Connected user agent
-    user_locale: string; // Connected user's country code
-    version: string; // Skapi library version: 'xxx.xxx.xxx' (major.minor.patch)
-}
-```
-
-## UserProfile
-
-```ts
-type UserProfile = {
-    service:string; // The service ID of the user's account.
-    owner:string; // The user ID of the service owner.
-    access_group:number; // The access level of the user's account.
-    user_id:string; // The user's ID.
-    locale:string; // The country code of the user's location when they signed up.
-
-    /**
-    Account approval info and timestamp.
-    Comes with string with the following format: "{approver}:{approved | suspended}:{approved_timestamp}"
-    
-    {approver} is who approved the account:
-        [by_master] is when account approval is done manually from skapi admin panel,
-        [by_admin] is when approval is done by the admin account with api call within your service.
-        [by_skapi] is when account approval is automatically done.
-        Open ID logger ID will be the value if the user is logged with openIdLogin()
-        This timestamp is generated when the user confirms their signup, or recovers their disabled account.
-    
-    {approved | suspended}
-        [approved] is when the account is approved.
-        [suspended] is when the account is blocked by the admin or the master.
-    
-    {approved_timestamp} is the timestamp when the account is approved or suspended.
-
-     */
-    approved: string;
-    log:number; // Last login timestamp(Seconds).
-
-    /**
-     The user's email address.
-     This should be a maximum of 64 characters and is only visible to others if the email_public option is set to true.
-     The email will be unverified if it is changed.
-     */
-    email?:string;
-    email_verified?:boolean; // Set to true if the user has verified their email.
-    
-    /**
-     The user's phone number.
-     This should be in the format "+0012341234" and is only visible to others if the phone_number_public option is set to true.
-     The phone number will be unverified if it is changed.
-     */
-    phone_number?:string;
-    phone_number_verified?:boolean;// Set to true if the user has verified their phone number.
-    name?:string; // The user's name.
-    address?:string // The user's address.
-    gender?:string // The user's gender. Can be "female" or "male"; or other values if neither of these are applicable.
-    birthdate?:string; // The user's birthdate in the format "YYYY-MM-DD".
-    email_public?:boolean; // The user's email is public if this is set to true.
-    phone_number_public?:boolean; // The user's phone number is public if this is set to true.
-    address_public?:boolean; // The user's address is public if this is set to true.
-    gender_public?:boolean; // The user's gender is public if this is set to true.
-    birthdate_public?:boolean; // The user's birthdate is public if this is set to true.
-    picture?: string; // URL of the profile picture.
-    profile?: string; // URL of the profile page.
-    website?: string; // URL of the website.
-    nickname?: string; // Nickname of the user.
-    misc?: string; // Additional string value that can be used freely. This value is only visible from skapi.getProfile(). Not to others.
-}
-```
-
-## UserPublic
-
-```ts
-type UserPublic = {
-    access_group:number; // The access level of the user's account.
-    user_id:string; // The user's ID.
-    locale:string; // The country code of the user's location when they signed up.
-
-    /**
-     Account approval timestamp.
-     This timestamp is generated when the user confirms their signup, or recovers their disabled account.
-     [by_skapi | by_admin | by_master] : [approved | suspended] : [timestamp]
-     [by_master | by_admin]: When the account is created by either master or admin.
-     [by_skapi]: When the user account is created by either signup confirmation or invitation.
-     [other]: When logged in by openidLogger, the approval indicating string will be the OpenID Logger's ID that the master has setup in the service.
-     */
-    approved: string;
-    timestamp:number; // Account created timestamp(13 digit milliseconds).
-    log:number; // Last login timestamp(13 digit milliseconds).
-    subscribers: number; // The number of accounts subscribed to the user.  
-    subscribed: number; // The number of accounts the user is subscribed to.  
-    records: number; // Total number of records user has produced in the database.
-    /**
-     The user's email address.
-     This should be a maximum of 64 characters and is only visible to others if the email_public option is set to true.
-     The email will be unverified if it is changed.
-     */
-    email?:string;
-    
-    /**
-     The user's phone number.
-     This should be in the format "+0012341234" and is only visible to others if the phone_number_public option is set to true.
-     The phone number will be unverified if it is changed.
-     */
-    phone_number?:string;
-    name?:string; // The user's name.
-    address?:string // The user's address.
-    gender?:string // The user's gender. Can be "female" or "male"; or other values if neither of these are applicable.
-    birthdate?:string; // The user's birthdate in the format "YYYY-MM-DD".
-    picture?: string; // URL of the profile picture.
-    profile?: string; // URL of the profile page.
-    website?: string; // URL of the website.
-    nickname?: string; // Nickname of the user.
-}
-```
-
-## DatabaseResponse
-
-```ts
-type DatabaseResponse<T> = {
-    list: T[]; // List of data from the database.
-    startKey: { [key: string]: any; }; // Use this start key to fetch more data on the next api call.
-    endOfList: boolean; // true, when the query has reached the end of data.
-    startKeyHistory: string[]; // List of stringified start keys.
-};
-```
-
-## RecordData
-
-```ts
-type RecordData = {
-    record_id: string; // Record ID of this record
-    unique_id?: string; // Unique ID of this record
-    user_id: string; // Uploaders user ID.
-    updated: number; // Timestamp in milliseconds.
-    uploaded: number; // Timestamp in milliseconds.
-    ip: string; // IP address of uploader.
-    readonly: boolean; // Is true if this record is readonly.
-    bin: { [fileKeyName: string]: BinaryFile[] }; // List of file info the record is holding in each fileKeyName.
-    referenced_count: number;
-    
-    table: {
-        name: string; // Table name
-        access_group: number | 'private' | 'public' | 'authorized' | 'admin'; // Allowed access level of this record.
-        subscription?: {
-            is_subscription_record: boolean; // true if the record is posted in subscription table.
-            upload_to_feed: boolean; // When true, record will be shown in the subscribers feeds that is retrieved via getFeed() method.
-            notify_subscribers: boolean; // When true, subscribers will receive notification when the record is uploaded.
-            feed_referencing_records: boolean; // When true, records referencing this record will be included to the subscribers feed.
-            notify_referencing_records: boolean; // When true, records referencing this record will be notified to subscribers.
-        }
-    };
-    source: {
-        referencing_limit: null, // Number of reference this record is allowing. Infinite if null.
-        prevent_multiple_referencing: false, // Is true if this record prevents a single user to upload a record referencing this record multiple times.
-        can_remove_referencing_records: false, // Is true if the owner of the record can remove the referenced records.
-        only_granted_can_reference: false, // Is true if only the users who have been granted access to the record can reference this record.
-        referencing_index_restrictions?: {
-            /** Not allowed: White space, special characters. Allowed: Alphanumeric, Periods. */
-            name: string; // Allowed index name
-            /** Not allowed: Periods, special characters. Allowed: Alphanumeric, White space. */
-            value?: string | number | boolean; // Allowed index value
-            range?: string | number | boolean; // Allowed index range
-            condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // Allowed index value condition
-        }[],
-        allow_granted_to_grant_others?: boolean; // When true, the user who has granted private access to the record can grant access to other users.
-    },
-    reference?: string; // Reference ID of this record.
-    index?: {
-        name: string; // Index name.
-        value: string | number | boolean; // Value of the index.
-    };
-    tags?: string[]; // List of tags attached to the record.
-    data?: { [key: string]: any }; // Uploaded JSON data.
-};
-```
-
-## BinaryFile
-
-```ts
-type BinaryFile = {
-    access_group: number | 'private' | 'public' | 'authorized' | 'admin'; // Allowed access level of this file.
-    filename: string; // Filename of the file.
-    url: string; // Full URL endpoint of the file including the token. Token can be expired and will require to be updated by calling getFile('endpoint')
-    path: string; // Path of the file.
-    size: number; // Size of the file in bytes.
-    uploaded: number; // Timestamp in milliseconds.
-    getFile: (dataType?: 'base64' | 'download' | 'endpoint' | 'blob' | 'text' | 'info'; progress?: ProgressCallback) => Promise<Blob | string | void | FileInfo>;
-}
-```
-
-## ProgressCallback
-
-```ts
-type ProgressCallback = (p: {
-    status: 'download' | 'upload'; // Current status
-    progress: number; // Progress in percentage
-    loaded: number; // Loaded bytes of the data
-    total: number; // Total bytes of the data
-    currentFile?: File, // Current loading file.
-    completed?: File[]; // Current files that completed loading.
-    failed?: File[]; // Failed files.
-    abort: () => void; // Aborts current data transfer. When abort is triggered during fileUpload(), it will continue to next file.
-}) => void;
-```
-
-## FileInfo
-
-```ts
-type FileInfo = {
-    url: string;
-    filename: string;
-    access_group: number | 'private' | 'public' | 'authorized';
-    filesize: number;
-    record_id: string;
-    uploader: string;
-    uploaded: number;
-    fileKey: string;
-}
-```
-
-## FetchOptions
-
-```ts
-type FetchOptions = {
-    limit?: number; // Max number of data to fetch per call. Max 1000. Default = 50.
-    fetchMore?: boolean; // Fetches next batch of data if true. Default = false.
-    ascending?: boolean; // Results in ascending order if true
-    startKey?: { [key: string]: any; }; // When start key is given, database query starts from the given key.
-    progress?: ProgressCallback // Callback executed when there is data transfer between the server. Can be useful when building progress bar.
-}
-```
-
-## Table
-
-```ts
-type Table = {
-    table: string; // Table name in the database.
-    number_of_records: string; // Number of records in the table.
-    size: number; // Size in bytes currently consumed in the table. (This does not include cloud storage size which is consumed by binary files)
-}
-```
-
-
-## Index
-
-```ts
-type Index = {
-    table: string; // Table name of the index
-    index: string; // Index name
-    number_of_records: number; // Number of records in the index
-    string_count: number; // Number of string type value in the index
-    number_count: number; // Number of number type value in the index
-    boolean_count: number; // Number of boolean type value in the index
-    total_number: number; // Sum of all number values in the index
-    total_bool: number; // Number of true(boolean) values in the index
-    average_number: number; // Average of all numbers in the index
-    average_bool: number; // Percentage of true(boolean) values in the index
-}
-```
-
-
-## Tag
-
-```ts
-type Tag = {
-    table: string; // Table name of the tag
-    tag: string; // Tag name
-    number_of_records: string; // Number records tagged
-}
-```
-
-## UniqueId
-
-```ts
-type UniqueId = {
-    unqiue_id: string; // Unique ID of the record
-    record_id: string; // Record ID of the unique ID
-}
-```
-
-## Subscription
-
-```ts
-type Subscription = {
-    subscriber: string; // Subscriber ID
-    subscription: string; // Subscription ID
-    timestamp: number; // Subscribed UNIX timestamp
-    blocked: boolean; // True when subscriber is blocked by subscription
-    get_feed: boolean; // True when subscriber gets feed
-    get_notified: boolean; // True when subscriber gets notified
-    get_email: boolean; // True when subscriber gets email
-}
-```
-
-## RealtimeCallback
-
-```ts
-type RealtimeCallback = (rt: {
-    type: 'message' | 'error' | 'success' | 'close' | 'notice' | 'private' | 'reconnect' | 'rtc:incoming' | 'rtc:closed';
-    message?: any;
-    connectRTC?: (params: RTCReceiverParams, callback: RTCEvent) => Promise<RTCResolved>; // Incoming RTC
-    hangup?: () => void; // Reject incoming RTC connection.
-    sender?: string; // user_id of the sender
-    sender_cid?: string; // scid of the sender
-    sender_rid?: string; // group of the sender
-    code?: 'USER_LEFT' | 'USER_DISCONNECTED' | 'USER_JOINED' | null; // code for notice messeges
-}) => void;
-```
-
-## Newsletter
-
-```ts
-type Newsletter = {
-    message_id: string; // Message ID of the newsletter
-    timestamp: number; // Timestamp of the newsletter
-    complaint: number; // Number of complaints
-    read: number; // Number of reads
-    subject: string; // Subject of the newsletter
-    bounced: string; // Number of bounces
-    url: string; // URL of the html file of the newsletter
-}
-```
-
-## RTCConnector
-
-```ts
-type RTCConnector = {
-    hangup: () => void; // When executed, user can hangup before the opponent accepts the call.
-    connection: Promise<RTCResolved>; // Resolves RTC object.
-}
-```
-
-## RTCResolved
-
-```ts
-type RTCResolved = {
-    target: RTCPeerConnection;
-    channels: {
-        [protocol: string]: RTCDataChannel
-    };
-    hangup: () => void;
-    media: MediaStream;
-}
-```
-
-## RTCEvent
-
-```ts
-type RTCEvent = (e: {
-    type: 'track' | 'connectionstatechange' | 'close' | 'message' | 'open' | 'bufferedamountlow' | 'error' | 'icecandidate' | 'icecandidateend' | 'icegatheringstatechange' | 'negotiationneeded' | 'signalingstatechange';
-    [key: string]: any;
-}) => void
-```
 
 <br>
 
