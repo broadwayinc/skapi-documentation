@@ -6428,6 +6428,8 @@ If you are using **SPA framework** such as Vue, React, or Angular, **YOU MUST** 
 
 # API Reference: Connection
 
+Below are the parameters and return data type references for the methods in TypeScript format.
+
 ## getConnectionInfo
 
 ```ts
@@ -6471,6 +6473,8 @@ getFormResponse(): Promise<any>
 <br>
 
 # API Reference: Authentication
+
+Below are the parameters and return data type references for the methods in TypeScript format.
 
 ## signup
 
@@ -6644,6 +6648,8 @@ openidLogin(
 
 # API Reference: User Account
 
+Below are the parameters and return data type references for the methods in TypeScript format.
+
 ## updateProfile
 
 ```ts
@@ -6762,6 +6768,8 @@ recoverAccount(redirect: boolean | string): Promise<'SUCCESS: Recovery e-mail ha
 <br>
 
 # API Reference: Database
+
+Below are the parameters and return data type references for the methods in TypeScript format.
 
 ## postRecord
 
@@ -7126,6 +7134,8 @@ See [ProgressCallback](/api-reference/data-types/README.md#progresscallback)
 
 # API Reference: Email
 
+Below are the parameters and return data type references for the methods in TypeScript format.
+
 ## subscribeNewsletter
 
 ```ts
@@ -7214,6 +7224,8 @@ sendInquiry(
 <br>
 
 # API Reference: Realtime Connection
+
+Below are the parameters and return data type references for the methods in TypeScript format.
 
 ## connectRealtime
 
@@ -7408,6 +7420,8 @@ pushNotification({
 
 # API Reference: API Bridge
 
+Below are the parameters and return data type references for the methods in TypeScript format.
+
 ## secureRequest
 
 ```ts
@@ -7437,6 +7451,8 @@ clientSecretRequest(
 <br>
 
 # API Reference: Admin
+
+Below are the parameters and return data type references for the methods in TypeScript format.
 
 ## inviteUser
 
@@ -7566,6 +7582,8 @@ unblockAccount(params: {
 <br>
 
 # API Reference: Data Types
+
+Below are the data type references in TypeScript format.
 
 ## ConnectionInfo
 
