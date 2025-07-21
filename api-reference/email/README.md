@@ -1,5 +1,7 @@
 # API Reference: Email
 
+Below are the parameters and return data type references for the methods in TypeScript format.
+
 ## subscribeNewsletter
 
 ```ts

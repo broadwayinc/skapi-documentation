@@ -1,5 +1,7 @@
 # API Reference: Data Types
 
+Below are the data type references in TypeScript format.
+
 ## ConnectionInfo
 
 ```ts
