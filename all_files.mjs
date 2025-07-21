@@ -111,15 +111,15 @@ let all_files = [
     //     // { text: 'AI Image Generator', link: '/full-example/image-generator.md' }
     //   ]
     // },
-    {
-        text: 'E-Mail Service',
-        items: [
-            { text: 'Introduction', link: '/email/introduction.md' },
-            { text: 'Automated E-Mail', link: '/email/email-templates.md' },
-            { text: 'Bulk Email', link: '/email/newsletters.md' },
-            { text: 'Receiving Inquiries', link: '/email/inquiries.md' }
-        ]
-    },
+    // {
+    //     text: 'E-Mail Service',
+    //     items: [
+    //         { text: 'Introduction', link: '/email/introduction.md' },
+    //         { text: 'Automated E-Mail', link: '/email/email-templates.md' },
+    //         { text: 'Bulk Email', link: '/email/newsletters.md' },
+    //         { text: 'Receiving Inquiries', link: '/email/inquiries.md' }
+    //     ]
+    // },
     {
         text: 'Admin Features',
         items: [
