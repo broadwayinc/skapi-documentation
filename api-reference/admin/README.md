@@ -1,5 +1,7 @@
 # API Reference: Admin
 
+Below are the parameters and return data type references for the methods in TypeScript format.
+
 ## inviteUser
 
 ```ts
