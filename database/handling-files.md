@@ -5,7 +5,7 @@ This allows you to upload any size of binary files to the database without any a
 
 ## Uploading Files
 
-To upload files, you can use the HTML form `SubmitEvent` or `FormData` that includes `FileList` object when calling the [`postRecord()`](/api-reference/database/README.md#postrecord) method.
+To upload files, you can pass the HTML form `SubmitEvent` or `FormData` that includes `FileList` object when calling the [`postRecord()`](/api-reference/database/README.md#postrecord) method.
 
 Additionally, We can log the progress of the upload by passing a [ProgressCallback](/api-reference/data-types/README.md#progresscallback) in the `progress` parameter in the second argument of [`postRecord()`](/api-reference/database/README.md#postrecord).
 This can be useful if the user is uploading huge files, you can show a progress bar.
@@ -162,7 +162,7 @@ fileToDownload.getFile('base64', progressInfo).then(b => {
 ## Removing Files
 
 To remove files, use the `remove_bin` parameter in the `config` argument of the [`postRecord()`](/api-reference/database/README.md#postrecord) method.
-When updating a record, you can remove files by passing the `remove_bin` parameter as an array of [BinaryFile](/api-reference/data-types/README.md#binaryfile) objects or the endpoint url of the file that need to be removed from the record.
+When updating a record, you can remove files by passing the `remove_bin` parameter as an array of [BinaryFile](/api-reference/data-types/README.md#binaryfile) objects or the endpoint URLs of the files that need to be removed from the record.
 
 Here's an example demonstrating how you can remove files from a record:
 
@@ -172,7 +172,7 @@ let fileToDelete = record.bin.picture[0]; // file object retrieved from the reco
 skapi.postRecord(undefined, { record_id: 'record_id_with_file', remove_bin: [fileToDelete] });
 ```
 
-If you have the endpoint URL of the file, you can also just pass the URL as a string in the `remove_bin` parameter:
+If you have the endpoint URL of the file, you can also pass the URL as a string in the `remove_bin` parameter:
 
 ```js
 skapi.postRecord(undefined, { record_id: 'record_id_with_file', remove_bin: ['https://...'] });
@@ -183,6 +183,14 @@ If you want to remove all files from the record, you can pass the `remove_bin` p
 ```js
 skapi.postRecord(undefined, { record_id: 'record_id_with_file', remove_bin: null }); // removes all files from the record.
 ```
+
+:::warning
+The file that is targeted for removal should be in the record that you are updating.
+:::
+
+::: tip
+If you remove the record that is holding the files, all files that the deleted record was holding will also be completely removed from the database.
+:::
 
 ## Get File Information
 
