@@ -9,6 +9,8 @@ Build a complete web application using static HTML files with backend functional
 - Use the Skapi API to implement all backend features
 - Refer to the Skapi API documentation: https://docs.skapi.com/skapi.md
 - If there is a Skapi API documentation file `skapi.md` in the project, refer to that file instead.
+- When working with Skapi methods, always check parameter and return data types from the Skapi Data Types documentation: https://docs.skapi.com/skapi-types.md
+- If there is a Skapi Data Types documentation file `skapi-types.md` in the project, refer to that file instead.
 
 **Important:** First read the entire API documentation carefully, then make informed decisions about implementing backend features.
 
