@@ -1,22 +1,30 @@
 
 # Access Restrictions
 
-Skapi database allows you to set access restrictions to records. This allows you to control who can access your records.
+Skapi database allows you to set access restrictions on records. This allows you to control who can access your records.
 
-You can add additional settings to your `table` parameter using an `object` instead of a `string` in your `config.table`.
-This allows you to set access restrictions to records using the `access_group` parameter.
+You can add additional settings to your `table` parameter by using an `object` instead of a `string` in your `config.table`.
+This allows you to set access restrictions on records using the `access_group` parameter.
 
 The following values can be set for `table.access_group`:
 
+- Number 0 to 99: Integer from 0 to 99 can be set to define the access level.
 - `private`: Only the uploader of the record will have access.
-- `public`: The record will be accessible to everyone.
-- `authorized`: The record will only be accessible to users who are logged into your service.
-- `admin`: Only admin can use this group. The record will only be accessible to the admin of your service.
+- `public`: The record will be accessible to everyone. (Equivalent to number 0)
+- `authorized`: The record will only be accessible to users who are logged into your service. (Equivalent to number 1)
+- `admin`: Only admin can use this group. The record will only be accessible to the admin of your service. (Equivalent to number 99)
+
 
 If `access_group` is not set, the default value is `public`.
 
 ::: tip
-Unless the user is referencing a private access granted record, the user cannot upload a record with `access_group` set to higher level than their own access level.
+Users can only access records that have an access group that is the same or a lower number than the access group defined in their user profile.
+
+The user profile's access group can only be changed by the service owners.
+:::
+
+::: tip
+Unless the user is referencing a private access granted record, the user cannot upload a record with `access_group` set to a higher level than their own access level.
 
 You can read more about referencing records [here](/database/referencing.md).
 :::

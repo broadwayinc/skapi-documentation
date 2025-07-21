@@ -45,6 +45,12 @@ skapi.postRecord(undefined, new_config).then(record => {
   console.log(record);
 });
 ```
+
+:::danger
+Always use `undefined` if you want to update only the record configurations.
+If `null` is used instead of undefined, the record data will be overwritten to value `null`.
+:::
+
 :::
 
 :::info

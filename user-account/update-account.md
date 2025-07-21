@@ -39,6 +39,11 @@ let params = {
     // address_public, // The user's address is public if this is set to true.
     // gender_public, // The user's gender is public if this is set to true.
     // birthdate_public, // The user's birthdate is public if this is set to true.
+    // picture, // URL of the profile picture.
+    // profile, // URL of the profile page.
+    // website, // URL of the website.
+    // nickname, // Nickname of the user.
+    // misc, // Additional string value that can be used freely. This value is only visible from skapi.getProfile(). Not to others.
 };
 
 skapi.updateProfile(params)
@@ -52,6 +57,14 @@ For more detailed information on all the parameters and options available with t
 please refer to the API Reference below:
 
 ### [`updateProfile(params, options?): Promise<UserProfile>`](/api-reference/user/README.md#updateprofile)
+
+:::danger
+Be aware that user profile attributes only take `string` as a value.
+
+If you need to upload an image files to the user's profile, use [`postRecord()`](/api-reference/database/README.md#postrecord) method to upload a public image file first and use the uploaded file's URL as a value in the user profile attributes.
+:::
+
+
 
 ## Public Attributes
 
