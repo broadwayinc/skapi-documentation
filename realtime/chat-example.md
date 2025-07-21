@@ -49,7 +49,8 @@ npm run dev
 
 The application will be hosted on port `3300`
 
-## Important!
+
+:::danger Important!
 
 Replace the `SERVICE_ID` and `OWNER_ID` value to your own service in `service.js`
 
@@ -58,3 +59,5 @@ Currently the service is running on **Trial Mode**.
 **All the user data will be deleted every 14 days.**
 
 You can get your own service ID from [Skapi](https://www.skapi.com)
+
+:::
