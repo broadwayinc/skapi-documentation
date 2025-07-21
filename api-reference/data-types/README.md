@@ -180,7 +180,7 @@ type RecordData = {
         value: string | number | boolean; // Value of the index.
     };
     tags?: string[]; // List of tags attached to the record.
-    data?: { [key: string]: any }; // Uploaded JSON data.
+    data?: { [key: string]: any }; // Uploaded key value data.
 };
 ```
 
