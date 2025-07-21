@@ -12,7 +12,7 @@ Build a complete web application using static HTML files with backend functional
 - When working with Skapi methods, always check parameter and return data types from the Skapi Data Types documentation: https://docs.skapi.com/skapi-types.md
 - If there is a Skapi Data Types documentation file `skapi-types.md` in the project, refer to that file instead.
 
-**Important:** First read the entire API documentation carefully, then make informed decisions about implementing backend features.
+**Important:** First read the entire API documentation carefully, then make informed decisions about implementing backend features. If the file is too big, read the file in chunks.
 
 If the service ID and owner ID are not provided, always ask for them before proceeding.
 
