@@ -8,7 +8,8 @@ Users can create [`postRecord()`](/api-reference/database/README.md#postrecord) 
 
 It takes two arguments:
 
-- `data` The data to be saved in key-value pairs. It can be an object literal, `null`, `undefined` or a form `SubmitEvent`.
+- `data` The data to be saved in key-value pairs. It can be an object literal, `null`, `undefined` or a form `SubmitEvent`. Once the record is uploaded, the data will be stored under the key name `data` in the returned [RecordData](/api-reference/data-types/README.md#recorddata). If a `SubmitEvent` is passed, each input name will be used as the key name for the corresponding value in the key-value data.
+
 - `config` (required): Configuration for the record to be uploaded. This is where you specify the table name, access group, index values, etc.
 
 :::code-group
