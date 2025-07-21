@@ -32,12 +32,12 @@ let all_files = [
             { text: 'Search Users', link: '/user-account/get-users.md' }
         ]
     },
-    {
-        text: 'Templates: Authentication',
-        items: [
-            { text: 'HTML', link: '/authentication/full-example.md' },
-        ]
-    },
+    // {
+    //     text: 'Templates: Authentication',
+    //     items: [
+    //         { text: 'HTML', link: '/authentication/full-example.md' },
+    //     ]
+    // },
     {
         text: 'Database',
         items: [
@@ -72,27 +72,27 @@ let all_files = [
             { text: 'WebRTC', link: '/realtime/webRTC.md' },
         ]
     },
-    {
-        text: 'Full Example: Websocket Chat',
-        items: [
-            { text: 'HTML', link: '/realtime/chat-example.md' },
-        ]
-    },
-    {
-        text: 'Full Example: Video Call',
-        items: [
-            { text: 'HTML', link: '/realtime/rtc-example.md' },
-        ]
-    },
-    {
-        text: 'Service Settings',
-        items: [
-            { text: 'Setting Toggles', link: '/service-settings/service-settings.md' },
-            { text: 'Additional Settings', link: '/service-settings/additional.md' },
-            { text: 'Deleting Service', link: '/service-settings/deleteservice.md' },
-        ]
+    // {
+    //     text: 'Full Example: Websocket Chat',
+    //     items: [
+    //         { text: 'HTML', link: '/realtime/chat-example.md' },
+    //     ]
+    // },
+    // {
+    //     text: 'Full Example: Video Call',
+    //     items: [
+    //         { text: 'HTML', link: '/realtime/rtc-example.md' },
+    //     ]
+    // },
+    // {
+    //     text: 'Service Settings',
+    //     items: [
+    //         { text: 'Setting Toggles', link: '/service-settings/service-settings.md' },
+    //         { text: 'Additional Settings', link: '/service-settings/additional.md' },
+    //         { text: 'Deleting Service', link: '/service-settings/deleteservice.md' },
+    //     ]
 
-    },
+    // },
     {
         text: 'API Bridge',
         items: [
@@ -128,24 +128,10 @@ let all_files = [
             { text: 'Managing Users', link: '/admin/account.md' },
         ]
     },
-    {
-        text: 'Website Hosting',
-        link: '/hosting/hosting.md'
-    },
-    {
-        text: 'API Reference',
-        items: [
-            { text: 'Connection', link: '/api-reference/connection/README.md' },
-            { text: 'Authentication', link: '/api-reference/authentication/README.md' },
-            { text: 'User Account', link: '/api-reference/user/README.md' },
-            { text: 'Database', link: '/api-reference/database/README.md' },
-            { text: 'Email', link: '/api-reference/email/README.md' },
-            { text: 'Realtime', link: '/api-reference/realtime/README.md' },
-            { text: 'API Bridge', link: '/api-reference/api-bridge/README.md' },
-            { text: 'Admin', link: '/api-reference/admin/README.md' },
-            { text: 'Data Types', link: '/api-reference/data-types/README.md' }
-        ]
-    }
+    // {
+    //     text: 'Website Hosting',
+    //     link: '/hosting/hosting.md'
+    // },
 ]
 
 let files = [];
@@ -169,3 +155,42 @@ for (const file of files) {
     }
 }
 fs.writeFileSync('skapi.md', concatenatedContent);
+
+
+let ref = [
+    {
+        text: 'API Reference',
+        items: [
+            { text: 'Connection', link: '/api-reference/connection/README.md' },
+            { text: 'Authentication', link: '/api-reference/authentication/README.md' },
+            { text: 'User Account', link: '/api-reference/user/README.md' },
+            { text: 'Database', link: '/api-reference/database/README.md' },
+            { text: 'Email', link: '/api-reference/email/README.md' },
+            { text: 'Realtime', link: '/api-reference/realtime/README.md' },
+            { text: 'API Bridge', link: '/api-reference/api-bridge/README.md' },
+            { text: 'Admin', link: '/api-reference/admin/README.md' },
+            { text: 'Data Types', link: '/api-reference/data-types/README.md' }
+        ]
+    }
+]
+
+// concatenate all files into a single string
+concatenatedContent = '';
+
+let reffiles = [];
+jsoncrawler(ref).forEach((item) => {
+    if(item.key === 'link') {
+        reffiles.push('.' + item.value);
+    }
+});
+
+for (const file of reffiles) {
+    try {
+        const content = fs.readFileSync(file, 'utf-8');
+        concatenatedContent += content + `\n\n<br>\n\n`;
+    } catch (err) {
+        console.error(`Error reading file ${file}:`, err);
+    }
+}
+
+fs.writeFileSync('skapi-types.md', concatenatedContent);
