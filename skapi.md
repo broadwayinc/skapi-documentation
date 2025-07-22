@@ -1451,19 +1451,31 @@ In this section, you will learn how to store and retrieve data from your databas
 User must be logged in to call this method
 :::
 
-Users can create [`postRecord()`](/api-reference/database/README.md#postrecord) method to create a new record or update existing records in the database.
+Users can use the [`postRecord()`](/api-reference/database/README.md#postrecord) method to create a new record or update existing records in the database.
 
 It takes two arguments:
 
-- `data` The data to be saved in key-value pairs. It can be an object literal, `null`, `undefined` or a form `SubmitEvent`. Once the record is uploaded, the data will be stored under the key name `data` in the returned [RecordData](/api-reference/data-types/README.md#recorddata). If a `SubmitEvent` is passed, each input name will be used as the key name for the corresponding value in the key-value data.
+- `data` The data to be saved in key-value pairs. It can be an object literal, `null`, `undefined`, or a form `SubmitEvent`. Once the record is uploaded, the given data will be stored as a value under the key name `data` in the returned [RecordData](/api-reference/data-types/README.md#recorddata).
 
 - `config` (required): Configuration for the record to be uploaded. This is where you specify the table name, access group, index values, etc.
+
+Refer to the example below:
 
 :::code-group
 
 ```html [Form]
-<form onsubmit="skapi.postRecord(event, { table: 'my_collection'}).then(record => console.log(record))">
-    <input name="something" placeholder="Say something"/>
+<form onsubmit="skapi.postRecord(event, { table: 'my_collection' }).then(rec => {
+    console.log(rec);
+    /*
+    Returns:
+    {
+        data: { something: 'Hello World' },
+        table: { name: 'my_collection', access_group: 'public' },
+        ...
+    }
+    */
+})">
+    <input name="something" placeholder="Say something" value="Hello World"/>
     <input type="submit" value="Submit" />
 </form>
 ```
@@ -1479,8 +1491,8 @@ let config = {
     table: 'my_collection'
 }
 
-skapi.postRecord(data, config).then(record=>{
-    console.log(record);
+skapi.postRecord(data, config).then(rec=>{
+    console.log(rec);
     /*
     Returns:
     {
@@ -1498,8 +1510,9 @@ When the request is successful, the [RecordData](/api-reference/data-types/READM
 
 In this example, the first argument takes the actual data to be uploaded to the database.
 The data is a Javascript object that has string value in the key 'something'.
-And in the second argument we have set table name to be `my_collection`.
+The given data will be stord under the key name `data` of the returned [RecordData](/api-reference/data-types/README.md#recorddata).
 
+And in the second argument we have set table name to be `my_collection`.
 Table name is a required field in the configuration object and the table name should not contain any special characters.
 If `config.table` is given as **string**, the record will be uploaded as `access_group` to `"public"`.
 
@@ -5361,13 +5374,64 @@ When the request is made, Skapi will replace the placeholder string with the cli
 
 <br>
 
+# Receiving Inquiries
+
+Skapi provides a built-in E-Mail service that allows you to receive inquiries from your users.
+
+You can use [`sendInquiry()`](/api-reference/email/README.md#sendinquiry) to let your visitors send inquiries to your e-mail.
+
+## Sending Inquiry
+
+:::code-group
+
+```html [Form]
+<form id="inquiry-form" onsubmit="skapi.sendInquiry(event).then(res => {
+    alert(res) // 'SUCCESS: Inquiry has been sent.'
+})">
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required>
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
+    <label for="subject">Subject:</label>
+    <input type="text" id="subject" name="subject" required>
+    <label for="message">Message:</label>
+    <textarea id="message" name="message" required></textarea>
+    <button type="submit">Send Inquiry</button>
+</form>
+```
+
+```js [JS]
+let params = {
+    name: 'John Doe',
+    email: 'john@doe.com',
+    subject: 'Inquiry',
+    message: 'Hello, I have a question.'
+}
+skapi.sendInquiry(params).then(inquiry => {
+    console.log(inquiry); // 'SUCCESS: Inquiry has been sent.'
+});
+```
+
+:::
+
+:::warning
+Inquires do not require the user to be logged in.
+
+If you are not planning to use the [`sendInquiry()`](/api-reference/email/README.md#sendinquiry) method,
+Be sure to turn on the `Prevent Inquiry` option in the [Service Settings](/service-settings/service-settings.md) page to prevent spam.
+:::
+
+<br>
+
 # Admin Features
 
 Skapi provides a set of methods to manage your service.
 
 These methods are only available to users with the `admin` role.
 
-First you should create an admin user from your Skapi service user page and use that account to access the admin methods or even grant admin access to other users.
+:::danger NOTE
+First you should create an admin user from your Skapi service user page and use that account to access the admin methods or grant admin access to other users.
+:::
 
 ## What Admins Can Do
 
