@@ -7,6 +7,7 @@ You can use [`sendInquiry()`](/api-reference/email/README.md#sendinquiry) to let
 ## Sending Inquiry
 
 :::code-group
+
 ```html [Form]
 <form id="inquiry-form" onsubmit="skapi.sendInquiry(event).then(res => {
     alert(res) // 'SUCCESS: Inquiry has been sent.'
@@ -34,6 +35,8 @@ skapi.sendInquiry(params).then(inquiry => {
     console.log(inquiry); // 'SUCCESS: Inquiry has been sent.'
 });
 ```
+
+:::
 
 :::warning
 Inquires do not require the user to be logged in.

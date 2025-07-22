@@ -4,7 +4,9 @@ Skapi provides a set of methods to manage your service.
 
 These methods are only available to users with the `admin` role.
 
-First you should create an admin user from your Skapi service user page and use that account to access the admin methods or even grant admin access to other users.
+:::danger NOTE
+First you should create an admin user from your Skapi service user page and use that account to access the admin methods or grant admin access to other users.
+:::
 
 ## What Admins Can Do
 
