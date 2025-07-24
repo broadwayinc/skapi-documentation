@@ -13,8 +13,13 @@ This can be useful if the user is uploading huge files, you can show a progress 
 Here's an example demonstrating how you can upload files using Skapi:
 
 ```html
-<form onsubmit="skapi.postRecord(event, { table: 'my_photos', progress: (p)=>console.log(p) })
-    .then(rec=>console.log(rec))">
+<form onsubmit="skapi.postRecord(event, {
+    table: {
+        name: 'my_photos',
+        access_group: 'authorized'
+    },
+    progress: (p)=>console.log(p) 
+}).then(rec=>console.log(rec))">
     <input name="description" />
     <input name="picture" multiple type="file" />
     <input type="submit" value="Submit" />
@@ -52,7 +57,7 @@ This process is handled seamlessly without any complicated file handling require
 Once the files are uploaded, Skapi serves the files using a CDN with no additional setup required.
 
 :::danger
-If the file is uploaded in a record where the access group is not 'public', the URL value in the [BinaryFile](/api-reference/data-types/README.md#binaryfile) objects will expire for security reasons.
+If the file is uploaded in a record where the access group is not 'public', the URL value in the [BinaryFile](/api-reference/data-types/README.md#binaryfile) objects can expire for security reasons.
 :::
 
 ## Progress Information
@@ -118,7 +123,7 @@ Uploaded files follow the access restrictions of the record.
 User must have access to the record in order to download the file.
 :::
 
-`getFile()` allows you to download the file in various ways:
+`getFile(dataType?: string, progress?: () => void )` allows you to download the file in various ways:
 - `blob`: Downloads the file as a [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob) object.
 - `base64`: Downloads the file as a base64 string.
 - `endpoint`: If the file access requires authentication or needs token update, you can request the a updated endpoint of the file.
