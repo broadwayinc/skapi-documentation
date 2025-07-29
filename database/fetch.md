@@ -12,7 +12,7 @@ It takes two arguments:
 
 ```js
 let query = {
-    table: 'my_collection'
+    table: { name: 'my_collection', access_group: 'public' }
 }
 
 skapi.getRecords(query).then(response=>{
@@ -97,7 +97,7 @@ We can fetch the first 100 data, then paginate to the next 100 data by setting `
 
 ``` js
 let query = {
-    table: 'my_collection'
+    table: { name: 'my_collection', access_group: 'public' }
 }
 
 let fetchOptions = {

@@ -19,7 +19,7 @@ let album = {
 };
 
 let config = {
-    table: "Albums",
+    table: {name: "Albums", access_group: "public"},
     index: {
         name: "year",
         value: 1964
@@ -36,7 +36,7 @@ Once indexed record is uploaded, you can fetch records based on the "year" in th
 
 ```js
 skapi.getRecords({
-    table: "Albums",
+    table: {name: "Albums", access_group: "public"},
     index: {
         name: "year",
         value: 1964
@@ -53,7 +53,7 @@ You can broaden your search by using the `condition` parameter within the `index
 
 ```js
 skapi.getRecords({
-    table: "Albums",
+    table: {name: "Albums", access_group: "public"},
     index: {
         name: "year",
         value: 1960,
@@ -102,7 +102,7 @@ For example, consider the following scenario:
 
 ```js
 skapi.getRecords({
-    table: "Albums",
+    table: {name: "Albums", access_group: "public"},
     index: {
         name: "year",
         value: 1960,
@@ -142,7 +142,7 @@ For example, let's query records created after 2021:
 
 ```js
 skapi.getRecords({
-    table: "Albums",
+    table: {name: "Albums", access_group: "public"},
     index: {
         name: '$uploaded',
         value: 1609459200000, // this timestamp is 2021 January 1,
@@ -170,7 +170,7 @@ let album_data = {
 };
 
 skapi.postRecord(album_data, {
-    table: 'Album',
+    table: {name: 'Albums', access_group: 'public'},
     index: {
         name: 'Band.AsianSpiceHouse.year',
         value: 2023
@@ -189,7 +189,7 @@ For example, you can query all albums performed by a **'Band'** using the follow
 
 ```js
 skapi.getRecords({
-    table: 'Album',
+    table: {name: 'Albums', access_group: 'public'},
     index: {
         name: 'Band.',
         value: '',
@@ -210,7 +210,7 @@ The next example shows how you can query albums by artist name.
 
 ```js
 skapi.getRecords({
-    table: 'Album',
+    table: {name: 'Albums', access_group: 'public'},
     index: {
         name: 'Band.',
         value: 'Asian',
@@ -231,7 +231,7 @@ Finally, you can query the band Asian Spice House albums by release year as foll
 
 ```js
 skapi.getRecords({
-    table: 'Album',
+    table: {name: 'Albums', access_group: 'public'},
     index: {
         name: 'Band.AsianSpiceHouse.year',
         value: 2010,
@@ -271,7 +271,7 @@ For example, let say we have a table called "VoteBoard" that lets user upload re
 The index value will be boolean.
 ```js
 skapi.postRecord(null, {
-    table: 'VoteBoard',
+    table: {name: 'VoteBoard', access_group: 'public'},
     index: {
         name: 'Vote.Beer',
         value: true // or false
