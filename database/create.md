@@ -17,7 +17,7 @@ Refer to the example below:
 :::code-group
 
 ```html [Form]
-<form onsubmit="skapi.postRecord(event, { table: 'my_collection' }).then(rec => {
+<form onsubmit="skapi.postRecord(event, { table: { name: 'my_collection', access_group: 'public' } }).then(rec => {
     console.log(rec);
     /*
     Returns:
@@ -41,7 +41,7 @@ let data = {
 
 // Configuration for the record to be uploaded
 let config = {
-    table: 'my_collection'
+    table: { name: 'my_collection', access_group: 'public' }
 }
 
 skapi.postRecord(data, config).then(rec=>{
@@ -65,9 +65,12 @@ In this example, the first argument takes the actual data to be uploaded to the 
 The data is a Javascript object that has string value in the key 'something'.
 The given data will be stord under the key name `data` of the returned [RecordData](/api-reference/data-types/README.md#recorddata).
 
-And in the second argument we have set table name to be `my_collection`.
-Table name is a required field in the configuration object and the table name should not contain any special characters.
-If `config.table` is given as **string**, the record will be uploaded as `access_group` to `"public"`.
+And in the second argument we have set table name to be `my_collection` and access group to be `public`.
+`config.table` is a required parameter in the configuration object and the `config.table.name` should not contain any special characters.
+
+::: tip
+If `config.table` is given as a **string**, the given value will be set as `config.table.name` and the record will be uploaded with `config.table.access_group` set to `"public"`.
+:::
 
 When uploading the record with access restrictions, see [`Access Restrictions`](/database/access-restrictions.md).
 

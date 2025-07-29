@@ -18,7 +18,7 @@ let record = {
 };
 
 let config = {
-    table: "Albums",
+    table: {name: 'Albums', access_group: 'public'},
     index: {
         name: "year",
         value: 2023
@@ -41,7 +41,7 @@ Example below lists albums released after 2020, that have the tag 'Experimental'
 
 ```js
 skapi.getRecords({
-    table: "Albums",
+    table: {name: 'Albums', access_group: 'public'},
     index: {
         name: "year",
         value: 2020,
@@ -63,12 +63,12 @@ Following Example below shows fetching albums with the tag 'Experimental' OR 'In
 
 ```js
 let experimental = skapi.getRecords({
-    table: "Albums",
+    table: {name: 'Albums', access_group: 'public'},
     tag: 'Experimental'
 })
 
 let indie = skapi.getRecords({
-    table: "Albums",
+    table: {name: 'Albums', access_group: 'public'},
     tag: 'Indie'
 });
 
