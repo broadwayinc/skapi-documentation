@@ -160,9 +160,9 @@ export default defineConfig({
       {
         text: 'For AI Developers',
         items: [
-          { text: 'Full Markdown', link: 'https://docs.skapi.com/skapi.md' },
-          { text: 'Full Data Types', link: 'https://docs.skapi.com/skapi-types.md' },
-          { text: 'AI AGENTS', link: 'https://docs.skapi.com/AGENTS.md' },
+          { text: 'Full Documentation', link: 'https://docs.skapi.com/skapi.md' },
+          { text: 'Data Types', link: 'https://docs.skapi.com/skapi-types.md' },
+          { text: 'System Prompts', link: 'https://docs.skapi.com/SYSTEM.md' },
         ]
       }
     ],
