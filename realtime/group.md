@@ -115,7 +115,7 @@ Example below shows listing all users in the "HelloWorld" group:
 
 ```js
 skapi.getRealtimeUsers({ group: 'HelloWorld' }).then(res => {
-    console.log(res.list) // [{user_id: 'user_a', connection_id: 'user_cid'}, ...]
+    console.log(res.list) // [{user_id: 'user_a', cid: 'user_cid'}, ...]
 });
 ```
 
@@ -124,7 +124,7 @@ This is useful if you want to check if the user is in the group.
 
 ```js
 skapi.getRealtimeUsers({ group: 'HelloWorld', user_id: 'user_a' }).then(res => {
-    console.log(res.list) // [{user_id: 'user_a', connection_id: 'user_cid'}]
+    console.log(res.list) // [{user_id: 'user_a', cid: 'user_cid'}]
 });
 ```
 For more detailed information on all the parameters and options available with the [`getRealtimeUsers()`](/api-reference/realtime/README.md#getrealtimeusers) method, 
