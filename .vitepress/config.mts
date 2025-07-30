@@ -17,6 +17,7 @@ export default defineConfig({
         items: [
           { text: 'Getting Started', link: '/introduction/getting-started.md' },
           { text: 'Working with HTML forms', link: '/introduction/working-with-forms.md' },
+          { text: 'AI-Driven Development', link: '/introduction/ai-driven.md' },
         ]
       },
       {
