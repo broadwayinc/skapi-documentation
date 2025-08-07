@@ -32,6 +32,7 @@ If the application needs to call 3rd party APIs requiring secret keys:
 - Always verify data types and structure from the documentation when using the Skapi API.
 - Use defensive programming practices when accessing data fetched from the database.
 - Handle potential `null`/`undefined` values and implement proper error handling.
+- When using `postRecord()` or `getRecords()` methods of the Skapi API, make sure to follow the character restrictions for the `index`, `tag`, and `table` parameters.
 
 ## Page Routing and Navigation
 
