@@ -8,8 +8,8 @@ Below are the data type references in TypeScript format.
 type ConnectionInfo = {
     service_name: string; // Connected Service Name
     user_ip: string; // Connected user's IP address
-    user_agent: string; // Connected user agent
-    user_locale: string; // Connected user's country code
+    user_agent: string; // Connected user agent.
+    user_location: string; // Connected user's country code
     version: string; // Skapi library version: 'xxx.xxx.xxx' (major.minor.patch)
 }
 ```

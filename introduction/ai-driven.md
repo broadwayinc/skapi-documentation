@@ -1,6 +1,6 @@
 # AI-Driven Development
 
-Skapi works seamlessly with AI-driven development environments like OpenAI's Codex and Anthropic's Claude.
+Skapi works seamlessly with AI-driven development environments like OpenAI's Codex and Anthropic's Claude Code.
 
 Simply download the necessary markdown files below to your project folder:
 
