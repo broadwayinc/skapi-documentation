@@ -1162,9 +1162,9 @@ Below are the data type references in TypeScript format.
 ```ts
 type ConnectionInfo = {
     service_name: string; // Connected Service Name
-    user_ip: string; // Connected user's IP address
-    user_agent: string; // Connected user agent
-    user_locale: string; // Connected user's country code
+    user_ip: string; // Connected user's IP address: "xxx.xxx.xxx.xxx"
+    user_agent: string; // Connected user agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (..."
+    user_location: string; // Connected user's 2 letter country code
     version: string; // Skapi library version: 'xxx.xxx.xxx' (major.minor.patch)
 }
 ```
