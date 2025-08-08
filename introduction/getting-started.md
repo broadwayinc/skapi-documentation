@@ -74,7 +74,7 @@ skapi.getConnectionInfo().then(info => {
         service_name: "Your Service Name",
         user_ip: "Connected user's IP address",
         user_agent: "Connected user agent",
-        user_locale: "Connected user's country code",
+        user_location: "Connected user's country code",
         version: 'x.x.x' // Skapi library version
     }
     */
@@ -93,7 +93,7 @@ skapi.getConnectionInfo().then(info => {
         service_name: "Your Service Name",
         user_ip: "Connected user's IP address",
         user_agent: "Connected user agent",
-        user_locale: "Connected user's country code",
+        user_location: "Connected user's country code",
         version: 'x.x.x' // Skapi library version
     }
     */
