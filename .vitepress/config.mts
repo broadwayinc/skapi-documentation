@@ -61,7 +61,7 @@ export default defineConfig({
           { text: 'Handling Files', link: '/database/handling-files.md' },
           { text: 'Deleting Records', link: '/database/delete-records.md' },
           { text: 'Table Information', link: '/database/table-info.md' },
-          { text: 'Indexing', link: '/database/index.md' },
+          { text: 'Indexing', link: '/database/indexing.md' },
           { text: 'Tags', link: '/database/tags.md' },
           { text: 'Referencing', link: '/database/referencing.md' },
           { text: 'Subscription', link: '/database/subscription.md' }
