@@ -6,6 +6,6 @@
   },
   "dependencies": {
     "jsoncrawler": "^0.2.1",
-    "vitepress": "^1.6.3"
+    "vitepress": "^1.6.4"
   }
 }

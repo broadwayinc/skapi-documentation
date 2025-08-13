@@ -306,7 +306,7 @@ Example below lists all indexes under the compound index `Vote.` in the **"VoteB
 
 :::warning
 `order.by` only works on the values under the index name.
-If your index name is a [compound index name](./#compound-index-names),
+If your index name is a [compound index name](#compound-index-names),
 You should declare the parent index of your child compound index name.
 
 For example, if you expect to get the index `Vote.Beer` from ordering `average_bool`, you should declare the parent index `Vote.` in the `index` parameter.
