@@ -74,8 +74,8 @@ disableAccount(): Promise<'SUCCESS: account has been disabled.'>;
 ## getUsers
 
 ```ts
-getUsers({ 
-    params?: {
+getUsers(
+    params?: SubmitEvent | {
         searchFor:
             'user_id' |
             'name' |
@@ -99,7 +99,7 @@ getUsers({
         range?: string | number | boolean; // Cannot be used with condition.
     } | null;
     fetchOptions?: FetchOptions
-}): Promise<DatabaseResponse<UserPublic>>;
+): Promise<DatabaseResponse<UserPublic>>;
 
 ```
 
