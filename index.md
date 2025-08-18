@@ -3,8 +3,9 @@ layout: home
 
 hero:
   name: "Skapi"
-  text: Serverless Backend API =>
-  tagline: Build full-featured web applications faster with Skapi
+  text: Zero-Setup<br>Backend API
+  tagline: "Skapi is a serverless backend platform that gives frontend developers, no-coders, and product teams everything they need: auth, database, file storage, and real-time APIs.
+Launch your app in minutes."
   
   actions:
     - theme: brand
@@ -24,4 +25,7 @@ features:
   - title: Compatible with Any Frameworks
     icon: 💯
     details: Compatible with plain HTML as well as any JS frameworks!
+  - title: Ideal for AI-Driven Web Development
+    icon: 🤖
+    details: Client-centric API design enables full-stack web development with AI coding assistants.
 ---
