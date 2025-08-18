@@ -141,10 +141,6 @@ export default defineConfig({
         ]
       },
       {
-        text: 'Website Hosting',
-        link: '/hosting/hosting.md'
-      },
-      {
         text: 'API Reference',
         items: [
           { text: 'Connection', link: '/api-reference/connection/README.md' },
@@ -165,6 +161,14 @@ export default defineConfig({
           { text: 'Data Types', link: 'https://docs.skapi.com/skapi-types.md' },
           { text: 'System Prompts', link: 'https://docs.skapi.com/SYSTEM.md' },
         ]
+      },
+      {
+        text: 'Website Hosting',
+        link: '/hosting/hosting.md'
+      },
+      {
+        text: 'Version History',
+        link: '/versionlog/versions.md'
       }
     ],
 
