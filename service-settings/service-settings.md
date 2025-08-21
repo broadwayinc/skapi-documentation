@@ -1,6 +1,6 @@
-# Service Settings
+# Toggle Settings
 
-Go to your service page, and click on the **Service Settings** tab.
+Go to your service page, and click on the **Service Settings** menu.
 
 Here, you can see the information of your service data usage, subscription model for your service.
 

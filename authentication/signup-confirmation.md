@@ -1,6 +1,12 @@
 
 # Signup Confirmation
 
+You can require users to confirm their signup via email.
+This is useful for preventing malicious users from creating fake accounts.
+User data will not be created unless the user confirms their account.
+
+## E-Mail Confirmation on Signup
+
 When an account is created with `options.signup_confirmation` set to `true` or URL string,
 users will receive an email with the signup confirmation link.
 
@@ -9,6 +15,8 @@ If the `options.signup_confirmation` value is a valid URL string,
 the user will be redirected to that url after successful signup confirmation.
 
 The URL string will work either with a full URL or relative path of your website.
+
+Once the user has confirmed their signup, their profile will automatically be marked as email verified.
 
 :::code-group
 

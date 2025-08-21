@@ -7,7 +7,7 @@ Welcome to Skapi! This guide will walk you through the essential steps to get st
 
 1. Sign up for an account at [skapi.com](https://www.skapi.com/signup).
 2. Log in and navigate to the [My Services](https://www.skapi.com/my-services) page.
-3. Click on **Create New Service**
+3. Click on **Create** on Create a new service, create a name for your service and proceed.
 
 ## 2. Initialize the Skapi Library
 
