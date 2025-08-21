@@ -7,15 +7,17 @@ let all_files = [
         items: [
             { text: 'Getting Started', link: '/introduction/getting-started.md' },
             { text: 'Working with HTML forms', link: '/introduction/working-with-forms.md' },
+            // { text: 'AI-Driven Development', link: '/introduction/ai-driven.md' },
         ]
     },
     {
         text: 'Authentication',
         items: [
-            { text: 'Introduction', link: '/authentication/introduction.md' },
+            // { text: 'Introduction', link: '/authentication/introduction.md' },
             { text: 'Creating an account', link: '/authentication/create-account.md' },
             { text: 'Signup Confirmation', link: '/authentication/signup-confirmation.md' },
             { text: 'Login / Logout', link: '/authentication/login-logout.md' },
+            { text: 'User Profile', link: '/authentication/user-info.md' },
             { text: 'Forgot Password', link: '/authentication/forgot-password.md' },
             { text: 'OpenID Login', link: '/authentication/openid-login.md' },
             // { text: 'Full Example', link: '/authentication/full-example.md' },
@@ -24,7 +26,7 @@ let all_files = [
     {
         text: 'User Account',
         items: [
-            { text: 'Introduction', link: '/user-account/introduction.md' },
+            // { text: 'Introduction', link: '/user-account/introduction.md' },
             { text: 'E-Mail verification', link: '/user-account/email-verification.md' },
             { text: 'Updating User Profile', link: '/user-account/update-account.md' },
             { text: 'Changing Password', link: '/user-account/change-password.md' },
@@ -41,7 +43,7 @@ let all_files = [
     {
         text: 'Database',
         items: [
-            { text: 'Introduction', link: '/database/introduction.md' },
+            // { text: 'Introduction', link: '/database/introduction.md' },
             { text: 'Creating a Record', link: '/database/create.md' },
             { text: 'Fetching Records', link: '/database/fetch.md' },
             { text: 'Unique ID', link: '/database/unique-id.md' },
@@ -65,11 +67,12 @@ let all_files = [
     {
         text: 'Realtime Connection',
         items: [
+            // { text: 'Introduction', link: '/realtime/introduction.md' },
             { text: 'Connecting to Realtime', link: '/realtime/connecting.md' },
             { text: 'Sending Realtime Data', link: '/realtime/post.md' },
             { text: 'Realtime Groups', link: '/realtime/group.md' },
-            { text: 'Notifications', link: '/notification/send-notifications.md' },
             { text: 'WebRTC', link: '/realtime/webRTC.md' },
+            { text: 'Notifications', link: '/notification/send-notifications.md' }
         ]
     },
     // {
@@ -87,17 +90,16 @@ let all_files = [
     // {
     //     text: 'Service Settings',
     //     items: [
+    //         { text: 'Basic Settings', link: '/service-settings/additional.md' },
     //         { text: 'Setting Toggles', link: '/service-settings/service-settings.md' },
-    //         { text: 'Additional Settings', link: '/service-settings/additional.md' },
     //         { text: 'Deleting Service', link: '/service-settings/deleteservice.md' },
     //     ]
-
     // },
     {
         text: 'API Bridge',
         items: [
-            { text: 'Introduction', link: '/api-bridge/introduction.md' },
-            { text: 'Secure Post Request', link: '/api-bridge/secure-post-request.md' },
+            // { text: 'Introduction', link: '/api-bridge/introduction.md' },
+            // { text: 'Secure Post Request', link: '/api-bridge/secure-post-request.md' },
             { text: 'Client Secret Request', link: '/api-bridge/client-secret-request.md' },
         ]
     },
@@ -116,27 +118,53 @@ let all_files = [
         items: [
             // { text: 'Introduction', link: '/email/introduction.md' },
             // { text: 'Automated E-Mail', link: '/email/email-templates.md' },
-            // { text: 'Bulk Email', link: '/email/newsletters.md' },
+            { text: 'Bulk Email', link: '/email/newsletters.md' },
             { text: 'Receiving Inquiries', link: '/email/inquiries.md' }
         ]
     },
-    {
-        text: 'Admin Features',
-        items: [
-            { text: 'Introduction', link: '/admin/intro.md' },
-            { text: 'Inviting Users', link: '/admin/invite.md' },
-            { text: 'Managing Users', link: '/admin/account.md' },
-        ]
-    },
+    // {
+    //     text: 'Admin Features',
+    //     items: [
+    //         { text: 'Introduction', link: '/admin/intro.md' },
+    //         { text: 'Inviting Users', link: '/admin/invite.md' },
+    //         { text: 'Managing Users', link: '/admin/account.md' },
+    //     ]
+    // },
+    // {
+    //     text: 'API Reference',
+    //     items: [
+    //         { text: 'Connection', link: '/api-reference/connection/README.md' },
+    //         { text: 'Authentication', link: '/api-reference/authentication/README.md' },
+    //         { text: 'User Account', link: '/api-reference/user/README.md' },
+    //         { text: 'Database', link: '/api-reference/database/README.md' },
+    //         { text: 'Email', link: '/api-reference/email/README.md' },
+    //         { text: 'Realtime', link: '/api-reference/realtime/README.md' },
+    //         { text: 'API Bridge', link: '/api-reference/api-bridge/README.md' },
+    //         { text: 'Admin', link: '/api-reference/admin/README.md' },
+    //         { text: 'Data Types', link: '/api-reference/data-types/README.md' }
+    //     ]
+    // },
+    // {
+    //     text: 'For AI Developers',
+    //     items: [
+    //         { text: 'Full Documentation', link: 'https://docs.skapi.com/skapi.md' },
+    //         { text: 'Data Types', link: 'https://docs.skapi.com/skapi-types.md' },
+    //         { text: 'System Prompts', link: 'https://docs.skapi.com/SYSTEM.md' },
+    //     ]
+    // },
     // {
     //     text: 'Website Hosting',
     //     link: '/hosting/hosting.md'
     // },
+    // {
+    //     text: 'Version History',
+    //     link: '/versionlog/versions.md'
+    // }
 ]
 
 let files = [];
 jsoncrawler(all_files).forEach((item) => {
-    if(item.key === 'link') {
+    if (item.key === 'link') {
         files.push('.' + item.value);
     }
 });
@@ -179,7 +207,7 @@ concatenatedContent = '';
 
 let reffiles = [];
 jsoncrawler(ref).forEach((item) => {
-    if(item.key === 'link') {
+    if (item.key === 'link') {
         reffiles.push('.' + item.value);
     }
 });

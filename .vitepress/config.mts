@@ -27,6 +27,7 @@ export default defineConfig({
           { text: 'Creating an account', link: '/authentication/create-account.md' },
           { text: 'Signup Confirmation', link: '/authentication/signup-confirmation.md' },
           { text: 'Login / Logout', link: '/authentication/login-logout.md' },
+          { text: 'User Profile', link: '/authentication/user-info.md' },
           { text: 'Forgot Password', link: '/authentication/forgot-password.md' },
           { text: 'OpenID Login', link: '/authentication/openid-login.md' },
           // { text: 'Full Example', link: '/authentication/full-example.md' },
@@ -99,8 +100,8 @@ export default defineConfig({
       {
         text: 'Service Settings',
         items: [
+          { text: 'Basic Settings', link: '/service-settings/additional.md' },
           { text: 'Setting Toggles', link: '/service-settings/service-settings.md' },
-          { text: 'Additional Settings', link: '/service-settings/additional.md' },
           { text: 'Deleting Service', link: '/service-settings/deleteservice.md' },
         ]
 

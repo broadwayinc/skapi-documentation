@@ -1,8 +1,8 @@
-# Additional Settings
+# Basic Settings
 
-Go to your service page, and click on the **Service Settings** tab.
+Go to your service page and click on the **Service Settings** menu.
 
-Below the toggle settings, you can see the additional settings you can configure for your service.
+On this page, you can configure the basic settings for your service.
 
 ## Service Name
 

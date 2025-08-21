@@ -5,25 +5,19 @@ If you are using 3rd party API's that requires a client secret, you can use [`cl
 First you need to save your client secret key in your **Client Secret** page.
 
 1. Navigate to the **Client Secret Key** page from your service page.
-  ![Client Secret Key](/clientmen.png)
+  ![Client Secret Key](/menucli.png)
 
-1. Click on the **Register Client Secret Key** button to add a new client secret key.
-  ![Register Client Secret Key](/clientinput.png)
+2. Click on the **+** button to add a new client secret key.
+  ![Register Client Secret Key](/addbutt.png)
 
-You can add a new client secret key by providing a name for the key and the client secret key value.
+![Client Secret Key Dialog](/clientsecdialog.png)
+You can add a new client secret key by providing a **name** for the key and the **client secret** value.
 
-The checkbox indicates whether the key is public or private.
-The `Name` field is the name of the key that you will use when defining the `clientSecretName` parameter in the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method.
-The `$CLIENT_SECRET` field is the value that you will use as a placeholder in the `data`, `params`, or `headers` or `url` parameter of the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method.
+- The `Name` field is the name of the key that you will use when defining the `clientSecretName` parameter in the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method.
 
-From the list of client secret keys, you can see the security settings, the name, and the masked client secret of your keys.
+- The `Client Secret` field is the value that you will use as a placeholder in the `data`, `params`, or `headers` or `url` parameter of the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method.
 
-:::tip
-The access setting of the client secret key can be set to either **public** or **private**.
-
-**private** means that only the users that are logged in can have access to your 3rd party api, while **public** means anybody can have access to your 3rd party api.
-**private** keys are indicated with a check mark in the column with the lock icon.
-:::
+- The toggle for **Locked** indicates whether the key is public or private. When set to **Locked**, it means that only the users that are logged in can have access to your 3rd party api, while by default anybody can have access to your 3rd party api.
 
 Once the client secret key is saved, you can use the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method below to make secure requests to your 3rd party API's.
 
