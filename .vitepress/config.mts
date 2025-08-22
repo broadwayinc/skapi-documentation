@@ -98,10 +98,10 @@ export default defineConfig({
         ]
       },
       {
-        text: 'Service Settings',
+        text: 'Service',
         items: [
-          { text: 'Basic Settings', link: '/service-settings/additional.md' },
-          { text: 'Setting Toggles', link: '/service-settings/service-settings.md' },
+          // { text: 'Basic Settings', link: '/service-settings/additional.md' },
+          { text: 'Service Settings', link: '/service-settings/service-settings.md' },
           { text: 'Deleting Service', link: '/service-settings/deleteservice.md' },
         ]
 
