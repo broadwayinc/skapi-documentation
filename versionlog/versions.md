@@ -4,7 +4,7 @@
 
 - Corrected the casing of the resolved string returned by [`resendSignupConfirmation()`](/api-reference/authentication/README.md#resendsignupconfirmation) to: `"SUCCESS: Signup confirmation e-mail has been sent."`
 
-- During class initialization, if the constructor arguments are set to `service_id` and `owner_id`, a browser alert displays: `Replace "service_id" and "owner_id" with your actual Service ID and Owner ID.`
+- During class initialization, if the constructor arguments are set to `"service_id"` and `"owner_id"`, a browser alert displays: `Replace "service_id" and "owner_id" with your actual Service ID and Owner ID.`
 
 **1.0.260:**
 
