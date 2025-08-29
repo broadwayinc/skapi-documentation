@@ -853,11 +853,11 @@ Follow their [instructions](https://support.google.com/googleapi/answer/6158849?
 1. Log in to [skapi.com](https://www.skapi.com).
 2. Click on the service where you want to register your OpenID Logger.
 3. From the side menu, click on **OpenID Logger**.
-4. Click **Register Logger**.
+4. Click **+** on the top right side of the table to add logger.
 5. Set up the *Logger ID*. This is an identifier used when calling [`openidLogin()`](/api-reference/authentication/README.md#openidlogin). You can use any name, but for this example, set it to **google**.
-6. Set up the request URL to the Google API where you can retrieve the user's profile. Set it to `https://www.googleapis.com/oauth2/v3/userinfo`.
-7. Set up the *Username Key*. This should be an OpenID attribute name that holds a unique identifier. For this example, set it to **email**.
-8. Set up the request headers as shown below:
+6. Set up the *Username Key*. This should be an OpenID attribute name that holds a unique identifier. For this example, set it to **email**.
+7. Set up the *request URL* to the Google API where you can retrieve the user's profile. Set it to `https://www.googleapis.com/oauth2/v3/userinfo`.
+8. Set up the Header [JSON] as shown below:
     ```
     {
         "Authorization": "Bearer $TOKEN"
@@ -873,10 +873,10 @@ When retrieving an access token for Google OAuth, the Google API requires a clie
 Since the client secret key should not be exposed, register the client secret key of your OAuth service in Skapi.
 
 1. In the service page, click on the **Client Secret Key** menu.
-2. Click on **Register Client Secret Key**.
+2. Click **+** on the top right side of the table to add key.
 3. Give a name to your secret key. You can use any name, but for this example, set it to **ggltoken**.
 4. Enter the client secret key you obtained from your Google OAuth service.
-5. Click the checkmark to save.
+5. Click **Save**.
 
 ### 4. Set Up Link to Google Login
 
