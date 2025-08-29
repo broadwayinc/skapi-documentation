@@ -1,6 +1,10 @@
 # Version History
 
-**Current version: 1.0.260**
+**Current version: 1.0.261**
+
+- Corrected the casing of the resolved string returned by [`resendSignupConfirmation()`](/api-reference/authentication/README.md#resendsignupconfirmation) to: `"SUCCESS: Signup confirmation e-mail has been sent."`
+
+**1.0.260:**
 
 - Service admin user invitations are now supported. [Learn more](https://docs.skapi.com/admin/invite.html)
 - Custom unique ID features have been added to the database. [Learn more](https://docs.skapi.com/database/unique-id.html)
