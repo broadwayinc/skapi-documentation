@@ -460,7 +460,7 @@ If you need to resend the confirmation email, use the [`resendSignupConfirmation
         if(err.code === 'SIGNUP_CONFIRMATION_NEEDED') {
           if(confirm('Your signup confirmation is required. Resend confirmation email?')) {
             skapi.resendSignupConfirmation().then(res=>{
-              console.log(res); // 'SUCCESS: Signup confirmation E-Mail has been sent.'
+              console.log(res); // 'SUCCESS: Signup confirmation e-mail has been sent.'
             });
           }
         }
@@ -491,7 +491,7 @@ skapi.login({email: 'user@email.com', password: 'password'})
             if(sendConfirmation) {
                 // now you can resend signup confirmation E-Mail to user@email.com.
                 skapi.resendSignupConfirmation().then(res=>{
-                console.log(res); // 'SUCCESS: Signup confirmation E-Mail has been sent.'
+                console.log(res); // 'SUCCESS: Signup confirmation e-mail has been sent.'
                 });
             }
         }
