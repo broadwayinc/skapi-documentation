@@ -1099,7 +1099,7 @@ function disableForm(form, disabled) {
         */
         let recordParams = {
             record_id: user.picture ? user.picture.split('/records/')[1].split('/')[0] : null,
-            table: 'profile_pic',
+            table: { name: 'profile_pic', access_group: 'public' },
             progress: (p) => {
                 /*
                     The progress callback function to update the progress text.

@@ -18,7 +18,7 @@ let data = {
 };
 
 let config = {
-    table: 'my_table',
+    table: { name: 'my_table', access_group: 'public' },
     unique_id: 'My Unique ID %$#@'
 };
 

@@ -732,7 +732,7 @@ Since this is a portion of the complete repository code and doesn't include supp
             We will use the skapi.getRecords() method to get the like status.
         */
         skapi.getRecords({
-            table: 'likes',
+            table: { name: 'likes', access_group: 'public' },
             index: {
                 name: '$user_id',
                 value: logged_user_id
@@ -853,7 +853,7 @@ Since this is a portion of the complete repository code and doesn't include supp
 
         if (likedStatus === '🩶') {
             likeId[record_id] = (await skapi.postRecord(null, {
-                table: 'likes',
+                table: { name: 'likes', access_group: 'public' },
                 reference: record_id
             })).record_id;
             likeButton.setAttribute('data-like', '❤️');

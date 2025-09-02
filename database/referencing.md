@@ -19,7 +19,7 @@ let data = {
 
 let config = {
     unique_id: 'unique id of the post',
-    table: 'Posts'
+    table: { name: 'Posts', access_group: 'public' }
 };
 
 let referenced_record_id;
@@ -41,7 +41,7 @@ let commentRecord = {
 };
 
 let commentConfig = {
-    table: 'Comments',
+    table: { name: 'Comments', access_group: 'public' },
     reference: referenced_record_id
 };
 
@@ -54,7 +54,7 @@ Now you can query all the records that references the original record by passing
 
 ```js
 skapi.getRecords({
-    table: 'Comments',
+    table: { name: 'Comments', access_group: 'public' },
     reference: referenced_record_id,
 }).then(response => {
     console.log(response.list);  // Array of comments of the reference record.
@@ -79,7 +79,7 @@ When uploading a record, you can also reference the record using the unique ID.
 skapi.postRecord({
     comment: "I like it!"
 }, {
-    table: 'Comments',
+    table: { name: 'Comments', access_group: 'public' },
     reference: 'unique id of the post'
 });
 ```
@@ -91,7 +91,7 @@ If the reference record has a unique ID setup, you can also fetch records based 
 
 ```js
 skapi.getRecords({
-    table: 'Comments',
+    table: { name: 'Comments', access_group: 'public' },
     reference: 'unique id of the post'
 }).then(response => {
     console.log(response.list);  // Array of records in 'Comments' table referencing the record with the unique ID.
@@ -107,7 +107,7 @@ You can also query all the records posted by certain user giving a `user_id` as 
 
 ```js
 skapi.getRecords({
-    table: 'Comments',
+    table: { name: 'Comments', access_group: 'public' },
     reference: 'user-id-whose-post-you-want'
 }).then(response => {
     console.log(response.list);  // Array of records in 'Comments' table posted by a certain user
@@ -170,7 +170,7 @@ let pollPost = skapi.postRecord({
     description: "Only 10 people are allowed to vote"
 }, {
     unique_id: 'Review board of GetzGilberto',
-    table: 'ReviewBoard',
+    table: { name: 'ReviewBoard', access_group: 'public' },
     source: {
         prevent_multiple_referencing: true,
         referencing_limit: 10,
@@ -211,7 +211,7 @@ let pollPost = skapi.postRecord({
     description: "Only 10 people are allowed to vote"
 }, {
     unique_id: 'Review board of GetzGilberto',
-    table: 'ReviewBoard',
+    table: { name: 'ReviewBoard', access_group: 'public' },
     source: {
         prevent_multiple_referencing: true,
         referencing_limit: 10,
@@ -240,7 +240,7 @@ Now people can post a review by referencing the **pollPost**:
 skapi.postRecord({
     comment: "This rocks! I'd give 4.5 out of 5!"
 }, {
-    table: 'ReviewBoard',
+    table: { name: 'ReviewBoard', access_group: 'public' },
     reference: 'Review board of GetzGilberto',
     index: {
         name: 'Review.Album.GetzGilberto',

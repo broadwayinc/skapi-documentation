@@ -72,7 +72,7 @@ let progressCallback = (p) => {
         console.log('Current uploading file:' + p.currentFile.name);
     }
 }
-skapi.postRecord(someData, { table: 'my_photos', progress: progressCallback })
+skapi.postRecord(someData, { table: { name: 'my_photos', access_group: 'authorized' }, progress: progressCallback })
 ```
 
 
