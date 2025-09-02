@@ -517,7 +517,7 @@ See the tutorial [Introduction](/full-example/intro.html) for more information.
             We will use the skapi.getRecords() method to get the like status.
         */
         skapi.getRecords({
-            table: 'likes',
+            table: { name: 'likes', access_group: 'public' },
             index: {
                 name: '$user_id',
                 value: logged_user_id
@@ -633,7 +633,7 @@ See the tutorial [Introduction](/full-example/intro.html) for more information.
 
         if (likedStatus === 'Like') {
             likeId[record_id] = (await skapi.postRecord(null, {
-                table: 'likes',
+                table: { name: 'likes', access_group: 'public' },
                 reference: {
                     record_id: record_id
                 }

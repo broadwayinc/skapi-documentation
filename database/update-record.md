@@ -68,7 +68,7 @@ let data = {
 };
 
 let config = {
-  table: 'my_collection',
+  table: { name: 'my_collection', access_group: 'public' },
   readonly: true
 };
 
