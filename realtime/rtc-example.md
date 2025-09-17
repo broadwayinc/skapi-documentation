@@ -24,9 +24,9 @@ So we recommend installing innerHTML string highlighting extention like one belo
 
 ## Download
 
-Download the full project [Here](https://github.com/broadwayinc/skapi-webrtc-html-template/archive/refs/heads/main.zip)
+Download the full project [Here](https://github.com/alsdk9879/skapi-webrtc-html-template/archive/refs/heads/main.zip)
 
-Or visit our [Github page](https://github.com/broadwayinc/skapi-webrtc-html-template)
+Or visit our [Github page](https://github.com/alsdk9879/skapi-webrtc-html-template)
 
 
 ## How To Run
