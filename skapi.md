@@ -1421,10 +1421,6 @@ The `range` parameter cannot be used with the `condition` parameter.
 
 # Creating a Record
 
-:::warning
-User must be logged in to call this method
-:::
-
 Users can use the [`postRecord()`](/api-reference/database/README.md#postrecord) method to create a new record or update existing records in the database.
 
 It takes two arguments:
@@ -1491,6 +1487,16 @@ And in the second argument we have set table name to be `my_collection` and acce
 
 ::: tip
 If `config.table` is given as a **string**, the given value will be set as `config.table.name` and the record will be uploaded with `config.table.access_group` set to `"public"`.
+:::
+
+::: warning
+Both authenticated and anonymous users can upload data to your service using the [`postRecord()`](/api-reference/database/README.md#postrecord) method.
+
+Limitations for anonymous (unsigned) users:
+1. They can only create records in the `public` access group (see [`Access Restrictions`](/database/access-restrictions.md)).
+2. They cannot edit or delete any records they create.
+3. They cannot create records that use [`Subscription`](/database/subscription.md) features.
+4. They cannot create records with[`Unique ID`](/database/unique-id.md)
 :::
 
 When uploading the record with access restrictions, see [`Access Restrictions`](/database/access-restrictions.md).
@@ -1667,6 +1673,10 @@ Unique ID can be used to fetch the record using the [`getRecords()`](/api-refere
 Unique ID can be also used when fetching references of a record.
 More on referencing can be found [here](/database/referencing.md).
 
+:::warning
+Anonymous (unsigned) users cannot create records using unique ID.
+:::
+
 ## Creating a Record with Unique ID
 
 ```js
@@ -1758,6 +1768,10 @@ The user profile's access group can only be changed by the service owners.
 Unless the user is referencing a private access granted record, the user cannot upload a record with `access_group` set to a higher level than their own access level.
 
 You can read more about referencing records [here](/database/referencing.md).
+:::
+
+::: warning
+Anonymous (unsigned) users can only create records with `access_group` set to `public`.
 :::
 
 ## Creating Record With Access Restrictions
@@ -1910,6 +1924,10 @@ The [`postRecord()`](/api-reference/database/README.md#postrecord) method can al
 
 For record config parameters, you only need to include the parameters you want to update along with the `record_id` parameter.
 All other fields in the record will remain unchanged unless explicitly included in the method call.
+
+:::warning
+Users must be logged in to update a record.
+:::
 
 ```js
 let updatedData = {
@@ -3146,7 +3164,11 @@ skapi.postRecord(null, {
 To allow other users to access the records that requires subscription, they must first subscribe to the uploader using the [`subscribe()`](/api-reference/database/README.md#subscribe) method:
 
 :::warning
-Subscribers cannot get feeds that are posted prior to the subscription.
+Subscribers will not get feeds that are posted prior to the subscription.
+:::
+
+:::warning
+Anonymous (unsigned) users cannot create subscription records.
 :::
 
 ## Subscribing
