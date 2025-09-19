@@ -349,14 +349,15 @@ Below are the parameters and return data type references for the methods in Type
 postRecord(
     data: SubmitEvent | { [key: string] : any } | null,
     config: {
-        record_id?: string; // Only used when updating records.
-        unique_id?: string; // Unique ID to set to the record. If null is given, it will remove the previous unique ID when updating.
+        record_id?: string; // Used only when updating an existing record; not available to anonymous users.
+        unique_id?: string; // Unique ID to set to the record; not available to anonymous users. If null is given, it will remove the previous unique ID when updating.
         /** When the table is given as a string value, the value is the table name. */
         /** 'table' is optional when 'record_id' or 'unique_id' is used. */
         /** When the table is given as a string value, the given value will be set as table.name and table.access_group will be 'public' **/
         table: string | {
             name: string; // Other than space and period, special characters are not allowed.
-            access_group?: number | 'private' | 'public' | 'authorized' | 'admin';  // Default: 'public'
+            access_group?: number | 'private' | 'public' | 'authorized' | 'admin';  // Default: 'public', otherwise not available to anonymous users.
+            /** Subscription settings; not available to anonymous users. */
             subscription?: {
                 is_subscription_record?: boolean; // When true, record will be uploaded to subscription table.
                 upload_to_feed: boolean; // When true, record will be shown in the subscribers feeds that is retrieved via getFeed() method.
@@ -365,7 +366,7 @@ postRecord(
                 notify_referencing_records?: boolean; // When true, records referencing this record will be notified to subscribers.
             };
         };
-        readonly?: boolean; // Default: false. When true, the record cannot be updated.
+        readonly?: boolean; // Default: false. When true, the record cannot be updated. (Not available to anonymous users)
         index?: {
             name: string; // Only alphanumeric and period allowed.
             value: string | number | boolean; // Only alphanumeric and spaces allowed.
@@ -387,7 +388,7 @@ postRecord(
             allow_granted_to_grant_others?: boolean; // When true, the user who has granted private access to the record can grant access to other users.
         };
         reference?: string; // Reference to another record. When value is given, it will reference the record with the given value. Can be record ID or unique ID.
-        remove_bin?: BinaryFile[] | string[] | null; // If the BinaryFile object or the url of the file is given, it will remove the bin data(files) from the record. The file should be uploaded to this record. If null is given, it will remove all the bin data(files) from the record.
+        remove_bin?: BinaryFile[] | string[] | null; // If the BinaryFile object or the url of the file is given, it will remove the bin data(files) from the record. The file should be uploaded to this record. If null is given, it will remove all the bin data(files) from the record. (not available to anonymous users)
         progress: ProgressCallback; // Progress callback function. Usefull when uploading files.
     };
 ): Promise<RecordData>
