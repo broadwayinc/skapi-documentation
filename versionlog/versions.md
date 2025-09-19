@@ -1,6 +1,11 @@
 # Version History
 
-**Current version: 1.0.262**
+**Current version: 1.0.264**
+
+- Anonymous users can now use `skapi.postRecord()`. Only limited to public records.
+- Bug fix: `skapi.getTags()` not resolving proper data.
+
+**1.0.262**
 
 - Corrected the casing of the resolved string returned by [`resendSignupConfirmation()`](/api-reference/authentication/README.md#resendsignupconfirmation) to: `"SUCCESS: Signup confirmation e-mail has been sent."`
 

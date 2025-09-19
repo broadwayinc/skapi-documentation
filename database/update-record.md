@@ -8,6 +8,10 @@ The [`postRecord()`](/api-reference/database/README.md#postrecord) method can al
 For record config parameters, you only need to include the parameters you want to update along with the `record_id` parameter.
 All other fields in the record will remain unchanged unless explicitly included in the method call.
 
+:::warning
+Users must be logged in to update a record.
+:::
+
 ```js
 let updatedData = {
   newData: "Overwritten with new data."
