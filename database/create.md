@@ -68,17 +68,21 @@ And in the second argument we have set table name to be `my_collection` and acce
 If `config.table` is given as a **string**, the given value will be set as `config.table.name` and the record will be uploaded with `config.table.access_group` set to `"public"`.
 :::
 
-::: warning
+When uploading the record with access restrictions, see [`Access Restrictions`](/database/access-restrictions.md).
+
+::: danger
 Both authenticated and anonymous users can upload data to your service using the [`postRecord()`](/api-reference/database/README.md#postrecord) method.
 
 Limitations for anonymous (unsigned) users:
 1. They can only create records in the `public` access group (see [`Access Restrictions`](/database/access-restrictions.md)).
 2. They cannot edit or delete any records they create.
 3. They cannot create records that use [`Subscription`](/database/subscription.md) features.
-4. They cannot create records with[`Unique ID`](/database/unique-id.md)
+4. They cannot create records with [`Unique ID`](/database/unique-id.md) features.
 :::
 
-When uploading the record with access restrictions, see [`Access Restrictions`](/database/access-restrictions.md).
+::: danger
+When an anonymous user uploads a record, the `user_id` in the returned [`RecordData`](/api-reference/data-types/README.md#recorddata) is temporary and should NOT be used for user queries.
+:::
 
 For more detailed information on all the parameters and options available with the [`postRecord()`](/api-reference/database/README.md#postrecord) method, 
 please refer to the API Reference below:
