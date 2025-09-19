@@ -1430,7 +1430,7 @@ type Index = {
 type Tag = {
     table: string; // Table name of the tag
     tag: string; // Tag name
-    number_of_records: string; // Number records tagged
+    number_of_records: number; // Number records tagged
 }
 ```
 
