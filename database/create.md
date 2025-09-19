@@ -1,9 +1,5 @@
 # Creating a Record
 
-:::warning
-User must be logged in to call this method
-:::
-
 Users can use the [`postRecord()`](/api-reference/database/README.md#postrecord) method to create a new record or update existing records in the database.
 
 It takes two arguments:
@@ -70,6 +66,16 @@ And in the second argument we have set table name to be `my_collection` and acce
 
 ::: tip
 If `config.table` is given as a **string**, the given value will be set as `config.table.name` and the record will be uploaded with `config.table.access_group` set to `"public"`.
+:::
+
+::: warning
+Both authenticated and anonymous users can upload data to your service using the [`postRecord()`](/api-reference/database/README.md#postrecord) method.
+
+Limitations for anonymous (unsigned) users:
+1. They can only create records in the `public` access group (see [`Access Restrictions`](/database/access-restrictions.md)).
+2. They cannot edit or delete any records they create.
+3. They cannot create records that use [`Subscription`](/database/subscription.md) features.
+4. They cannot create records with[`Unique ID`](/database/unique-id.md)
 :::
 
 When uploading the record with access restrictions, see [`Access Restrictions`](/database/access-restrictions.md).

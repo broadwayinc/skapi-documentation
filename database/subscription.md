@@ -37,7 +37,11 @@ skapi.postRecord(null, {
 To allow other users to access the records that requires subscription, they must first subscribe to the uploader using the [`subscribe()`](/api-reference/database/README.md#subscribe) method:
 
 :::warning
-Subscribers cannot get feeds that are posted prior to the subscription.
+Subscribers will not get feeds that are posted prior to the subscription.
+:::
+
+:::warning
+Anonymous (unsigned) users cannot create subscription records.
 :::
 
 ## Subscribing

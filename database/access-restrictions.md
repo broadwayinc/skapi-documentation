@@ -29,6 +29,10 @@ Unless the user is referencing a private access granted record, the user cannot 
 You can read more about referencing records [here](/database/referencing.md).
 :::
 
+::: warning
+Anonymous (unsigned) users can only create records with `access_group` set to `public`.
+:::
+
 ## Creating Record With Access Restrictions
 
 Here's an example that demonstrates uploading record with `authorized` level access:

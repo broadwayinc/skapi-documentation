@@ -10,6 +10,10 @@ Unique ID can be used to fetch the record using the [`getRecords()`](/api-refere
 Unique ID can be also used when fetching references of a record.
 More on referencing can be found [here](/database/referencing.md).
 
+:::warning
+Anonymous (unsigned) users cannot create records using unique ID.
+:::
+
 ## Creating a Record with Unique ID
 
 ```js
