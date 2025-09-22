@@ -1,6 +1,10 @@
 # Version History
 
-**Current version: 1.0.264**
+**Current version: 1.0.265**
+
+- Bug fix: Minor fix for admin purposes.
+
+**1.0.264**
 
 - Anonymous users can now use `skapi.postRecord()`. Only limited to public records.
 - Bug fix: `skapi.getTags()` not resolving proper data.
