@@ -44,15 +44,15 @@ please refer to the API Reference below:
 
 ## Listening to Login Status
 
-You can listen to the login status of the user by setting a callback function in the `option.eventListener.onLogin` option argument of the constructor argument in Skapi.
+You can listen to the login status of the user by setting a callback function in the `option.eventListener.onUserUpdate` option argument of the constructor argument in Skapi.
 
-The `onLogin` callback function will be triggered in the following scenarios: when the webpage loads and the Skapi instance is initialized with the user's current authentication state, when a user logs in or logs out, and when their profile information is updated.
+The `onUserUpdate` callback function will be triggered in the following scenarios: when the webpage loads and the Skapi instance is initialized with the user's current authentication state, when a user logs in or logs out, and when their profile information is updated.
 
 The callback function will receive the [UserProfile](/api-reference/data-types/README.md#userprofile) object as an argument.
 ```js
 const options = {
   eventListener: {
-    onLogin: (profile) => {
+    onUserUpdate: (profile) => {
       console.log(profile); // is null when user is logged out, User's information object when logged in.
     }
   }
@@ -61,10 +61,10 @@ const options = {
 const skapi = new Skapi('service_id', 'owner_id', options);
 ```
 
-You can also add multiple event listeners to the `onLogin` event after the Skapi object has been initialized.
+You can also add multiple event listeners to the `onUserUpdate` event after the Skapi object has been initialized.
 
 ```js
-skapi.onLogin = (profile) => {
+skapi.onUserUpdate = (profile) => {
   console.log(profile); // null when user is logged out, User's information object when logged in.
 }
 ```
