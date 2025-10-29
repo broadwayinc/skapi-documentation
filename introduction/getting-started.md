@@ -52,7 +52,6 @@ export { skapi }
 Make sure to replace `'service_id'` and `'owner_id'` in `new Skapi()` with the actual values from your service.
 :::
 
-
 ## 3. Get Connection Information
 
 When your client has successfully connected to the Skapi server, you can use the [`getConnectionInfo()`](/api-reference/connection/README.md#getconnectioninfo) method to retrieve connection information.
@@ -101,3 +100,36 @@ skapi.getConnectionInfo().then(info => {
 });
 ```
 :::
+
+
+
+## Type Reference
+
+Below are the parameters and return data type references for the class initialization in TypeScript format.
+
+### new Skapi(...)
+
+```ts
+class Skapi {
+  constructor(
+    service: string, // Skapi service ID
+    owner: string,   // Skapi owner ID
+    options?: {
+        autoLogin?: boolean;        // Default: true
+        requestBatchSize?: number;  // Default: 30. Maximum number of requests processed per batch.
+        eventListener?: {
+            onLogin?: (user: UserProfile | null) => void;
+            onUserUpdate?: (user: UserProfile | null) => void;
+            onBatchProcess?: (process: {
+                batchToProcess: number; // Number of batches left to process
+                itemsToProcess: number; // Number of items left to process
+                completed: any[]; // Results completed in this batch
+            }) => void;
+        }
+    }) {
+    ...
+  }
+  ...
+```
+
+See [UserProfile](/api-reference/data-types/README.md#userprofile).

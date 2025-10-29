@@ -328,6 +328,7 @@ type Newsletter = {
     subject: string; // Subject of the newsletter
     bounced: string; // Number of bounces
     url: string; // URL of the html file of the newsletter
+    delivered: number; // Number users delivered 
 }
 ```
 

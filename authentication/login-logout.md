@@ -121,3 +121,33 @@ For more detailed information on all the parameters and options available with t
 please refer to the API Reference below:
 
 ### [`logout(params?): Promise<string>`](/api-reference/authentication/README.md#logout)
+
+## Listening to Login / Logout Status
+
+You can listen to the updates of the user's login state by setting a callback function in the `option.eventListener.onLogin` option argument of the constructor argument in Skapi.
+
+The `onLogin` callback is triggered in the following cases: on page load when Skapi initializes with the user's current authentication state; when a user logs in or logs out; and when the user loses their session due to an expired token.
+
+If the user is logged in, the callback receives the [UserProfile](/api-reference/data-types/README.md#userprofile) object; otherwise, it receives `null`.
+
+```js
+const options = {
+  eventListener: {
+    onLogin: (profile) => {
+      console.log(profile); // is null when user is logged out, User's information object when logged in.
+    }
+  }
+};
+
+const skapi = new Skapi('service_id', 'owner_id', options);
+```
+
+You can also add multiple event listeners to the `onLogin` event after the Skapi object has been initialized.
+
+```js
+skapi.onLogin = (profile) => {
+  console.log(profile); // null when user is logged out, User's information object when logged in.
+}
+```
+
+This handler is useful for updating the UI when the user logs in, logs out, or when their profile information changes.
