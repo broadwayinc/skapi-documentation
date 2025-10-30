@@ -1,10 +1,11 @@
 # Version History
 
-**Current version: 1.1.0 (Beta)**
+## Current version: 1.1.1
 
-- Skapi now queues requests in batches for efficiency (default: 30 requests per batch).
-- Added event listeners for login state, user profile updates, and batch processing.
-- `getNewsletters()` can now search for bounced emails and display delivery counts per sent email.
+- No breaking changes in this release.
+- Skapi now queues requests in batches for efficiency (Default: 30 requests per batch).
+- Skapi now provides more advanced class initialization options, including event listeners for login state, user profile updates, and batch processing. See [Advanced Settings](/introduction/getting-started.html#_4-advanced-settings).
+- `getNewsletters()` can now search for bounced emails and display delivery counts per email.
 
 **1.0.265**
 

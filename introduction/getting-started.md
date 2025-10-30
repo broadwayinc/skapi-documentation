@@ -103,9 +103,9 @@ skapi.getConnectionInfo().then(info => {
 
 
 
-## Type Reference
+## 4. Advanced Settings
 
-Below are the parameters and return data type references for the class initialization in TypeScript format.
+You can configure additional options when initializing the Skapi class.
 
 ### new Skapi(...)
 
@@ -132,4 +132,25 @@ class Skapi {
   ...
 ```
 
-See [UserProfile](/api-reference/data-types/README.md#userprofile).
+Options overview:
+
+- `autoLogin` (boolean, default: true)
+    - Automatically restores the user's session on page load.
+    - See: [Auto Login](/authentication/login-logout.html#auto-login)
+
+- `requestBatchSize` (number, default: 30)
+    - Maximum number of requests processed per batch.
+
+- `eventListener` (callbacks for key events)
+    - `onLogin(user: UserProfile | null)`
+        - Fires on initial page load (after Skapi initializes), on login/logout, and when a session expires.
+        - See: [Listening to Login/Logout Status](/authentication/login-logout.html#listening-to-login-logout-status)
+
+    - `onUserUpdate(user: UserProfile | null)`
+        - Fires when the user's profile is updated.
+        - See: [Listening to User Profile Updates](/authentication/user-info.html#listening-to-user-s-profile-updates)
+
+    - `onBatchProcess(process)`
+        - Fires everytime after Skapi completes processing a request batch.
+
+Type reference: See [UserProfile](/api-reference/data-types/README.md#userprofile).
