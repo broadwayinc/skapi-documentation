@@ -52,7 +52,6 @@ export { skapi }
 Make sure to replace `'service_id'` and `'owner_id'` in `new Skapi()` with the actual values from your service.
 :::
 
-
 ## 3. Get Connection Information
 
 When your client has successfully connected to the Skapi server, you can use the [`getConnectionInfo()`](/api-reference/connection/README.md#getconnectioninfo) method to retrieve connection information.
@@ -101,6 +100,60 @@ skapi.getConnectionInfo().then(info => {
 });
 ```
 :::
+
+
+
+## 4. Advanced Settings
+
+You can configure additional options when initializing the Skapi class.
+
+### new Skapi(...)
+
+```ts
+class Skapi {
+  constructor(
+    service: string, // Skapi service ID
+    owner: string,   // Skapi owner ID
+    options?: {
+        autoLogin?: boolean;        // Default: true
+        requestBatchSize?: number;  // Default: 30. Maximum number of requests processed per batch.
+        eventListener?: {
+            onLogin?: (user: UserProfile | null) => void;
+            onUserUpdate?: (user: UserProfile | null) => void;
+            onBatchProcess?: (process: {
+                batchToProcess: number; // Number of batches left to process
+                itemsToProcess: number; // Number of items left to process
+                completed: any[]; // Results completed in this batch
+            }) => void;
+        }
+    }) {
+    ...
+  }
+  ...
+```
+
+Options overview:
+
+- `autoLogin` (boolean, default: true)
+    - Automatically restores the user's session on page load.
+    - See: [Auto Login](/authentication/login-logout.html#auto-login)
+
+- `requestBatchSize` (number, default: 30)
+    - Maximum number of requests processed per batch.
+
+- `eventListener` (callbacks for key events)
+    - `onLogin(user: UserProfile | null)`
+        - Fires on initial page load (after Skapi initializes), on login/logout, and when a session expires.
+        - See: [Listening to Login/Logout Status](/authentication/login-logout.html#listening-to-login-logout-status)
+
+    - `onUserUpdate(user: UserProfile | null)`
+        - Fires when the user's profile is updated.
+        - See: [Listening to User Profile Updates](/authentication/user-info.html#listening-to-user-s-profile-updates)
+
+    - `onBatchProcess(process)`
+        - Fires everytime after Skapi completes processing a request batch.
+
+Type reference: See [UserProfile](/api-reference/data-types/README.md#userprofile).
 
 <br>
 
@@ -643,6 +696,36 @@ please refer to the API Reference below:
 
 ### [`logout(params?): Promise<string>`](/api-reference/authentication/README.md#logout)
 
+## Listening to Login / Logout Status
+
+You can listen to the updates of the user's login state by setting a callback function in the `option.eventListener.onLogin` option argument of the constructor argument in Skapi.
+
+The `onLogin` callback is triggered in the following cases: on page load when Skapi initializes with the user's current authentication state; when a user logs in or logs out; and when the user loses their session due to an expired token.
+
+If the user is logged in, the callback receives the [UserProfile](/api-reference/data-types/README.md#userprofile) object; otherwise, it receives `null`.
+
+```js
+const options = {
+  eventListener: {
+    onLogin: (profile) => {
+      console.log(profile); // is null when user is logged out, User's information object when logged in.
+    }
+  }
+};
+
+const skapi = new Skapi('service_id', 'owner_id', options);
+```
+
+You can also add multiple event listeners to the `onLogin` event after the Skapi object has been initialized.
+
+```js
+skapi.onLogin = (profile) => {
+  console.log(profile); // null when user is logged out, User's information object when logged in.
+}
+```
+
+This handler is useful for updating the UI when the user logs in, logs out, or when their profile information changes.
+
 
 <br>
 
@@ -690,17 +773,18 @@ please refer to the API Reference below:
 ### [`getProfile(options?): Promise<UserProfile | null>`](/api-reference/authentication/README.md#getprofile)
 
 
-## Listening to Login Status
+## Listening to User's Profile Updates
 
-You can listen to the login status of the user by setting a callback function in the `option.eventListener.onLogin` option argument of the constructor argument in Skapi.
+You can listen to the updates of the user profiles by setting a callback function in the `option.eventListener.onUserUpdate` option argument of the constructor argument in Skapi.
 
-The `onLogin` callback function will be triggered in the following scenarios: when the webpage loads and the Skapi instance is initialized with the user's current authentication state, when a user logs in or logs out, and when their profile information is updated.
+The `onUserUpdate` callback function will be triggered in the following scenarios: when the webpage loads and the Skapi instance is initialized with the user's current authentication state, when a user logs in or logs out, and when their profile information is updated, and when the user loses their session due to an expired token.
 
-The callback function will receive the [UserProfile](/api-reference/data-types/README.md#userprofile) object as an argument.
+If the user is logged in, the callback receives the [UserProfile](/api-reference/data-types/README.md#userprofile) object; otherwise, it receives `null`.
+
 ```js
 const options = {
   eventListener: {
-    onLogin: (profile) => {
+    onUserUpdate: (profile) => {
       console.log(profile); // is null when user is logged out, User's information object when logged in.
     }
   }
@@ -709,10 +793,10 @@ const options = {
 const skapi = new Skapi('service_id', 'owner_id', options);
 ```
 
-You can also add multiple event listeners to the `onLogin` event after the Skapi object has been initialized.
+You can also add multiple event listeners to the `onUserUpdate` event after the Skapi object has been initialized.
 
 ```js
-skapi.onLogin = (profile) => {
+skapi.onUserUpdate = (profile) => {
   console.log(profile); // null when user is logged out, User's information object when logged in.
 }
 ```

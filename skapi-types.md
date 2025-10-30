@@ -761,7 +761,7 @@ getNewsletters(
          * 'message_id' and 'subject' value should be string.
          * Others in numbers.
          */
-        searchFor: 'message_id' | 'timestamp' | 'read' | 'complaint' | 'subject';
+        searchFor: 'message_id' | 'timestamp' | 'read' | 'complaint' | 'subject' | 'bounced';
         value: string | number;
         group: 'public' | 'authorized' | number;
         range?: string | number;
@@ -1484,6 +1484,7 @@ type Newsletter = {
     subject: string; // Subject of the newsletter
     bounced: string; // Number of bounces
     url: string; // URL of the html file of the newsletter
+    delivered: number; // Number users delivered 
 }
 ```
 
