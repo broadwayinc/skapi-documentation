@@ -170,3 +170,28 @@ skapi.postRecord(null, {
     // now other users with an private access can also grant private access to the record (r) to others.
 })
 ```
+
+
+## Listing Private Access Grants
+
+You can list record IDs or users that have been granted private access using the [`listPrivateRecordAccess(params, fetchOptions)`](/api-reference/database/README.md#listprivaterecordaccess) method.
+
+:::warning IMPORTANT
+Either "record_id" or "user_id" should be given in the parameter.
+:::
+
+```js
+skapi.listPrivateRecordAccess({
+    record_id?: 'record_can_be_granted',
+    user_id?: ['user_id_to_check_granted', ...]
+}).then(r => {
+    // List of records/users with granted private access for the given inputs.
+    // {
+    //     list: [{
+    //         user_id: 'xxxx-xxxx...',
+    //         record_id: 'record_id_123'
+    //     }, ...],
+    //     ...
+    // }
+})
+```

@@ -170,6 +170,25 @@ removePrivateRecordAccess(
 }
 ```
 
+## listPrivateRecordAccess
+```ts
+listPrivateRecordAccess(
+    params: {
+        record_id?: string;
+        user_id?: string | string[];
+    },
+    fetchOptions?: FetchOptions;
+): Promise<DatabaseResponse<{
+    user_id: string;
+    record_id: string;
+}>>
+```
+
+See [FetchOptions](/api-reference/data-types/README.md#fetchoptions)
+
+See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
+
+
 ## deleteRecords
 
 ```ts
