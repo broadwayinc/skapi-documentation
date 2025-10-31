@@ -10,7 +10,7 @@ First you should create an admin user from your Skapi service user page and use 
 
 ## What Admins Can Do
 
-Admins have high access group level (99) and can perform the following actions:
+Admins have high access group level (90 ~ 99) and can perform the following actions:
 
 - Read database data of any access group.
 - Delete user's account.
