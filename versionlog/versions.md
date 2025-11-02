@@ -1,6 +1,10 @@
 # Version History
 
-## Current version: 1.1.2
+## Current version: 1.1.3
+
+- Corrected type declarations for the constructor options.
+
+**1.1.2**
 
 - No breaking changes in this release.
 - Skapi now queues requests in batches for efficiency (Default: 30 requests per batch).
