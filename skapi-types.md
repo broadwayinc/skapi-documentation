@@ -516,7 +516,7 @@ removePrivateRecordAccess(
 listPrivateRecordAccess(
     params: {
         record_id?: string;
-        user_id?: string | string[];
+        user_id?: string;
     },
     fetchOptions?: FetchOptions;
 ): Promise<DatabaseResponse<{
