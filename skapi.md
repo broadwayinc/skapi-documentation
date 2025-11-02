@@ -2013,7 +2013,7 @@ Provide either `record_id` or `user_id` (at least one is required).
 skapi.listPrivateRecordAccess({
     // Optional: one or both of these fields
     record_id: 'record_can_be_granted',
-    user_id: ['user_id_to_check_granted']
+    user_id: 'user_id_to_check_granted'
 }).then(res => {
     // Response shape:
     // {
