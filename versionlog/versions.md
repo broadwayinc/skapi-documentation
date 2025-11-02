@@ -3,6 +3,7 @@
 ## Current version: 1.1.3
 
 - Corrected type declarations for the constructor options.
+- Now users can list granted users of private records via `listPrivateRecordAccess()`. See [List Private Access Grants](/database/access-restrictions.html#listing-private-access-grants)
 
 **1.1.2**
 
