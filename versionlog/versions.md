@@ -1,6 +1,6 @@
 # Version History
 
-## Current version: 1.1.4**
+## Current version: 1.1.4
 
 - Fixed a bug in `listPrivateRecordAccess()` parameter handling.
 
