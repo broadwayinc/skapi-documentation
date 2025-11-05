@@ -3,9 +3,8 @@ layout: home
 
 hero:
   name: "Skapi"
-  text: Zero-Setup<br>Backend API
-  tagline: "Skapi is a serverless backend platform that gives frontend developers, no-coders, and product teams everything they need: auth, database, file storage, and real-time APIs.
-Launch your app in minutes."
+  text: Zero-setup<br>Backend API
+  tagline: "Skapi provides complete cloud infrastructure for your web applications: zero setup, no deployment, no configuration. It scales automatically and works out of the box."
   
   actions:
     - theme: brand
@@ -13,19 +12,19 @@ Launch your app in minutes."
       link: /introduction/getting-started
   image:
     src: logo.png
-    alt: SkapiLogo
+    alt: Skapi logo
 
 features:
   - icon: 💎
     title: Serverless Technology
     details: Zero-setup backend API that runs entirely serverless. No servers. No deployment.
+  - title: Compatible with Any Framework
+    icon: 💯
+    details: Works with plain HTML and any JavaScript framework.
   - title: Everything You Need in One API
     icon: ⚡
-    details: Essential services bundled into a single JavaScript library, delivered instantly.
-  - title: Compatible with Any Frameworks
-    icon: 💯
-    details: Compatible with plain HTML as well as any JS frameworks!
+    details: Essential services bundled into a single JavaScript library for instant use.
   - title: Ideal for AI-Driven Web Development
     icon: 🤖
-    details: Client-centric API design enables full-stack web development with AI coding assistants.
+    details: Client-centric API design enables fast full-stack development with AI coding assistants.
 ---
