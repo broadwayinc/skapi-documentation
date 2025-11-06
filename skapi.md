@@ -1021,8 +1021,9 @@ Once the access token is fetched, you can call [`openidLogin(event?:SubmitEvent 
     }
 
     const urlParams = new URLSearchParams(window.location.search);
-
-    if (urlParams.get('code')) { // When the webpage is loaded, check if it's redirected from the Google login page.
+    const code = urlParams.get('code'); // Get the authorization code from URL parameters
+        
+    if (code) { // When the webpage is loaded, check if it's redirected from the Google login page.
         (async ()=>{
             // Safely retrieve access token using clientSecretRequest
             const data = await skapi.clientSecretRequest({
