@@ -1,6 +1,11 @@
 # Version History
 
-## Current version: 1.1.4
+
+## Current version: 1.1.5
+
+- Fixed a bug where multiple `getRecords()` requests sometimes resolve with empty record data.
+
+**1.1.4**
 
 - Fixed a bug in `listPrivateRecordAccess()` parameter handling.
 
