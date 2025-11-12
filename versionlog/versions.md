@@ -1,7 +1,12 @@
 # Version History
 
+## Current version: 1.1.6
 
-## Current version: 1.1.5
+- `openidLogin()` now supports the `merge` parameter, allowing users to merge their OpenID account into an existing account. See [Merging an OpenID Account with a Previous Account](/authentication/openid-login.html#merging-an-openid-account-with-a-previous-account)
+- `inviteUser()` now supports custom invitation email templates via a provided HTML URL. See [Send Invitations with Custom Templates](/admin/invite.html#send-invitations-with-custom-templates)
+- Refactored authentication flow for efficiency.
+
+**1.1.5**
 
 - Fixed a bug where multiple `getRecords()` requests sometimes resolve with empty record data.
 

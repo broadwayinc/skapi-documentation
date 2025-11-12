@@ -161,11 +161,20 @@ resetPassword(
 ```ts
 openidLogin(
     params: SubmitEvent | {
-        token: string; // ID/Access token fetched from open id API service
+        token: string; // ID/Access token fetched from OpenID API service
         id: string; // OpenID Logger ID registered in the service page.
+        merge: boolean | string[] // When true, merges with previous account. When string[] is given, account is merged with the specified OpenID attribute values.
     }
 ): Promise<{
     userProfile: UserProfile;
     openid: { [attribute:string]: any };
 }>
+```
+
+#### Errors
+```ts
+{
+    code: "ACCOUNT_EXISTS";
+    message: "The account already exists."
+}
 ```

@@ -42,6 +42,52 @@ It is recommended to change the password after the first login.
 
 For more detailed information on all the parameters and options available with the [`inviteUser()`](/api-reference/admin/README.md#inviteuser) method,
 
+## Send Invitations with Custom Templates
+
+Invitation emails are sent using the default template configured in your Skapi service.
+
+You can use your own custom HTML email template by providing a template URL and custom subject line.
+
+:::code-group
+
+```html [Form]
+<form onsubmit="skapi.inviteUser(event, {
+        template: {
+            url: 'https\:\/\/your.custom.template/file.html',
+            subject: 'Exclusive Invitation'
+        }
+    }).then(user => console.log(user))">
+    <input name="email" placeholder="Email" required/>
+    <input type="submit" value="Invite" />
+</form>
+```
+
+```js [JS]
+skapi.inviteUser(
+    { 
+        email: 'user@email'
+    },
+    {
+        template: {
+            url: 'https://your.custom.template/file.html',
+            subject: 'Exclusive Invitation'
+        }
+    }
+).then(user => {
+    console.log(user);
+    /*
+    Returns:
+    "SUCCESS: Invitation has been sent. (User ID: xxx...)"
+    */
+});
+```
+:::
+
+:::danger
+The template must include required placeholders in the HTML content.
+For more information, see [Required Placeholders for Invitation Email](/email/email-templates.html#required-placeholders-for-invitation-email).
+:::
+
 ## Resending Invitations
 
 Admins can resend invitations to users who have not accepted the invitation by using the [`resendInvitation()`](/api-reference/admin/README.md#resendinvitation) method.
