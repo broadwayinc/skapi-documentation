@@ -1047,8 +1047,9 @@ Once the access token is fetched, you can call [`openidLogin(event?:SubmitEvent 
                 throw data
             }
 
+            let ACCESS_TOKEN = data.access_token;
             // Use openIdLogin to log in
-            await skapi.openIdLogin({ id: 'google', token: data.access_token });
+            await skapi.openIdLogin({ id: 'google', token: ACCESS_TOKEN });
             window.location.href = '/';
         })()
     }
@@ -1062,6 +1063,39 @@ Be sure to set up both Client Secret Keys and OpenID Loggers, and use the client
 :::
 
 ### [`openidLogin(event?:SubmitEvent | params): Promise<string>`](/api-reference/authentication/README.md#openidlogin)
+
+## Merging an OpenID Account with a Previous Account
+
+There are situations where you may want to merge a user's OpenID account with their existing account. You cannot merge an account that was created by an admin.
+
+To enable merging, set your OpenID Logger ID to `by_skapi`.
+Then, when calling `openIdLogin`, use the `merge` option to control what is merged. Set `merge: true` to merge all supported attributes, or pass an array of attribute names to merge only those fields.
+
+For example, to merge only the user's "name" attribute:
+
+```js
+skapi.openIdLogin({ id: 'by_skapi', token: ACCESS_TOKEN, merge: ["name"] });
+```
+
+:::danger
+After a merge, the user can no longer log in with a password. This action cannot be undone.
+:::
+
+:::tip
+You can first attempt login without the `merge` parameter and only prompt the user to merge if the account already exists:
+
+```js
+skapi.openIdLogin({ id: 'by_skapi', token: ACCESS_TOKEN })
+    .catch(err => {
+        if (err.code === 'ACCOUNT_EXISTS') {
+            if (confirm('An account already exists. Merge them now?')) {
+                return skapi.openIdLogin({ id: 'by_skapi', token: ACCESS_TOKEN, merge: true });
+            }
+        }
+        throw err; // Re-throw if not handled
+    });
+```
+:::
 
 <br>
 
