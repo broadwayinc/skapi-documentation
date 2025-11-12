@@ -46,7 +46,11 @@ please refer to the API Reference below:
 
 You can listen to the updates of the user profiles by setting a callback function in the `option.eventListener.onUserUpdate` option argument of the constructor argument in Skapi.
 
-The `onUserUpdate` callback function will be triggered in the following scenarios: when the webpage loads and the Skapi instance is initialized with the user's current authentication state, when a user logs in or logs out, and when their profile information is updated, and when the user loses their session due to an expired token.
+The `onUserUpdate` callback function will be triggered in the following scenarios:
+- Skapi initializes with the user's current authentication state.
+- User logs in or logs out.
+- User loses their session due to an expired token.
+- User's profile information is updated.
 
 If the user is logged in, the callback receives the [UserProfile](/api-reference/data-types/README.md#userprofile) object; otherwise, it receives `null`.
 
