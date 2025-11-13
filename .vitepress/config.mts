@@ -164,6 +164,12 @@ export default defineConfig({
         ]
       },
       {
+        text: 'Utilities',
+        items: [
+          { text: 'Utilities', link: '/util/introduction.md' },
+        ]
+      },
+      {
         text: 'Website Hosting',
         link: '/hosting/hosting.md'
       },
