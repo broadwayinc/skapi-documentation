@@ -2,53 +2,27 @@
 
 Skapi provides several utility functions used throughout the library.
 
+```js
+const util = skapi.utils; // Utility methods
+```
+
 These include:
 
-- `MD5`: MD5 hasher
-- `generateRandom`: Random string generator
-- `toBase62`: Number to Base62 string converter
-- `fromBase62`: Base62 string to number converter
-- `extractFormData`: Extracts form values as a JavaScript object
-- `terminatePendingRequests`: Terminates pending requests
-- `request`: Skapi's HTTP request helper
+- Extract form values as a JavaScript object
+- HTTP request
+- Terminating pending requests
+- MD5 hasher
+- Random string generator
+- Number to Base62 string converter
+- Base62 string to number converter
 
-## MD5 Hasher
-Computes the MD5 hash of a string.
-
-Example:
-```js
-let md5String = skapi.util.md5.hash("string to hash"); // outputs string
-```
-
-## Random String Generator
-
-Generates a random string of the specified length.
-
-Example (6 characters):
-```js
-let randomString = skapi.util.generateRandom(6); // outputs string
-```
-
-## Number to Base62 String Converter
-
-Converts a number to its Base62 string representation.
-```js
-let base62String = skapi.util.toBase62(1234); // outputs string
-```
-
-## Base62 String to Number
-
-Converts a Base62 string back to a number.
-```js
-let numberFromBase62 = skapi.util.fromBase62("xxxx"); // outputs number
-```
 
 ## Extract Form Values as a JavaScript Object
 
 Pass a `FormData` instance, a `SubmitEvent`, or a form element to `skapi.util.extractFormData()` to get a plain JavaScript object of the form values.
 
 ```ts
-extractFormData(
+skapi.util.extractFormData(
     form: FormData | HTMLFormElement | SubmitEvent | { [key: string]: any } | number | string | boolean | null,
     options?: {
         nullIfEmpty?: boolean,
@@ -137,3 +111,77 @@ Skapi structures user input based on input type and name pattern:
 - Radio inputs resolve to the selected value.
 - Checkbox inputs resolve to booleans, or to the value string if one is specified.
 - Multiple inputs sharing the same name (without `[]`) are converted into an array when appropriate.
+
+
+
+## HTTP Request
+
+Skapi provides an HTTP request helper.
+It converts submitted form data to JSON.
+
+```ts
+skapi.util.request(
+  url: string, // Request URL
+  data: HTMLFormElement | FormData | SubmitEvent | { [key: string]: any } | null, // Request body or form input
+    options?: {
+        fetchOptions?: {
+            /** Maximum number of records to fetch per call. */
+            limit?: number;
+            /** Fetch the next batch. Returns an empty list when no more data is available. */
+            fetchMore?: boolean;
+            /** Results in ascending order when true; descending when false. */
+            ascending?: boolean;
+            /** Start key to continue fetching from a specific position. */
+            startKey?: { [key: string]: any; };
+            /** Progress callback, useful for progress bars. */
+            progress?: ProgressCallback;
+        };
+        auth?: boolean; // When true, the user must be logged in.
+        method?: "GET" | "POST";
+        responseType?: 'json' | 'blob' | 'text' | 'arrayBuffer' | 'formData' | 'document';
+        contentType?: string; // Content-Type header value
+    }
+): Promise<any>
+```
+
+
+## Terminating Pending Requests
+
+Skapi can terminate pending requests. By default, Skapi processes requests in batches. You can configure the batch size in [Advanced Settings](/introduction/getting-started.html#_4-advanced-settings).
+
+Calling `skapi.util.terminatePendingRequests()` terminates all queued requests.
+
+```js
+skapi.util.terminatePendingRequests(); // All pending requests are terminated
+```
+
+## MD5 Hasher
+Computes the MD5 hash of a string.
+
+Example:
+```js
+let md5String = skapi.util.md5.hash("string to hash"); // outputs string
+```
+
+## Random String Generator
+
+Generates a random string of the specified length.
+
+Example (6 characters):
+```js
+let randomString = skapi.util.generateRandom(6); // outputs string
+```
+
+## Number to Base62 String Converter
+
+Converts a number to its Base62 string representation.
+```js
+let base62String = skapi.util.toBase62(1234); // outputs string
+```
+
+## Base62 String to Number
+
+Converts a Base62 string back to a number.
+```js
+let numberFromBase62 = skapi.util.fromBase62("xxxx"); // outputs number
+```
