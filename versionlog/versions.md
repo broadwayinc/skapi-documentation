@@ -1,6 +1,10 @@
 # Version History
 
-### Current version: 1.1.8
+### Current version: 1.1.10
+
+- Fixed a bug where `updateProfile()` could become unresponsive.
+
+**1.1.8**
 
 - Added several utility features. See [Utilities](/util/introduction.md)
 
