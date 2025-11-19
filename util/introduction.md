@@ -3,7 +3,7 @@
 Skapi provides several utility functions used throughout the library.
 
 ```js
-const util = skapi.utils; // Utility methods
+const util = skapi.util; // Utility methods
 ```
 
 These include:
