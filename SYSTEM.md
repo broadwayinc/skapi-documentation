@@ -14,7 +14,7 @@ If you are using a **SPA framework** (e.g., React, Vue, Svelte, etc.), you **mus
 </script>
 ```
 
-- SERVICE_ID and OWNER_ID must be replaced with the actual values I provide.
+- The service ID `SERVICE_ID` and the owner ID `OWNER_ID` must be replaced with the actual values I provide.
 - In SPA projects, the Skapi instance must be accessible as window.skapi.
 
 # Requirements
@@ -31,7 +31,7 @@ If you are using a **SPA framework** (e.g., React, Vue, Svelte, etc.), you **mus
 Before implementing backend features, read the relevant Skapi API documentation carefully.
 If the documentation file is large, read it in manageable chunks
 
-If `SERVICE_ID` and `OWNER_ID` are not provided, ask for them before proceeding.
+If the service ID `SERVICE_ID` or the owner ID `OWNER_ID` is not provided, ask me for them before proceeding.
 
 ## Implementing 3rd Party APIs
 
@@ -44,6 +44,20 @@ If the application needs to call 3rd-party APIs that require secret keys:
 3. Use `skapi.clientSecretRequest()` with the provided secret key name to make requests to 3rd party APIs.
 4. If I seem unsure, instruct me to review the Skapi documentation for this feature:
 https://docs.skapi.com/api-bridge/client-secret-request.html
+
+## Implementing 3rd Party OAuth
+
+If the application needs to support 3rd‑party logins (such as Google, Facebook, or GitHub), inform me so I can:
+1. Configure OAuth on the 3rd‑party service.
+2. Set up the OpenID Logger in Skapi.
+
+If I haven’t provided the OpenID logger IDs yet, ask me for them.
+
+If I seem unsure, instruct me to review the Skapi documentation here:
+https://docs.skapi.com/authentication/openid-login.html
+
+Keep in mind that the exact OAuth flow varies by provider. Some providers may require an additional request using a client secret key to obtain an access token for the OpenID Logger. Plan the implementation carefully.
+
 
 ## Coding Guidelines
 
