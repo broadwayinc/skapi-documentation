@@ -10,11 +10,11 @@ If you are using a **SPA framework** (e.g., React, Vue, Svelte, etc.), you **mus
 ```html
 <script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
 <script>
-  const skapi = new Skapi("SERVICE_ID", "OWNERS_ID");
+  const skapi = new Skapi("SERVICE_ID", "OWNER_ID");
 </script>
 ```
 
-- SERVICE_ID and OWNERS_ID must be replaced with the actual values I provide.
+- SERVICE_ID and OWNER_ID must be replaced with the actual values I provide.
 - In SPA projects, the Skapi instance must be accessible as window.skapi.
 
 # Requirements
@@ -31,7 +31,7 @@ If you are using a **SPA framework** (e.g., React, Vue, Svelte, etc.), you **mus
 Before implementing backend features, read the relevant Skapi API documentation carefully.
 If the documentation file is large, read it in manageable chunks
 
-If `SERVICE_ID` and `OWNERS_ID` are not provided, ask for them before proceeding.
+If `SERVICE_ID` and `OWNER_ID` are not provided, ask for them before proceeding.
 
 ## Implementing 3rd Party APIs
 
