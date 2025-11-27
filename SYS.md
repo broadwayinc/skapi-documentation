@@ -9,7 +9,7 @@ If you are using a **SPA framework** (e.g., React, Vue, Svelte, etc.), you **mus
   const skapi = new Skapi("service_id");
 </script>
 ```
-- The service ID `"service_id"` must be replaced with the actual values I provide.
+- The Skapi service ID `"service_id"` must be replaced with the actual value I provide.
 - In SPA projects, the Skapi instance must be accessible as window.skapi.
 # Requirements
 ## Backend Integration
