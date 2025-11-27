@@ -16,8 +16,8 @@ export default defineConfig({
         text: 'Introduction',
         items: [
           { text: 'Getting Started', link: '/introduction/getting-started.md' },
-          { text: 'Working with HTML forms', link: '/introduction/working-with-forms.md' },
           { text: 'AI-Driven Development', link: '/introduction/ai-driven.md' },
+          { text: 'Working with HTML forms', link: '/introduction/working-with-forms.md' },
         ]
       },
       {
@@ -156,11 +156,11 @@ export default defineConfig({
         ]
       },
       {
-        text: 'For AI Developers',
+        text: 'System Prompts',
         items: [
+          { text: 'System Prompts', link: 'https://docs.skapi.com/SYSTEM.md' },
           { text: 'Full Documentation', link: 'https://docs.skapi.com/skapi.md' },
           { text: 'Data Types', link: 'https://docs.skapi.com/skapi-types.md' },
-          { text: 'System Prompts', link: 'https://docs.skapi.com/SYSTEM.md' },
         ]
       },
       {
