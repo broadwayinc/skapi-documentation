@@ -1,6 +1,11 @@
 # Version History
 
-### Current version: 1.1.10
+### Current version: 1.2.0
+
+- From 1.2.0 onward, the Skapi class can be initialized with just the service ID, without the owner ID. (Backward compatible)
+- When initializing with a single service ID, use this format: `xxxxxxxxxxxx-xxxxx-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
+
+**1.1.10**
 
 - Fixed a bug where `updateProfile()` could become unresponsive.
 
