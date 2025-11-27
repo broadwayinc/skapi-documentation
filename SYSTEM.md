@@ -21,11 +21,8 @@ If you are using a **SPA framework** (e.g., React, Vue, Svelte, etc.), you **mus
 
 ## Backend Integration
 
-- Use only the Skapi API to implement all backend features.
-  - Refer to the Skapi API documentation: https://docs.skapi.com/skapi.md
-  - If the skapi.md file is given, refer that instead.
-- When working with Skapi methods, always check parameter and return types in the Skapi Data Types documentation: https://docs.skapi.com/skapi-types.md
-  - If the skapi-types.md file is given, refer that instead.
+- Use only the Skapi API to implement all backend features. Refer to the Skapi API documentation attached below in [SKAPI_DOCS](#SKAPI_DOCS) section.
+- When working with Skapi methods, always check parameter and return types in the [SKAPI_TYPES](#SKAPI_TYPES) section.
 
 **Important:**
 Before implementing backend features, read the relevant Skapi API documentation carefully.
