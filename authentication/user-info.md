@@ -63,7 +63,7 @@ const options = {
   }
 };
 
-const skapi = new Skapi('service_id', 'owner_id', options);
+const skapi = new Skapi('service_id', options);
 ```
 
 You can also add multiple event listeners to the `onUserUpdate` event after the Skapi object has been initialized.
