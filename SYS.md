@@ -6,10 +6,10 @@ If you are using a **SPA framework** (e.g., React, Vue, Svelte, etc.), you **mus
 ```html
 <script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
 <script>
-  const skapi = new Skapi("SERVICE_ID", "OWNER_ID");
+  const skapi = new Skapi("service_id");
 </script>
 ```
-- The service ID `SERVICE_ID` and the owner ID `OWNER_ID` must be replaced with the actual values I provide.
+- The service ID `"service_id"` must be replaced with the actual values I provide.
 - In SPA projects, the Skapi instance must be accessible as window.skapi.
 # Requirements
 ## Backend Integration
@@ -18,7 +18,7 @@ If you are using a **SPA framework** (e.g., React, Vue, Svelte, etc.), you **mus
 **Important:**
 Before implementing backend features, read the relevant Skapi API documentation carefully.
 If the documentation file is large, read it in manageable chunks
-If the service ID `SERVICE_ID` or the owner ID `OWNER_ID` is not provided, ask me for them before proceeding.
+If the Skapi service ID is not provided, ask me for them before proceeding.
 ## Implementing 3rd Party APIs
 If the application needs to call 3rd-party APIs that require secret keys:
 1. If the client secret key name configured in Skapi is not provided, ask for it before proceeding.
@@ -71,7 +71,7 @@ For static HTML projects, ensure that the Skapi class is initialized in the HTML
 <!DOCTYPE html>
 <script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
 <script>
-    const skapi = new Skapi('service_id', 'owner_id');
+    const skapi = new Skapi('service_id');
 </script>
 ```
 ### For SPA Projects
@@ -82,13 +82,15 @@ $ npm i skapi-js
 Then, import the library into your main JavaScript file:
 ```javascript
 // main.js
-import { Skapi } from 'skapi-js';
-const skapi = new Skapi('service_id', 'owner_id');
+import { Skapi } from "skapi-js";
+const skapi = new Skapi('service_id');
 export { skapi }
 // You can now import skapi from anywhere in your project.
 ```
 ::: warning
-Make sure to replace `'service_id'` and `'owner_id'` in `new Skapi()` with the actual values from your service.
+Replace `'service_id'` in `new Skapi()` with your actual service ID.
+Format: `xxxxxxxxxxxx-xxxxx-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
+You can get your service ID from your service dashboard.
 :::
 ## 3. Get Connection Information
 When your client has successfully connected to the Skapi server, you can use the [`getConnectionInfo()`](https://docs.skapi.com/api-reference/connection/README.md#getconnectioninfo) method to retrieve connection information.
@@ -98,7 +100,7 @@ When your client has successfully connected to the Skapi server, you can use the
 <!DOCTYPE html>
 <script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
 <script>
-    const skapi = new Skapi('service_id', 'owner_id');
+    const skapi = new Skapi('service_id');
 </script>
 <script>
 skapi.getConnectionInfo().then(info => {
@@ -269,8 +271,8 @@ For this example, create two HTML files in the same directory.
 <!DOCTYPE html>
 <script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
 <script>
-    // Replace 'service_id' and 'owner_id' with the appropriate values from your Skapi dashboard.
-    const skapi = new Skapi('service_id', 'owner_id');
+    // Replace 'service_id' with the appropriate values from your Skapi dashboard.
+    const skapi = new Skapi('service_id');
 </script>
 <form onsubmit="skapi.mock(event)" action="welcome.html">
   <input name="name">
@@ -284,8 +286,8 @@ For this example, create two HTML files in the same directory.
 <h1>Welcome <span id='your_name'></span></h1>
 <p id='message'></p>
 <script>
-    // Replace 'service_id' and 'owner_id' with the appropriate values from your Skapi dashboard.
-    const skapi = new Skapi('service_id', 'owner_id');
+    // Replace 'service_id' with the appropriate values from your Skapi dashboard.
+    const skapi = new Skapi('service_id');
     skapi.getFormResponse()
       .then((r) => {
         // Resolved data from skapi.mock()
@@ -539,7 +541,7 @@ const options = {
   autoLogin: false, // set to true to maintain the user's session
 };
 //Set the third argument as options
-const skapi = new Skapi('service_id', 'owner_id', options);
+const skapi = new Skapi('service_id', options);
 ```
 ## Logout
 The [`logout()`](https://docs.skapi.com/api-reference/authentication/README.md#logout) method logs the user out from the service.
@@ -590,7 +592,7 @@ const options = {
     }
   }
 };
-const skapi = new Skapi('service_id', 'owner_id', options);
+const skapi = new Skapi('service_id', options);
 ```
 You can also add multiple event listeners to the `onLogin` event after the Skapi object has been initialized.
 ```js
@@ -645,7 +647,7 @@ const options = {
     }
   }
 };
-const skapi = new Skapi('service_id', 'owner_id', options);
+const skapi = new Skapi('service_id', options);
 ```
 You can also add multiple event listeners to the `onUserUpdate` event after the Skapi object has been initialized.
 ```js
@@ -4034,6 +4036,114 @@ skapi.pushNotification(
     },
     ["user1", "user2"]
 );
+```
+
+# Secure Post Request
+You can use [`secureRequest()`](https://docs.skapi.com/api-reference/api-bridge/README.md#securerequest) method to make a secure `POST` request to your custom API's.
+:::warning
+User must be logged in to call this method.
+:::
+:::warning
+The [`secureRequest()`](https://docs.skapi.com/api-reference/api-bridge/README.md#securerequest) method does not support HTML Forms.
+:::
+The `params` object accepts the following properties:
+ - `url`: A string representing the URL of your custom API.
+ - `data`: An object representing the data to be sent to your custom API.
+For more detailed information on all the parameters and options available with the [`secureRequest()`](https://docs.skapi.com/api-reference/api-bridge/README.md#securerequest) method, 
+please refer to the API Reference below:
+### [`secureRequest(params): Promise<any>`](https://docs.skapi.com/api-reference/api-bridge/README.md#securerequest)
+## Example: Making a secure request to your custom API
+Below is an example of a user making a secure request to your custom API that are hosted in `http://your.custom.api.com:3000/myapi`
+```js
+skapi.secureRequest({
+    url: 'http://your.custom.api.com:3000/myapi',
+    data: {
+        some_data: 'Hello'
+    }
+}).then(response => {
+    // response from your custom API
+    console.log(response);
+});
+```
+Skapi will mirror your request to your custom API. From your API, it receives user information along with the request data.
+If you have set the secret key in your [service settings](https://docs.skapi.com/service-settings/additional.md) page, the request will contain your secret key.
+You can have your custom API's to check the secret key in the request data. If the secret key is not matched, you can return the error response.
+Below is an example of handling the request from your custom API:
+## Node.js Example
+```js
+const http = require('http');
+http.createServer(function (request, response) {
+    if (request.method === 'POST') {
+        if (request.url === '/myapi') {
+            let body = '';
+            request.on('data', function (data) {
+                body += data;
+            });
+            request.on('end', function () {
+                body = JSON.parse(body);
+                console.log(body);
+                // {
+                //     "user": {
+                //         "user_id": "...",
+                //         "group": 1,
+                //         "locale": "KR",
+                //         "request_locale": "KR",
+                //         ...
+                //     },
+                //     "data": {"some_data": "Hello"},
+                //     "api_key": 'your api secret key',
+                // }
+                if (body.api_key === 'your api secret key') {
+                    response.writeHead(200, {'Content-Type': 'text/html'});
+                    // do something
+                    response.end('success');
+                } else {
+                    response.writeHead(401, {'Content-Type': 'text/html'});
+                    response.end("api key mismatch");
+                }
+            });
+        }
+    }
+}).listen(3000);
+```
+## Python Example
+```py
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import json
+class MyServer(BaseHTTPRequestHandler):
+    def do_OPTION(self):
+        self.send_response(200)
+        self.end_headers()
+    def do_POST(self):
+        print("POST")
+        content_length = int(self.headers["Content-Length"])
+        body = json.loads(self.rfile.read(content_length).decode("utf-8"))
+        print(body)
+        # {
+        #     "user": {
+        #         "user_id": "...",
+        #         "group": 1,
+        #         "locale": "KR",
+        #         "request_locale": "KR",
+        #         ...
+        #     },
+        #     "data": {"some_data": "Hello"},
+        #     "api_key": 'your api secret key',
+        # }
+        if self.path == "/myapi":
+            if body.get("api_key") == "your api secret key":
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write("success".encode("utf-8"))
+            else:
+                self.send_response(401)
+                self.end_headers()
+                self.wfile.write("api key mismatch".encode("utf-8"))
+myServer = HTTPServer(("", 3000), MyServer)
+try:
+    myServer.serve_forever()
+except KeyboardInterrupt:
+    myServer.server_close()
 ```
 
 # Client Secret Request

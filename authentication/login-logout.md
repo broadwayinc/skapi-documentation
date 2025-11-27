@@ -71,7 +71,7 @@ const options = {
 };
 
 //Set the third argument as options
-const skapi = new Skapi('service_id', 'owner_id', options);
+const skapi = new Skapi('service_id', options);
 ```
 
 ## Logout
@@ -142,7 +142,7 @@ const options = {
   }
 };
 
-const skapi = new Skapi('service_id', 'owner_id', options);
+const skapi = new Skapi('service_id', options);
 ```
 
 You can also add multiple event listeners to the `onLogin` event after the Skapi object has been initialized.
