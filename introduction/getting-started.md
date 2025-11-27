@@ -130,6 +130,7 @@ class Skapi {
     ...
   }
   ...
+}
 ```
 
 Options overview:
