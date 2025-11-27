@@ -4,3 +4,4 @@ deploy.py
 package-lock.json
 .vitepress/cache/
 skapi.md
+SKAPI.md
