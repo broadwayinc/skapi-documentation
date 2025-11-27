@@ -241,5 +241,5 @@ finalSysContent = finalSysContent.replace(/^\s*[\r\n]/gm, '');
 // remove all <br> in sys.md
 finalSysContent = finalSysContent.replace(/<br>/gm, '');
 
-fs.writeFileSync('SYS.md', finalSysContent);
-console.log('Generated SYS.md with all documentation.');
+fs.writeFileSync('SKAPI.md', finalSysContent);
+console.log('Generated SKAPI.md with all documentation.');
