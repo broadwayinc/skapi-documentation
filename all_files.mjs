@@ -34,12 +34,6 @@ let all_files = [
             { text: 'Search Users', link: '/user-account/get-users.md' }
         ]
     },
-    // {
-    //     text: 'Templates: Authentication',
-    //     items: [
-    //         { text: 'HTML', link: '/authentication/full-example.md' },
-    //     ]
-    // },
     {
         text: 'Database',
         items: [
@@ -75,26 +69,6 @@ let all_files = [
             { text: 'Notifications', link: '/notification/send-notifications.md' }
         ]
     },
-    // {
-    //     text: 'Full Example: Websocket Chat',
-    //     items: [
-    //         { text: 'HTML', link: '/realtime/chat-example.md' },
-    //     ]
-    // },
-    // {
-    //     text: 'Full Example: Video Call',
-    //     items: [
-    //         { text: 'HTML', link: '/realtime/rtc-example.md' },
-    //     ]
-    // },
-    // {
-    //     text: 'Service Settings',
-    //     items: [
-    //         { text: 'Basic Settings', link: '/service-settings/additional.md' },
-    //         { text: 'Setting Toggles', link: '/service-settings/service-settings.md' },
-    //         { text: 'Deleting Service', link: '/service-settings/deleteservice.md' },
-    //     ]
-    // },
     {
         text: 'API Bridge',
         items: [
@@ -103,16 +77,6 @@ let all_files = [
             { text: 'Client Secret Request', link: '/api-bridge/client-secret-request.md' },
         ]
     },
-    // {
-    //   text: 'Complete Tutorial',
-    //   items: [
-    //     { text: 'Demo', link: '/full-example/intro.md' },
-    //     // { text: 'Authentication / User Profile', link: '/full-example/auth-profile.md' },
-    //     // { text: 'Instaclone', link: '/full-example/instaclone.md' },
-    //     // { text: 'Chat Room', link: '/full-example/chatroom.md' },
-    //     // { text: 'AI Image Generator', link: '/full-example/image-generator.md' }
-    //   ]
-    // },
     {
         text: 'E-Mail Service',
         items: [
@@ -121,45 +85,7 @@ let all_files = [
             { text: 'Bulk Email', link: '/email/newsletters.md' },
             { text: 'Receiving Inquiries', link: '/email/inquiries.md' }
         ]
-    },
-    // {
-    //     text: 'Admin Features',
-    //     items: [
-    //         { text: 'Introduction', link: '/admin/intro.md' },
-    //         { text: 'Inviting Users', link: '/admin/invite.md' },
-    //         { text: 'Managing Users', link: '/admin/account.md' },
-    //     ]
-    // },
-    // {
-    //     text: 'API Reference',
-    //     items: [
-    //         { text: 'Connection', link: '/api-reference/connection/README.md' },
-    //         { text: 'Authentication', link: '/api-reference/authentication/README.md' },
-    //         { text: 'User Account', link: '/api-reference/user/README.md' },
-    //         { text: 'Database', link: '/api-reference/database/README.md' },
-    //         { text: 'Email', link: '/api-reference/email/README.md' },
-    //         { text: 'Realtime', link: '/api-reference/realtime/README.md' },
-    //         { text: 'API Bridge', link: '/api-reference/api-bridge/README.md' },
-    //         { text: 'Admin', link: '/api-reference/admin/README.md' },
-    //         { text: 'Data Types', link: '/api-reference/data-types/README.md' }
-    //     ]
-    // },
-    // {
-    //     text: 'For AI Developers',
-    //     items: [
-    //         { text: 'Full Documentation', link: 'https://docs.skapi.com/skapi.md' },
-    //         { text: 'Data Types', link: 'https://docs.skapi.com/skapi-types.md' },
-    //         { text: 'System Prompts', link: 'https://docs.skapi.com/SYSTEM.md' },
-    //     ]
-    // },
-    // {
-    //     text: 'Website Hosting',
-    //     link: '/hosting/hosting.md'
-    // },
-    // {
-    //     text: 'Version History',
-    //     link: '/versionlog/versions.md'
-    // }
+    }
 ]
 
 let files = [];
@@ -182,7 +108,7 @@ for (const file of files) {
         console.error(`Error reading file ${file}:`, err);
     }
 }
-fs.writeFileSync('skapi.md', concatenatedContent);
+fs.writeFileSync('skapi-docs.md', concatenatedContent);
 
 
 let ref = [
@@ -225,7 +151,7 @@ fs.writeFileSync('skapi-types.md', concatenatedContent);
 
 // concatincate SYSTEM.md and skapi.md and put #SKAPI_DOCS between them
 const systemContent = fs.readFileSync('./SYSTEM.md', 'utf-8');
-const skapiContent = fs.readFileSync('./skapi.md', 'utf-8');
+const skapiContent = fs.readFileSync('./skapi-docs.md', 'utf-8');
 let finalSysContent = systemContent + `\n\n# SKAPI_DOCS\n\n` + skapiContent;
 
 // concatinate _SYS.md and skapi-types.md with #SKAPI_TYPES between them

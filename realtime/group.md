@@ -24,7 +24,7 @@ When the user is joined to the group successfully, the method will return the fo
 ```ts
 {
   type: 'success',
-  message: 'Joined realtime message group: "HelloWorld"'.
+  message: 'Joined realtime message group: "HelloWorld".'.
 }
 ```
 For more detailed information on all the parameters and options available with the [`joinRealtime()`](/api-reference/realtime/README.md#joinrealtime) method, 
@@ -38,8 +38,7 @@ Even if the user has joined the group, they can still receive realtime data sent
 
 ## Sending Data to a Group
 
-Once the user have joined the group, user can send any JSON data over to a group by using [`postRealtime()`](/api-reference/realtime/README.md#postrealtime) method.
-Any users in the group will receive the data.
+Once the user has joined the group, they can send any JSON data to it using the [`postRealtime()`](/api-reference/realtime/README.md#postrealtime) method. The message (JSON data) will be broadcast to all users in the group.
 
 The example below shows how to send realtime data to a group named "HelloWorld":
 
@@ -59,19 +58,53 @@ skapi.postRealtime({ msg: "Hello World!" }, 'HelloWorld').then(res => console.lo
 For more detailed information on all the parameters and options available with the [`postRealtime()`](/api-reference/realtime/README.md#postrealtime) method, 
 please refer to the API Reference below:
 
+## Receiving Data from the Group
+
+When a message (JSON data) is broadcast in the group, every user receives it as an argument to the RealtimeCallback defined when creating the realtime connection with [`connectRealtime()`](/api-reference/realtime/README.md#connectrealtime). The callback receives an object whose `type` property is set to `"message"`.
+
+The example below shows how other users receive the broadcasted data from the group named "HelloWorld" via [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback) function:
+
+```js
+let RealtimeCallback = (rt) => {
+    /**
+    {
+        "type": "message",
+        "message": {
+            "msg": "Hello World!",
+        },
+        "sender": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "sender_cid": "cid:xx-xxxxxxxxxxxx=",
+        "sender_rid": "HelloWorld",
+        "code": null
+    }
+    */
+}
+
+skapi.connectRealtime(RealtimeCallback);
+```
+
 ### [`postRealtime(message, recipient): Promise<{ type: 'success', message: string }>`](/api-reference/realtime/README.md#postrealtime)
 
 :::warning
 The user must be joined to the group to send data to the group.
 :::
 
-## Leaving, Changing Groups
+## Leaving a Group
+
+Also, if you want to leave the group, you can call [`joinRealtime(params)`](/api-reference/realtime/README.md#leaverealtime) method with a `params.group` value as empty `string` or `null`.
+
+```js
+skapi.joinRealtime({ group: null });
+```
+
+## Changing the Group
 
 Users can join only one group at a time.
-If you want your user to change groups, you can call [`joinRealtime()`](/api-reference/realtime/README.md#joinrealtime) method with a different `params.group` value.
+If you want your user to change groups, you can call [`joinRealtime(params)`](/api-reference/realtime/README.md#joinrealtime) method with a different `params.group` value.
 
-Also, if you want to leave the group, you can call [`joinRealtime()`](/api-reference/realtime/README.md#leaverealtime) method with a `params.group` value as empty `string` or `null`.
-
+```js
+skapi.joinRealtime({ group: "Another Group Name" });
+```
 
 ## Listing Groups
 

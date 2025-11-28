@@ -55,6 +55,11 @@ https://docs.skapi.com/authentication/openid-login.html
 
 Keep in mind that the exact OAuth flow varies by provider. Some providers may require an additional request using a client secret key to obtain an access token for the OpenID Logger. Plan the implementation carefully.
 
+Also inform me that some OAuth providers require the application to be hosted over HTTPS; otherwise, authentication may not work.
+
+## Implementing Push Notifications and WebRTC
+
+When implementing push notifications or WebRTC, inform me that the application must be hosted over HTTPS; otherwise, these features may not work.
 
 ## Coding Guidelines
 

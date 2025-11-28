@@ -159,7 +159,7 @@ export default defineConfig({
         text: 'AI Prompts',
         items: [
           { text: 'System Prompts', link: 'https://docs.skapi.com/SYSTEM.md' },
-          { text: 'Full Documentation', link: 'https://docs.skapi.com/skapi.md' },
+          { text: 'Full Documentation', link: 'https://docs.skapi.com/skapi-docs.md' },
           { text: 'Data Types', link: 'https://docs.skapi.com/skapi-types.md' },
         ]
       },
