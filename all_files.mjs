@@ -99,7 +99,7 @@ let all_files = [
         text: 'API Bridge',
         items: [
             // { text: 'Introduction', link: '/api-bridge/introduction.md' },
-            // { text: 'Secure Post Request', link: '/api-bridge/secure-post-request.md' },
+            { text: 'Secure Post Request', link: '/api-bridge/secure-post-request.md' },
             { text: 'Client Secret Request', link: '/api-bridge/client-secret-request.md' },
         ]
     },
@@ -222,3 +222,24 @@ for (const file of reffiles) {
 }
 
 fs.writeFileSync('skapi-types.md', concatenatedContent);
+
+// concatincate SYSTEM.md and skapi.md and put #SKAPI_DOCS between them
+const systemContent = fs.readFileSync('./SYSTEM.md', 'utf-8');
+const skapiContent = fs.readFileSync('./skapi.md', 'utf-8');
+let finalSysContent = systemContent + `\n\n# SKAPI_DOCS\n\n` + skapiContent;
+
+// concatinate _SYS.md and skapi-types.md with #SKAPI_TYPES between them
+const skapiTypesContent = fs.readFileSync('./skapi-types.md', 'utf-8');
+finalSysContent = finalSysContent + `\n\n# SKAPI_TYPES\n\n` + skapiTypesContent;
+
+// replace all "](/" to "](https://docs.skapi.com/" in SYS.md
+finalSysContent = finalSysContent.replaceAll('](/', '](https://docs.skapi.com/');
+
+// remove all blank lines in SYS.md
+finalSysContent = finalSysContent.replace(/^\s*[\r\n]/gm, '');
+
+// remove all <br> in sys.md
+finalSysContent = finalSysContent.replace(/<br>/gm, '');
+
+fs.writeFileSync('SKAPI.md', finalSysContent);
+console.log('Generated SKAPI.md with all documentation.');

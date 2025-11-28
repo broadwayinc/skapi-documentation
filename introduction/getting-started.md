@@ -24,7 +24,7 @@ For static HTML projects, ensure that the Skapi class is initialized in the HTML
 <!DOCTYPE html>
 <script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
 <script>
-    const skapi = new Skapi('service_id', 'owner_id');
+    const skapi = new Skapi('service_id');
 </script>
 ```
 
@@ -40,8 +40,8 @@ Then, import the library into your main JavaScript file:
 
 ```javascript
 // main.js
-import { Skapi } from 'skapi-js';
-const skapi = new Skapi('service_id', 'owner_id');
+import { Skapi } from "skapi-js";
+const skapi = new Skapi('service_id');
 
 export { skapi }
 
@@ -49,7 +49,10 @@ export { skapi }
 ```
 
 ::: warning
-Make sure to replace `'service_id'` and `'owner_id'` in `new Skapi()` with the actual values from your service.
+Replace `'service_id'` in `new Skapi()` with your actual service ID.
+Format: `xxxxxxxxxxxx-xxxxx-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
+
+You can get your service ID from your service dashboard.
 :::
 
 ## 3. Get Connection Information
@@ -62,7 +65,7 @@ When your client has successfully connected to the Skapi server, you can use the
 <!DOCTYPE html>
 <script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
 <script>
-    const skapi = new Skapi('service_id', 'owner_id');
+    const skapi = new Skapi('service_id');
 </script>
 <script>
 skapi.getConnectionInfo().then(info => {
@@ -130,6 +133,7 @@ class Skapi {
     ...
   }
   ...
+}
 ```
 
 Options overview:
