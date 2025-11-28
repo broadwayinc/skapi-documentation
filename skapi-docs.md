@@ -4666,7 +4666,9 @@ let RealtimeCallback = (rt) => {
       sender?: string; // user_id of the sender
       sender_cid?: string; // scid of the sender
       sender_rid?: string; // group of the sender
-      code?: 'USER_LEFT' | 'USER_DISCONNECTED' | 'USER_JOINED' | null; // code for notice messeges
+      code?: 'USER_LEFT' | 'USER_DISCONNECTED' | 'USER_JOINED' | null; // code for notice messages
+      connectRTC?: (params: RTCReceiverParams, callback: RTCEvent) => Promise<RTCResolved>; // Incoming RTC calls.
+      hangup?: () => void; Function to reject incoming RTC commection.
     }
     */
     console.log(rt);
@@ -4675,31 +4677,37 @@ let RealtimeCallback = (rt) => {
 skapi.connectRealtime(RealtimeCallback);
 ```
 
-In the example above, the [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback) function will be executed when there is data transfer between the users.
+In the example above, the [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback) function is executed whenever data is transferred between users.
 
-When the callback is executed, message will be passed as an object with `type` and `message` properties.
+When the callback runs, it receives a message object with the following properties:
 
 - `type` Shows the type of the received message as below:
   
-  "message": When there is data transfer between the users.
+  - "message": When there is data broadcasted from the realtime group.
 
-  "error": When there is an error. Usually websocket connection has an error and will be disconnected.
+  - "error": When there is an error. Usually websocket connection has an error and will be disconnected.
 
-  "success": When the connection is established. This may fire on initial connection, or when the reconnection attempt is successful.
+  - "success": When the connection is established. This may fire on initial connection, or when the reconnection attempt is successful.
 
-  "close": When the connection is intentionally closed by the user.
+  - "close": When the connection is intentionally closed by the user.
 
-  "notice": When there is a notice. Usually notice users when the user in a room has joined, left, or being disconnected.
+  - "notice": When there is a notice. Usually notice users when the user in a realtime group has joined, left, or being disconnected.
 
-  "private": When there is private data transfer between the users.
+  - "private": When there is private data transfer between the users.
 
-  "reconnect": When there is reconnection attempt. This happens after user leaves the browser tab or device screen is lock for certain amount of time, and the user comes back to the application. The websocket can disconnect when the application is left unfocus for some period of time.
+  - "reconnect": When there is reconnection attempt. This happens after user leaves the browser tab or device screen is lock for certain amount of time, and the user comes back to the application. The websocket can disconnect when the application is left unfocus for some period of time.
   
+  - "rtc:incoming": When there is incoming WebRTC call.
+  - "rtc:closed": When the WebRTC connection is closed.
 
 - `message` is the data passed from the server. It can be any JSON data.
 - `sender` is the user ID of the message sender. It is only available when `type` is "message" or "private".
 - `sender_cid` is the connection ID of the message sender. It can be used to track the sender's connected device.
-
+- `sender_rid` is the group name of the received message.
+- `code` is a string identifier for notice messages.
+- `connectRTC`: Incoming RTC calls. Can answer by executing the callback.
+- `hangup`: Function to reject incoming RTC connection.
+  
 ## Closing Connection
 
 You can close the realtime connection by calling [`closeRealtime()`](/api-reference/realtime/README.md#closerealtime) method.
@@ -4776,7 +4784,30 @@ When the message is sent successfully, the method will return the following obje
 }
 ```
 
-On the receiver's side, the message will be received as an argument as an object with `type` and `message` properties through the [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback) that has been set when creating the realtime connection via [`connectRealtime()`](/api-reference/realtime/README.md#connectrealtime) method.
+## Receiving Data from a User
+
+On the receiver’s side, the message is delivered to the [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback) defined when creating the realtime connection with [`connectRealtime()`](/api-reference/realtime/README.md#connectrealtime). The callback receives an object whose `type` property is set to `"private"`.
+
+Below is an example of how the other user receives the sent data from the RealtimeCallback function:
+
+```js
+let RealtimeCallback = (rt) => {
+    /**
+    {
+        "type": "private",
+        "message": {
+            "msg": "Hello World!",
+        },
+        "sender": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "sender_cid": "cid:xx-xxxxxxxxxxxx=",
+        "sender_rid": null,
+        "code": null
+    }
+    */
+}
+
+skapi.connectRealtime(RealtimeCallback);
+```
 
 
 <br>
@@ -4807,7 +4838,7 @@ When the user is joined to the group successfully, the method will return the fo
 ```ts
 {
   type: 'success',
-  message: 'Joined realtime message group: "HelloWorld"'.
+  message: 'Joined realtime message group: "HelloWorld".'.
 }
 ```
 For more detailed information on all the parameters and options available with the [`joinRealtime()`](/api-reference/realtime/README.md#joinrealtime) method, 
@@ -4821,8 +4852,7 @@ Even if the user has joined the group, they can still receive realtime data sent
 
 ## Sending Data to a Group
 
-Once the user have joined the group, user can send any JSON data over to a group by using [`postRealtime()`](/api-reference/realtime/README.md#postrealtime) method.
-Any users in the group will receive the data.
+Once the user has joined the group, they can send any JSON data to it using the [`postRealtime()`](/api-reference/realtime/README.md#postrealtime) method. The message (JSON data) will be broadcast to all users in the group.
 
 The example below shows how to send realtime data to a group named "HelloWorld":
 
@@ -4842,19 +4872,53 @@ skapi.postRealtime({ msg: "Hello World!" }, 'HelloWorld').then(res => console.lo
 For more detailed information on all the parameters and options available with the [`postRealtime()`](/api-reference/realtime/README.md#postrealtime) method, 
 please refer to the API Reference below:
 
+## Receiving Data from the Group
+
+When a message (JSON data) is broadcast in the group, every user receives it as an argument to the RealtimeCallback defined when creating the realtime connection with [`connectRealtime()`](/api-reference/realtime/README.md#connectrealtime). The callback receives an object whose `type` property is set to `"message"`.
+
+The example below shows how other users receive the broadcasted data from the group named "HelloWorld" via [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback) function:
+
+```js
+let RealtimeCallback = (rt) => {
+    /**
+    {
+        "type": "message",
+        "message": {
+            "msg": "Hello World!",
+        },
+        "sender": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "sender_cid": "cid:xx-xxxxxxxxxxxx=",
+        "sender_rid": "HelloWorld",
+        "code": null
+    }
+    */
+}
+
+skapi.connectRealtime(RealtimeCallback);
+```
+
 ### [`postRealtime(message, recipient): Promise<{ type: 'success', message: string }>`](/api-reference/realtime/README.md#postrealtime)
 
 :::warning
 The user must be joined to the group to send data to the group.
 :::
 
-## Leaving, Changing Groups
+## Leaving a Group
+
+Also, if you want to leave the group, you can call [`joinRealtime(params)`](/api-reference/realtime/README.md#leaverealtime) method with a `params.group` value as empty `string` or `null`.
+
+```js
+skapi.joinRealtime({ group: null });
+```
+
+## Changing the Group
 
 Users can join only one group at a time.
-If you want your user to change groups, you can call [`joinRealtime()`](/api-reference/realtime/README.md#joinrealtime) method with a different `params.group` value.
+If you want your user to change groups, you can call [`joinRealtime(params)`](/api-reference/realtime/README.md#joinrealtime) method with a different `params.group` value.
 
-Also, if you want to leave the group, you can call [`joinRealtime()`](/api-reference/realtime/README.md#leaverealtime) method with a `params.group` value as empty `string` or `null`.
-
+```js
+skapi.joinRealtime({ group: "Another Group Name" });
+```
 
 ## Listing Groups
 

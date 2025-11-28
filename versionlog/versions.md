@@ -1,6 +1,10 @@
 # Version History
 
-### Current version: 1.2.0
+### Current version: 1.2.2
+
+- Corrected argument types in the class constructor.
+
+**1.2.0**
 
 - From 1.2.0 onward, the Skapi class can be initialized with just the service ID, without the owner ID. (Backward compatible)
 - When initializing with a single service ID, use this format: `xxxxxxxxxxxx-xxxxx-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`

@@ -45,4 +45,27 @@ When the message is sent successfully, the method will return the following obje
 }
 ```
 
-On the receiver's side, the message will be received as an argument as an object with `type` and `message` properties through the [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback) that has been set when creating the realtime connection via [`connectRealtime()`](/api-reference/realtime/README.md#connectrealtime) method.
+## Receiving Data from a User
+
+On the receiver’s side, the message is delivered to the [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback) defined when creating the realtime connection with [`connectRealtime()`](/api-reference/realtime/README.md#connectrealtime). The callback receives an object whose `type` property is set to `"private"`.
+
+Below is an example of how the other user receives the sent data from the RealtimeCallback function:
+
+```js
+let RealtimeCallback = (rt) => {
+    /**
+    {
+        "type": "private",
+        "message": {
+            "msg": "Hello World!",
+        },
+        "sender": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "sender_cid": "cid:xx-xxxxxxxxxxxx=",
+        "sender_rid": null,
+        "code": null
+    }
+    */
+}
+
+skapi.connectRealtime(RealtimeCallback);
+```
