@@ -28,8 +28,8 @@ Below, are the modified/added files for this example:
 - `user_account.html`: User account page.
 
 :::warning
-Be sure to replace the 'service_id', 'owner_id' in `new Skapi()` on all example pages.
-You can get your 'service_id' and 'owner_id' from your service dashboard.
+Be sure to replace the `SERVICE_ID` in `new Skapi()` on all example pages.
+You can get your `SERVICE_ID` from your service dashboard.
 
 For more information see [Getting Started](/introduction/getting-started.md)
 :::
@@ -59,7 +59,7 @@ Or else, button for verifing user's email will be displayed.
 </form>
 
 <script>
-    const skapi = new Skapi('service_id', 'owner_id');
+    const skapi = new Skapi('service_id');
     let user = null;
 
     skapi.getProfile().then(u => {
@@ -161,7 +161,7 @@ User will get redirected back to `index.html` once the update is successful.
 <a href="index.html">Back to main</a>
 
 <script>
-    const skapi = new Skapi('service_id', 'owner_id');
+    const skapi = new Skapi('service_id');
 
     skapi.getProfile().then(user => {
         if (user === null) {
@@ -241,7 +241,7 @@ User will get redirected back to `index.html` once change password is successful
 <a href="index.html">Cancel</a>
 
 <script>
-    const skapi = new Skapi('service_id', 'owner_id');
+    const skapi = new Skapi('service_id');
 
     skapi.getProfile().then(user => {
         if (user === null) {
