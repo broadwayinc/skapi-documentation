@@ -5458,24 +5458,24 @@ except KeyboardInterrupt:
 
 <br>
 
-# Client Secret Request
+# Using 3rd Party APIs
 
 If you are using 3rd party API's that requires a client secret, you can use [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) to make a secure `POST` or `GET` request to your 3rd party API's.
 
-First you need to save your client secret key in your **Client Secret** page.
+First you need to save your client secret key in your **3rd Party API Keys** page.
 
-1. Navigate to the **Client Secret Key** page from your service page.
-  ![Client Secret Key](/menucli.png)
+1. Navigate to the **3rd Party API Keys** page from your service page.
+  <!-- ![Client Secret Key](/menucli.png) -->
 
-2. Click on the **+** button to add a new client secret key.
-  ![Register Client Secret Key](/addbutt.png)
+2. Click on the **+** button to add a new client secret key of your 3rd party API.
+  <!-- ![Register Client Secret Key](/addbutt.png) -->
 
-![Client Secret Key Dialog](/clientsecdialog.png)
-You can add a new client secret key by providing a **name** for the key and the **client secret** value.
+<!-- ![Client Secret Key Dialog](/clientsecdialog.png)
+You can add a new client secret key by providing a **name** for the key and the **client secret** value. -->
 
 - The `Name` field is the name of the key that you will use when defining the `clientSecretName` parameter in the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method.
 
-- The `Client Secret` field is the value that you will use as a placeholder in the `data`, `params`, or `headers` or `url` parameter of the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method.
+- The `Client Secret Key` is the actual secret key value that you will use as a placeholder in the `data`, `params`, or `headers` or `url` parameter of the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method.
 
 - The toggle for **Locked** indicates whether the key is public or private. When set to **Locked**, it means that only the users that are logged in can have access to your 3rd party api, while by default anybody can have access to your 3rd party api.
 
@@ -5508,9 +5508,11 @@ We will referencing the OpenAI API documentation to understand how to make secur
 #### Prerequisites
 
 1. Create an OpenAI account and get your API secret key from [here](https://beta.openai.com/account/api-keys).
-2. Save your OpenAI API secret key in your service dashboard.
-   For more information on how to save the client secret key, see [Client Secret Key](/service-settings/service-settings.html#client-secret-key). For this example save your OpenAI API key in the key name `openai`.
-   We will use this key name when making the secure request to the OpenAI API.
+2. Save your OpenAI API secret key in **3rd Party API Keys** page.
+
+   For this example, save your OpenAI API's secret key name as `openai`.
+   
+   We will use this key name when making the client secret request to the OpenAI API.
 
 #### Understanding the API call
 
@@ -5585,16 +5587,16 @@ When the request is made, Skapi will replace the placeholder string with the cli
 
 <br>
 
-# Bulk Email
+# Sending Newsletters
 
-You can send newsletters or service mail to your users by sending your email to the endpoint email address.
+You can send newsletters or service newsletters to your users by sending your email to the endpoint email address.
 The following example shows the format for email endpoints for sending newsletters:
 
 ```
 xxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@mail.skapi.com
 ```
 
-Go to `Bulk Email` page, select the email type, and the page will show the email endpoint address to send the newsletter.
+Go to `Newsletters` page, select the email type, and the page will show the email endpoint address to send the newsletter.
 
 ## Sending Public Newsletters
 
@@ -5640,10 +5642,10 @@ If the user is logged in, they will not be asked to confirm their email address.
 Instead, they must have their [`email verifed`](/user-account/email-verification).
 :::
 
-## Sending Service Mail
+## Sending Service Newsletters
   
-You can send service mail to your users with an account. To subscribe to service mails the user must be logged in.
-Service mail can be useful to send information, notifications, and other service-related emails.
+You can send service newsletters to your users with an account. To subscribe to service newsletters the user must be logged in.
+Service newsletters can be useful to send information, notifications, and other service-related emails.
 
 First, user must subscribe to the service newsletter to receive the email.
 
@@ -5668,7 +5670,7 @@ skapi.subscribeNewsletter({
 ```
 :::
 
-The example above shows how to let your visitors subscribe to the service mail by calling [`subscribeNewsletter()`](/api-reference/email/README.md#subscribenewsletter).
+The example above shows how to let your visitors subscribe to the service newsletters by calling [`subscribeNewsletter()`](/api-reference/email/README.md#subscribenewsletter).
 
 ## Requesting Newsletter Endpoint for Admins
 
@@ -5685,9 +5687,9 @@ skapi.adminNewsletterRequest().then(response => {
 This endpoint is specific to the requesting admin and can only receive emails from the admin’s registered email address.
 :::
 
-## Checking if the user is subscribed to the service mail
+## Checking if the user is subscribed to the service newsletters
 
-You can let the user check if they have subscribed to the service mail by calling [`getNewsletterSubscription()`](/api-reference/email/README.md#getnewslettersubscription).
+You can let the user check if they have subscribed to the service newsletters by calling [`getNewsletterSubscription()`](/api-reference/email/README.md#getnewslettersubscription).
 
 ```js
 skapi.getNewsletterSubscription({
@@ -5702,9 +5704,9 @@ skapi.getNewsletterSubscription({
 })
 ```
 
-## Unsubscribing from the service mail
+## Unsubscribing from the service newsletters
 
-You can let the user unsubscribe from the service newsletter by calling [`unsubscribeNewsletter()`](/api-reference/email/README.md#unsubscribenewsletter).
+You can let the user unsubscribe from the service newsletters by calling [`unsubscribeNewsletter()`](/api-reference/email/README.md#unsubscribenewsletter).
 
 ```js
 skapi.unsubscribeNewsletter({
@@ -5747,7 +5749,7 @@ please refer to the API Reference below:
 
 You can fetch sent emails from the database with conditions by calling [`getNewsletters()`](/api-reference/email/README.md#getnewsletters).
 
-Below is an example of fetching service mails that are sent to the service users before 24 hours ago in descending order.
+Below is an example of fetching service newsletters that are sent to the service users before 24 hours ago in descending order.
 
 For full parameters and options, see [`getNewsletters(params, options?)`](/api-reference/email/README.md#getnewsletters).
 
