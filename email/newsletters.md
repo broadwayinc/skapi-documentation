@@ -1,13 +1,13 @@
-# Bulk Email
+# Sending Newsletters
 
-You can send newsletters or service mail to your users by sending your email to the endpoint email address.
+You can send newsletters or service newsletters to your users by sending your email to the endpoint email address.
 The following example shows the format for email endpoints for sending newsletters:
 
 ```
 xxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@mail.skapi.com
 ```
 
-Go to `Bulk Email` page, select the email type, and the page will show the email endpoint address to send the newsletter.
+Go to `Newsletters` page, select the email type, and the page will show the email endpoint address to send the newsletter.
 
 ## Sending Public Newsletters
 
@@ -53,10 +53,10 @@ If the user is logged in, they will not be asked to confirm their email address.
 Instead, they must have their [`email verifed`](/user-account/email-verification).
 :::
 
-## Sending Service Mail
+## Sending Service Newsletters
   
-You can send service mail to your users with an account. To subscribe to service mails the user must be logged in.
-Service mail can be useful to send information, notifications, and other service-related emails.
+You can send service newsletters to your users with an account. To subscribe to service newsletters the user must be logged in.
+Service newsletters can be useful to send information, notifications, and other service-related emails.
 
 First, user must subscribe to the service newsletter to receive the email.
 
@@ -81,7 +81,7 @@ skapi.subscribeNewsletter({
 ```
 :::
 
-The example above shows how to let your visitors subscribe to the service mail by calling [`subscribeNewsletter()`](/api-reference/email/README.md#subscribenewsletter).
+The example above shows how to let your visitors subscribe to the service newsletters by calling [`subscribeNewsletter()`](/api-reference/email/README.md#subscribenewsletter).
 
 ## Requesting Newsletter Endpoint for Admins
 
@@ -98,9 +98,9 @@ skapi.adminNewsletterRequest().then(response => {
 This endpoint is specific to the requesting admin and can only receive emails from the admin’s registered email address.
 :::
 
-## Checking if the user is subscribed to the service mail
+## Checking if the user is subscribed to the service newsletters
 
-You can let the user check if they have subscribed to the service mail by calling [`getNewsletterSubscription()`](/api-reference/email/README.md#getnewslettersubscription).
+You can let the user check if they have subscribed to the service newsletters by calling [`getNewsletterSubscription()`](/api-reference/email/README.md#getnewslettersubscription).
 
 ```js
 skapi.getNewsletterSubscription({
@@ -115,9 +115,9 @@ skapi.getNewsletterSubscription({
 })
 ```
 
-## Unsubscribing from the service mail
+## Unsubscribing from the service newsletters
 
-You can let the user unsubscribe from the service newsletter by calling [`unsubscribeNewsletter()`](/api-reference/email/README.md#unsubscribenewsletter).
+You can let the user unsubscribe from the service newsletters by calling [`unsubscribeNewsletter()`](/api-reference/email/README.md#unsubscribenewsletter).
 
 ```js
 skapi.unsubscribeNewsletter({
@@ -160,7 +160,7 @@ please refer to the API Reference below:
 
 You can fetch sent emails from the database with conditions by calling [`getNewsletters()`](/api-reference/email/README.md#getnewsletters).
 
-Below is an example of fetching service mails that are sent to the service users before 24 hours ago in descending order.
+Below is an example of fetching service newsletters that are sent to the service users before 24 hours ago in descending order.
 
 For full parameters and options, see [`getNewsletters(params, options?)`](/api-reference/email/README.md#getnewsletters).
 

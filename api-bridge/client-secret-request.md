@@ -1,21 +1,21 @@
-# Client Secret Request
+# Using 3rd Party APIs
 
 If you are using 3rd party API's that requires a client secret, you can use [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) to make a secure `POST` or `GET` request to your 3rd party API's.
 
-First you need to save your client secret key in your **Client Secret** page.
+First you need to save your client secret key in your **3rd Party API Keys** page.
 
-1. Navigate to the **Client Secret Key** page from your service page.
-  ![Client Secret Key](/menucli.png)
+1. Navigate to the **3rd Party API Keys** page from your service page.
+  <!-- ![Client Secret Key](/menucli.png) -->
 
-2. Click on the **+** button to add a new client secret key.
-  ![Register Client Secret Key](/addbutt.png)
+2. Click on the **+** button to add a new client secret key of your 3rd party API.
+  <!-- ![Register Client Secret Key](/addbutt.png) -->
 
-![Client Secret Key Dialog](/clientsecdialog.png)
-You can add a new client secret key by providing a **name** for the key and the **client secret** value.
+<!-- ![Client Secret Key Dialog](/clientsecdialog.png)
+You can add a new client secret key by providing a **name** for the key and the **client secret** value. -->
 
 - The `Name` field is the name of the key that you will use when defining the `clientSecretName` parameter in the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method.
 
-- The `Client Secret` field is the value that you will use as a placeholder in the `data`, `params`, or `headers` or `url` parameter of the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method.
+- The `Client Secret Key` is the actual secret key value that you will use as a placeholder in the `data`, `params`, or `headers` or `url` parameter of the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method.
 
 - The toggle for **Locked** indicates whether the key is public or private. When set to **Locked**, it means that only the users that are logged in can have access to your 3rd party api, while by default anybody can have access to your 3rd party api.
 
@@ -48,9 +48,11 @@ We will referencing the OpenAI API documentation to understand how to make secur
 #### Prerequisites
 
 1. Create an OpenAI account and get your API secret key from [here](https://beta.openai.com/account/api-keys).
-2. Save your OpenAI API secret key in your service dashboard.
-   For more information on how to save the client secret key, see [Client Secret Key](/service-settings/service-settings.html#client-secret-key). For this example save your OpenAI API key in the key name `openai`.
-   We will use this key name when making the secure request to the OpenAI API.
+2. Save your OpenAI API secret key in **3rd Party API Keys** page.
+
+   For this example, save your OpenAI API's secret key name as `openai`.
+   
+   We will use this key name when making the client secret request to the OpenAI API.
 
 #### Understanding the API call
 

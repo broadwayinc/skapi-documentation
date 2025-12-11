@@ -1,12 +1,12 @@
 # Hosting your website
 
 Skapi provides a straight forward hosting service for your website.
-You can host your website with Skapi by simply uploading your website files in your `File Hosting` page.
+You can host your website with Skapi by simply uploading your website files in your `Web Hosting` page.
 
 ## Registering Your Subdomain
 
 Before you upload your website files, you must register a subdomain for your website.
-Go to `File Hosting` page. If the service does not have a subdomain, it will ask you to make one.
+Go to `Web Hosting` page. If the service does not have a subdomain, it will ask you to make one.
 
 <!-- 
 ![subdomain register](/hosting.png)
@@ -14,7 +14,7 @@ Go to `File Hosting` page. If the service does not have a subdomain, it will ask
 
 ## Uploading Your Website Files
 
-Once you have registered your subdomain, you can upload your website files by drag and dropping your files in the file section which is at the bottom section of your `File Hosting` page.
+Once you have registered your subdomain, you can upload your website files by drag and dropping your files in the file section which is at the bottom section of your `Web Hosting` page.
 
 When the files are uploaded, all the files will be hosted in your subdomain.
 For example, if you registered `mywebsite` as your subdomain, and have uploaded a file named `yourfile.ext`, the file will be hosted publicly in `https://mywebsite.skapi.com/yourfile.ext`.
@@ -39,7 +39,7 @@ The `index.html` will also be served when the user visits `https://mywebsite.ska
 
 ## Setting the 404 Page
 
-You can set the 404 page for your website by clicking `[UPLOAD]` at `404 Page`, which is in the upper section form on your `File Hosting` page.
+You can set the 404 page for your website from the `404 Page` section, which is in the upper section form on your `Web Hosting` page.
 This HTML file will be served when the user visits a page that does not exist in your website.
 
 :::danger
