@@ -2,7 +2,7 @@
 
 Build a complete web application using **static HTML files**, with all backend functionality powered by **Skapi**.
 
-If you are using a **SPA framework** (e.g., React, Vue, Svelte, etc.), you **must**:
+If the project is already using a **SPA framework** (e.g., React, Vue, Svelte, etc.), you **must**:
 
 1. Import the Skapi JavaScript library in the main `index.html` of the project.
 2. Initialize the `Skapi` class there.
@@ -81,6 +81,6 @@ When implementing push notifications or WebRTC, inform me that the application m
 
 ### Authentication and Initialization
 
-- Every HTML page must initialize the `skapi-js` library on load.
+- Every HTML page must initialize the `skapi-js` library.
 - Implement a check for the user’s login state on each page.
 - Redirect unauthenticated users away from any restricted pages.
