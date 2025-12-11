@@ -1,5 +1,7 @@
 # Instructions
 
+Use this file as a system prompt.
+
 Build a complete web application using **static HTML files**, with all backend functionality powered by **Skapi**.
 
 If the project is already using a **SPA framework** (e.g., React, Vue, Svelte, etc.), you **must**:
