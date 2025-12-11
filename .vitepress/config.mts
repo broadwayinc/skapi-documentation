@@ -111,7 +111,7 @@ export default defineConfig({
         items: [
           { text: 'Introduction', link: '/api-bridge/introduction.md' },
           { text: 'Secure Post Request', link: '/api-bridge/secure-post-request.md' },
-          { text: 'Client Secret Request', link: '/api-bridge/client-secret-request.md' },
+          { text: 'Using 3rd Party APIs', link: '/api-bridge/client-secret-request.md' },
         ]
       },
       // {
@@ -128,8 +128,8 @@ export default defineConfig({
         text: 'E-Mail Service',
         items: [
           { text: 'Introduction', link: '/email/introduction.md' },
-          { text: 'Automated E-Mail', link: '/email/email-templates.md' },
-          { text: 'Bulk Email', link: '/email/newsletters.md' },
+          { text: 'Service E-Mails', link: '/email/email-templates.md' },
+          { text: 'Sending Newsletters', link: '/email/newsletters.md' },
           { text: 'Receiving Inquiries', link: '/email/inquiries.md' }
         ]
       },
