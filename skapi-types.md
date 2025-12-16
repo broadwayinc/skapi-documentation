@@ -1486,21 +1486,6 @@ type Subscription = {
 }
 ```
 
-## RealtimeCallback
-
-```ts
-type RealtimeCallback = (rt: {
-    type: 'message' | 'error' | 'success' | 'close' | 'notice' | 'private' | 'reconnect' | 'rtc:incoming' | 'rtc:closed';
-    message?: any;
-    connectRTC?: (params: RTCReceiverParams, callback: RTCEvent) => Promise<RTCResolved>; // Incoming RTC
-    hangup?: () => void; // Reject incoming RTC connection.
-    sender?: string; // user_id of the sender
-    sender_cid?: string; // scid of the sender
-    sender_rid?: string; // group of the sender
-    code?: 'USER_LEFT' | 'USER_DISCONNECTED' | 'USER_JOINED' | null; // code for notice messeges
-}) => void;
-```
-
 ## Newsletter
 
 ```ts
@@ -1514,6 +1499,21 @@ type Newsletter = {
     url: string; // URL of the html file of the newsletter
     delivered: number; // Number users delivered 
 }
+```
+
+## RealtimeCallback
+
+```ts
+type RealtimeCallback = (rt: {
+    type: 'message' | 'error' | 'success' | 'close' | 'notice' | 'private' | 'reconnect' | 'rtc:incoming' | 'rtc:closed';
+    message?: any;
+    connectRTC?: (params: RTCReceiverParams, callback: RTCEvent) => Promise<RTCResolved>; // Incoming RTC
+    hangup?: () => void; // Reject incoming RTC connection.
+    sender?: string; // user_id of the sender
+    sender_cid?: string; // scid of the sender
+    sender_rid?: string; // group of the sender
+    code?: 'USER_LEFT' | 'USER_DISCONNECTED' | 'USER_JOINED' | null; // code for notice messeges
+}) => void;
 ```
 
 ## RTCConnector
