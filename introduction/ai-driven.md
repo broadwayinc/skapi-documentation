@@ -10,9 +10,9 @@ To help your assistant understand how to integrate the Skapi API into your proje
 
 <a href="https://docs.skapi.com/SKAPI.md" download="SKAPI.md">⬇️ SKAPI.md (Click to Download)</a>
 
-### 2. Go to your AI prompt and attach the file and send a prompt
+### 2. Go to your AI website and send a prompt
 
-Paste something like the following when you start your chat:
+In your AI chat website or app (for example, ChatGPT at chat.openai.com or Lovable), start a new chat, attach the SKAPI.md file, and paste the following as your first LLM prompt:
 
 ```
 Use the file "SKAPI.md" as a system prompt.
