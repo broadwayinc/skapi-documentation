@@ -10,7 +10,7 @@ To help your assistant understand how to integrate the Skapi API into your proje
 
 <a href="https://docs.skapi.com/SKAPI.md" download="SKAPI.md">⬇️ SKAPI.md (Click to Download)</a>
 
-### 2. Attach the file and send a prompt
+### 2. Attach the file and send a prompt to your AI
 
 Paste something like the following when you start your chat:
 
