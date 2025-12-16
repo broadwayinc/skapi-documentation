@@ -4,7 +4,7 @@ Skapi works seamlessly with AI-powered coding assistants.
 
 To help your assistant understand how to integrate the Skapi API into your project, download and use the system prompt file described below.
 
-## For Chat-Based Platforms (e.g., Lovable, Bolt, ChatGPT)
+## For Chat-Based Platforms (e.g., ChatGPT, Lovable)
 
 ### 1. Download the system prompt file
 
