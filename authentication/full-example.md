@@ -4,14 +4,14 @@ This is a plain HTML template for Skapi's authentication features.
 
 This template packs all the authentication features you can use in your HTML application:
 
-- Signup
-- Signup email verification
-- Login
-- Forgot password
-- Change password
-- Update account profile
-- Remove account
-- Recover account
+-   Signup
+-   Signup email verification
+-   Login
+-   Forgot password
+-   Change password
+-   Update account profile
+-   Remove account
+-   Recover account
 
 ## Download
 
@@ -39,14 +39,13 @@ npm run dev
 
 The application will be hosted on port `3300`
 
-
 :::danger Important!
 
-Replace the `SERVICE_ID` and `OWNER_ID` value to your own service in `service.js`
+Replace the `SERVICE_ID` value to your own service in `service.js`
 
 Currently the service is running on **Trial Mode**.
 
-**All the user data will be deleted every 14 days.**
+<!-- **All the user data will be deleted every 14 days.** -->
 
 You can get your own service ID from [Skapi](https://www.skapi.com)
 
