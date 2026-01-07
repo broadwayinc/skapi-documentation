@@ -43,7 +43,7 @@ The application will be hosted on port `3300`
 
 Replace the `SERVICE_ID` value to your own service in `service.js`
 
-Currently the service is running on **Trial Mode**.
+<!-- Currently the service is running on **Trial Mode**. -->
 
 <!-- **All the user data will be deleted every 14 days.** -->
 
