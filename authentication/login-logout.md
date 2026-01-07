@@ -28,33 +28,47 @@ When the user successfully logs in, they will be redirected to the `welcome.html
 ::: code-group
 
 ```html [Form]
-<form action='welcome.html' onsubmit="skapi.login(event).catch(err=>alert(err.message))">
+<form
+    action="welcome.html"
+    onsubmit="skapi.login(event).catch(err=>alert(err.message))"
+>
     <h2>Login</h2>
-    <hr>
+    <hr />
     <label>
-        Email<br>
-        <input type="email" name="email" placeholder="user@email.com" required>
-    </label><br><br>
+        Email<br />
+        <input
+            type="email"
+            name="email"
+            placeholder="user@email.com"
+            required
+        /> </label
+    ><br /><br />
     <label>
-        Password<br>
-        <input id="password" type="password" name="password" placeholder="Your password" required>
-    </label><br><br>
-    <input type="submit" value="Login">
+        Password<br />
+        <input
+            id="password"
+            type="password"
+            name="password"
+            placeholder="Your password"
+            required
+        /> </label
+    ><br /><br />
+    <input type="submit" value="Login" />
 </form>
 ```
 
 ```js [JS]
 let parameters = {
-  email: 'user@email.com',
-  password: 'password'
-}
+    email: "user@email.com",
+    password: "password",
+};
 
-skapi.login(parameters)
-  .then(user => window.href = 'welcome.html');
+skapi.login(parameters).then((user) => (window.href = "welcome.html"));
 ```
+
 :::
 
-For more detailed information on all the parameters and options available with the [`login()`](/api-reference/authentication/README.md#login) method, 
+For more detailed information on all the parameters and options available with the [`login()`](/api-reference/authentication/README.md#login) method,
 please refer to the API Reference below:
 
 ### [`login(params): Promise<UserProfile>`](/api-reference/authentication/README.md#login)
@@ -67,11 +81,11 @@ To ensure that users' sessions are destroyed when they leave your website, you c
 
 ```javascript
 const options = {
-  autoLogin: false, // set to true to maintain the user's session
+    autoLogin: false, // set to true to maintain the user's session
 };
 
 //Set the third argument as options
-const skapi = new Skapi('service_id', options);
+const skapi = new Skapi("service_id", options);
 ```
 
 ## Logout
@@ -81,19 +95,19 @@ The [`logout()`](/api-reference/authentication/README.md#logout) method logs the
 :::code-group
 
 ```html [Form]
-<form onsubmit='skapi.logout(event)' action='page_to_show_after_logout.html'>
-  <input type='submit' value='Logout'>
+<form onsubmit="skapi.logout(event)" action="page_to_show_after_logout.html">
+    <input type="submit" value="Logout" />
 </form>
 ```
 
 ```js [JS]
-skapi.logout().then(res=>{
-  console.log(res); // 'SUCCESS: The user has been logged out.'
-  window.location.replace("page_to_show_after_logout.html");
+skapi.logout().then((res) => {
+    console.log(res); // 'SUCCESS: The user has been logged out.'
+    window.location.replace("page_to_show_after_logout.html");
 });
 ```
-:::
 
+:::
 
 ## Global Logout
 
@@ -102,22 +116,22 @@ You can let the users logout and invalidate all tokens across all the users devi
 :::code-group
 
 ```html [Form]
-<form onsubmit='skapi.logout(event)' action='page_to_show_after_logout.html'>
-  <input type='checkbox' name='global' checked>
-  <input type='submit' value='Logout'>
+<form onsubmit="skapi.logout(event)" action="page_to_show_after_logout.html">
+    <input type="checkbox" name="global" checked />
+    <input type="submit" value="Logout" />
 </form>
 ```
 
 ```js [JS]
-skapi.logout({global: true}).then(res=>{
-  console.log(res); // 'SUCCESS: The user has been logged out.'
-  window.location.replace("page_to_show_after_logout.html");
+skapi.logout({ global: true }).then((res) => {
+    console.log(res); // 'SUCCESS: The user has been logged out.'
+    window.location.replace("page_to_show_after_logout.html");
 });
 ```
+
 :::
 
-
-For more detailed information on all the parameters and options available with the [`logout()`](/api-reference/authentication/README.md#logout) method, 
+For more detailed information on all the parameters and options available with the [`logout()`](/api-reference/authentication/README.md#logout) method,
 please refer to the API Reference below:
 
 ### [`logout(params?): Promise<string>`](/api-reference/authentication/README.md#logout)
@@ -127,30 +141,31 @@ please refer to the API Reference below:
 You can listen to the updates of the user's login state by setting a callback function in the `option.eventListener.onLogin` option argument of the constructor argument in Skapi.
 
 The `onLogin` callback is triggered in the following cases:
-- Skapi initializes with the user's current authentication state.
-- User logs in or logs out.
-- User loses their session due to an expired token.
+
+-   Skapi initializes with the user's current authentication state.
+-   User logs in or logs out.
+-   User loses their session due to an expired token.
 
 If the user is logged in, the callback receives the [UserProfile](/api-reference/data-types/README.md#userprofile) object; otherwise, it receives `null`.
 
 ```js
 const options = {
-  eventListener: {
-    onLogin: (profile) => {
-      console.log(profile); // is null when user is logged out, User's information object when logged in.
-    }
-  }
+    eventListener: {
+        onLogin: (profile) => {
+            console.log(profile); // is null when user is logged out, User's information object when logged in.
+        },
+    },
 };
 
-const skapi = new Skapi('service_id', options);
+const skapi = new Skapi("service_id", options);
 ```
 
 You can also add multiple event listeners to the `onLogin` event after the Skapi object has been initialized.
 
 ```js
 skapi.onLogin = (profile) => {
-  console.log(profile); // null when user is logged out, User's information object when logged in.
-}
+    console.log(profile); // null when user is logged out, User's information object when logged in.
+};
 ```
 
-This handler is useful for updating the UI when the user logs in, logs out, or when their profile information changes.
+This handler is useful for updating the UI when the user logs in, logs out.
