@@ -142,7 +142,6 @@ Since this is a portion of the complete repository code and doesn't include supp
                         name: 'posts',
                         access_group: input_private.checked ? 'private' : 'authorized', // Depending on the checkbox, we will set the access_group to private or authorized.
                         subscription: {
-                            is_subscription_record: false, // We will set is_subscription_record to false so the posts can be queried alongside with all other peoples posts in the table.
                             upload_to_feed: true // We will upload the post to the feed so subscribed users can also fetch all the posts from all the users they subscribed at once.
                         }
                     },

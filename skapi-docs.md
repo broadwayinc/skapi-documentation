@@ -606,33 +606,47 @@ When the user successfully logs in, they will be redirected to the `welcome.html
 ::: code-group
 
 ```html [Form]
-<form action='welcome.html' onsubmit="skapi.login(event).catch(err=>alert(err.message))">
+<form
+    action="welcome.html"
+    onsubmit="skapi.login(event).catch(err=>alert(err.message))"
+>
     <h2>Login</h2>
-    <hr>
+    <hr />
     <label>
-        Email<br>
-        <input type="email" name="email" placeholder="user@email.com" required>
-    </label><br><br>
+        Email<br />
+        <input
+            type="email"
+            name="email"
+            placeholder="user@email.com"
+            required
+        /> </label
+    ><br /><br />
     <label>
-        Password<br>
-        <input id="password" type="password" name="password" placeholder="Your password" required>
-    </label><br><br>
-    <input type="submit" value="Login">
+        Password<br />
+        <input
+            id="password"
+            type="password"
+            name="password"
+            placeholder="Your password"
+            required
+        /> </label
+    ><br /><br />
+    <input type="submit" value="Login" />
 </form>
 ```
 
 ```js [JS]
 let parameters = {
-  email: 'user@email.com',
-  password: 'password'
-}
+    email: "user@email.com",
+    password: "password",
+};
 
-skapi.login(parameters)
-  .then(user => window.href = 'welcome.html');
+skapi.login(parameters).then((user) => (window.href = "welcome.html"));
 ```
+
 :::
 
-For more detailed information on all the parameters and options available with the [`login()`](/api-reference/authentication/README.md#login) method, 
+For more detailed information on all the parameters and options available with the [`login()`](/api-reference/authentication/README.md#login) method,
 please refer to the API Reference below:
 
 ### [`login(params): Promise<UserProfile>`](/api-reference/authentication/README.md#login)
@@ -645,11 +659,11 @@ To ensure that users' sessions are destroyed when they leave your website, you c
 
 ```javascript
 const options = {
-  autoLogin: false, // set to true to maintain the user's session
+    autoLogin: false, // set to true to maintain the user's session
 };
 
 //Set the third argument as options
-const skapi = new Skapi('service_id', options);
+const skapi = new Skapi("service_id", options);
 ```
 
 ## Logout
@@ -659,19 +673,19 @@ The [`logout()`](/api-reference/authentication/README.md#logout) method logs the
 :::code-group
 
 ```html [Form]
-<form onsubmit='skapi.logout(event)' action='page_to_show_after_logout.html'>
-  <input type='submit' value='Logout'>
+<form onsubmit="skapi.logout(event)" action="page_to_show_after_logout.html">
+    <input type="submit" value="Logout" />
 </form>
 ```
 
 ```js [JS]
-skapi.logout().then(res=>{
-  console.log(res); // 'SUCCESS: The user has been logged out.'
-  window.location.replace("page_to_show_after_logout.html");
+skapi.logout().then((res) => {
+    console.log(res); // 'SUCCESS: The user has been logged out.'
+    window.location.replace("page_to_show_after_logout.html");
 });
 ```
-:::
 
+:::
 
 ## Global Logout
 
@@ -680,22 +694,22 @@ You can let the users logout and invalidate all tokens across all the users devi
 :::code-group
 
 ```html [Form]
-<form onsubmit='skapi.logout(event)' action='page_to_show_after_logout.html'>
-  <input type='checkbox' name='global' checked>
-  <input type='submit' value='Logout'>
+<form onsubmit="skapi.logout(event)" action="page_to_show_after_logout.html">
+    <input type="checkbox" name="global" checked />
+    <input type="submit" value="Logout" />
 </form>
 ```
 
 ```js [JS]
-skapi.logout({global: true}).then(res=>{
-  console.log(res); // 'SUCCESS: The user has been logged out.'
-  window.location.replace("page_to_show_after_logout.html");
+skapi.logout({ global: true }).then((res) => {
+    console.log(res); // 'SUCCESS: The user has been logged out.'
+    window.location.replace("page_to_show_after_logout.html");
 });
 ```
+
 :::
 
-
-For more detailed information on all the parameters and options available with the [`logout()`](/api-reference/authentication/README.md#logout) method, 
+For more detailed information on all the parameters and options available with the [`logout()`](/api-reference/authentication/README.md#logout) method,
 please refer to the API Reference below:
 
 ### [`logout(params?): Promise<string>`](/api-reference/authentication/README.md#logout)
@@ -705,33 +719,34 @@ please refer to the API Reference below:
 You can listen to the updates of the user's login state by setting a callback function in the `option.eventListener.onLogin` option argument of the constructor argument in Skapi.
 
 The `onLogin` callback is triggered in the following cases:
-- Skapi initializes with the user's current authentication state.
-- User logs in or logs out.
-- User loses their session due to an expired token.
+
+-   Skapi initializes with the user's current authentication state.
+-   User logs in or logs out.
+-   User loses their session due to an expired token.
 
 If the user is logged in, the callback receives the [UserProfile](/api-reference/data-types/README.md#userprofile) object; otherwise, it receives `null`.
 
 ```js
 const options = {
-  eventListener: {
-    onLogin: (profile) => {
-      console.log(profile); // is null when user is logged out, User's information object when logged in.
-    }
-  }
+    eventListener: {
+        onLogin: (profile) => {
+            console.log(profile); // is null when user is logged out, User's information object when logged in.
+        },
+    },
 };
 
-const skapi = new Skapi('service_id', options);
+const skapi = new Skapi("service_id", options);
 ```
 
 You can also add multiple event listeners to the `onLogin` event after the Skapi object has been initialized.
 
 ```js
 skapi.onLogin = (profile) => {
-  console.log(profile); // null when user is logged out, User's information object when logged in.
-}
+    console.log(profile); // null when user is logged out, User's information object when logged in.
+};
 ```
 
-This handler is useful for updating the UI when the user logs in, logs out, or when their profile information changes.
+This handler is useful for updating the UI when the user logs in, logs out.
 
 
 <br>
@@ -3296,7 +3311,7 @@ The subscription feature is useful when you want users to subscribe to certain u
 
 With subscription features, the uploader can also restrict certain users from accessing their specific posts that are uploaded to the subscription table.
 
-You can let users upload records to the subscription table by setting `table.subscription.is_subscription_record` to `true` in [`postRecord()`](/api-reference/database/README.md#postrecord) parameters.
+You can let users upload records to the subscription table by setting `table.subscription.upload_to_feed` to `true` in [`postRecord()`](/api-reference/database/README.md#postrecord) parameters.
 
 When `table.subscription.upload_to_feed` is set to `true`, subscribed users can later fetch all the feeds from all the users they are subscribed to at once using the [`getFeed()`](/api-reference/database/README.md#getfeed) method.
 
@@ -3315,7 +3330,6 @@ skapi.postRecord(null, {
     name:'Posts',
     access_group: 'authorized',
     subscription: {
-      is_subscription_record: true,
       upload_to_feed: true
     }
 }})
@@ -3373,15 +3387,7 @@ that can be retrieved using the [`getUsers()`](/api-reference/database/README.md
 :::
 
 :::danger
-`table.subscription.is_subscription_record` should be set to `true` for record to show up in subscription table.
-:::
-
-:::tip
-It is possible to set `table.subscription.is_subscription_record` to `false` while still setting `table.subscription.upload_to_feed` to `true`.
-
-With this configuration, the record will be uploaded as an ordinary table record that can be queried alongside other records in the table while still appearing in the subscribers' feed.
-
-The downside is that the uploader cannot prevent blocked subscribers from seeing the record in the feed.
+`table.subscription.upload_to_feed` should be set to `true` for record to show up in subscription table.
 :::
 
 ### [`subscribe(option): Promise<Subscription>`](/api-reference/database/README.md#subscribe)
@@ -3684,7 +3690,6 @@ Since this is a portion of the complete repository code and doesn't include supp
                         name: 'posts',
                         access_group: input_private.checked ? 'private' : 'authorized', // Depending on the checkbox, we will set the access_group to private or authorized.
                         subscription: {
-                            is_subscription_record: false, // We will set is_subscription_record to false so the posts can be queried alongside with all other peoples posts in the table.
                             upload_to_feed: true // We will upload the post to the feed so subscribed users can also fetch all the posts from all the users they subscribed at once.
                         }
                     },
