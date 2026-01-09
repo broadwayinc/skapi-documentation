@@ -9,7 +9,7 @@ The subscription feature is useful when you want users to subscribe to certain u
 
 With subscription features, the uploader can also restrict certain users from accessing their specific posts that are uploaded to the subscription table.
 
-You can let users upload records to the subscription table by setting `table.subscription.is_subscription_record` to `true` in [`postRecord()`](/api-reference/database/README.md#postrecord) parameters.
+You can let users upload records to the subscription table by setting `table.subscription.upload_to_feed` to `true` in [`postRecord()`](/api-reference/database/README.md#postrecord) parameters.
 
 When `table.subscription.upload_to_feed` is set to `true`, subscribed users can later fetch all the feeds from all the users they are subscribed to at once using the [`getFeed()`](/api-reference/database/README.md#getfeed) method.
 
@@ -28,7 +28,6 @@ skapi.postRecord(null, {
     name:'Posts',
     access_group: 'authorized',
     subscription: {
-      is_subscription_record: true,
       upload_to_feed: true
     }
 }})
@@ -86,15 +85,7 @@ that can be retrieved using the [`getUsers()`](/api-reference/database/README.md
 :::
 
 :::danger
-`table.subscription.is_subscription_record` should be set to `true` for record to show up in subscription table.
-:::
-
-:::tip
-It is possible to set `table.subscription.is_subscription_record` to `false` while still setting `table.subscription.upload_to_feed` to `true`.
-
-With this configuration, the record will be uploaded as an ordinary table record that can be queried alongside other records in the table while still appearing in the subscribers' feed.
-
-The downside is that the uploader cannot prevent blocked subscribers from seeing the record in the feed.
+`table.subscription.upload_to_feed` should be set to `true` for record to show up in subscription table.
 :::
 
 ### [`subscribe(option): Promise<Subscription>`](/api-reference/database/README.md#subscribe)
