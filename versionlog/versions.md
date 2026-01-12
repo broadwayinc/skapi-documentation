@@ -1,7 +1,6 @@
 # Version History
 
 ### Current version: 1.2.7
-
 - Fixed types, removed deprecated parameters.
 
 **1.2.2**
