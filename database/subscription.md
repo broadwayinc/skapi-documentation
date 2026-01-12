@@ -9,7 +9,7 @@ The subscription feature is useful when you want users to subscribe to certain u
 
 With subscription features, the uploader can also restrict certain users from accessing their specific posts that are uploaded to the subscription table.
 
-You can let users upload records to the subscription table by setting `table.subscription.upload_to_feed` to `true` in [`postRecord()`](/api-reference/database/README.md#postrecord) parameters.
+You can let users upload records to the subscription table by setting `table.subscription.is_subscription_record` to `true` in [`postRecord()`](/api-reference/database/README.md#postrecord) parameters.
 
 When `table.subscription.upload_to_feed` is set to `true`, subscribed users can later fetch all the feeds from all the users they are subscribed to at once using the [`getFeed()`](/api-reference/database/README.md#getfeed) method.
 
@@ -28,6 +28,7 @@ skapi.postRecord(null, {
     name:'Posts',
     access_group: 'authorized',
     subscription: {
+      is_subscription_record: true,
       upload_to_feed: true
     }
 }})
