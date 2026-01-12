@@ -1,4 +1,3 @@
-
 # Deleting Records
 
 :::warning
@@ -12,16 +11,16 @@ The `params` object accepts similar parameters as the [`getRecords()`](/api-refe
 
 If the `record_id` is provided, it will delete the record with the given `record_id`.
 
-
 ## Deleting Records by Record IDs
 
 Here's an example that demonstrates how to delete multiple records using an array of record IDs:
+
 ```js
 let query = {
-    record_id: ['record_a_record_id','record_b_record_id']
+    record_id: ["record_a_record_id", "record_b_record_id"],
 };
 
-skapi.deleteRecords(query).then(response => {
+skapi.deleteRecords(query).then((response) => {
     // 'SUCCESS: records are being deleted. please give some time to finish the process.'
     console.log(response);
 });
@@ -34,12 +33,13 @@ You can only delete up to 100 record ID at a time.
 ## Deleteing Records by Unique IDs
 
 Here's an example that demonstrates how to delete multiple records using an array of unique IDs:
+
 ```js
 let query = {
-    unique_id: ['unique id of the record 1','unique id of the record 2']
+    unique_id: ["unique id of the record 1", "unique id of the record 2"],
 };
 
-skapi.deleteRecords(query).then(response => {
+skapi.deleteRecords(query).then((response) => {
     // 'SUCCESS: records are being deleted. please give some time to finish the process.'
     console.log(response);
 });
@@ -56,12 +56,12 @@ Here's an example of deleting all user's records uploaded in the "A" table with 
 ```js
 let query = {
     table: {
-        name: 'A',
-        access_group: 'public'
-    }
+        name: "A",
+        access_group: "public",
+    },
 };
 
-skapi.deleteRecords(query).then(response => {
+skapi.deleteRecords(query).then((response) => {
     // 'SUCCESS: records are being deleted. please give some time to finish the process.'
     console.log(response);
 });
@@ -81,7 +81,7 @@ However, if the user is an admin, they can delete any records in the database. S
 Read more about admin access [here](/admin/intro.md).
 :::
 
-For more detailed information on all the parameters and options available with the [`deleteRecords()`](/api-reference/database/README.md#deleterecords) method, 
+For more detailed information on all the parameters and options available with the [`deleteRecords()`](/api-reference/database/README.md#deleterecords) method,
 please refer to the API Reference below:
 
-### [`deleteRecords(params): Promise<string>`](/api-reference/database/README.md#deleterecords)
+### [`deleteRecords(params): Promise<string | DatabaseResponse<string>>`](/api-reference/database/README.md#deleterecords)

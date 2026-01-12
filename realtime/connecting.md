@@ -12,7 +12,7 @@ User must be logged in to call this method
 Before you start sending realtime data, you must create a realtime connection.
 You can create a realtime connection by calling [`connectRealtime()`](/api-reference/realtime/README.md#connectrealtime) method.
 
-For more detailed information on all the parameters and options available with the [`connectRealtime()`](/api-reference/realtime/README.md#connectrealtime) method, 
+For more detailed information on all the parameters and options available with the [`connectRealtime()`](/api-reference/realtime/README.md#connectrealtime) method,
 please refer to the API Reference below:
 
 ### [`connectRealtime(RealtimeCallback): Promise<WebSocket>`](/api-reference/realtime/README.md#connectrealtime)
@@ -27,7 +27,6 @@ let RealtimeCallback = (rt) => {
       type: 'message' | 'error' | 'success' | 'close' | 'notice' | 'private' | 'reconnect' | 'rtc:incoming' | 'rtc:closed';
       message?: any;
       connectRTC?: (params: RTCReceiverParams, callback: RTCEvent) => Promise<RTCResolved>; // Incoming RTC
-      hangup?: () => void; // Reject incoming RTC connection.
       sender?: string; // user_id of the sender
       sender_cid?: string; // scid of the sender
       sender_rid?: string; // group of the sender
@@ -37,7 +36,7 @@ let RealtimeCallback = (rt) => {
     }
     */
     console.log(rt);
-}
+};
 
 skapi.connectRealtime(RealtimeCallback);
 ```
@@ -46,33 +45,33 @@ In the example above, the [RealtimeCallback](/api-reference/data-types/README.md
 
 When the callback runs, it receives a message object with the following properties:
 
-- `type` Shows the type of the received message as below:
-  
-  - "message": When there is data broadcasted from the realtime group.
+-   `type` Shows the type of the received message as below:
 
-  - "error": When there is an error. Usually websocket connection has an error and will be disconnected.
+    -   "message": When there is data broadcasted from the realtime group.
 
-  - "success": When the connection is established. This may fire on initial connection, or when the reconnection attempt is successful.
+    -   "error": When there is an error. Usually websocket connection has an error and will be disconnected.
 
-  - "close": When the connection is intentionally closed by the user.
+    -   "success": When the connection is established. This may fire on initial connection, or when the reconnection attempt is successful.
 
-  - "notice": When there is a notice. Usually notice users when the user in a realtime group has joined, left, or being disconnected.
+    -   "close": When the connection is intentionally closed by the user.
 
-  - "private": When there is private data transfer between the users.
+    -   "notice": When there is a notice. Usually notice users when the user in a realtime group has joined, left, or being disconnected.
 
-  - "reconnect": When there is reconnection attempt. This happens after user leaves the browser tab or device screen is lock for certain amount of time, and the user comes back to the application. The websocket can disconnect when the application is left unfocus for some period of time.
-  
-  - "rtc:incoming": When there is incoming WebRTC call.
-  - "rtc:closed": When the WebRTC connection is closed.
+    -   "private": When there is private data transfer between the users.
 
-- `message` is the data passed from the server. It can be any JSON data.
-- `sender` is the user ID of the message sender. It is only available when `type` is "message" or "private".
-- `sender_cid` is the connection ID of the message sender. It can be used to track the sender's connected device.
-- `sender_rid` is the group name of the received message.
-- `code` is a string identifier for notice messages.
-- `connectRTC`: Incoming RTC calls. Can answer by executing the callback.
-- `hangup`: Function to reject incoming RTC connection.
-  
+    -   "reconnect": When there is reconnection attempt. This happens after user leaves the browser tab or device screen is lock for certain amount of time, and the user comes back to the application. The websocket can disconnect when the application is left unfocus for some period of time.
+
+    -   "rtc:incoming": When there is incoming WebRTC call.
+    -   "rtc:closed": When the WebRTC connection is closed.
+
+-   `message` is the data passed from the server. It can be any JSON data.
+-   `sender` is the user ID of the message sender. It is only available when `type` is "message" or "private".
+-   `sender_cid` is the connection ID of the message sender. It can be used to track the sender's connected device.
+-   `sender_rid` is the group name of the received message.
+-   `code` is a string identifier for notice messages.
+-   `connectRTC`: Incoming RTC calls. Can answer by executing the callback.
+-   `hangup`: Function to reject incoming RTC connection.
+
 ## Closing Connection
 
 You can close the realtime connection by calling [`closeRealtime()`](/api-reference/realtime/README.md#closerealtime) method.
@@ -90,7 +89,7 @@ When the connection is successfully closed, [RealtimeCallback](/api-reference/da
 }
 ```
 
-For more detailed information on all the parameters and options available with the [`closeRealtime()`](/api-reference/realtime/README.md#closerealtime) method, 
+For more detailed information on all the parameters and options available with the [`closeRealtime()`](/api-reference/realtime/README.md#closerealtime) method,
 please refer to the API Reference below:
 
 ### [`closeRealtime(): Promise<void>`](/api-reference/realtime/README.md#closerealtime)
