@@ -6,10 +6,10 @@ Users must login to request or receive video calls.
 
 This example features:
 
-- List available receivers
-- Requesting video call
-- Receive incomming video call
-- Hangup incomming, outgoing calls
+-   List available receivers
+-   Requesting video call
+-   Receive incomming video call
+-   Hangup incomming, outgoing calls
 
 All the main code is in **welcome.html**
 
@@ -21,13 +21,11 @@ So we recommend installing innerHTML string highlighting extention like one belo
 
 [es6-string-html](https://marketplace.visualstudio.com/items/?itemName=Tobermory.es6-string-html)
 
-
 ## Download
 
 Download the full project [Here](https://github.com/alsdk9879/skapi-webrtc-html-template/archive/refs/heads/main.zip)
 
 Or visit our [Github page](https://github.com/alsdk9879/skapi-webrtc-html-template)
-
 
 ## How To Run
 
@@ -56,14 +54,13 @@ You need to setup a HTTPS environment when developing a WebRTC feature for your 
 You can host your application in skapi.com or host from your personal servers.
 :::
 
-
 :::danger Important!
 
-Replace the `SERVICE_ID` and `OWNER_ID` value to your own service in `service.js`
+Replace the `SERVICE_ID` value to your own service in `service.js`
 
-Currently the service is running on **Trial Mode**.
+<!-- Currently the service is running on **Trial Mode**. -->
 
-**All the user data will be deleted every 14 days.**
+<!-- **All the user data will be deleted every 14 days.** -->
 
 You can get your own service ID from [Skapi](https://www.skapi.com)
 
