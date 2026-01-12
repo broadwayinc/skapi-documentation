@@ -1,6 +1,9 @@
 # Version History
 
-### Current version: 1.2.2
+### Current version: 1.2.7
+- Fixed types, removed deprecated parameters.
+
+**1.2.2**
 
 - Corrected argument types in the class constructor.
 
