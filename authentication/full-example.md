@@ -15,9 +15,9 @@ This template packs all the authentication features you can use in your HTML app
 
 ## Download
 
-Download the full project [Here](https://github.com/alsdk9879/skapi-auth-html-template/archive/refs/heads/main.zip)
+Download the full project [Here](https://github.com/kkb75281/skapi-auth-html-template/archive/refs/heads/main.zip)
 
-Or visit our [Github page](https://github.com/alsdk9879/skapi-auth-html-template)
+Or visit our [Github page](https://github.com/kkb75281/skapi-auth-html-template)
 
 ## How To Run
 

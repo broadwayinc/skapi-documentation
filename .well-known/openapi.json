@@ -1,974 +1,1214 @@
 {
-  "openapi": "3.0.0",
-  "info": {
-    "title": "Skapi - Complete JavaScript Library Reference",
-    "description": "**Complete JavaScript library documentation for Skapi serverless backend.** This is NOT a REST API - all methods are called via the skapi-js library as `skapi.methodName()` after initialization.\n\n## ⚠️ IMPORTANT: This is a JavaScript Library\n\n**Not a REST API!** You cannot call these endpoints directly with curl or HTTP clients. You must:\n1. Install skapi-js library (CDN or NPM)\n2. Initialize with your SERVICE_ID and OWNER_ID\n3. Call methods via the library instance\n\n**Get credentials from:** https://www.skapi.com/my-services\n\n## 🚀 Quick Start:\n```javascript\n// CDN (HTML Projects)\n<script src=\"https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js\"></script>\n<script>\n  const skapi = new Skapi('SERVICE_ID', 'OWNER_ID');\n</script>\n\n// NPM (SPA: React/Vue/Angular)\nimport { Skapi } from 'skapi-js';\nconst skapi = new Skapi('SERVICE_ID', 'OWNER_ID');\nwindow.skapi = skapi; // CRITICAL: Must be accessible as window.skapi in SPA projects\n```\n\n## ⚠️ CRITICAL REQUIREMENTS:\n\n### For SPA Projects (React/Vue/Angular/Svelte):\n1. **Import in main index.html** (not in component files)\n2. **Initialize Skapi there**\n3. **Make accessible as `window.skapi`** - This is mandatory!\n4. SERVICE_ID and OWNER_ID must be provided by user\n\n### For Form Submissions:\n- **Always pass HTML form `onsubmit` event directly** to Skapi methods that accept `SubmitEvent`\n- Example: `<form onsubmit=\"skapi.signup(event)\">` (not all methods accept SubmitEvent)\n\n### Table/Index/Tag Naming Rules:\n- **Allowed characters:** Alphanumeric + `[ \\ ] ^ _ ` : ; < = > ? @`\n- **NOT allowed:** Periods (`.`) in table names or tags\n- **Exception:** Index names CAN use periods for compound indexes (e.g., `category.date`)\n- **NO whitespace** in any names\n\n## ⭐ Core Features:\n\n### 🔐 Authentication\n- Complete signup/login system with email verification\n- Password reset with email codes\n- OAuth/OpenID social login\n- Auto-login and session management\n\n### 📧 Email System (7 Types)\n**Automated Emails:**\n- Signup Confirmation - `signup(params, {signup_confirmation: true})`\n- Welcome Email - Sent on first login\n- Email Verification - `verifyEmail()`\n- Password Reset - `forgotPassword()` → `resetPassword()`\n\n**Marketing:**\n- Public Newsletters - `subscribeNewsletter({group: 'public'})`\n- Service Mail - `subscribeNewsletter({group: 'authorized'})`\n- Contact Forms - `sendInquiry()`\n\n**Template System:** Register sender email → Get endpoints → Send HTML to endpoint → Becomes template with {{variables}}\n\n### 💾 Database\n- NoSQL with **file uploads** (automatic CDN)\n- **Indexing** for fast queries (simple & compound)\n- **Tagging** system (hashtags)\n- **Referencing** (likes, comments)\n- **Subscriptions** (follow users/content)\n- **Access control** (public, private, authorized, 0-99)\n- Pagination up to 1000 records per request\n\n### 🌐 Free Hosting\n- Static website hosting with HTTPS\n- Global CDN distribution\n- Custom domain support\n- Upload via admin panel\n\n## 📚 GitHub Templates:\n- Auth: https://github.com/alsdk9879/skapi-auth-html-template\n- Database: https://github.com/alsdk9879/skapi-database-html-template\n- Chat: https://github.com/alsdk9879/skapi-chat-html-template\n- WebRTC: https://github.com/alsdk9879/skapi-webrtc-html-template\n- Getting Started (HTML/Vue/React/Angular): https://www.skapi.com/use-cases",
-    "version": "1.0.0",
-    "contact": {
-      "email": "support@broadwayinc.com",
-      "url": "https://www.skapi.com"
-    }
-  },
-  "servers": [],
-  "tags": [
-    {"name": "Connection", "description": "Initialize library and check connection"},
-    {"name": "Authentication", "description": "Signup, login, logout, password management"},
-    {"name": "User Account", "description": "Profile management, verification, search"},
-    {"name": "Database", "description": "Create, read, update, delete records with files"},
-    {"name": "Database Advanced", "description": "Indexing, tagging, referencing, subscriptions"},
-    {"name": "Access Control", "description": "Grant/revoke private record access"},
-    {"name": "Email & Newsletters", "description": "7 email types, templates, subscriptions, inquiries"},
-    {"name": "Real-time", "description": "WebSocket messaging and groups"},
-    {"name": "WebRTC", "description": "Video/audio calls (HTTPS required)"},
-    {"name": "Notifications", "description": "Push notifications (HTTPS required)"},
-    {"name": "API Integration", "description": "Secure third-party API calls"},
-    {"name": "Admin", "description": "Admin-only operations"}
-  ],
-  "paths": {
-    "/connection/getFormResponse": {
-      "post": {
-        "tags": ["Connection"],
-        "summary": "getFormResponse(event): object",
-        "description": "Extract form data from SubmitEvent into object.\n\n```javascript\nfunction handleSubmit(event) {\n  const formData = skapi.getFormResponse(event);\n  console.log(formData); // {name: 'John', email: 'john@email.com'}\n}\n```\n\nUseful when you need form data as object before passing to Skapi methods.",
-        "operationId": "getFormResponse",
-        "responses": {"200": {"description": "Form data object"}}
-      }
-    },
-    "/connection/info": {
-      "get": {
-        "tags": ["Connection"],
-        "summary": "getConnectionInfo()",
-        "description": "Returns connection information including service name, user IP, location, and library version.\n\n```javascript\nskapi.getConnectionInfo().then(info => {\n  console.log(info.service_name);\n  console.log(info.user_ip);\n  console.log(info.version);\n});\n```",
-        "operationId": "getConnectionInfo",
-        "responses": {
-          "200": {
-            "description": "Connection info",
-            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ConnectionInfo"}}}
-          }
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Skapi - Complete JavaScript Library Reference",
+        "description": "**Complete JavaScript library documentation for Skapi serverless backend.** This is NOT a REST API - all methods are called via the skapi-js library as `skapi.methodName()` after initialization.\n\n## ⚠️ IMPORTANT: This is a JavaScript Library\n\n**Not a REST API!** You cannot call these endpoints directly with curl or HTTP clients. You must:\n1. Install skapi-js library (CDN or NPM)\n2. Initialize with your SERVICE_ID and OWNER_ID\n3. Call methods via the library instance\n\n**Get credentials from:** https://www.skapi.com/my-services\n\n## 🚀 Quick Start:\n```javascript\n// CDN (HTML Projects)\n<script src=\"https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js\"></script>\n<script>\n  const skapi = new Skapi('SERVICE_ID', 'OWNER_ID');\n</script>\n\n// NPM (SPA: React/Vue/Angular)\nimport { Skapi } from 'skapi-js';\nconst skapi = new Skapi('SERVICE_ID', 'OWNER_ID');\nwindow.skapi = skapi; // CRITICAL: Must be accessible as window.skapi in SPA projects\n```\n\n## ⚠️ CRITICAL REQUIREMENTS:\n\n### For SPA Projects (React/Vue/Angular/Svelte):\n1. **Import in main index.html** (not in component files)\n2. **Initialize Skapi there**\n3. **Make accessible as `window.skapi`** - This is mandatory!\n4. SERVICE_ID and OWNER_ID must be provided by user\n\n### For Form Submissions:\n- **Always pass HTML form `onsubmit` event directly** to Skapi methods that accept `SubmitEvent`\n- Example: `<form onsubmit=\"skapi.signup(event)\">` (not all methods accept SubmitEvent)\n\n### Table/Index/Tag Naming Rules:\n- **Allowed characters:** Alphanumeric + `[ \\ ] ^ _ ` : ; < = > ? @`\n- **NOT allowed:** Periods (`.`) in table names or tags\n- **Exception:** Index names CAN use periods for compound indexes (e.g., `category.date`)\n- **NO whitespace** in any names\n\n## ⭐ Core Features:\n\n### 🔐 Authentication\n- Complete signup/login system with email verification\n- Password reset with email codes\n- OAuth/OpenID social login\n- Auto-login and session management\n\n### 📧 Email System (7 Types)\n**Automated Emails:**\n- Signup Confirmation - `signup(params, {signup_confirmation: true})`\n- Welcome Email - Sent on first login\n- Email Verification - `verifyEmail()`\n- Password Reset - `forgotPassword()` → `resetPassword()`\n\n**Marketing:**\n- Public Newsletters - `subscribeNewsletter({group: 'public'})`\n- Service Mail - `subscribeNewsletter({group: 'authorized'})`\n- Contact Forms - `sendInquiry()`\n\n**Template System:** Register sender email → Get endpoints → Send HTML to endpoint → Becomes template with {{variables}}\n\n### 💾 Database\n- NoSQL with **file uploads** (automatic CDN)\n- **Indexing** for fast queries (simple & compound)\n- **Tagging** system (hashtags)\n- **Referencing** (likes, comments)\n- **Subscriptions** (follow users/content)\n- **Access control** (public, private, authorized, 0-99)\n- Pagination up to 1000 records per request\n\n### 🌐 Free Hosting\n- Static website hosting with HTTPS\n- Global CDN distribution\n- Custom domain support\n- Upload via admin panel\n\n## 📚 GitHub Templates:\n- Auth: https://github.com/kkb75281/skapi-auth-html-template\n- Database: https://github.com/kkb75281/skapi-database-html-template\n- Chat: https://github.com/kkb75281/skapi-chat-html-template\n- WebRTC: https://github.com/kkb75281/skapi-webrtc-html-template\n- Getting Started (HTML/Vue/React/Angular): https://www.skapi.com/use-cases",
+        "version": "1.0.0",
+        "contact": {
+            "email": "support@broadwayinc.com",
+            "url": "https://www.skapi.com"
         }
-      }
     },
-    "/connection/mock": {
-      "post": {
-        "tags": ["Connection"],
-        "summary": "mock(data, options?)",
-        "description": "Test endpoint for development. Echoes back data sent to it.\n\n```javascript\nskapi.mock({hello: 'world'}).then(r => console.log(r.hello));\n```",
-        "operationId": "mock",
-        "responses": {"200": {"description": "Echoes input data"}}
-      }
-    },
-    "/auth/signup": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "signup(params | SubmitEvent, options?)",
-        "description": "**CORE FEATURE:** Create user account with powerful email options.\n\n## Email Features:\n### Signup Confirmation Email:\n```javascript\nskapi.signup({email, password, name}, {\n  signup_confirmation: true // or redirect URL\n});\n// User receives confirmation email with verification link\n```\n\n### Auto-Login:\n```javascript\nskapi.signup(params, {login: true});\n// Returns UserProfile, logs user in immediately\n```\n\n### Newsletter Opt-in:\n```javascript\nskapi.signup(params, {email_subscription: true});\n```\n\n### With HTML Form:\n```html\n<form onsubmit=\"skapi.signup(event, {signup_confirmation: true})\">\n  <input name=\"email\" type=\"email\" required>\n  <input name=\"password\" minlength=\"6\" required>\n  <input name=\"name\" required>\n  <button>Sign Up</button>\n</form>\n```\n\n**Welcome Email** sent automatically on first successful login.\n\n**Customize templates:** Register sender email in Skapi admin → Get endpoint → Send HTML to endpoint",
-        "operationId": "signup",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": ["email", "password"],
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "description": "Must be in email format"
-                  },
-                  "password": {
-                    "type": "string",
-                    "minLength": 6,
-                    "maxLength": 60,
-                    "description": "At least 6 characters and maximum 60 characters"
-                  },
-                  "name": {"type": "string"},
-                  "phone_number": {
-                    "type": "string",
-                    "pattern": "^\\+[0-9]+$",
-                    "description": "Must be in +0012341234 format"
-                  },
-                  "address": {"type": "string"},
-                  "gender": {"type": "string"},
-                  "birthdate": {
-                    "type": "string",
-                    "format": "date",
-                    "description": "Must be in YYYY-MM-DD format"
-                  },
-                  "email_public": {
-                    "type": "boolean",
-                    "default": false
-                  },
-                  "phone_number_public": {
-                    "type": "boolean",
-                    "default": false
-                  },
-                  "address_public": {
-                    "type": "boolean",
-                    "default": false
-                  },
-                  "gender_public": {
-                    "type": "boolean",
-                    "default": false
-                  },
-                  "birthdate_public": {
-                    "type": "boolean",
-                    "default": false
-                  },
-                  "picture": {
-                    "type": "string",
-                    "format": "uri",
-                    "description": "URL of profile picture"
-                  },
-                  "profile": {
-                    "type": "string",
-                    "format": "uri",
-                    "description": "URL of profile page"
-                  },
-                  "website": {
-                    "type": "string",
-                    "format": "uri",
-                    "description": "URL of website"
-                  },
-                  "nickname": {"type": "string"},
-                  "misc": {
-                    "type": "string",
-                    "description": "Additional string value, only visible to account owner"
-                  }
-                }
-              }
-            }
-          }
+    "servers": [],
+    "tags": [
+        {
+            "name": "Connection",
+            "description": "Initialize library and check connection"
         },
-        "parameters": [
-          {
-            "name": "signup_confirmation",
-            "in": "query",
-            "schema": {
-              "oneOf": [
-                {"type": "boolean"},
-                {"type": "string", "format": "uri"}
-              ]
-            },
-            "description": "When true, user required to confirm signup. When URL given, redirects after confirmation"
-          },
-          {
-            "name": "email_subscription",
-            "in": "query",
-            "schema": {"type": "boolean", "default": false},
-            "description": "When true, user can receive newsletter from admin"
-          },
-          {
-            "name": "login",
-            "in": "query",
-            "schema": {"type": "boolean", "default": false},
-            "description": "When true, user logged in after signup. Cannot use with signup_confirmation"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "User created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {"$ref": "#/components/schemas/UserProfile"},
-                    {"type": "string"}
-                  ]
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/auth/resendSignupConfirmation": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "resendSignupConfirmation()",
-        "description": "Resend signup confirmation email. Requires at least one login attempt.\n\n```javascript\nskapi.resendSignupConfirmation();\n```",
-        "operationId": "resendSignupConfirmation",
-        "responses": {"200": {"description": "Confirmation email sent"}}
-      }
-    },
-    "/auth/login": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "login(params | SubmitEvent)",
-        "description": "**CORE FEATURE:** User login with session management.\n\n**Welcome Email** sent on first successful login.\n\n```javascript\n// Direct call\nskapi.login({email: 'user@email.com', password: 'pass'});\n\n// With form\n<form action=\"welcome.html\" onsubmit=\"skapi.login(event)\">\n  <input name=\"email\" type=\"email\" required>\n  <input name=\"password\" required>\n  <button>Login</button>\n</form>\n```\n\n**Auto-login:** Sessions maintained by default. Configure in initialization:\n```javascript\nconst skapi = new Skapi('service_id', 'owner_id', {\n  autoLogin: true, // default\n  eventListener: {\n    onLogin: (user) => console.log(user ? 'Logged in' : 'Logged out')\n  }\n});\n```",
-        "operationId": "login",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": ["email", "password"],
-                "properties": {
-                  "email": {"type": "string"},
-                  "password": {"type": "string"}
-                }
-              }
-            }
-          }
+        {
+            "name": "Authentication",
+            "description": "Signup, login, logout, password management"
         },
-        "responses": {
-          "200": {
-            "description": "Login successful",
-            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/UserProfile"}}}
-          }
-        }
-      }
-    },
-    "/auth/logout": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "logout(params?)",
-        "description": "Logout user. Optional global logout across all devices.\n\n```javascript\nskapi.logout(); // This device\nskapi.logout({global: true}); // All devices\n```",
-        "operationId": "logout",
-        "responses": {"200": {"description": "Logged out"}}
-      }
-    },
-    "/auth/getProfile": {
-      "get": {
-        "tags": ["Authentication"],
-        "summary": "getProfile(options?)",
-        "description": "Get current user profile or null if not logged in.\n\n```javascript\nskapi.getProfile().then(user => {\n  if (user) {\n    console.log('Logged in as', user.name);\n  } else {\n    window.location.href = 'login.html';\n  }\n});\n\n// Refresh token\nskapi.getProfile({refreshToken: true});\n```",
-        "operationId": "getProfile",
-        "parameters": [
-          {
-            "name": "refreshToken",
-            "in": "query",
-            "schema": {"type": "boolean", "default": false},
-            "description": "Refresh JWT token before fetching"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "User profile or null if not logged in",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "nullable": true,
-                  "allOf": [
-                    {"$ref": "#/components/schemas/UserProfile"}
-                  ]
-                }
-              }
+        {
+            "name": "User Account",
+            "description": "Profile management, verification, search"
+        },
+        {
+            "name": "Database",
+            "description": "Create, read, update, delete records with files"
+        },
+        {
+            "name": "Database Advanced",
+            "description": "Indexing, tagging, referencing, subscriptions"
+        },
+        {
+            "name": "Access Control",
+            "description": "Grant/revoke private record access"
+        },
+        {
+            "name": "Email & Newsletters",
+            "description": "7 email types, templates, subscriptions, inquiries"
+        },
+        {
+            "name": "Real-time",
+            "description": "WebSocket messaging and groups"
+        },
+        {
+            "name": "WebRTC",
+            "description": "Video/audio calls (HTTPS required)"
+        },
+        {
+            "name": "Notifications",
+            "description": "Push notifications (HTTPS required)"
+        },
+        {
+            "name": "API Integration",
+            "description": "Secure third-party API calls"
+        },
+        { "name": "Admin", "description": "Admin-only operations" }
+    ],
+    "paths": {
+        "/connection/getFormResponse": {
+            "post": {
+                "tags": ["Connection"],
+                "summary": "getFormResponse(event): object",
+                "description": "Extract form data from SubmitEvent into object.\n\n```javascript\nfunction handleSubmit(event) {\n  const formData = skapi.getFormResponse(event);\n  console.log(formData); // {name: 'John', email: 'john@email.com'}\n}\n```\n\nUseful when you need form data as object before passing to Skapi methods.",
+                "operationId": "getFormResponse",
+                "responses": { "200": { "description": "Form data object" } }
             }
-          }
-        }
-      }
-    },
-    "/auth/forgotPassword": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "forgotPassword(params | SubmitEvent)",
-        "description": "**Email Feature:** Request password reset code via email.\n\n```javascript\n// Step 1: Request code\nskapi.forgotPassword({email: 'user@email.com'});\n// User receives password reset email with code\n\n// Step 2: Use resetPassword() with code\n```\n\n**Email template** customizable in Skapi admin.",
-        "operationId": "forgotPassword",
-        "responses": {"200": {"description": "Reset code sent"}}
-      }
-    },
-    "/auth/resetPassword": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "resetPassword(params | SubmitEvent)",
-        "description": "Reset password using code from email.\n\n```javascript\nskapi.resetPassword({\n  email: 'user@email.com',\n  code: '123456', // from email\n  new_password: 'newPass123'\n});\n```",
-        "operationId": "resetPassword",
-        "responses": {"200": {"description": "Password reset"}}
-      }
-    },
-    "/auth/openidLogin": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "openidLogin(params | SubmitEvent)",
-        "description": "OAuth/OpenID social login (Google, Facebook, etc.).\n\n```javascript\nskapi.openidLogin({\n  token: 'oauth_token_from_provider',\n  id: 'openid_logger_id',\n  merge: true // merge with existing account\n});\n```",
-        "operationId": "openidLogin",
-        "responses": {
-          "200": {
-            "description": "Logged in via OAuth",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "userProfile": {"$ref": "#/components/schemas/UserProfile"},
-                    "openid": {"type": "object"}
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/user/updateProfile": {
-      "put": {
-        "tags": ["User Account"],
-        "summary": "updateProfile(params | SubmitEvent)",
-        "description": "Update user profile information.\n\n```javascript\nskapi.updateProfile({name: 'New Name', phone_number: '+1234567890'});\n```",
-        "operationId": "updateProfile",
-        "responses": {
-          "200": {
-            "description": "Profile updated",
-            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/UserProfile"}}}
-          }
-        }
-      }
-    },
-    "/user/changePassword": {
-      "post": {
-        "tags": ["User Account"],
-        "summary": "changePassword(params | SubmitEvent)",
-        "description": "Change user password (requires current password).\n\n```javascript\nskapi.changePassword({\n  current_password: 'oldPass',\n  new_password: 'newPass123'\n});\n```",
-        "operationId": "changePassword",
-        "responses": {"200": {"description": "Password changed"}}
-      }
-    },
-    "/user/verifyEmail": {
-      "post": {
-        "tags": ["User Account"],
-        "summary": "verifyEmail(params? | SubmitEvent)",
-        "description": "**Email Feature:** Send or verify email verification code.\n\n```javascript\n// Send code\nskapi.verifyEmail();\n// User receives email verification email\n\n// Verify code\nskapi.verifyEmail({code: '123456'});\n```",
-        "operationId": "verifyEmail",
-        "responses": {"200": {"description": "Code sent or verified"}}
-      }
-    },
-    "/user/disableAccount": {
-      "post": {
-        "tags": ["User Account"],
-        "summary": "disableAccount()",
-        "description": "Disable current user account. Can be recovered later.\n\n```javascript\nskapi.disableAccount();\n```",
-        "operationId": "disableAccount",
-        "responses": {"200": {"description": "Account disabled"}}
-      }
-    },
-    "/user/recoverAccount": {
-      "post": {
-        "tags": ["User Account"],
-        "summary": "recoverAccount(redirect)",
-        "description": "**Email Feature:** Send recovery email for disabled account.\n\n```javascript\nskapi.recoverAccount('/welcome.html'); // or true\n```",
-        "operationId": "recoverAccount",
-        "responses": {"200": {"description": "Recovery email sent"}}
-      }
-    },
-    "/user/getUsers": {
-      "get": {
-        "tags": ["User Account"],
-        "summary": "getUsers(params?, fetchOptions?)",
-        "description": "Search users with filtering and pagination.\n\n```javascript\n// Search by name starting with 'John'\nskapi.getUsers({\n  searchFor: 'name',\n  value: 'John',\n  condition: '>='\n}, {limit: 50});\n\n// Get all users\nskapi.getUsers();\n```",
-        "operationId": "getUsers",
-        "responses": {
-          "200": {
-            "description": "User list",
-            "content": {
-              "application/json": {
-                "schema": {"$ref": "#/components/schemas/DatabaseResponse"}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/database/postRecord": {
-      "post": {
-        "tags": ["Database"],
-        "summary": "postRecord(data | SubmitEvent, config)",
-        "description": "**CORE FEATURE:** Create/update records with file uploads, indexing, tagging.\n\n## File Uploads with CDN:\n```html\n<form onsubmit=\"skapi.postRecord(event, {\n  table: 'posts',\n  tags: 'photo,sunset',\n  index: {name: 'likes', value: 0}\n})\">\n  <input name=\"caption\" placeholder=\"Caption\">\n  <input name=\"photo\" type=\"file\" accept=\"image/*\">\n  <button>Post</button>\n</form>\n```\nFiles automatically uploaded to cloud storage with CDN. Access via `record.bin[0].url`\n\n## Indexing:\n```javascript\n// Create with index\nskapi.postRecord({title: 'Post'}, {\n  table: 'posts',\n  index: {name: 'likes', value: 0}\n});\n\n// Query by index later\nskapi.getRecords({\n  table: 'posts',\n  index: {name: 'likes', value: 100, condition: '>'}\n});\n```\n\n## Tagging (Hashtags):\n```javascript\nskapi.postRecord(data, {\n  table: 'posts',\n  tags: ['photo', 'sunset', 'beach']\n});\n\n// Query by tag\nskapi.getRecords({table: 'posts', tag: 'sunset'});\n```\n\n## Access Control:\n```javascript\n// Private (owner only)\nskapi.postRecord(data, {table: 'posts', access_group: 'private'});\n\n// Public (everyone)\nskapi.postRecord(data, {table: 'posts', access_group: 'public'});\n\n// Authorized users only\nskapi.postRecord(data, {table: 'posts', access_group: 'authorized'});\n\n// Custom level (0-99)\nskapi.postRecord(data, {table: 'posts', access_group: 5});\n```\n\n## Referencing (Likes/Comments):\n```javascript\n// Like a post\nskapi.postRecord(null, {\n  table: 'likes',\n  reference: 'post_record_id'\n});\n\n// Get like count\nskapi.getRecords({\n  table: 'posts',\n  reference_count: true\n});\n```\n\n## Subscriptions:\n```javascript\nskapi.postRecord(data, {\n  table: 'posts',\n  subscription: {\n    upload_to_feed: true,\n    notify_subscribers: true\n  }\n});\n```\n\n## Update Record:\n```javascript\nskapi.postRecord({title: 'Updated'}, {\n  record_id: 'existing_record_id'\n});\n```\n\n**Table naming:** Alphanumeric, [ \\ ] ^ _ ` : ; < = > ? @ (NO periods or spaces)",
-        "operationId": "postRecord",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "data": {"type": "object", "description": "Your data"},
-                  "config": {
-                    "type": "object",
-                    "required": ["table"],
-                    "properties": {
-                      "table": {"oneOf": [{"type": "string"}, {"type": "object"}]},
-                      "record_id": {"type": "string"},
-                      "unique_id": {"type": "string"},
-                      "index": {"type": "object"},
-                      "tags": {"oneOf": [{"type": "string"}, {"type": "array"}]},
-                      "reference": {"type": "string"},
-                      "readonly": {"type": "boolean"},
-                      "subscription": {"type": "object"}
+        },
+        "/connection/info": {
+            "get": {
+                "tags": ["Connection"],
+                "summary": "getConnectionInfo()",
+                "description": "Returns connection information including service name, user IP, location, and library version.\n\n```javascript\nskapi.getConnectionInfo().then(info => {\n  console.log(info.service_name);\n  console.log(info.user_ip);\n  console.log(info.version);\n});\n```",
+                "operationId": "getConnectionInfo",
+                "responses": {
+                    "200": {
+                        "description": "Connection info",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConnectionInfo"
+                                }
+                            }
+                        }
                     }
-                  }
                 }
-              }
             }
-          }
         },
-        "responses": {
-          "200": {
-            "description": "Record created/updated",
-            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/RecordData"}}}
-          }
-        }
-      }
-    },
-    "/database/getRecords": {
-      "get": {
-        "tags": ["Database"],
-        "summary": "getRecords(query, fetchOptions?)",
-        "description": "**CORE FEATURE:** Query records with powerful filtering.\n\n## By Table:\n```javascript\nskapi.getRecords({table: 'posts'});\n```\n\n## By Index:\n```javascript\n// Exact match\nskapi.getRecords({\n  table: 'posts',\n  index: {name: 'likes', value: 10}\n});\n\n// Condition (>, >=, =, <, <=)\nskapi.getRecords({\n  table: 'posts',\n  index: {name: 'likes', value: 100, condition: '>'}\n});\n\n// Compound index\nskapi.getRecords({\n  table: 'posts',\n  index: {name: 'category.date', value: 'news.2024'}\n});\n```\n\n## By Tag:\n```javascript\nskapi.getRecords({table: 'posts', tag: 'sunset'});\n```\n\n## By Reference:\n```javascript\n// Get all likes for a post\nskapi.getRecords({reference: 'post_id'});\n```\n\n## By Record ID:\n```javascript\nskapi.getRecords({record_id: 'specific_id'});\n```\n\n## By Unique ID:\n```javascript\nskapi.getRecords({unique_id: 'ORDER-123'});\n```\n\n## Pagination:\n```javascript\nlet opts = {limit: 50, fetchMore: false, ascending: false};\n\nskapi.getRecords({table: 'posts'}, opts).then(res => {\n  console.log(res.list); // records\n  console.log(res.endOfList); // true if no more\n  \n  if (!res.endOfList) {\n    opts.fetchMore = true;\n    skapi.getRecords({table: 'posts'}, opts); // next batch\n  }\n});\n```\n\n**Max 1000 records per request**",
-        "operationId": "getRecords",
-        "parameters": [
-          {"name": "table", "in": "query", "schema": {"type": "string"}},
-          {"name": "record_id", "in": "query", "schema": {"type": "string"}},
-          {"name": "unique_id", "in": "query", "schema": {"type": "string"}},
-          {"name": "tag", "in": "query", "schema": {"type": "string"}},
-          {"name": "reference", "in": "query", "schema": {"type": "string"}},
-          {"name": "limit", "in": "query", "schema": {"type": "integer", "maximum": 1000}},
-          {"name": "fetchMore", "in": "query", "schema": {"type": "boolean"}},
-          {"name": "ascending", "in": "query", "schema": {"type": "boolean"}}
-        ],
-        "responses": {
-          "200": {
-            "description": "Records retrieved",
-            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/DatabaseResponse"}}}
-          }
-        }
-      }
-    },
-    "/database/deleteRecords": {
-      "delete": {
-        "tags": ["Database"],
-        "summary": "deleteRecords(params)",
-        "description": "Delete one or more records, or entire table.\n\n```javascript\n// Delete one record\nskapi.deleteRecords({record_id: 'id'});\n\n// Delete multiple\nskapi.deleteRecords({record_ids: ['id1', 'id2']});\n\n// Delete entire table\nskapi.deleteRecords({table: 'posts'});\n```",
-        "operationId": "deleteRecords",
-        "responses": {"200": {"description": "Records deleted"}}
-      }
-    },
-    "/database/getTables": {
-      "get": {
-        "tags": ["Database"],
-        "summary": "getTables(fetchOptions?)",
-        "description": "List all tables with record counts and sizes.\n\n```javascript\nskapi.getTables().then(res => {\n  res.list.forEach(t => {\n    console.log(t.table, t.number_of_records);\n  });\n});\n```",
-        "operationId": "getTables",
-        "responses": {
-          "200": {
-            "description": "Table list",
-            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/DatabaseResponse"}}}
-          }
-        }
-      }
-    },
-    "/database/getIndex": {
-      "get": {
-        "tags": ["Database Advanced"],
-        "summary": "getIndex(params, fetchOptions?)",
-        "description": "Get list of index names/values for a table.\n\n```javascript\nskapi.getIndex({table: 'posts', index: 'likes'});\n```",
-        "operationId": "getIndex",
-        "responses": {
-          "200": {
-            "description": "Index list",
-            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/DatabaseResponse"}}}
-          }
-        }
-      }
-    },
-    "/database/getTags": {
-      "get": {
-        "tags": ["Database Advanced"],
-        "summary": "getTags(params, fetchOptions?)",
-        "description": "Get list of tags used in a table.\n\n```javascript\nskapi.getTags({table: 'posts'}).then(res => {\n  res.list.forEach(t => {\n    console.log(t.tag, t.number_of_records);\n  });\n});\n```",
-        "operationId": "getTags",
-        "responses": {
-          "200": {
-            "description": "Tag list",
-            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/DatabaseResponse"}}}
-          }
-        }
-      }
-    },
-    "/database/getUniqueId": {
-      "get": {
-        "tags": ["Database Advanced"],
-        "summary": "getUniqueId(params, fetchOptions?)",
-        "description": "Find records by unique ID pattern.\n\n```javascript\n// Find all IDs starting with 'ORDER-'\nskapi.getUniqueId({\n  unique_id: 'ORDER-',\n  condition: '>='\n});\n```",
-        "operationId": "getUniqueId",
-        "responses": {
-          "200": {
-            "description": "Unique ID list",
-            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/DatabaseResponse"}}}
-          }
-        }
-      }
-    },
-    "/database/subscribe": {
-      "post": {
-        "tags": ["Database Advanced"],
-        "summary": "subscribe(params)",
-        "description": "Subscribe to user or record for notifications.\n\n```javascript\n// Subscribe to user\nskapi.subscribe({user_id: 'user123'});\n\n// Subscribe to record\nskapi.subscribe({record_id: 'record123'});\n```",
-        "operationId": "subscribe",
-        "responses": {"200": {"description": "Subscribed"}}
-      }
-    },
-    "/database/unsubscribe": {
-      "delete": {
-        "tags": ["Database Advanced"],
-        "summary": "unsubscribe(params)",
-        "description": "Unsubscribe from user or record.\n\n```javascript\nskapi.unsubscribe({user_id: 'user123'});\n```",
-        "operationId": "unsubscribe",
-        "responses": {"200": {"description": "Unsubscribed"}}
-      }
-    },
-    "/database/blockSubscriber": {
-      "post": {
-        "tags": ["Database Advanced"],
-        "summary": "blockSubscriber(params)",
-        "description": "Block a user from subscribing to you.\n\n```javascript\nskapi.blockSubscriber({user_id: 'user_to_block'});\n```\n\nBlocked users:\n- Cannot subscribe to your content\n- Are removed from subscribers if already subscribed\n- Cannot see your public posts in their feed",
-        "operationId": "blockSubscriber",
-        "responses": {"200": {"description": "Subscriber blocked"}}
-      }
-    },
-    "/database/unblockSubscriber": {
-      "delete": {
-        "tags": ["Database Advanced"],
-        "summary": "unblockSubscriber(params)",
-        "description": "Unblock a user, allowing them to subscribe again.\n\n```javascript\nskapi.unblockSubscriber({user_id: 'user_to_unblock'});\n```",
-        "operationId": "unblockSubscriber",
-        "responses": {"200": {"description": "Subscriber unblocked"}}
-      }
-    },
-    "/database/getSubscriptions": {
-      "get": {
-        "tags": ["Database Advanced"],
-        "summary": "getSubscriptions(params?, fetchOptions?)",
-        "description": "Get list of subscriptions.\n\n```javascript\nskapi.getSubscriptions();\n```",
-        "operationId": "getSubscriptions",
-        "responses": {
-          "200": {
-            "description": "Subscription list",
-            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/DatabaseResponse"}}}
-          }
-        }
-      }
-    },
-    "/database/getFeed": {
-      "get": {
-        "tags": ["Database Advanced"],
-        "summary": "getFeed(fetchOptions?)",
-        "description": "Get feed of posts from subscribed users.\n\n```javascript\nskapi.getFeed({limit: 20, ascending: false});\n```",
-        "operationId": "getFeed",
-        "responses": {
-          "200": {
-            "description": "Feed records",
-            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/DatabaseResponse"}}}
-          }
-        }
-      }
-    },
-    "/database/getFile": {
-      "get": {
-        "tags": ["Database Advanced"],
-        "summary": "getFile(params)",
-        "description": "Get file URL from uploaded file key.\n\n```javascript\nskapi.getFile({file_key: 'file_key_from_bin'}).then(url => {\n  console.log('File URL:', url);\n});\n```\n\nUseful for accessing files uploaded via `postRecord()`.",
-        "operationId": "getFile",
-        "responses": {"200": {"description": "File URL"}}
-      }
-    },
-    "/access/grantPrivateAccess": {
-      "post": {
-        "tags": ["Access Control"],
-        "summary": "grantPrivateAccess(params)",
-        "description": "Grant user access to private record.\n\n```javascript\nskapi.grantPrivateAccess({\n  record_id: 'private_record_id',\n  user_id: 'user_to_grant'\n});\n```",
-        "operationId": "grantPrivateAccess",
-        "responses": {"200": {"description": "Access granted"}}
-      }
-    },
-    "/access/removePrivateAccess": {
-      "delete": {
-        "tags": ["Access Control"],
-        "summary": "removePrivateAccess(params)",
-        "description": "Revoke user's access to private record.\n\n```javascript\nskapi.removePrivateAccess({\n  record_id: 'record_id',\n  user_id: 'user_id'\n});\n```",
-        "operationId": "removePrivateAccess",
-        "responses": {"200": {"description": "Access removed"}}
-      }
-    },
-    "/access/listPrivateRecordAccess": {
-      "get": {
-        "tags": ["Access Control"],
-        "summary": "listPrivateRecordAccess(params, fetchOptions?)",
-        "description": "List users with access to private record.\n\n```javascript\nskapi.listPrivateRecordAccess({record_id: 'record_id'});\n```",
-        "operationId": "listPrivateRecordAccess",
-        "responses": {
-          "200": {
-            "description": "Access list",
-            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/DatabaseResponse"}}}
-          }
-        }
-      }
-    },
-    "/email/subscribeNewsletter": {
-      "post": {
-        "tags": ["Email & Newsletters"],
-        "summary": "subscribeNewsletter(params | SubmitEvent, callbacks?)",
-        "description": "**MAJOR EMAIL FEATURE:** Subscribe users to newsletters - public or service mail.\n\n## 📧 Email Type: Newsletter Subscription Confirmation\n\nWhen user subscribes, they receive a **confirmation email** with verification link.\n\n## Public Newsletter (No Login Required):\n\n**Perfect for:**\n- Marketing newsletters\n- Blog updates\n- Product announcements\n- Any public content\n\n**HTML Form Example:**\n```html\n<form onsubmit=\"skapi.subscribeNewsletter(event)\">\n  <input name=\"email\" type=\"email\" placeholder=\"your@email.com\" required>\n  <input name=\"group\" value=\"public\" hidden>\n  <input name=\"redirect\" value=\"https://yourdomain.com/thanks\" hidden>\n  <button type=\"submit\">Subscribe to Newsletter</button>\n</form>\n```\n\n**JavaScript Example:**\n```javascript\nskapi.subscribeNewsletter({\n  email: 'user@email.com',\n  group: 'public',\n  redirect: 'https://yourdomain.com/thanks'\n}).then(res => {\n  alert('Confirmation email sent! Please check your inbox.');\n});\n```\n\n**What Happens:**\n1. User submits email\n2. **Confirmation email sent immediately**\n3. User clicks verification link in email\n4. Email verified and subscribed\n5. User redirected to your thank you page\n\n**Confirmation Email Includes:**\n- Verification link (auto-generated)\n- Your service branding\n- Customizable message (via template)\n\n## Service Mail (Logged-In Users):\n\n**Perfect for:**\n- Account notifications\n- Order updates\n- Service announcements\n- User-specific emails\n\n**Requirements:**\n- User must be logged in\n- Email must be verified\n\n**Example:**\n```javascript\n// User must be logged in first\nskapi.subscribeNewsletter({group: 'authorized'}).then(() => {\n  console.log('Subscribed to service emails');\n});\n```\n\n## Unsubscribe Links:\n\n- All public newsletters include **automatic unsubscribe link**\n- Service mail can be unsubscribed via `unsubscribeNewsletter()`\n- Unsubscribe is instant, no confirmation needed\n\n## Email Template Customization:\n\nSee `adminNewsletterRequest()` for how to customize the subscription confirmation email template.",
-        "operationId": "subscribeNewsletter",
-        "responses": {"200": {"description": "Subscribed successfully, confirmation email sent"}}
-      }
-    },
-    "/email/unsubscribeNewsletter": {
-      "delete": {
-        "tags": ["Email & Newsletters"],
-        "summary": "unsubscribeNewsletter(params)",
-        "description": "Unsubscribe from newsletters.\n\n```javascript\nskapi.unsubscribeNewsletter({group: 'authorized'});\n```",
-        "operationId": "unsubscribeNewsletter",
-        "responses": {"200": {"description": "Unsubscribed"}}
-      }
-    },
-    "/email/adminNewsletterRequest": {
-      "post": {
-        "tags": ["Email & Newsletters"],
-        "summary": "adminNewsletterRequest()",
-        "description": "**CRITICAL EMAIL FEATURE:** Get personalized email endpoint for sending newsletters.\n\n## 🎨 Email Template System Explained:\n\nThis is how you create **custom email templates** for all 7 email types in Skapi.\n\n### Step-by-Step Setup:\n\n**1. Register Sender Email (One-time):**\n- Go to Skapi admin panel\n- Navigate to Email Settings\n- Add your sender email (must be email you own)\n- Verify ownership via confirmation email\n\n**2. Get Email Endpoint:**\n```javascript\nskapi.adminNewsletterRequest().then(endpoint => {\n  console.log('Your newsletter endpoint:', endpoint);\n  // Returns: service_id-endpoint_id@mail.skapi.com\n});\n```\n\n**IMPORTANT:** This endpoint is:\n- Unique to your admin account\n- Only accepts emails from your registered sender\n- Used to create/update newsletter templates\n\n**3. Create Email Template:**\n\nSend an HTML email to the endpoint. That email becomes your template!\n\n**Example Template Email:**\n```html\nFrom: your-registered-email@domain.com\nTo: service_id-endpoint_id@mail.skapi.com\nSubject: Your Newsletter Template\n\n<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: Arial, sans-serif; }\n    .header { background: #007bff; color: white; padding: 20px; }\n    .content { padding: 20px; }\n    .footer { background: #f8f9fa; padding: 10px; text-align: center; }\n  </style>\n</head>\n<body>\n  <div class=\"header\">\n    <h1>Welcome to Our Newsletter!</h1>\n  </div>\n  <div class=\"content\">\n    <p>Hi {{name}},</p>\n    <p>Thank you for subscribing to our newsletter at {{email}}!</p>\n    <p>You'll receive updates about:</p>\n    <ul>\n      <li>New product launches</li>\n      <li>Exclusive discounts</li>\n      <li>Industry news</li>\n    </ul>\n  </div>\n  <div class=\"footer\">\n    <p><a href=\"{{unsubscribe_link}}\">Unsubscribe</a></p>\n    <p>© 2024 Your Company</p>\n  </div>\n</body>\n</html>\n```\n\n**4. Available Template Variables:**\n\n**User Data:**\n- `{{name}}` - User's name\n- `{{email}}` - User's email\n- `{{user_id}}` - User ID (if logged in)\n\n**System Generated:**\n- `{{verification_link}}` - Email verification link\n- `{{unsubscribe_link}}` - Unsubscribe link (auto-included in public newsletters)\n- `{{code}}` - Verification code (for password reset, email verification)\n- `{{service_name}}` - Your service name\n\n**Custom Variables:**\n- You can include any variables from your data\n- Pass them when sending newsletters\n\n**5. Update Template:**\n\nSend another email to the same endpoint - it replaces the old template.\n\n**6. Different Templates for Different Email Types:**\n\nIn Skapi admin, you can get different endpoints for:\n- Public newsletters\n- Service mail\n- Signup confirmation\n- Password reset\n- Welcome email\n\nEach can have its own custom template!\n\n## Sending Newsletters:\n\nOnce template is set up, send emails to your endpoint:\n\n**From Your Email Client:**\n```\nTo: service_id-endpoint_id@mail.skapi.com\nSubject: Weekly Update - January 2024\n\n[Your newsletter content here]\n[Variables like {{name}} will be auto-replaced for each subscriber]\n```\n\n**Skapi automatically:**\n- Sends to all subscribers\n- Replaces {{variables}} for each user\n- Tracks opens, clicks, bounces\n- Handles unsubscribes\n- Manages bounce/complaint lists\n\n## View Sent Emails:\n\nUse `getNewsletters()` to see all sent emails with analytics.",
-        "operationId": "adminNewsletterRequest",
-        "responses": {"200": {"description": "Email endpoint returned"}}
-      }
-    },
-    "/email/getNewsletterSubscription": {
-      "get": {
-        "tags": ["Email & Newsletters"],
-        "summary": "getNewsletterSubscription(params)",
-        "description": "Check if user is subscribed to newsletters.\n\n```javascript\nskapi.getNewsletterSubscription({group: 'authorized'}).then(subs => {\n  if (subs.length) {\n    console.log('Subscribed');\n  }\n});\n```",
-        "operationId": "getNewsletterSubscription",
-        "responses": {"200": {"description": "Subscription status"}}
-      }
-    },
-    "/email/getNewsletters": {
-      "get": {
-        "tags": ["Email & Newsletters"],
-        "summary": "getNewsletters(params?, options?)",
-        "description": "**EMAIL ANALYTICS:** Get sent newsletters with detailed tracking data.\n\n## 📊 Email Analytics Dashboard\n\nTrack performance of all your sent newsletters:\n\n**Basic Usage:**\n```javascript\nskapi.getNewsletters({group: 'public'}).then(newsletters => {\n  newsletters.list.forEach(email => {\n    console.log('Subject:', email.subject);\n    console.log('Sent:', new Date(email.timestamp));\n    console.log('Opens:', email.read);\n    console.log('Bounces:', email.bounced);\n    console.log('Complaints:', email.complaint);\n    console.log('HTML:', email.url); // View sent email\n  });\n});\n```\n\n## Available Metrics:\n\n**email.subject** - Email subject line\n\n**email.timestamp** - When email was sent (Unix timestamp)\n\n**email.read** - Number of times email was opened\n- Tracks unique opens\n- Indicates engagement rate\n- Use to optimize send times\n\n**email.bounced** - Number of bounced emails\n- Hard bounces: Invalid email addresses\n- Soft bounces: Temporary issues (full inbox, server down)\n- High bounce rate may indicate old email list\n\n**email.complaint** - Spam complaints\n- Users marked email as spam\n- High complaints may affect sender reputation\n- Review content if complaints are high\n\n**email.url** - Direct link to sent email HTML\n- View exactly what was sent\n- Share with team for review\n- Archive for records\n\n**email.message_id** - Unique identifier for email\n\n## Filtering & Queries:\n\n**By Group:**\n```javascript\n// Public newsletters only\nskapi.getNewsletters({group: 'public'});\n\n// Service mail only\nskapi.getNewsletters({group: 'authorized'});\n```\n\n**By Time Range:**\n```javascript\n// Emails sent in last 24 hours\nskapi.getNewsletters({\n  searchFor: 'timestamp',\n  value: Date.now() - 86400000,\n  condition: '>'\n});\n\n// Emails sent before specific date\nskapi.getNewsletters({\n  searchFor: 'timestamp',\n  value: Date.now() - 30*86400000, // 30 days ago\n  condition: '<'\n});\n```\n\n**By Performance:**\n```javascript\n// High engagement emails (>100 opens)\nskapi.getNewsletters({\n  searchFor: 'read',\n  value: 100,\n  condition: '>'\n});\n\n// Emails with bounces\nskapi.getNewsletters({\n  searchFor: 'bounced',\n  value: 0,\n  condition: '>'\n});\n```\n\n## Pagination:\n\n```javascript\nlet opts = {limit: 50, ascending: false}; // Most recent first\n\nskapi.getNewsletters({group: 'public'}, opts).then(res => {\n  console.log(res.list); // Email array\n  console.log(res.endOfList); // true if no more\n  \n  if (!res.endOfList) {\n    opts.fetchMore = true;\n    skapi.getNewsletters({group: 'public'}, opts); // Next page\n  }\n});\n```\n\n## Use Cases:\n\n**1. Performance Dashboard:**\n```javascript\nconst stats = {\n  totalSent: 0,\n  totalOpens: 0,\n  totalBounces: 0,\n  avgOpenRate: 0\n};\n\nskapi.getNewsletters().then(res => {\n  stats.totalSent = res.list.length;\n  res.list.forEach(email => {\n    stats.totalOpens += email.read;\n    stats.totalBounces += email.bounced;\n  });\n  stats.avgOpenRate = (stats.totalOpens / stats.totalSent * 100).toFixed(2);\n  console.log('Email Stats:', stats);\n});\n```\n\n**2. A/B Testing:**\n```javascript\n// Compare two subject lines\nskapi.getNewsletters().then(res => {\n  const emailA = res.list.find(e => e.subject === 'Subject A');\n  const emailB = res.list.find(e => e.subject === 'Subject B');\n  \n  console.log('Subject A opens:', emailA.read);\n  console.log('Subject B opens:', emailB.read);\n});\n```\n\n**3. Clean Email List:**\n```javascript\n// Find emails with high bounce rates\nskapi.getNewsletters({\n  searchFor: 'bounced',\n  value: 10,\n  condition: '>'\n}).then(res => {\n  console.log('High bounce emails:', res.list);\n  // Review and clean your subscriber list\n});\n```",
-        "operationId": "getNewsletters",
-        "responses": {
-          "200": {
-            "description": "Newsletter list with complete analytics",
-            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/DatabaseResponse"}}}
-          }
-        }
-      }
-    },
-    "/email/sendInquiry": {
-      "post": {
-        "tags": ["Email & Newsletters"],
-        "summary": "sendInquiry(params | SubmitEvent)",
-        "description": "**EMAIL FEATURE:** Send contact form inquiries directly to service admin.\n\n## 📧 Email Type: Contact Form / Inquiry\n\nPerfect for:\n- Contact forms on websites\n- Customer support requests\n- General inquiries\n- Feedback collection\n- Lead generation\n\n## No Login Required:\n\nAnyone can send inquiries without creating an account - great for:\n- Landing pages\n- Marketing websites\n- Public contact forms\n\n## HTML Form Example:\n\n```html\n<form id=\"contact-form\" onsubmit=\"skapi.sendInquiry(event).then(() => {\n  alert('Thank you! We\\'ll get back to you soon.');\n  this.reset();\n}).catch(err => {\n  alert('Error: ' + err.message);\n})\">\n  <h2>Contact Us</h2>\n  \n  <label for=\"name\">Name:</label>\n  <input type=\"text\" id=\"name\" name=\"name\" required>\n  \n  <label for=\"email\">Email:</label>\n  <input type=\"email\" id=\"email\" name=\"email\" required>\n  \n  <label for=\"subject\">Subject:</label>\n  <input type=\"text\" id=\"subject\" name=\"subject\" required>\n  \n  <label for=\"message\">Message:</label>\n  <textarea id=\"message\" name=\"message\" rows=\"5\" required></textarea>\n  \n  <button type=\"submit\">Send Message</button>\n</form>\n```\n\n## JavaScript Example:\n\n```javascript\nskapi.sendInquiry({\n  name: 'John Doe',\n  email: 'john@email.com',\n  subject: 'Question about pricing',\n  message: 'I would like to know more about your enterprise plan...'\n}).then(response => {\n  console.log('Inquiry sent:', response);\n}).catch(error => {\n  console.error('Failed to send:', error);\n});\n```\n\n## What Happens:\n\n1. User fills out form\n2. **Email sent immediately to service admin**\n3. Admin receives inquiry with all details\n4. Admin can reply directly to user's email\n5. No data stored in database (privacy-friendly)\n\n## Email Received by Admin:\n\n```\nFrom: noreply@skapi.com\nTo: your-admin-email@domain.com\nSubject: New Inquiry: [subject]\n\nName: John Doe\nEmail: john@email.com\nSubject: Question about pricing\nMessage:\nI would like to know more about your enterprise plan...\n\nService: your-service-name\nDate: 2024-01-15 14:30:00\n```\n\n## Security & Spam Prevention:\n\n**Rate Limiting:**\n- Inquiries are rate-limited to prevent spam\n- Same IP can't send too many in short time\n\n**Turn Off if Not Using:**\n- If you don't use contact forms, disable in Skapi admin\n- Go to Service Settings → \"Prevent Inquiry\"\n- Prevents spam when feature not needed\n\n## Use Cases:\n\n**1. Landing Page Contact:**\n```html\n<!-- Simple landing page contact -->\n<form onsubmit=\"skapi.sendInquiry(event)\">\n  <input name=\"email\" placeholder=\"Your email\" required>\n  <textarea name=\"message\" placeholder=\"Your message\" required>\n  </textarea>\n  <button>Contact Us</button>\n</form>\n```\n\n**2. Support Ticket:**\n```javascript\nfunction submitSupportTicket(formEvent) {\n  return skapi.sendInquiry(formEvent).then(() => {\n    showThankYouMessage();\n    sendConfirmationToUser();\n  });\n}\n```\n\n**3. Lead Generation:**\n```javascript\nskapi.sendInquiry({\n  name: leadData.name,\n  email: leadData.email,\n  subject: 'New Lead from ' + leadData.source,\n  message: `\n    Lead Source: ${leadData.source}\n    Interest: ${leadData.product}\n    Budget: ${leadData.budget}\n    Notes: ${leadData.notes}\n  `\n});\n```\n\n## Pro Tips:\n\n**Confirmation Message:**\nAlways show confirmation after sending:\n```javascript\nskapi.sendInquiry(event).then(() => {\n  document.getElementById('form').style.display = 'none';\n  document.getElementById('success').style.display = 'block';\n});\n```\n\n**Error Handling:**\n```javascript\nskapi.sendInquiry(event).catch(err => {\n  if (err.code === 'REQUEST_EXCEED') {\n    alert('Too many requests. Please try again later.');\n  } else {\n    alert('Error sending message. Please try again.');\n  }\n});\n```\n\n**Auto-reply to User:**\nCombine with email system to send auto-reply:\n```javascript\nskapi.sendInquiry(inquiryData).then(() => {\n  // Could trigger a welcome email or confirmation\n  console.log('Inquiry sent, user notified');\n});\n```",
-        "operationId": "sendInquiry",
-        "responses": {"200": {"description": "Inquiry sent to admin email"}}
-      }
-    },
-    "/realtime/connect": {
-      "post": {
-        "tags": ["Real-time"],
-        "summary": "connectRealtime(callback)",
-        "description": "Establish WebSocket connection for real-time messaging.\n\n```javascript\nfunction realtimeCallback(rt) {\n  if (rt.type === 'message') {\n    console.log('From:', rt.sender);\n    console.log('Message:', rt.message);\n  }\n}\n\nskapi.connectRealtime(realtimeCallback);\n```\n\n**Message types:** message, error, success, close, notice, private, reconnect, rtc:incoming, rtc:closed",
-        "operationId": "connectRealtime",
-        "responses": {"200": {"description": "Connected to real-time"}}
-      }
-    },
-    "/realtime/post": {
-      "post": {
-        "tags": ["Real-time"],
-        "summary": "postRealtime(message | SubmitEvent, recipient, notification?)",
-        "description": "Send real-time data to user or group.\n\n```javascript\n// To user\nskapi.postRealtime({msg: 'Hello'}, 'user_id');\n\n// To group\nskapi.postRealtime({msg: 'Hello all'}, 'group_name');\n\n// With form\n<form onsubmit=\"skapi.postRealtime(event, 'user_id')\">\n  <input name=\"msg\">\n  <button>Send</button>\n</form>\n```",
-        "operationId": "postRealtime",
-        "responses": {"200": {"description": "Message sent"}}
-      }
-    },
-    "/realtime/join": {
-      "post": {
-        "tags": ["Real-time"],
-        "summary": "joinRealtime(params)",
-        "description": "Join real-time group (chat room).\n\n```javascript\nskapi.joinRealtime({group: 'chat-room-1'});\n```\n\nCreates group if doesn't exist.",
-        "operationId": "joinRealtime",
-        "responses": {"200": {"description": "Joined group"}}
-      }
-    },
-    "/realtime/getGroups": {
-      "get": {
-        "tags": ["Real-time"],
-        "summary": "getRealtimeGroups(fetchOptions?)",
-        "description": "Get list of available real-time groups.\n\n```javascript\nskapi.getRealtimeGroups().then(groups => {\n  groups.list.forEach(g => {\n    console.log(g.group, g.active_users);\n  });\n});\n```",
-        "operationId": "getRealtimeGroups",
-        "responses": {
-          "200": {
-            "description": "Group list",
-            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/DatabaseResponse"}}}
-          }
-        }
-      }
-    },
-    "/realtime/getRealtimeUsers": {
-      "get": {
-        "tags": ["Real-time"],
-        "summary": "getRealtimeUsers(params?, fetchOptions?)",
-        "description": "Get list of users connected to real-time.\n\n```javascript\n// All connected users\nskapi.getRealtimeUsers();\n\n// In specific group\nskapi.getRealtimeUsers({group: 'chat-room-1'});\n```",
-        "operationId": "getRealtimeUsers",
-        "responses": {
-          "200": {
-            "description": "Connected users list",
-            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/DatabaseResponse"}}}
-          }
-        }
-      }
-    },
-    "/realtime/close": {
-      "post": {
-        "tags": ["Real-time"],
-        "summary": "closeRealtime()",
-        "description": "Close WebSocket connection.\n\n```javascript\nskapi.closeRealtime();\n```",
-        "operationId": "closeRealtime",
-        "responses": {"200": {"description": "Connection closed"}}
-      }
-    },
-    "/webrtc/connect": {
-      "post": {
-        "tags": ["WebRTC"],
-        "summary": "connectRTC(params, callback)",
-        "description": "**HTTPS required:** Initiate WebRTC peer connection for video/audio.\n\n```javascript\n// Both users must be in same real-time group\nskapi.connectRTC({\n  cid: 'opponent_connection_id',\n  media: {audio: true, video: true}\n}, (e) => {\n  if (e.type === 'track') {\n    videoElement.srcObject = e.streams[0];\n  }\n}).then(rtc => {\n  localVideo.srcObject = rtc.media;\n  // rtc.hangup() to end call\n});\n```\n\nSee WebRTC template: https://github.com/alsdk9879/skapi-webrtc-html-template",
-        "operationId": "connectRTC",
-        "responses": {"200": {"description": "RTC connection initiated"}}
-      }
-    },
-    "/notifications/vapidPublicKey": {
-      "get": {
-        "tags": ["Notifications"],
-        "summary": "vapidPublicKey()",
-        "description": "**HTTPS required:** Get VAPID key for push notifications.\n\n```javascript\nskapi.vapidPublicKey().then(res => {\n  const vapid = res.VAPIDPublicKey;\n  // Use with service worker for push notifications\n});\n```",
-        "operationId": "vapidPublicKey",
-        "responses": {"200": {"description": "VAPID key"}}
-      }
-    },
-    "/notifications/subscribe": {
-      "post": {
-        "tags": ["Notifications"],
-        "summary": "subscribeNotification(params)",
-        "description": "**HTTPS required:** Subscribe to push notifications.\n\n```javascript\n// After setting up service worker\nconst subscription = await navigator.serviceWorker.pushManager.subscribe(...);\nskapi.subscribeNotification({subscription});\n```",
-        "operationId": "subscribeNotification",
-        "responses": {"200": {"description": "Subscribed to notifications"}}
-      }
-    },
-    "/notifications/unsubscribe": {
-      "delete": {
-        "tags": ["Notifications"],
-        "summary": "unsubscribeNotification()",
-        "description": "Unsubscribe from push notifications.\n\n```javascript\nskapi.unsubscribeNotification();\n```",
-        "operationId": "unsubscribeNotification",
-        "responses": {"200": {"description": "Unsubscribed"}}
-      }
-    },
-    "/notifications/push": {
-      "post": {
-        "tags": ["Notifications"],
-        "summary": "pushNotification(params)",
-        "description": "Send push notification to user(s). HTTPS required.\n\n```javascript\nskapi.pushNotification({\n  user_id: 'user123', // or user_ids: ['user1', 'user2']\n  title: 'New Message',\n  body: 'You have a new message from John',\n  url: '/messages'\n});\n```",
-        "operationId": "pushNotification",
-        "responses": {"200": {"description": "Notification sent"}}
-      }
-    },
-    "/api/secureRequest": {
-      "post": {
-        "tags": ["API Integration"],
-        "summary": "secureRequest(params)",
-        "description": "Make secure API requests (deprecated - use clientSecretRequest).\n\n```javascript\nskapi.secureRequest({\n  url: 'https://api.example.com/endpoint',\n  method: 'POST',\n  data: {key: 'value'}\n});\n```\n\n**Recommended:** Use `clientSecretRequest()` instead.",
-        "operationId": "secureRequest",
-        "responses": {"200": {"description": "API response"}}
-      }
-    },
-    "/api/clientSecretRequest": {
-      "post": {
-        "tags": ["API Integration"],
-        "summary": "clientSecretRequest(params)",
-        "description": "Make secure requests to third-party APIs using encrypted client secrets.\n\n```javascript\n// Client secret configured in Skapi admin\nskapi.clientSecretRequest({\n  url: 'https://api.third-party.com/endpoint',\n  clientSecretName: 'my_api_key',\n  method: 'POST',\n  data: {query: 'search'},\n  headers: {'Custom-Header': 'value'}\n}).then(response => {\n  console.log(response);\n});\n```\n\n**Setup:**\n1. Add client secret in Skapi admin\n2. Choose public (no login) or private (login required)\n3. Use clientSecretName to reference it",
-        "operationId": "clientSecretRequest",
-        "responses": {"200": {"description": "API response"}}
-      }
-    },
-    "/admin/inviteUser": {
-      "post": {
-        "tags": ["Admin"],
-        "summary": "inviteUser(params)",
-        "description": "**Admin only:** Invite user to service via email.\n\n```javascript\nskapi.inviteUser({\n  email: 'user@email.com',\n  access_group: 5,\n  redirect: '/welcome.html'\n});\n```",
-        "operationId": "inviteUser",
-        "responses": {"200": {"description": "Invitation sent"}}
-      }
-    },
-    "/admin/resendInvitation": {
-      "post": {
-        "tags": ["Admin"],
-        "summary": "resendInvitation(params)",
-        "description": "**Admin only:** Resend invitation email.\n\n```javascript\nskapi.resendInvitation({invitation_id: 'invitation_id'});\n```",
-        "operationId": "resendInvitation",
-        "responses": {"200": {"description": "Invitation resent"}}
-      }
-    },
-    "/admin/getInvitations": {
-      "get": {
-        "tags": ["Admin"],
-        "summary": "getInvitations(fetchOptions?)",
-        "description": "**Admin only:** List sent invitations.\n\n```javascript\nskapi.getInvitations();\n```",
-        "operationId": "getInvitations",
-        "responses": {
-          "200": {
-            "description": "Invitation list",
-            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/DatabaseResponse"}}}
-          }
-        }
-      }
-    },
-    "/admin/cancelInvitation": {
-      "delete": {
-        "tags": ["Admin"],
-        "summary": "cancelInvitation(params)",
-        "description": "**Admin only:** Cancel pending invitation.\n\n```javascript\nskapi.cancelInvitation({invitation_id: 'invitation_id'});\n```",
-        "operationId": "cancelInvitation",
-        "responses": {"200": {"description": "Invitation cancelled"}}
-      }
-    },
-    "/admin/grantAccess": {
-      "post": {
-        "tags": ["Admin"],
-        "summary": "grantAccess(params)",
-        "description": "**Admin only:** Grant user access level.\n\n```javascript\nskapi.grantAccess({\n  user_id: 'user123',\n  access_group: 10 // 0-99\n});\n```",
-        "operationId": "grantAccess",
-        "responses": {"200": {"description": "Access granted"}}
-      }
-    },
-    "/admin/createAccount": {
-      "post": {
-        "tags": ["Admin"],
-        "summary": "createAccount(params)",
-        "description": "**Admin only:** Create user account directly (no signup email).\n\n```javascript\nskapi.createAccount({\n  email: 'user@email.com',\n  password: 'tempPassword123',\n  name: 'John Doe',\n  access_group: 1\n});\n```",
-        "operationId": "createAccount",
-        "responses": {
-          "200": {
-            "description": "Account created",
-            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/UserProfile"}}}
-          }
-        }
-      }
-    },
-    "/admin/deleteAccount": {
-      "delete": {
-        "tags": ["Admin"],
-        "summary": "deleteAccount(params)",
-        "description": "**Admin only:** Permanently delete user account.\n\n```javascript\nskapi.deleteAccount({user_id: 'user123'});\n```\n\n**Warning:** This is permanent and cannot be undone!",
-        "operationId": "deleteAccount",
-        "responses": {"200": {"description": "Account deleted"}}
-      }
-    },
-    "/admin/blockAccount": {
-      "post": {
-        "tags": ["Admin"],
-        "summary": "blockAccount(params)",
-        "description": "**Admin only:** Block user account (prevents login).\n\n```javascript\nskapi.blockAccount({user_id: 'user123'});\n```\n\nBlocked users cannot log in but account is preserved.",
-        "operationId": "blockAccount",
-        "responses": {"200": {"description": "Account blocked"}}
-      }
-    },
-    "/admin/unblockAccount": {
-      "delete": {
-        "tags": ["Admin"],
-        "summary": "unblockAccount(params)",
-        "description": "**Admin only:** Unblock user account.\n\n```javascript\nskapi.unblockAccount({user_id: 'user123'});\n```",
-        "operationId": "unblockAccount",
-        "responses": {"200": {"description": "Account unblocked"}}
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "ConnectionInfo": {
-        "type": "object",
-        "properties": {
-          "service_name": {"type": "string"},
-          "user_ip": {"type": "string"},
-          "user_agent": {"type": "string"},
-          "user_location": {"type": "string", "description": "Country code"},
-          "version": {"type": "string", "description": "Skapi library version"}
-        }
-      },
-      "UserProfile": {
-        "type": "object",
-        "description": "OpenID-compliant user profile",
-        "properties": {
-          "user_id": {"type": "string"},
-          "email": {"type": "string"},
-          "email_verified": {"type": "boolean"},
-          "username": {"type": "string"},
-          "name": {"type": "string"},
-          "address": {"type": "string"},
-          "gender": {"type": "string"},
-          "birthdate": {"type": "string"},
-          "phone_number": {"type": "string"},
-          "phone_number_verified": {"type": "boolean"},
-          "email_public": {"type": "boolean"},
-          "phone_number_public": {"type": "boolean"},
-          "address_public": {"type": "boolean"},
-          "gender_public": {"type": "boolean"},
-          "birthdate_public": {"type": "boolean"},
-          "picture": {"type": "string"},
-          "profile": {"type": "string"},
-          "website": {"type": "string"},
-          "nickname": {"type": "string"},
-          "misc": {"type": "string", "description": "Private user data"},
-          "subscribers": {"type": "integer"},
-          "timestamp": {"type": "integer", "description": "Account creation timestamp"},
-          "log": {"type": "integer", "description": "Last login timestamp"},
-          "access_group": {"type": "integer", "description": "User access level (0-99)"}
-        }
-      },
-      "RecordData": {
-        "type": "object",
-        "description": "Database record with metadata and files",
-        "properties": {
-          "record_id": {"type": "string"},
-          "unique_id": {"type": "string"},
-          "table": {
-            "type": "object",
-            "properties": {
-              "name": {"type": "string"},
-              "access_group": {"type": "string"}
+        "/connection/mock": {
+            "post": {
+                "tags": ["Connection"],
+                "summary": "mock(data, options?)",
+                "description": "Test endpoint for development. Echoes back data sent to it.\n\n```javascript\nskapi.mock({hello: 'world'}).then(r => console.log(r.hello));\n```",
+                "operationId": "mock",
+                "responses": { "200": { "description": "Echoes input data" } }
             }
-          },
-          "data": {"type": "object", "description": "User data stored in record"},
-          "index": {"type": "object", "description": "Index values"},
-          "tags": {"type": "array", "items": {"type": "string"}},
-          "reference": {"type": "object", "description": "Referenced record info"},
-          "bin": {
-            "type": "array",
-            "description": "Uploaded files with CDN URLs",
-            "items": {
-              "type": "object",
-              "properties": {
-                "filename": {"type": "string"},
-                "url": {"type": "string", "description": "CDN URL"},
-                "size": {"type": "integer"},
-                "uploaded": {"type": "integer"}
-              }
+        },
+        "/auth/signup": {
+            "post": {
+                "tags": ["Authentication"],
+                "summary": "signup(params | SubmitEvent, options?)",
+                "description": "**CORE FEATURE:** Create user account with powerful email options.\n\n## Email Features:\n### Signup Confirmation Email:\n```javascript\nskapi.signup({email, password, name}, {\n  signup_confirmation: true // or redirect URL\n});\n// User receives confirmation email with verification link\n```\n\n### Auto-Login:\n```javascript\nskapi.signup(params, {login: true});\n// Returns UserProfile, logs user in immediately\n```\n\n### Newsletter Opt-in:\n```javascript\nskapi.signup(params, {email_subscription: true});\n```\n\n### With HTML Form:\n```html\n<form onsubmit=\"skapi.signup(event, {signup_confirmation: true})\">\n  <input name=\"email\" type=\"email\" required>\n  <input name=\"password\" minlength=\"6\" required>\n  <input name=\"name\" required>\n  <button>Sign Up</button>\n</form>\n```\n\n**Welcome Email** sent automatically on first successful login.\n\n**Customize templates:** Register sender email in Skapi admin → Get endpoint → Send HTML to endpoint",
+                "operationId": "signup",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["email", "password"],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "description": "Must be in email format"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "minLength": 6,
+                                        "maxLength": 60,
+                                        "description": "At least 6 characters and maximum 60 characters"
+                                    },
+                                    "name": { "type": "string" },
+                                    "phone_number": {
+                                        "type": "string",
+                                        "pattern": "^\\+[0-9]+$",
+                                        "description": "Must be in +0012341234 format"
+                                    },
+                                    "address": { "type": "string" },
+                                    "gender": { "type": "string" },
+                                    "birthdate": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "description": "Must be in YYYY-MM-DD format"
+                                    },
+                                    "email_public": {
+                                        "type": "boolean",
+                                        "default": false
+                                    },
+                                    "phone_number_public": {
+                                        "type": "boolean",
+                                        "default": false
+                                    },
+                                    "address_public": {
+                                        "type": "boolean",
+                                        "default": false
+                                    },
+                                    "gender_public": {
+                                        "type": "boolean",
+                                        "default": false
+                                    },
+                                    "birthdate_public": {
+                                        "type": "boolean",
+                                        "default": false
+                                    },
+                                    "picture": {
+                                        "type": "string",
+                                        "format": "uri",
+                                        "description": "URL of profile picture"
+                                    },
+                                    "profile": {
+                                        "type": "string",
+                                        "format": "uri",
+                                        "description": "URL of profile page"
+                                    },
+                                    "website": {
+                                        "type": "string",
+                                        "format": "uri",
+                                        "description": "URL of website"
+                                    },
+                                    "nickname": { "type": "string" },
+                                    "misc": {
+                                        "type": "string",
+                                        "description": "Additional string value, only visible to account owner"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "signup_confirmation",
+                        "in": "query",
+                        "schema": {
+                            "oneOf": [
+                                { "type": "boolean" },
+                                { "type": "string", "format": "uri" }
+                            ]
+                        },
+                        "description": "When true, user required to confirm signup. When URL given, redirects after confirmation"
+                    },
+                    {
+                        "name": "email_subscription",
+                        "in": "query",
+                        "schema": { "type": "boolean", "default": false },
+                        "description": "When true, user can receive newsletter from admin"
+                    },
+                    {
+                        "name": "login",
+                        "in": "query",
+                        "schema": { "type": "boolean", "default": false },
+                        "description": "When true, user logged in after signup. Cannot use with signup_confirmation"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/components/schemas/UserProfile"
+                                        },
+                                        { "type": "string" }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
             }
-          },
-          "uploaded": {"type": "integer"},
-          "updated": {"type": "integer"},
-          "user_id": {"type": "string"},
-          "ip": {"type": "string"},
-          "readonly": {"type": "boolean"}
+        },
+        "/auth/resendSignupConfirmation": {
+            "post": {
+                "tags": ["Authentication"],
+                "summary": "resendSignupConfirmation()",
+                "description": "Resend signup confirmation email. Requires at least one login attempt.\n\n```javascript\nskapi.resendSignupConfirmation();\n```",
+                "operationId": "resendSignupConfirmation",
+                "responses": {
+                    "200": { "description": "Confirmation email sent" }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "tags": ["Authentication"],
+                "summary": "login(params | SubmitEvent)",
+                "description": "**CORE FEATURE:** User login with session management.\n\n**Welcome Email** sent on first successful login.\n\n```javascript\n// Direct call\nskapi.login({email: 'user@email.com', password: 'pass'});\n\n// With form\n<form action=\"welcome.html\" onsubmit=\"skapi.login(event)\">\n  <input name=\"email\" type=\"email\" required>\n  <input name=\"password\" required>\n  <button>Login</button>\n</form>\n```\n\n**Auto-login:** Sessions maintained by default. Configure in initialization:\n```javascript\nconst skapi = new Skapi('service_id', 'owner_id', {\n  autoLogin: true, // default\n  eventListener: {\n    onLogin: (user) => console.log(user ? 'Logged in' : 'Logged out')\n  }\n});\n```",
+                "operationId": "login",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["email", "password"],
+                                "properties": {
+                                    "email": { "type": "string" },
+                                    "password": { "type": "string" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserProfile"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "tags": ["Authentication"],
+                "summary": "logout(params?)",
+                "description": "Logout user. Optional global logout across all devices.\n\n```javascript\nskapi.logout(); // This device\nskapi.logout({global: true}); // All devices\n```",
+                "operationId": "logout",
+                "responses": { "200": { "description": "Logged out" } }
+            }
+        },
+        "/auth/getProfile": {
+            "get": {
+                "tags": ["Authentication"],
+                "summary": "getProfile(options?)",
+                "description": "Get current user profile or null if not logged in.\n\n```javascript\nskapi.getProfile().then(user => {\n  if (user) {\n    console.log('Logged in as', user.name);\n  } else {\n    window.location.href = 'login.html';\n  }\n});\n\n// Refresh token\nskapi.getProfile({refreshToken: true});\n```",
+                "operationId": "getProfile",
+                "parameters": [
+                    {
+                        "name": "refreshToken",
+                        "in": "query",
+                        "schema": { "type": "boolean", "default": false },
+                        "description": "Refresh JWT token before fetching"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User profile or null if not logged in",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "nullable": true,
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/UserProfile"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/forgotPassword": {
+            "post": {
+                "tags": ["Authentication"],
+                "summary": "forgotPassword(params | SubmitEvent)",
+                "description": "**Email Feature:** Request password reset code via email.\n\n```javascript\n// Step 1: Request code\nskapi.forgotPassword({email: 'user@email.com'});\n// User receives password reset email with code\n\n// Step 2: Use resetPassword() with code\n```\n\n**Email template** customizable in Skapi admin.",
+                "operationId": "forgotPassword",
+                "responses": { "200": { "description": "Reset code sent" } }
+            }
+        },
+        "/auth/resetPassword": {
+            "post": {
+                "tags": ["Authentication"],
+                "summary": "resetPassword(params | SubmitEvent)",
+                "description": "Reset password using code from email.\n\n```javascript\nskapi.resetPassword({\n  email: 'user@email.com',\n  code: '123456', // from email\n  new_password: 'newPass123'\n});\n```",
+                "operationId": "resetPassword",
+                "responses": { "200": { "description": "Password reset" } }
+            }
+        },
+        "/auth/openidLogin": {
+            "post": {
+                "tags": ["Authentication"],
+                "summary": "openidLogin(params | SubmitEvent)",
+                "description": "OAuth/OpenID social login (Google, Facebook, etc.).\n\n```javascript\nskapi.openidLogin({\n  token: 'oauth_token_from_provider',\n  id: 'openid_logger_id',\n  merge: true // merge with existing account\n});\n```",
+                "operationId": "openidLogin",
+                "responses": {
+                    "200": {
+                        "description": "Logged in via OAuth",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "userProfile": {
+                                            "$ref": "#/components/schemas/UserProfile"
+                                        },
+                                        "openid": { "type": "object" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/user/updateProfile": {
+            "put": {
+                "tags": ["User Account"],
+                "summary": "updateProfile(params | SubmitEvent)",
+                "description": "Update user profile information.\n\n```javascript\nskapi.updateProfile({name: 'New Name', phone_number: '+1234567890'});\n```",
+                "operationId": "updateProfile",
+                "responses": {
+                    "200": {
+                        "description": "Profile updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserProfile"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/user/changePassword": {
+            "post": {
+                "tags": ["User Account"],
+                "summary": "changePassword(params | SubmitEvent)",
+                "description": "Change user password (requires current password).\n\n```javascript\nskapi.changePassword({\n  current_password: 'oldPass',\n  new_password: 'newPass123'\n});\n```",
+                "operationId": "changePassword",
+                "responses": { "200": { "description": "Password changed" } }
+            }
+        },
+        "/user/verifyEmail": {
+            "post": {
+                "tags": ["User Account"],
+                "summary": "verifyEmail(params? | SubmitEvent)",
+                "description": "**Email Feature:** Send or verify email verification code.\n\n```javascript\n// Send code\nskapi.verifyEmail();\n// User receives email verification email\n\n// Verify code\nskapi.verifyEmail({code: '123456'});\n```",
+                "operationId": "verifyEmail",
+                "responses": {
+                    "200": { "description": "Code sent or verified" }
+                }
+            }
+        },
+        "/user/disableAccount": {
+            "post": {
+                "tags": ["User Account"],
+                "summary": "disableAccount()",
+                "description": "Disable current user account. Can be recovered later.\n\n```javascript\nskapi.disableAccount();\n```",
+                "operationId": "disableAccount",
+                "responses": { "200": { "description": "Account disabled" } }
+            }
+        },
+        "/user/recoverAccount": {
+            "post": {
+                "tags": ["User Account"],
+                "summary": "recoverAccount(redirect)",
+                "description": "**Email Feature:** Send recovery email for disabled account.\n\n```javascript\nskapi.recoverAccount('/welcome.html'); // or true\n```",
+                "operationId": "recoverAccount",
+                "responses": { "200": { "description": "Recovery email sent" } }
+            }
+        },
+        "/user/getUsers": {
+            "get": {
+                "tags": ["User Account"],
+                "summary": "getUsers(params?, fetchOptions?)",
+                "description": "Search users with filtering and pagination.\n\n```javascript\n// Search by name starting with 'John'\nskapi.getUsers({\n  searchFor: 'name',\n  value: 'John',\n  condition: '>='\n}, {limit: 50});\n\n// Get all users\nskapi.getUsers();\n```",
+                "operationId": "getUsers",
+                "responses": {
+                    "200": {
+                        "description": "User list",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DatabaseResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/database/postRecord": {
+            "post": {
+                "tags": ["Database"],
+                "summary": "postRecord(data | SubmitEvent, config)",
+                "description": "**CORE FEATURE:** Create/update records with file uploads, indexing, tagging.\n\n## File Uploads with CDN:\n```html\n<form onsubmit=\"skapi.postRecord(event, {\n  table: 'posts',\n  tags: 'photo,sunset',\n  index: {name: 'likes', value: 0}\n})\">\n  <input name=\"caption\" placeholder=\"Caption\">\n  <input name=\"photo\" type=\"file\" accept=\"image/*\">\n  <button>Post</button>\n</form>\n```\nFiles automatically uploaded to cloud storage with CDN. Access via `record.bin[0].url`\n\n## Indexing:\n```javascript\n// Create with index\nskapi.postRecord({title: 'Post'}, {\n  table: 'posts',\n  index: {name: 'likes', value: 0}\n});\n\n// Query by index later\nskapi.getRecords({\n  table: 'posts',\n  index: {name: 'likes', value: 100, condition: '>'}\n});\n```\n\n## Tagging (Hashtags):\n```javascript\nskapi.postRecord(data, {\n  table: 'posts',\n  tags: ['photo', 'sunset', 'beach']\n});\n\n// Query by tag\nskapi.getRecords({table: 'posts', tag: 'sunset'});\n```\n\n## Access Control:\n```javascript\n// Private (owner only)\nskapi.postRecord(data, {table: 'posts', access_group: 'private'});\n\n// Public (everyone)\nskapi.postRecord(data, {table: 'posts', access_group: 'public'});\n\n// Authorized users only\nskapi.postRecord(data, {table: 'posts', access_group: 'authorized'});\n\n// Custom level (0-99)\nskapi.postRecord(data, {table: 'posts', access_group: 5});\n```\n\n## Referencing (Likes/Comments):\n```javascript\n// Like a post\nskapi.postRecord(null, {\n  table: 'likes',\n  reference: 'post_record_id'\n});\n\n// Get like count\nskapi.getRecords({\n  table: 'posts',\n  reference_count: true\n});\n```\n\n## Subscriptions:\n```javascript\nskapi.postRecord(data, {\n  table: 'posts',\n  subscription: {\n    upload_to_feed: true,\n    notify_subscribers: true\n  }\n});\n```\n\n## Update Record:\n```javascript\nskapi.postRecord({title: 'Updated'}, {\n  record_id: 'existing_record_id'\n});\n```\n\n**Table naming:** Alphanumeric, [ \\ ] ^ _ ` : ; < = > ? @ (NO periods or spaces)",
+                "operationId": "postRecord",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "data": {
+                                        "type": "object",
+                                        "description": "Your data"
+                                    },
+                                    "config": {
+                                        "type": "object",
+                                        "required": ["table"],
+                                        "properties": {
+                                            "table": {
+                                                "oneOf": [
+                                                    { "type": "string" },
+                                                    { "type": "object" }
+                                                ]
+                                            },
+                                            "record_id": { "type": "string" },
+                                            "unique_id": { "type": "string" },
+                                            "index": { "type": "object" },
+                                            "tags": {
+                                                "oneOf": [
+                                                    { "type": "string" },
+                                                    { "type": "array" }
+                                                ]
+                                            },
+                                            "reference": { "type": "string" },
+                                            "readonly": { "type": "boolean" },
+                                            "subscription": { "type": "object" }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Record created/updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RecordData"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/database/getRecords": {
+            "get": {
+                "tags": ["Database"],
+                "summary": "getRecords(query, fetchOptions?)",
+                "description": "**CORE FEATURE:** Query records with powerful filtering.\n\n## By Table:\n```javascript\nskapi.getRecords({table: 'posts'});\n```\n\n## By Index:\n```javascript\n// Exact match\nskapi.getRecords({\n  table: 'posts',\n  index: {name: 'likes', value: 10}\n});\n\n// Condition (>, >=, =, <, <=)\nskapi.getRecords({\n  table: 'posts',\n  index: {name: 'likes', value: 100, condition: '>'}\n});\n\n// Compound index\nskapi.getRecords({\n  table: 'posts',\n  index: {name: 'category.date', value: 'news.2024'}\n});\n```\n\n## By Tag:\n```javascript\nskapi.getRecords({table: 'posts', tag: 'sunset'});\n```\n\n## By Reference:\n```javascript\n// Get all likes for a post\nskapi.getRecords({reference: 'post_id'});\n```\n\n## By Record ID:\n```javascript\nskapi.getRecords({record_id: 'specific_id'});\n```\n\n## By Unique ID:\n```javascript\nskapi.getRecords({unique_id: 'ORDER-123'});\n```\n\n## Pagination:\n```javascript\nlet opts = {limit: 50, fetchMore: false, ascending: false};\n\nskapi.getRecords({table: 'posts'}, opts).then(res => {\n  console.log(res.list); // records\n  console.log(res.endOfList); // true if no more\n  \n  if (!res.endOfList) {\n    opts.fetchMore = true;\n    skapi.getRecords({table: 'posts'}, opts); // next batch\n  }\n});\n```\n\n**Max 1000 records per request**",
+                "operationId": "getRecords",
+                "parameters": [
+                    {
+                        "name": "table",
+                        "in": "query",
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "record_id",
+                        "in": "query",
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "unique_id",
+                        "in": "query",
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "tag",
+                        "in": "query",
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "reference",
+                        "in": "query",
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "schema": { "type": "integer", "maximum": 1000 }
+                    },
+                    {
+                        "name": "fetchMore",
+                        "in": "query",
+                        "schema": { "type": "boolean" }
+                    },
+                    {
+                        "name": "ascending",
+                        "in": "query",
+                        "schema": { "type": "boolean" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Records retrieved",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DatabaseResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/database/deleteRecords": {
+            "delete": {
+                "tags": ["Database"],
+                "summary": "deleteRecords(params)",
+                "description": "Delete one or more records, or entire table.\n\n```javascript\n// Delete one record\nskapi.deleteRecords({record_id: 'id'});\n\n// Delete multiple\nskapi.deleteRecords({record_ids: ['id1', 'id2']});\n\n// Delete entire table\nskapi.deleteRecords({table: 'posts'});\n```",
+                "operationId": "deleteRecords",
+                "responses": { "200": { "description": "Records deleted" } }
+            }
+        },
+        "/database/getTables": {
+            "get": {
+                "tags": ["Database"],
+                "summary": "getTables(fetchOptions?)",
+                "description": "List all tables with record counts and sizes.\n\n```javascript\nskapi.getTables().then(res => {\n  res.list.forEach(t => {\n    console.log(t.table, t.number_of_records);\n  });\n});\n```",
+                "operationId": "getTables",
+                "responses": {
+                    "200": {
+                        "description": "Table list",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DatabaseResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/database/getIndex": {
+            "get": {
+                "tags": ["Database Advanced"],
+                "summary": "getIndex(params, fetchOptions?)",
+                "description": "Get list of index names/values for a table.\n\n```javascript\nskapi.getIndex({table: 'posts', index: 'likes'});\n```",
+                "operationId": "getIndex",
+                "responses": {
+                    "200": {
+                        "description": "Index list",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DatabaseResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/database/getTags": {
+            "get": {
+                "tags": ["Database Advanced"],
+                "summary": "getTags(params, fetchOptions?)",
+                "description": "Get list of tags used in a table.\n\n```javascript\nskapi.getTags({table: 'posts'}).then(res => {\n  res.list.forEach(t => {\n    console.log(t.tag, t.number_of_records);\n  });\n});\n```",
+                "operationId": "getTags",
+                "responses": {
+                    "200": {
+                        "description": "Tag list",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DatabaseResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/database/getUniqueId": {
+            "get": {
+                "tags": ["Database Advanced"],
+                "summary": "getUniqueId(params, fetchOptions?)",
+                "description": "Find records by unique ID pattern.\n\n```javascript\n// Find all IDs starting with 'ORDER-'\nskapi.getUniqueId({\n  unique_id: 'ORDER-',\n  condition: '>='\n});\n```",
+                "operationId": "getUniqueId",
+                "responses": {
+                    "200": {
+                        "description": "Unique ID list",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DatabaseResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/database/subscribe": {
+            "post": {
+                "tags": ["Database Advanced"],
+                "summary": "subscribe(params)",
+                "description": "Subscribe to user or record for notifications.\n\n```javascript\n// Subscribe to user\nskapi.subscribe({user_id: 'user123'});\n\n// Subscribe to record\nskapi.subscribe({record_id: 'record123'});\n```",
+                "operationId": "subscribe",
+                "responses": { "200": { "description": "Subscribed" } }
+            }
+        },
+        "/database/unsubscribe": {
+            "delete": {
+                "tags": ["Database Advanced"],
+                "summary": "unsubscribe(params)",
+                "description": "Unsubscribe from user or record.\n\n```javascript\nskapi.unsubscribe({user_id: 'user123'});\n```",
+                "operationId": "unsubscribe",
+                "responses": { "200": { "description": "Unsubscribed" } }
+            }
+        },
+        "/database/blockSubscriber": {
+            "post": {
+                "tags": ["Database Advanced"],
+                "summary": "blockSubscriber(params)",
+                "description": "Block a user from subscribing to you.\n\n```javascript\nskapi.blockSubscriber({user_id: 'user_to_block'});\n```\n\nBlocked users:\n- Cannot subscribe to your content\n- Are removed from subscribers if already subscribed\n- Cannot see your public posts in their feed",
+                "operationId": "blockSubscriber",
+                "responses": { "200": { "description": "Subscriber blocked" } }
+            }
+        },
+        "/database/unblockSubscriber": {
+            "delete": {
+                "tags": ["Database Advanced"],
+                "summary": "unblockSubscriber(params)",
+                "description": "Unblock a user, allowing them to subscribe again.\n\n```javascript\nskapi.unblockSubscriber({user_id: 'user_to_unblock'});\n```",
+                "operationId": "unblockSubscriber",
+                "responses": {
+                    "200": { "description": "Subscriber unblocked" }
+                }
+            }
+        },
+        "/database/getSubscriptions": {
+            "get": {
+                "tags": ["Database Advanced"],
+                "summary": "getSubscriptions(params?, fetchOptions?)",
+                "description": "Get list of subscriptions.\n\n```javascript\nskapi.getSubscriptions();\n```",
+                "operationId": "getSubscriptions",
+                "responses": {
+                    "200": {
+                        "description": "Subscription list",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DatabaseResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/database/getFeed": {
+            "get": {
+                "tags": ["Database Advanced"],
+                "summary": "getFeed(fetchOptions?)",
+                "description": "Get feed of posts from subscribed users.\n\n```javascript\nskapi.getFeed({limit: 20, ascending: false});\n```",
+                "operationId": "getFeed",
+                "responses": {
+                    "200": {
+                        "description": "Feed records",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DatabaseResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/database/getFile": {
+            "get": {
+                "tags": ["Database Advanced"],
+                "summary": "getFile(params)",
+                "description": "Get file URL from uploaded file key.\n\n```javascript\nskapi.getFile({file_key: 'file_key_from_bin'}).then(url => {\n  console.log('File URL:', url);\n});\n```\n\nUseful for accessing files uploaded via `postRecord()`.",
+                "operationId": "getFile",
+                "responses": { "200": { "description": "File URL" } }
+            }
+        },
+        "/access/grantPrivateAccess": {
+            "post": {
+                "tags": ["Access Control"],
+                "summary": "grantPrivateAccess(params)",
+                "description": "Grant user access to private record.\n\n```javascript\nskapi.grantPrivateAccess({\n  record_id: 'private_record_id',\n  user_id: 'user_to_grant'\n});\n```",
+                "operationId": "grantPrivateAccess",
+                "responses": { "200": { "description": "Access granted" } }
+            }
+        },
+        "/access/removePrivateAccess": {
+            "delete": {
+                "tags": ["Access Control"],
+                "summary": "removePrivateAccess(params)",
+                "description": "Revoke user's access to private record.\n\n```javascript\nskapi.removePrivateAccess({\n  record_id: 'record_id',\n  user_id: 'user_id'\n});\n```",
+                "operationId": "removePrivateAccess",
+                "responses": { "200": { "description": "Access removed" } }
+            }
+        },
+        "/access/listPrivateRecordAccess": {
+            "get": {
+                "tags": ["Access Control"],
+                "summary": "listPrivateRecordAccess(params, fetchOptions?)",
+                "description": "List users with access to private record.\n\n```javascript\nskapi.listPrivateRecordAccess({record_id: 'record_id'});\n```",
+                "operationId": "listPrivateRecordAccess",
+                "responses": {
+                    "200": {
+                        "description": "Access list",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DatabaseResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/email/subscribeNewsletter": {
+            "post": {
+                "tags": ["Email & Newsletters"],
+                "summary": "subscribeNewsletter(params | SubmitEvent, callbacks?)",
+                "description": "**MAJOR EMAIL FEATURE:** Subscribe users to newsletters - public or service mail.\n\n## 📧 Email Type: Newsletter Subscription Confirmation\n\nWhen user subscribes, they receive a **confirmation email** with verification link.\n\n## Public Newsletter (No Login Required):\n\n**Perfect for:**\n- Marketing newsletters\n- Blog updates\n- Product announcements\n- Any public content\n\n**HTML Form Example:**\n```html\n<form onsubmit=\"skapi.subscribeNewsletter(event)\">\n  <input name=\"email\" type=\"email\" placeholder=\"your@email.com\" required>\n  <input name=\"group\" value=\"public\" hidden>\n  <input name=\"redirect\" value=\"https://yourdomain.com/thanks\" hidden>\n  <button type=\"submit\">Subscribe to Newsletter</button>\n</form>\n```\n\n**JavaScript Example:**\n```javascript\nskapi.subscribeNewsletter({\n  email: 'user@email.com',\n  group: 'public',\n  redirect: 'https://yourdomain.com/thanks'\n}).then(res => {\n  alert('Confirmation email sent! Please check your inbox.');\n});\n```\n\n**What Happens:**\n1. User submits email\n2. **Confirmation email sent immediately**\n3. User clicks verification link in email\n4. Email verified and subscribed\n5. User redirected to your thank you page\n\n**Confirmation Email Includes:**\n- Verification link (auto-generated)\n- Your service branding\n- Customizable message (via template)\n\n## Service Mail (Logged-In Users):\n\n**Perfect for:**\n- Account notifications\n- Order updates\n- Service announcements\n- User-specific emails\n\n**Requirements:**\n- User must be logged in\n- Email must be verified\n\n**Example:**\n```javascript\n// User must be logged in first\nskapi.subscribeNewsletter({group: 'authorized'}).then(() => {\n  console.log('Subscribed to service emails');\n});\n```\n\n## Unsubscribe Links:\n\n- All public newsletters include **automatic unsubscribe link**\n- Service mail can be unsubscribed via `unsubscribeNewsletter()`\n- Unsubscribe is instant, no confirmation needed\n\n## Email Template Customization:\n\nSee `adminNewsletterRequest()` for how to customize the subscription confirmation email template.",
+                "operationId": "subscribeNewsletter",
+                "responses": {
+                    "200": {
+                        "description": "Subscribed successfully, confirmation email sent"
+                    }
+                }
+            }
+        },
+        "/email/unsubscribeNewsletter": {
+            "delete": {
+                "tags": ["Email & Newsletters"],
+                "summary": "unsubscribeNewsletter(params)",
+                "description": "Unsubscribe from newsletters.\n\n```javascript\nskapi.unsubscribeNewsletter({group: 'authorized'});\n```",
+                "operationId": "unsubscribeNewsletter",
+                "responses": { "200": { "description": "Unsubscribed" } }
+            }
+        },
+        "/email/adminNewsletterRequest": {
+            "post": {
+                "tags": ["Email & Newsletters"],
+                "summary": "adminNewsletterRequest()",
+                "description": "**CRITICAL EMAIL FEATURE:** Get personalized email endpoint for sending newsletters.\n\n## 🎨 Email Template System Explained:\n\nThis is how you create **custom email templates** for all 7 email types in Skapi.\n\n### Step-by-Step Setup:\n\n**1. Register Sender Email (One-time):**\n- Go to Skapi admin panel\n- Navigate to Email Settings\n- Add your sender email (must be email you own)\n- Verify ownership via confirmation email\n\n**2. Get Email Endpoint:**\n```javascript\nskapi.adminNewsletterRequest().then(endpoint => {\n  console.log('Your newsletter endpoint:', endpoint);\n  // Returns: service_id-endpoint_id@mail.skapi.com\n});\n```\n\n**IMPORTANT:** This endpoint is:\n- Unique to your admin account\n- Only accepts emails from your registered sender\n- Used to create/update newsletter templates\n\n**3. Create Email Template:**\n\nSend an HTML email to the endpoint. That email becomes your template!\n\n**Example Template Email:**\n```html\nFrom: your-registered-email@domain.com\nTo: service_id-endpoint_id@mail.skapi.com\nSubject: Your Newsletter Template\n\n<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: Arial, sans-serif; }\n    .header { background: #007bff; color: white; padding: 20px; }\n    .content { padding: 20px; }\n    .footer { background: #f8f9fa; padding: 10px; text-align: center; }\n  </style>\n</head>\n<body>\n  <div class=\"header\">\n    <h1>Welcome to Our Newsletter!</h1>\n  </div>\n  <div class=\"content\">\n    <p>Hi {{name}},</p>\n    <p>Thank you for subscribing to our newsletter at {{email}}!</p>\n    <p>You'll receive updates about:</p>\n    <ul>\n      <li>New product launches</li>\n      <li>Exclusive discounts</li>\n      <li>Industry news</li>\n    </ul>\n  </div>\n  <div class=\"footer\">\n    <p><a href=\"{{unsubscribe_link}}\">Unsubscribe</a></p>\n    <p>© 2024 Your Company</p>\n  </div>\n</body>\n</html>\n```\n\n**4. Available Template Variables:**\n\n**User Data:**\n- `{{name}}` - User's name\n- `{{email}}` - User's email\n- `{{user_id}}` - User ID (if logged in)\n\n**System Generated:**\n- `{{verification_link}}` - Email verification link\n- `{{unsubscribe_link}}` - Unsubscribe link (auto-included in public newsletters)\n- `{{code}}` - Verification code (for password reset, email verification)\n- `{{service_name}}` - Your service name\n\n**Custom Variables:**\n- You can include any variables from your data\n- Pass them when sending newsletters\n\n**5. Update Template:**\n\nSend another email to the same endpoint - it replaces the old template.\n\n**6. Different Templates for Different Email Types:**\n\nIn Skapi admin, you can get different endpoints for:\n- Public newsletters\n- Service mail\n- Signup confirmation\n- Password reset\n- Welcome email\n\nEach can have its own custom template!\n\n## Sending Newsletters:\n\nOnce template is set up, send emails to your endpoint:\n\n**From Your Email Client:**\n```\nTo: service_id-endpoint_id@mail.skapi.com\nSubject: Weekly Update - January 2024\n\n[Your newsletter content here]\n[Variables like {{name}} will be auto-replaced for each subscriber]\n```\n\n**Skapi automatically:**\n- Sends to all subscribers\n- Replaces {{variables}} for each user\n- Tracks opens, clicks, bounces\n- Handles unsubscribes\n- Manages bounce/complaint lists\n\n## View Sent Emails:\n\nUse `getNewsletters()` to see all sent emails with analytics.",
+                "operationId": "adminNewsletterRequest",
+                "responses": {
+                    "200": { "description": "Email endpoint returned" }
+                }
+            }
+        },
+        "/email/getNewsletterSubscription": {
+            "get": {
+                "tags": ["Email & Newsletters"],
+                "summary": "getNewsletterSubscription(params)",
+                "description": "Check if user is subscribed to newsletters.\n\n```javascript\nskapi.getNewsletterSubscription({group: 'authorized'}).then(subs => {\n  if (subs.length) {\n    console.log('Subscribed');\n  }\n});\n```",
+                "operationId": "getNewsletterSubscription",
+                "responses": { "200": { "description": "Subscription status" } }
+            }
+        },
+        "/email/getNewsletters": {
+            "get": {
+                "tags": ["Email & Newsletters"],
+                "summary": "getNewsletters(params?, options?)",
+                "description": "**EMAIL ANALYTICS:** Get sent newsletters with detailed tracking data.\n\n## 📊 Email Analytics Dashboard\n\nTrack performance of all your sent newsletters:\n\n**Basic Usage:**\n```javascript\nskapi.getNewsletters({group: 'public'}).then(newsletters => {\n  newsletters.list.forEach(email => {\n    console.log('Subject:', email.subject);\n    console.log('Sent:', new Date(email.timestamp));\n    console.log('Opens:', email.read);\n    console.log('Bounces:', email.bounced);\n    console.log('Complaints:', email.complaint);\n    console.log('HTML:', email.url); // View sent email\n  });\n});\n```\n\n## Available Metrics:\n\n**email.subject** - Email subject line\n\n**email.timestamp** - When email was sent (Unix timestamp)\n\n**email.read** - Number of times email was opened\n- Tracks unique opens\n- Indicates engagement rate\n- Use to optimize send times\n\n**email.bounced** - Number of bounced emails\n- Hard bounces: Invalid email addresses\n- Soft bounces: Temporary issues (full inbox, server down)\n- High bounce rate may indicate old email list\n\n**email.complaint** - Spam complaints\n- Users marked email as spam\n- High complaints may affect sender reputation\n- Review content if complaints are high\n\n**email.url** - Direct link to sent email HTML\n- View exactly what was sent\n- Share with team for review\n- Archive for records\n\n**email.message_id** - Unique identifier for email\n\n## Filtering & Queries:\n\n**By Group:**\n```javascript\n// Public newsletters only\nskapi.getNewsletters({group: 'public'});\n\n// Service mail only\nskapi.getNewsletters({group: 'authorized'});\n```\n\n**By Time Range:**\n```javascript\n// Emails sent in last 24 hours\nskapi.getNewsletters({\n  searchFor: 'timestamp',\n  value: Date.now() - 86400000,\n  condition: '>'\n});\n\n// Emails sent before specific date\nskapi.getNewsletters({\n  searchFor: 'timestamp',\n  value: Date.now() - 30*86400000, // 30 days ago\n  condition: '<'\n});\n```\n\n**By Performance:**\n```javascript\n// High engagement emails (>100 opens)\nskapi.getNewsletters({\n  searchFor: 'read',\n  value: 100,\n  condition: '>'\n});\n\n// Emails with bounces\nskapi.getNewsletters({\n  searchFor: 'bounced',\n  value: 0,\n  condition: '>'\n});\n```\n\n## Pagination:\n\n```javascript\nlet opts = {limit: 50, ascending: false}; // Most recent first\n\nskapi.getNewsletters({group: 'public'}, opts).then(res => {\n  console.log(res.list); // Email array\n  console.log(res.endOfList); // true if no more\n  \n  if (!res.endOfList) {\n    opts.fetchMore = true;\n    skapi.getNewsletters({group: 'public'}, opts); // Next page\n  }\n});\n```\n\n## Use Cases:\n\n**1. Performance Dashboard:**\n```javascript\nconst stats = {\n  totalSent: 0,\n  totalOpens: 0,\n  totalBounces: 0,\n  avgOpenRate: 0\n};\n\nskapi.getNewsletters().then(res => {\n  stats.totalSent = res.list.length;\n  res.list.forEach(email => {\n    stats.totalOpens += email.read;\n    stats.totalBounces += email.bounced;\n  });\n  stats.avgOpenRate = (stats.totalOpens / stats.totalSent * 100).toFixed(2);\n  console.log('Email Stats:', stats);\n});\n```\n\n**2. A/B Testing:**\n```javascript\n// Compare two subject lines\nskapi.getNewsletters().then(res => {\n  const emailA = res.list.find(e => e.subject === 'Subject A');\n  const emailB = res.list.find(e => e.subject === 'Subject B');\n  \n  console.log('Subject A opens:', emailA.read);\n  console.log('Subject B opens:', emailB.read);\n});\n```\n\n**3. Clean Email List:**\n```javascript\n// Find emails with high bounce rates\nskapi.getNewsletters({\n  searchFor: 'bounced',\n  value: 10,\n  condition: '>'\n}).then(res => {\n  console.log('High bounce emails:', res.list);\n  // Review and clean your subscriber list\n});\n```",
+                "operationId": "getNewsletters",
+                "responses": {
+                    "200": {
+                        "description": "Newsletter list with complete analytics",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DatabaseResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/email/sendInquiry": {
+            "post": {
+                "tags": ["Email & Newsletters"],
+                "summary": "sendInquiry(params | SubmitEvent)",
+                "description": "**EMAIL FEATURE:** Send contact form inquiries directly to service admin.\n\n## 📧 Email Type: Contact Form / Inquiry\n\nPerfect for:\n- Contact forms on websites\n- Customer support requests\n- General inquiries\n- Feedback collection\n- Lead generation\n\n## No Login Required:\n\nAnyone can send inquiries without creating an account - great for:\n- Landing pages\n- Marketing websites\n- Public contact forms\n\n## HTML Form Example:\n\n```html\n<form id=\"contact-form\" onsubmit=\"skapi.sendInquiry(event).then(() => {\n  alert('Thank you! We\\'ll get back to you soon.');\n  this.reset();\n}).catch(err => {\n  alert('Error: ' + err.message);\n})\">\n  <h2>Contact Us</h2>\n  \n  <label for=\"name\">Name:</label>\n  <input type=\"text\" id=\"name\" name=\"name\" required>\n  \n  <label for=\"email\">Email:</label>\n  <input type=\"email\" id=\"email\" name=\"email\" required>\n  \n  <label for=\"subject\">Subject:</label>\n  <input type=\"text\" id=\"subject\" name=\"subject\" required>\n  \n  <label for=\"message\">Message:</label>\n  <textarea id=\"message\" name=\"message\" rows=\"5\" required></textarea>\n  \n  <button type=\"submit\">Send Message</button>\n</form>\n```\n\n## JavaScript Example:\n\n```javascript\nskapi.sendInquiry({\n  name: 'John Doe',\n  email: 'john@email.com',\n  subject: 'Question about pricing',\n  message: 'I would like to know more about your enterprise plan...'\n}).then(response => {\n  console.log('Inquiry sent:', response);\n}).catch(error => {\n  console.error('Failed to send:', error);\n});\n```\n\n## What Happens:\n\n1. User fills out form\n2. **Email sent immediately to service admin**\n3. Admin receives inquiry with all details\n4. Admin can reply directly to user's email\n5. No data stored in database (privacy-friendly)\n\n## Email Received by Admin:\n\n```\nFrom: noreply@skapi.com\nTo: your-admin-email@domain.com\nSubject: New Inquiry: [subject]\n\nName: John Doe\nEmail: john@email.com\nSubject: Question about pricing\nMessage:\nI would like to know more about your enterprise plan...\n\nService: your-service-name\nDate: 2024-01-15 14:30:00\n```\n\n## Security & Spam Prevention:\n\n**Rate Limiting:**\n- Inquiries are rate-limited to prevent spam\n- Same IP can't send too many in short time\n\n**Turn Off if Not Using:**\n- If you don't use contact forms, disable in Skapi admin\n- Go to Service Settings → \"Prevent Inquiry\"\n- Prevents spam when feature not needed\n\n## Use Cases:\n\n**1. Landing Page Contact:**\n```html\n<!-- Simple landing page contact -->\n<form onsubmit=\"skapi.sendInquiry(event)\">\n  <input name=\"email\" placeholder=\"Your email\" required>\n  <textarea name=\"message\" placeholder=\"Your message\" required>\n  </textarea>\n  <button>Contact Us</button>\n</form>\n```\n\n**2. Support Ticket:**\n```javascript\nfunction submitSupportTicket(formEvent) {\n  return skapi.sendInquiry(formEvent).then(() => {\n    showThankYouMessage();\n    sendConfirmationToUser();\n  });\n}\n```\n\n**3. Lead Generation:**\n```javascript\nskapi.sendInquiry({\n  name: leadData.name,\n  email: leadData.email,\n  subject: 'New Lead from ' + leadData.source,\n  message: `\n    Lead Source: ${leadData.source}\n    Interest: ${leadData.product}\n    Budget: ${leadData.budget}\n    Notes: ${leadData.notes}\n  `\n});\n```\n\n## Pro Tips:\n\n**Confirmation Message:**\nAlways show confirmation after sending:\n```javascript\nskapi.sendInquiry(event).then(() => {\n  document.getElementById('form').style.display = 'none';\n  document.getElementById('success').style.display = 'block';\n});\n```\n\n**Error Handling:**\n```javascript\nskapi.sendInquiry(event).catch(err => {\n  if (err.code === 'REQUEST_EXCEED') {\n    alert('Too many requests. Please try again later.');\n  } else {\n    alert('Error sending message. Please try again.');\n  }\n});\n```\n\n**Auto-reply to User:**\nCombine with email system to send auto-reply:\n```javascript\nskapi.sendInquiry(inquiryData).then(() => {\n  // Could trigger a welcome email or confirmation\n  console.log('Inquiry sent, user notified');\n});\n```",
+                "operationId": "sendInquiry",
+                "responses": {
+                    "200": { "description": "Inquiry sent to admin email" }
+                }
+            }
+        },
+        "/realtime/connect": {
+            "post": {
+                "tags": ["Real-time"],
+                "summary": "connectRealtime(callback)",
+                "description": "Establish WebSocket connection for real-time messaging.\n\n```javascript\nfunction realtimeCallback(rt) {\n  if (rt.type === 'message') {\n    console.log('From:', rt.sender);\n    console.log('Message:', rt.message);\n  }\n}\n\nskapi.connectRealtime(realtimeCallback);\n```\n\n**Message types:** message, error, success, close, notice, private, reconnect, rtc:incoming, rtc:closed",
+                "operationId": "connectRealtime",
+                "responses": {
+                    "200": { "description": "Connected to real-time" }
+                }
+            }
+        },
+        "/realtime/post": {
+            "post": {
+                "tags": ["Real-time"],
+                "summary": "postRealtime(message | SubmitEvent, recipient, notification?)",
+                "description": "Send real-time data to user or group.\n\n```javascript\n// To user\nskapi.postRealtime({msg: 'Hello'}, 'user_id');\n\n// To group\nskapi.postRealtime({msg: 'Hello all'}, 'group_name');\n\n// With form\n<form onsubmit=\"skapi.postRealtime(event, 'user_id')\">\n  <input name=\"msg\">\n  <button>Send</button>\n</form>\n```",
+                "operationId": "postRealtime",
+                "responses": { "200": { "description": "Message sent" } }
+            }
+        },
+        "/realtime/join": {
+            "post": {
+                "tags": ["Real-time"],
+                "summary": "joinRealtime(params)",
+                "description": "Join real-time group (chat room).\n\n```javascript\nskapi.joinRealtime({group: 'chat-room-1'});\n```\n\nCreates group if doesn't exist.",
+                "operationId": "joinRealtime",
+                "responses": { "200": { "description": "Joined group" } }
+            }
+        },
+        "/realtime/getGroups": {
+            "get": {
+                "tags": ["Real-time"],
+                "summary": "getRealtimeGroups(fetchOptions?)",
+                "description": "Get list of available real-time groups.\n\n```javascript\nskapi.getRealtimeGroups().then(groups => {\n  groups.list.forEach(g => {\n    console.log(g.group, g.active_users);\n  });\n});\n```",
+                "operationId": "getRealtimeGroups",
+                "responses": {
+                    "200": {
+                        "description": "Group list",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DatabaseResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/realtime/getRealtimeUsers": {
+            "get": {
+                "tags": ["Real-time"],
+                "summary": "getRealtimeUsers(params?, fetchOptions?)",
+                "description": "Get list of users connected to real-time.\n\n```javascript\n// All connected users\nskapi.getRealtimeUsers();\n\n// In specific group\nskapi.getRealtimeUsers({group: 'chat-room-1'});\n```",
+                "operationId": "getRealtimeUsers",
+                "responses": {
+                    "200": {
+                        "description": "Connected users list",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DatabaseResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/realtime/close": {
+            "post": {
+                "tags": ["Real-time"],
+                "summary": "closeRealtime()",
+                "description": "Close WebSocket connection.\n\n```javascript\nskapi.closeRealtime();\n```",
+                "operationId": "closeRealtime",
+                "responses": { "200": { "description": "Connection closed" } }
+            }
+        },
+        "/webrtc/connect": {
+            "post": {
+                "tags": ["WebRTC"],
+                "summary": "connectRTC(params, callback)",
+                "description": "**HTTPS required:** Initiate WebRTC peer connection for video/audio.\n\n```javascript\n// Both users must be in same real-time group\nskapi.connectRTC({\n  cid: 'opponent_connection_id',\n  media: {audio: true, video: true}\n}, (e) => {\n  if (e.type === 'track') {\n    videoElement.srcObject = e.streams[0];\n  }\n}).then(rtc => {\n  localVideo.srcObject = rtc.media;\n  // rtc.hangup() to end call\n});\n```\n\nSee WebRTC template: https://github.com/kkb75281/skapi-webrtc-html-template",
+                "operationId": "connectRTC",
+                "responses": {
+                    "200": { "description": "RTC connection initiated" }
+                }
+            }
+        },
+        "/notifications/vapidPublicKey": {
+            "get": {
+                "tags": ["Notifications"],
+                "summary": "vapidPublicKey()",
+                "description": "**HTTPS required:** Get VAPID key for push notifications.\n\n```javascript\nskapi.vapidPublicKey().then(res => {\n  const vapid = res.VAPIDPublicKey;\n  // Use with service worker for push notifications\n});\n```",
+                "operationId": "vapidPublicKey",
+                "responses": { "200": { "description": "VAPID key" } }
+            }
+        },
+        "/notifications/subscribe": {
+            "post": {
+                "tags": ["Notifications"],
+                "summary": "subscribeNotification(params)",
+                "description": "**HTTPS required:** Subscribe to push notifications.\n\n```javascript\n// After setting up service worker\nconst subscription = await navigator.serviceWorker.pushManager.subscribe(...);\nskapi.subscribeNotification({subscription});\n```",
+                "operationId": "subscribeNotification",
+                "responses": {
+                    "200": { "description": "Subscribed to notifications" }
+                }
+            }
+        },
+        "/notifications/unsubscribe": {
+            "delete": {
+                "tags": ["Notifications"],
+                "summary": "unsubscribeNotification()",
+                "description": "Unsubscribe from push notifications.\n\n```javascript\nskapi.unsubscribeNotification();\n```",
+                "operationId": "unsubscribeNotification",
+                "responses": { "200": { "description": "Unsubscribed" } }
+            }
+        },
+        "/notifications/push": {
+            "post": {
+                "tags": ["Notifications"],
+                "summary": "pushNotification(params)",
+                "description": "Send push notification to user(s). HTTPS required.\n\n```javascript\nskapi.pushNotification({\n  user_id: 'user123', // or user_ids: ['user1', 'user2']\n  title: 'New Message',\n  body: 'You have a new message from John',\n  url: '/messages'\n});\n```",
+                "operationId": "pushNotification",
+                "responses": { "200": { "description": "Notification sent" } }
+            }
+        },
+        "/api/secureRequest": {
+            "post": {
+                "tags": ["API Integration"],
+                "summary": "secureRequest(params)",
+                "description": "Make secure API requests (deprecated - use clientSecretRequest).\n\n```javascript\nskapi.secureRequest({\n  url: 'https://api.example.com/endpoint',\n  method: 'POST',\n  data: {key: 'value'}\n});\n```\n\n**Recommended:** Use `clientSecretRequest()` instead.",
+                "operationId": "secureRequest",
+                "responses": { "200": { "description": "API response" } }
+            }
+        },
+        "/api/clientSecretRequest": {
+            "post": {
+                "tags": ["API Integration"],
+                "summary": "clientSecretRequest(params)",
+                "description": "Make secure requests to third-party APIs using encrypted client secrets.\n\n```javascript\n// Client secret configured in Skapi admin\nskapi.clientSecretRequest({\n  url: 'https://api.third-party.com/endpoint',\n  clientSecretName: 'my_api_key',\n  method: 'POST',\n  data: {query: 'search'},\n  headers: {'Custom-Header': 'value'}\n}).then(response => {\n  console.log(response);\n});\n```\n\n**Setup:**\n1. Add client secret in Skapi admin\n2. Choose public (no login) or private (login required)\n3. Use clientSecretName to reference it",
+                "operationId": "clientSecretRequest",
+                "responses": { "200": { "description": "API response" } }
+            }
+        },
+        "/admin/inviteUser": {
+            "post": {
+                "tags": ["Admin"],
+                "summary": "inviteUser(params)",
+                "description": "**Admin only:** Invite user to service via email.\n\n```javascript\nskapi.inviteUser({\n  email: 'user@email.com',\n  access_group: 5,\n  redirect: '/welcome.html'\n});\n```",
+                "operationId": "inviteUser",
+                "responses": { "200": { "description": "Invitation sent" } }
+            }
+        },
+        "/admin/resendInvitation": {
+            "post": {
+                "tags": ["Admin"],
+                "summary": "resendInvitation(params)",
+                "description": "**Admin only:** Resend invitation email.\n\n```javascript\nskapi.resendInvitation({invitation_id: 'invitation_id'});\n```",
+                "operationId": "resendInvitation",
+                "responses": { "200": { "description": "Invitation resent" } }
+            }
+        },
+        "/admin/getInvitations": {
+            "get": {
+                "tags": ["Admin"],
+                "summary": "getInvitations(fetchOptions?)",
+                "description": "**Admin only:** List sent invitations.\n\n```javascript\nskapi.getInvitations();\n```",
+                "operationId": "getInvitations",
+                "responses": {
+                    "200": {
+                        "description": "Invitation list",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DatabaseResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/cancelInvitation": {
+            "delete": {
+                "tags": ["Admin"],
+                "summary": "cancelInvitation(params)",
+                "description": "**Admin only:** Cancel pending invitation.\n\n```javascript\nskapi.cancelInvitation({invitation_id: 'invitation_id'});\n```",
+                "operationId": "cancelInvitation",
+                "responses": {
+                    "200": { "description": "Invitation cancelled" }
+                }
+            }
+        },
+        "/admin/grantAccess": {
+            "post": {
+                "tags": ["Admin"],
+                "summary": "grantAccess(params)",
+                "description": "**Admin only:** Grant user access level.\n\n```javascript\nskapi.grantAccess({\n  user_id: 'user123',\n  access_group: 10 // 0-99\n});\n```",
+                "operationId": "grantAccess",
+                "responses": { "200": { "description": "Access granted" } }
+            }
+        },
+        "/admin/createAccount": {
+            "post": {
+                "tags": ["Admin"],
+                "summary": "createAccount(params)",
+                "description": "**Admin only:** Create user account directly (no signup email).\n\n```javascript\nskapi.createAccount({\n  email: 'user@email.com',\n  password: 'tempPassword123',\n  name: 'John Doe',\n  access_group: 1\n});\n```",
+                "operationId": "createAccount",
+                "responses": {
+                    "200": {
+                        "description": "Account created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserProfile"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/deleteAccount": {
+            "delete": {
+                "tags": ["Admin"],
+                "summary": "deleteAccount(params)",
+                "description": "**Admin only:** Permanently delete user account.\n\n```javascript\nskapi.deleteAccount({user_id: 'user123'});\n```\n\n**Warning:** This is permanent and cannot be undone!",
+                "operationId": "deleteAccount",
+                "responses": { "200": { "description": "Account deleted" } }
+            }
+        },
+        "/admin/blockAccount": {
+            "post": {
+                "tags": ["Admin"],
+                "summary": "blockAccount(params)",
+                "description": "**Admin only:** Block user account (prevents login).\n\n```javascript\nskapi.blockAccount({user_id: 'user123'});\n```\n\nBlocked users cannot log in but account is preserved.",
+                "operationId": "blockAccount",
+                "responses": { "200": { "description": "Account blocked" } }
+            }
+        },
+        "/admin/unblockAccount": {
+            "delete": {
+                "tags": ["Admin"],
+                "summary": "unblockAccount(params)",
+                "description": "**Admin only:** Unblock user account.\n\n```javascript\nskapi.unblockAccount({user_id: 'user123'});\n```",
+                "operationId": "unblockAccount",
+                "responses": { "200": { "description": "Account unblocked" } }
+            }
         }
-      },
-      "DatabaseResponse": {
-        "type": "object",
-        "description": "Paginated database response",
-        "properties": {
-          "list": {"type": "array", "items": {}},
-          "endOfList": {"type": "boolean"},
-          "startKey": {"type": "string"}
+    },
+    "components": {
+        "schemas": {
+            "ConnectionInfo": {
+                "type": "object",
+                "properties": {
+                    "service_name": { "type": "string" },
+                    "user_ip": { "type": "string" },
+                    "user_agent": { "type": "string" },
+                    "user_location": {
+                        "type": "string",
+                        "description": "Country code"
+                    },
+                    "version": {
+                        "type": "string",
+                        "description": "Skapi library version"
+                    }
+                }
+            },
+            "UserProfile": {
+                "type": "object",
+                "description": "OpenID-compliant user profile",
+                "properties": {
+                    "user_id": { "type": "string" },
+                    "email": { "type": "string" },
+                    "email_verified": { "type": "boolean" },
+                    "username": { "type": "string" },
+                    "name": { "type": "string" },
+                    "address": { "type": "string" },
+                    "gender": { "type": "string" },
+                    "birthdate": { "type": "string" },
+                    "phone_number": { "type": "string" },
+                    "phone_number_verified": { "type": "boolean" },
+                    "email_public": { "type": "boolean" },
+                    "phone_number_public": { "type": "boolean" },
+                    "address_public": { "type": "boolean" },
+                    "gender_public": { "type": "boolean" },
+                    "birthdate_public": { "type": "boolean" },
+                    "picture": { "type": "string" },
+                    "profile": { "type": "string" },
+                    "website": { "type": "string" },
+                    "nickname": { "type": "string" },
+                    "misc": {
+                        "type": "string",
+                        "description": "Private user data"
+                    },
+                    "subscribers": { "type": "integer" },
+                    "timestamp": {
+                        "type": "integer",
+                        "description": "Account creation timestamp"
+                    },
+                    "log": {
+                        "type": "integer",
+                        "description": "Last login timestamp"
+                    },
+                    "access_group": {
+                        "type": "integer",
+                        "description": "User access level (0-99)"
+                    }
+                }
+            },
+            "RecordData": {
+                "type": "object",
+                "description": "Database record with metadata and files",
+                "properties": {
+                    "record_id": { "type": "string" },
+                    "unique_id": { "type": "string" },
+                    "table": {
+                        "type": "object",
+                        "properties": {
+                            "name": { "type": "string" },
+                            "access_group": { "type": "string" }
+                        }
+                    },
+                    "data": {
+                        "type": "object",
+                        "description": "User data stored in record"
+                    },
+                    "index": {
+                        "type": "object",
+                        "description": "Index values"
+                    },
+                    "tags": { "type": "array", "items": { "type": "string" } },
+                    "reference": {
+                        "type": "object",
+                        "description": "Referenced record info"
+                    },
+                    "bin": {
+                        "type": "array",
+                        "description": "Uploaded files with CDN URLs",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "filename": { "type": "string" },
+                                "url": {
+                                    "type": "string",
+                                    "description": "CDN URL"
+                                },
+                                "size": { "type": "integer" },
+                                "uploaded": { "type": "integer" }
+                            }
+                        }
+                    },
+                    "uploaded": { "type": "integer" },
+                    "updated": { "type": "integer" },
+                    "user_id": { "type": "string" },
+                    "ip": { "type": "string" },
+                    "readonly": { "type": "boolean" }
+                }
+            },
+            "DatabaseResponse": {
+                "type": "object",
+                "description": "Paginated database response",
+                "properties": {
+                    "list": { "type": "array", "items": {} },
+                    "endOfList": { "type": "boolean" },
+                    "startKey": { "type": "string" }
+                }
+            }
         }
-      }
     }
-  }
 }
