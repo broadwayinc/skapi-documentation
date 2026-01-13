@@ -2,6 +2,7 @@
 
 Welcome to Skapi! This guide will walk you through the essential steps to get started: creating a service, importing the Skapi library into your project, and establishing a connection between your application and the Skapi server.
 
+
 ## 1. Create a Service
 
 1. Sign up for an account at [skapi.com](https://www.skapi.com/signup).
@@ -16,14 +17,14 @@ You can import the library using a `<script>` tag or install it via npm.
 ### For HTML Projects
 
 For vanilla HTML projects, import Skapi using a script tag and initialize the library.
-For static HTML projects, ensure that the Skapi class is initialized in the HTML header on all pages.
+For static HTML projects, ensure that the Skapi class is initialized in the HTML header on all pages. 
 
 ```html
 <!-- index.html -->
 <!DOCTYPE html>
 <script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
 <script>
-    const skapi = new Skapi("service_id");
+    const skapi = new Skapi('service_id');
 </script>
 ```
 
@@ -40,9 +41,9 @@ Then, import the library into your main JavaScript file:
 ```javascript
 // main.js
 import { Skapi } from "skapi-js";
-const skapi = new Skapi("service_id");
+const skapi = new Skapi('service_id');
 
-export { skapi };
+export { skapi }
 
 // You can now import skapi from anywhere in your project.
 ```
@@ -59,35 +60,15 @@ You can get your service ID from your service dashboard.
 When your client has successfully connected to the Skapi server, you can use the [`getConnectionInfo()`](/api-reference/connection/README.md#getconnectioninfo) method to retrieve connection information.
 
 ::: code-group
-
 ```html [HTML]
 <!-- index.html -->
 <!DOCTYPE html>
 <script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
 <script>
-    const skapi = new Skapi("service_id");
+    const skapi = new Skapi('service_id');
 </script>
 <script>
-    skapi.getConnectionInfo().then((info) => {
-        console.log(info);
-        /*
-    Returns:
-    {
-        service_name: "Your Service Name",
-        user_ip: "Connected user's IP address",
-        user_agent: "Connected user agent",
-        user_location: "Connected user's country code",
-        version: 'x.x.x' // Skapi library version
-    }
-    */
-        window.alert(`Connected to ${info.service_name}`);
-    });
-</script>
-```
-
-```javascript [SPA]
-import { skapi } from "../location/of/your/main.js";
-skapi.getConnectionInfo().then((info) => {
+skapi.getConnectionInfo().then(info => {
     console.log(info);
     /*
     Returns:
@@ -99,11 +80,31 @@ skapi.getConnectionInfo().then((info) => {
         version: 'x.x.x' // Skapi library version
     }
     */
-    window.alert(`Connected to ${info.service_name}`);
+   window.alert(`Connected to ${info.service_name}`);
 });
+</script>
 ```
 
+```javascript [SPA]
+import { skapi } from '../location/of/your/main.js';
+skapi.getConnectionInfo().then(info => {
+    console.log(info);
+    /*
+    Returns:
+    {
+        service_name: "Your Service Name",
+        user_ip: "Connected user's IP address",
+        user_agent: "Connected user agent",
+        user_location: "Connected user's country code",
+        version: 'x.x.x' // Skapi library version
+    }
+    */
+   window.alert(`Connected to ${info.service_name}`);
+});
+```
 :::
+
+
 
 ## 4. Advanced Settings
 
@@ -137,33 +138,29 @@ class Skapi {
 
 Options overview:
 
--   `autoLogin` (boolean, default: true)
+- `autoLogin` (boolean, default: true)
+    - Automatically restores the user's session on page load.
+    - See: [Auto Login](/authentication/login-logout.html#auto-login)
 
-    -   Automatically restores the user's session on page load.
-    -   See: [Auto Login](/authentication/login-logout.html#auto-login)
+- `requestBatchSize` (number, default: 30)
+    - Maximum number of requests processed per batch.
 
--   `requestBatchSize` (number, default: 30)
+- `eventListener` (callbacks for key events)
+    - `onLogin(user: UserProfile | null)`
+        - Fires on initial page load (after Skapi initializes), on login/logout, and when a session expires.
+        - See: [Listening to Login/Logout Status](/authentication/login-logout.html#listening-to-login-logout-status)
 
-    -   Maximum number of requests processed per batch.
+    - `onUserUpdate(user: UserProfile | null)`
+        - Fires when the user's profile is updated.
+        - See: [Listening to User Profile Updates](/authentication/user-info.html#listening-to-user-s-profile-updates)
 
--   `eventListener` (callbacks for key events)
-
-    -   `onLogin(user: UserProfile | null)`
-
-        -   Fires on initial page load (after Skapi initializes), on login/logout, and when a session expires.
-        -   See: [Listening to Login/Logout Status](/authentication/login-logout.html#listening-to-login-logout-status)
-
-    -   `onUserUpdate(user: UserProfile | null)`
-
-        -   Fires when the user's profile is updated.
-        -   See: [Listening to User Profile Updates](/authentication/user-info.html#listening-to-user-s-profile-updates)
-
-    -   `onBatchProcess(process)`
-        -   Fires everytime after Skapi completes processing a request batch.
+    - `onBatchProcess(process)`
+        - Fires everytime after Skapi completes processing a request batch.
 
 Type reference: See [UserProfile](/api-reference/data-types/README.md#userprofile).
 
 <br>
+
 
 # Working with HTML Forms
 
@@ -176,34 +173,33 @@ In this example, we'll use the [`skapi.mock()`](/api-reference/connection/README
 Here is an example of using a `<form>` with Skapi:
 
 ```html
-<form
-    onsubmit="skapi.mock(event).then(r => alert(r.hello)).catch(err => alert(err.message))"
->
-    <input name="hello" placeholder="Say Hi" />
-    <input type="submit" value="Mock" />
+<form onsubmit="skapi.mock(event).then(r => alert(r.hello)).catch(err => alert(err.message))">
+  <input name="hello" placeholder="Say Hi">
+  <input type="submit" value="Mock">
 </form>
 ```
 
 The above example is equivalent to the following code:
 
 ```html
-<input id="hello" placeholder="Say Hi" />
+<input id="hello" placeholder="Say Hi">
 <button onclick="runMock()">Mock</button>
 <script>
-    async function runMock() {
-        let helloMsg = document.getElementById("hello").value;
+  async function runMock() {
+    let helloMsg = document.getElementById("hello").value;
 
-        try {
-            let r = await skapi.mock({ hello: helloMsg });
-            alert(r.hello);
-        } catch (err) {
-            alert(err.message);
-        }
+    try {
+      let r = await skapi.mock({ hello: helloMsg });
+      alert(r.hello);
     }
+    catch (err) {
+      alert(err.message);
+    }
+  }
 </script>
 ```
 
-As you can see, when a form submit event is passed as the first argument to a Skapi method, Skapi automatically converts your form input values into key-value JavaScript data. The input `name` becomes the key, and depending on the input type, the value corresponds to what the user has entered.
+As you can see, when a form submit event is passed as the first argument to a Skapi method, Skapi automatically converts your form input values into key-value JavaScript data. The input `name` becomes the key, and depending on the input type, the value corresponds to what the user has entered. 
 
 ## Nested Values and Arrays
 
@@ -214,20 +210,19 @@ When the key name inside the `[]` is a number, Skapi will resolve the value as a
 
 ```html
 <form onsubmit="skapi.mock(event).then(r => console.log(r))">
-    <input name="user[name]" placeholder="Name" /><br />
-    <input name="user[age]" type="number" placeholder="Age" /><br />
-    Skills:<br />
-    <input name="user[skills]" type="radio" value="JavaScript" />
-    JavaScript<br />
-    <input name="user[skills]" type="radio" value="Python" /> Python<br />
-    IDE:<br />
-    <input name="user[ide]" type="checkbox" value="Vim" />Vim<br />
-    <input name="user[ide]" type="checkbox" value="Emacs" />Emacs<br />
+    <input name="user[name]" placeholder="Name"><br>
+    <input name="user[age]" type="number" placeholder="Age"><br>
+    Skills:<br>
+    <input name="user[skills]" type="radio" value="JavaScript"> JavaScript<br>
+    <input name="user[skills]" type="radio" value="Python"> Python<br>
+    IDE:<br>
+    <input name="user[ide]" type="checkbox" value="Vim">Vim<br>
+    <input name="user[ide]" type="checkbox" value="Emacs">Emacs<br>
     Check:
-    <input name="check[]" type="checkbox" />
-    <input name="check[]" type="checkbox" />
-    <br />
-    <input type="submit" value="Mock" />
+    <input name="check[]" type="checkbox">
+    <input name="check[]" type="checkbox">
+    <br>
+    <input type="submit" value='Mock'>
 </form>
 ```
 
@@ -251,25 +246,23 @@ Number inputs are resolved as numbers, radio inputs are resolved as the selected
 
 When multiple inputs share the same name without using `[]` syntax, Skapi will attempt to convert the values into an array.
 
+
 ## Using Input Elements, Textarea, and Select Elements
 
 Skapi can handle various input elements, including text, number, radio, checkbox, textarea, and select elements.
 
 ```html
-<input name="my_message" id="message_input" />
-<button
-    onclick="skapi.mock(document.getElementById('message_input'))
+<input name="my_message" id="message_input">
+<button onclick="skapi.mock(document.getElementById('message_input'))
   .then(r => {
     alert(r.my_message);
-  })"
->
-    Mock
-</button>
+  })">Mock</button>
 ```
 
 In the example above, we use the `id` attribute to reference the input element and pass it directly to the Skapi method.
 
 This approach is useful when you want to handle individual user input from a specific input element.
+
 
 ## Using the `action` Attribute in the `<form>` Element
 
@@ -288,41 +281,41 @@ For this example, create two HTML files in the same directory.
 ```
 
 :::code-group
-
 ```html [index.html]
 <!DOCTYPE html>
 <script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
 <script>
     // Replace 'service_id' with the appropriate values from your Skapi dashboard.
-    const skapi = new Skapi("service_id");
+    const skapi = new Skapi('service_id');
 </script>
 
 <form onsubmit="skapi.mock(event)" action="welcome.html">
-    <input name="name" />
-    <input name="msg" />
-    <input type="submit" />
+  <input name="name">
+  <input name="msg">
+  <input type="submit">
 </form>
+
 ```
 
 ```html [welcome.html]
 <!DOCTYPE html>
 <script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
 
-<h1>Welcome <span id="your_name"></span></h1>
-<p id="message"></p>
+<h1>Welcome <span id='your_name'></span></h1>
+<p id='message'></p>
 
 <script>
     // Replace 'service_id' with the appropriate values from your Skapi dashboard.
-    const skapi = new Skapi("service_id");
-
-    skapi.getFormResponse().then((r) => {
+    const skapi = new Skapi('service_id');
+    
+    skapi.getFormResponse()
+      .then((r) => {
         // Resolved data from skapi.mock()
         your_name.innerText = r.name;
         message.innerText = r.msg;
-    });
+      });
 </script>
 ```
-
 :::
 
 ::: tip
@@ -335,58 +328,45 @@ In contrast, in a single-page application, it may not be necessary to redirect u
 
 <br>
 
+
 # Creating an Account
 
-To let users create a new account in your service, you can use the [`signup()`](/api-reference/authentication/README.md#signup) method.
+To let users create a new account in your service, you can use the [`signup()`](/api-reference/authentication/README.md#signup) method. 
 
 ### Example: Creating an Account
 
 ::: code-group
 
 ```html [Form]
-<form
-    action="login.html"
-    onsubmit="skapi.signup(event).catch(err=>alert(err.message))"
->
+<form action='login.html' onsubmit="skapi.signup(event).catch(err=>alert(err.message))">
     <h2>Sign-Up</h2>
-    <hr />
+    <hr>
     <label>
-        Email<br />
-        <input
-            type="email"
-            name="email"
-            placeholder="user@email.com"
-            required
-        /> </label
-    ><br /><br />
+        Email<br>
+        <input type="email" name="email" placeholder="user@email.com" required>
+    </label><br><br>
     <label>
-        Password<br />
-        <input
-            type="password"
-            name="password"
-            placeholder="Your password"
-            required
-        /> </label
-    ><br /><br />
+        Password<br>
+        <input type="password" name="password" placeholder="Your password" required>
+    </label><br><br>
     <label>
-        Name<br />
-        <input name="name" placeholder="Your name" /> </label
-    ><br /><br />
-    <input type="submit" value="Sign-Up" />
+        Name<br>
+        <input name="name" placeholder="Your name">
+    </label><br><br>
+    <input type="submit" value="Sign-Up">
 </form>
 ```
 
 ```js [JS]
 let parameters = {
-    email: "user@email.com",
-    password: "password", // Password must be between 6 and 60 characters.
-    name: "User's name",
+  email: "user@email.com",
+  password: "password", // Password must be between 6 and 60 characters.
+  name: "User's name"
 };
 
-skapi
-    .signup(parameters)
-    .then((res) => (window.href = "login.html"))
-    .catch((err) => window.alert(err.message));
+skapi.signup(parameters)
+  .then(res => window.href = 'login.html')
+  .catch(err => window.alert(err.message));
 ```
 
 :::
@@ -396,13 +376,12 @@ Once the user signup is successful, the user will be redirected to the login pag
 The first argument takes the user's input (email, password, name) that will be used for signup.
 
 ::: warning
+- If the user have not logged in to your service after account creation,
+they will **NOT** appear on your user list in Skapi's admin page.
 
--   If the user have not logged in to your service after account creation,
-    they will **NOT** appear on your user list in Skapi's admin page.
-
--   If 7 days have passed since the account creation, and the user still have not logged in to your service,
-    user's signup will be automatically invalidated.
-    :::
+- If 7 days have passed since the account creation, and the user still have not logged in to your service,
+user's signup will be automatically invalidated.
+:::
 
 ## Login after Signup
 
@@ -412,47 +391,42 @@ You can also automatically login the user right after successful signup by setti
 ::: code-group
 
 ```html [Form]
-<form
-    onsubmit="skapi.signup(event, { login: true }).then(u=>alert('Hello ' + u.name))"
->
-    <input type="email" name="email" placeholder="E-Mail" required /><br />
-    <input
-        type="password"
-        name="password"
-        placeholder="Password"
-        required
-    /><br />
-    <input name="name" placeholder="Your name" /><br />
-    <input type="submit" value="Create Account" />
+<form onsubmit="skapi.signup(event, { login: true }).then(u=>alert('Hello ' + u.name))">
+    <input type="email" name="email" placeholder="E-Mail" required><br>
+    <input type="password" name="password" placeholder="Password" required><br>
+    <input name="name" placeholder="Your name"><br>
+    <input type="submit" value="Create Account">
 </form>
 ```
 
 ```js [JS]
 let parameters = {
-    email: "user@email.com",
-    password: "password", // Password must be between 6 and 60 characters.
-    name: "User's name",
+  email: "user@email.com",
+  password: "password", // Password must be between 6 and 60 characters.
+  name: "User's name"
 };
 
 let options = {
-    login: true, // If set to true, users will be automatically logged in after signup.
+  login: true // If set to true, users will be automatically logged in after signup.
 };
 
-skapi
-    .signup(parameters, options)
-    .then((res) => (u) => alert("Hello " + u.name));
+skapi.signup(parameters, options)
+  .then(res => u=>alert('Hello ' + u.name));
 ```
 
 :::
 
 When the `options.login` is set to `true`, the method will return the [UserProfile](/api-reference/data-types/README.md#userprofile) object.
 
-For more detailed information on all the parameters and options available with the [`signup()`](/api-reference/authentication/README.md#signup) method,
+For more detailed information on all the parameters and options available with the [`signup()`](/api-reference/authentication/README.md#signup) method, 
 please refer to the API Reference below:
 
-### [`signup(params, options?): Promise<UserProfile | string>`](/api-reference/authentication/README.md#signup)
+### [`signup(params, options?): Promise<UserProfile | string>`](/api-reference/authentication/README.md#signup)  
+
+
 
 <br>
+
 
 # Signup Confirmation
 
@@ -476,46 +450,38 @@ Once the user has confirmed their signup, their profile will automatically be ma
 :::code-group
 
 ```html [Form]
-<form
-    onsubmit="skapi.signup(event, { signup_confirmation: '/path/to/your/success/page' })
+<form onsubmit="skapi.signup(event, { signup_confirmation: '/path/to/your/success/page' })
     .then(r=> {
         // SUCCESS: The account has been created. User's signup confirmation is required.
         console.log(r);
-    })"
->
-    <input type="email" name="email" placeholder="E-Mail" required /><br />
-    <input
-        type="password"
-        name="password"
-        placeholder="Password"
-        required
-    /><br />
-    <input name="name" placeholder="Your name" /><br />
-    <input type="submit" value="Create Account" />
+    })">
+    <input type="email" name="email" placeholder="E-Mail" required><br>
+    <input type="password" name="password" placeholder="Password" required><br>
+    <input name="name" placeholder="Your name"><br>
+    <input type="submit" value="Create Account">
 </form>
 ```
 
 ```js [JS]
 let parameters = {
-    email: "user@email.com",
-    password: "password",
-    name: "User's name",
+  email: "user@email.com",
+  password: "password",
+  name: "User's name"
 };
 
 let options = {
-    /**
-     * If set to true, the user will get a signup confirmation email with a confirmation link.
-     * If set to a valid URL string, the user will be redirected to the url when the confirmation is successful.
-     */
-    signup_confirmation: "/path/to/your/success/page",
+  /** 
+   * If set to true, the user will get a signup confirmation email with a confirmation link.
+   * If set to a valid URL string, the user will be redirected to the url when the confirmation is successful.
+   */
+  signup_confirmation: '/path/to/your/success/page'
 };
 
-skapi.signup(parameters, options).then((res) => {
+skapi.signup(parameters, options).then(res => {
     // "SUCCESS: The account has been created. User's signup confirmation is required."
     console.log(res);
 });
 ```
-
 :::
 
 The example above shows how you can create a user account with the signup confirmation.
@@ -540,13 +506,12 @@ For more info on email templates, see [Automated E-Mail](/email/email-templates.
 
 ## Resending Signup Confirmation Email
 
-If you need to resend the confirmation email, use the [`resendSignupConfirmation()`](/api-reference/authentication/README.md#resendsignupconfirmation) method.
+
+If you need to resend the confirmation email, use the [`resendSignupConfirmation()`](/api-reference/authentication/README.md#resendsignupconfirmation) method. 
 
 :::code-group
-
 ```html [Form]
-<form
-    onsubmit="skapi.login(event)
+<form onsubmit="skapi.login(event)
     .then(u=>console.log('Successfully logged in.'))
     .catch(err => {
         if(err.code === 'SIGNUP_CONFIRMATION_NEEDED') {
@@ -558,25 +523,17 @@ If you need to resend the confirmation email, use the [`resendSignupConfirmation
         }
         else throw err;
       }
-    })"
->
-    <input type="email" name="email" placeholder="E-Mail" required /><br />
-    <input
-        id="password"
-        type="password"
-        name="password"
-        placeholder="Password"
-        required
-    /><br />
-    <input type="submit" value="Login" />
+    })">
+    <input type="email" name="email" placeholder="E-Mail" required><br>
+    <input id="password" type="password" name="password" placeholder="Password" required><br>
+    <input type="submit" value="Login">
 </form>
 ```
 
 ```js [JS]
-skapi
-    .login({ email: "user@email.com", password: "password" })
-    .then((u) => console.log("Successfully logged in."))
-    .catch((err) => {
+skapi.login({email: 'user@email.com', password: 'password'})
+    .then(u=>console.log('Successfully logged in.'))
+    .catch(err=>{
         /**
          * {
          *  code: 'SIGNUP_CONFIRMATION_NEEDED',
@@ -584,38 +541,38 @@ skapi
          *  name: 'SkapiError'
          * }
          */
-
-        if (err.code === "SIGNUP_CONFIRMATION_NEEDED") {
-            let sendConfirmation = window.confirm(
-                "Your signup confirmation is required. Resend confirmation email?"
-            );
-
-            if (sendConfirmation) {
+        
+        if(err.code === 'SIGNUP_CONFIRMATION_NEEDED') {
+            let sendConfirmation = window.confirm('Your signup confirmation is required. Resend confirmation email?');
+            
+            if(sendConfirmation) {
                 // now you can resend signup confirmation E-Mail to user@email.com.
-                skapi.resendSignupConfirmation().then((res) => {
-                    console.log(res); // 'SUCCESS: Signup confirmation e-mail has been sent.'
+                skapi.resendSignupConfirmation().then(res=>{
+                console.log(res); // 'SUCCESS: Signup confirmation e-mail has been sent.'
                 });
             }
-        } else throw err;
+        }
+
+        else throw err;
     });
 ```
-
 :::
 
 In this example, the user tries to login and receives a `SIGNUP_CONFIRMATION_NEEDED` error.
 
 Then, if the user chooses to, you can use the [`resendSignupConfirmation()`](/api-reference/authentication/README.md#resendsignupconfirmation) method to resend the confirmation email to the user's email address.
 
-For more detailed information on all the parameters and options available with the [`resendSignupConfirmation()`](/api-reference/authentication/README.md#resendsignupconfirmation) method,
+For more detailed information on all the parameters and options available with the [`resendSignupConfirmation()`](/api-reference/authentication/README.md#resendsignupconfirmation) method, 
 please refer to the API Reference below:
 
 ### [`resendSignupConfirmation(): Promise<string>`](/api-reference/authentication/README.md#resendsignupconfirmation)
 
 ::: warning
+- To resend signup confirmation emails, the user must have at least one login attempt to your service.
+- If the user fails to confirm within 7 days, their signup will be invalidated, and they will need to sign up again. 
+:::
 
--   To resend signup confirmation emails, the user must have at least one login attempt to your service.
--   If the user fails to confirm within 7 days, their signup will be invalidated, and they will need to sign up again.
-    :::
+
 
 <br>
 
@@ -791,6 +748,7 @@ skapi.onLogin = (profile) => {
 
 This handler is useful for updating the UI when the user logs in, logs out.
 
+
 <br>
 
 # User Profile
@@ -808,70 +766,72 @@ If the user is not logged in, [`getProfile()`](/api-reference/authentication/REA
 This method is particularly useful for determining the user's authentication state when they first visit or reload your website.
 
 ```js
-skapi.getProfile().then((profile) => {
-    console.log(profile); // User's information
+skapi.getProfile().then(profile=>{
+  console.log(profile); // User's information
 
-    if (profile === null) {
-        // The user is not logged in
-    }
-});
+  if(profile === null) {
+    // The user is not logged in
+  }
+})
 ```
 
 You can also refresh the auth token and fetch the updated profile by passing `options.refreshToken` to `true`.
 
 ```js
-skapi.getProfile({ refreshToken: true }).then((profile) => {
-    console.log(profile); // Updated user's information
+skapi.getProfile({ refreshToken: true }).then(profile=>{
+  console.log(profile); // Updated user's information
 
-    if (profile === null) {
-        // The user is not logged in
-    }
-});
+  if(profile === null) {
+    // The user is not logged in
+  }
+})
 ```
 
 This can be useful when the user needs to get their updated profile when it's updated from another device, or admin might have made change to the users profile, or you just want your users to update their token for some other security reasons.
 
-For more detailed information on all the parameters and options available with the [`getProfile()`](/api-reference/authentication/README.md#getprofile) method,
+For more detailed information on all the parameters and options available with the [`getProfile()`](/api-reference/authentication/README.md#getprofile) method, 
 please refer to the API Reference below:
 
 ### [`getProfile(options?): Promise<UserProfile | null>`](/api-reference/authentication/README.md#getprofile)
+
 
 ## Listening to User's Profile Updates
 
 You can listen to the updates of the user profiles by setting a callback function in the `option.eventListener.onUserUpdate` option argument of the constructor argument in Skapi.
 
 The `onUserUpdate` callback function will be triggered in the following scenarios:
-
--   Skapi initializes with the user's current authentication state.
--   User logs in or logs out.
--   User loses their session due to an expired token.
--   User's profile information is updated.
+- Skapi initializes with the user's current authentication state.
+- User logs in or logs out.
+- User loses their session due to an expired token.
+- User's profile information is updated.
 
 If the user is logged in, the callback receives the [UserProfile](/api-reference/data-types/README.md#userprofile) object; otherwise, it receives `null`.
 
 ```js
 const options = {
-    eventListener: {
-        onUserUpdate: (profile) => {
-            console.log(profile); // is null when user is logged out, User's information object when logged in.
-        },
-    },
+  eventListener: {
+    onUserUpdate: (profile) => {
+      console.log(profile); // is null when user is logged out, User's information object when logged in.
+    }
+  }
 };
 
-const skapi = new Skapi("service_id", options);
+const skapi = new Skapi('service_id', options);
 ```
 
 You can also add multiple event listeners to the `onUserUpdate` event after the Skapi object has been initialized.
 
 ```js
 skapi.onUserUpdate = (profile) => {
-    console.log(profile); // null when user is logged out, User's information object when logged in.
-};
+  console.log(profile); // null when user is logged out, User's information object when logged in.
+}
 ```
 
 This handler is useful for updating the UI when the user logs in, logs out, or when their profile information changes.
 
+
 <br>
+
 
 # Forgot password
 
@@ -895,27 +855,25 @@ The user will receive an email containing a verification code that they can use 
 :::code-group
 
 ```html [Form]
-<form
-    onsubmit="skapi.forgotPassword(event).then(res => {
+<form onsubmit="skapi.forgotPassword(event).then(res => {
     console.log(res) // SUCCESS: Verification code has been sent.
-})"
->
-    <input type="email" name="email" placeholder="E-Mail" required />
-    <input type="submit" value="Request Verification Code" />
+})">
+    <input type="email" name="email" placeholder="E-Mail" required>
+    <input type="submit" value="Request Verification Code">
 </form>
 ```
 
 ```js [JS]
-skapi.forgotPassword({ email: "someone@gmail.com" }).then((res) => {
-    // User receives an e-mail with a verification code.
-    // SUCCESS: Verification code has been sent.
-    console.log(res);
+skapi.forgotPassword({email: 'someone@gmail.com'}).then(res=>{
+  // User receives an e-mail with a verification code.
+  // SUCCESS: Verification code has been sent.
+  console.log(res);
 });
-```
 
+```
 :::
 
-For more detailed information on all the parameters and options available with the [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword) method,
+For more detailed information on all the parameters and options available with the [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword) method, 
 please refer to the API Reference below:
 
 ### [`forgotPassword(params): Promise<string>`](/api-reference/authentication/README.md#forgotpassword)
@@ -939,44 +897,29 @@ Upon successful password reset, the user's account password will be set to the n
 :::code-group
 
 ```html [Form]
-<form
-    onsubmit="skapi.resetPassword(event).then(res => {
+<form onsubmit="skapi.resetPassword(event).then(res => {
     console.log(res); // SUCCESS: New password has been set.
-})"
->
-    <input type="email" name="email" placeholder="E-Mail" required /><br />
-    <input
-        type="text"
-        name="code"
-        placeholder="Verification Code"
-        required
-    /><br />
-    <input
-        type="password"
-        name="new_password"
-        placeholder="New Password"
-        required
-    /><br />
-    <input type="submit" value="Change Password" />
+})">
+    <input type="email" name="email" placeholder="E-Mail" required><br>
+    <input type="text" name="code" placeholder="Verification Code" required><br>
+    <input type="password" name="new_password" placeholder="New Password" required><br>
+    <input type="submit" value="Change Password">
 </form>
 ```
 
 ```js [JS]
-skapi
-    .resetPassword({
-        email: "someone@gmail.com",
-        code: "123456", // code sent to user's registered email address
-        new_password: "new_password", // The password should be at least 6 characters and 60 characters maximum.
-    })
-    .then((res) => {
-        console.log(res);
-        // SUCCESS: New password has been set.
-    });
+skapi.resetPassword({
+  email: 'someone@gmail.com', 
+  code: '123456', // code sent to user's registered email address
+  new_password: 'new_password' // The password should be at least 6 characters and 60 characters maximum.
+}).then(res => {
+  console.log(res);
+  // SUCCESS: New password has been set.
+});
 ```
-
 :::
 
-For more detailed information on all the parameters and options available with the [`resetPassword()`](/api-reference/authentication/README.md#resetpassword) method,
+For more detailed information on all the parameters and options available with the [`resetPassword()`](/api-reference/authentication/README.md#resetpassword) method, 
 please refer to the API Reference below:
 
 ### [`resetPassword(params): Promise<string>`](/api-reference/authentication/README.md#resetpassword)
@@ -1021,9 +964,9 @@ Follow their [instructions](https://support.google.com/googleapi/answer/6158849?
 2. Click on the service where you want to register your OpenID Logger.
 3. From the side menu, click on **OpenID Logger**.
 4. Click **+** on the top right side of the table to add logger.
-5. Set up the _Logger ID_. This is an identifier used when calling [`openidLogin()`](/api-reference/authentication/README.md#openidlogin). You can use any name, but for this example, set it to **google**.
-6. Set up the _Username Key_. This should be an OpenID attribute name that holds a unique identifier. For this example, set it to **email**.
-7. Set up the _request URL_ to the Google API where you can retrieve the user's profile. Set it to `https://www.googleapis.com/oauth2/v3/userinfo`.
+5. Set up the *Logger ID*. This is an identifier used when calling [`openidLogin()`](/api-reference/authentication/README.md#openidlogin). You can use any name, but for this example, set it to **google**.
+6. Set up the *Username Key*. This should be an OpenID attribute name that holds a unique identifier. For this example, set it to **email**.
+7. Set up the *request URL* to the Google API where you can retrieve the user's profile. Set it to `https://www.googleapis.com/oauth2/v3/userinfo`.
 8. Set up the Header [JSON] as shown below:
     ```
     {
@@ -1031,6 +974,7 @@ Follow their [instructions](https://support.google.com/googleapi/answer/6158849?
     }
     ```
 9. Click **Save**.
+
 
 ### 3. Register Client Secret Key
 
@@ -1049,27 +993,23 @@ Since the client secret key should not be exposed, register the client secret ke
 Create a link URL and button for the Google OAuth login page.
 
 ```html
-<button onclick="googleLogin()">Google Login</button>
+<button onclick='googleLogin()'>Google Login</button>
 <script>
     const GOOGLE_CLIENT_ID = "1234567890123-your.google.client.id"; // Replace this with your actual client ID
-    const REDIRECT_URL = window.location.href.split("?")[0]; // Current URL to redirect back from Google login page
+    const REDIRECT_URL = window.location.href.split('?')[0]; // Current URL to redirect back from Google login page
 
     function googleLogin() {
         let rnd = Math.random().toString(36).substring(2); // Generate a random string
 
         // Build link to login page
-        let url = "https://accounts.google.com/o/oauth2/v2/auth";
-        url += "?client_id=" + GOOGLE_CLIENT_ID;
-        url += "&redirect_uri=" + encodeURIComponent(REDIRECT_URL);
-        url += "&response_type=code";
-        url +=
-            "&scope=" +
-            encodeURIComponent(
-                "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email"
-            );
-        url += "&prompt=consent";
-        url += "&state=" + encodeURIComponent(rnd);
-        url += "&access_type=offline";
+        let url = 'https://accounts.google.com/o/oauth2/v2/auth';
+        url += '?client_id=' + GOOGLE_CLIENT_ID;
+        url += '&redirect_uri=' + encodeURIComponent(REDIRECT_URL);
+        url += '&response_type=code';
+        url += '&scope=' + encodeURIComponent('https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email');
+        url += '&prompt=consent';
+        url += '&state=' + encodeURIComponent(rnd);
+        url += '&access_type=offline';
 
         // Redirect user to the URL
         window.location.href = url;
@@ -1084,42 +1024,37 @@ When the user is authenticated and redirected back to your web application, use 
 Once the access token is fetched, you can call [`openidLogin(event?:SubmitEvent | params): Promise<string>`](/api-reference/authentication/README.md#openidlogin) to log your users into your web application.
 
 ```html
-<button onclick="googleLogin()">Google Login</button>
+<button onclick='googleLogin()'>Google Login</button>
 <script>
     const GOOGLE_CLIENT_ID = "1234567890123-your.google.client.id"; // Replace this with your actual client ID
-    const REDIRECT_URL = window.location.href.split("?")[0]; // Current URL to redirect back from Google login page
+    const REDIRECT_URL = window.location.href.split('?')[0]; // Current URL to redirect back from Google login page
 
     function googleLogin() {
         let rnd = Math.random().toString(36).substring(2); // Generate a random string
 
         // Build link to login page
-        let url = "https://accounts.google.com/o/oauth2/v2/auth";
-        url += "?client_id=" + GOOGLE_CLIENT_ID;
-        url += "&redirect_uri=" + encodeURIComponent(REDIRECT_URL);
-        url += "&response_type=code";
-        url +=
-            "&scope=" +
-            encodeURIComponent(
-                "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email"
-            );
-        url += "&prompt=consent";
-        url += "&state=" + encodeURIComponent(rnd);
-        url += "&access_type=offline";
+        let url = 'https://accounts.google.com/o/oauth2/v2/auth';
+        url += '?client_id=' + GOOGLE_CLIENT_ID;
+        url += '&redirect_uri=' + encodeURIComponent(REDIRECT_URL);
+        url += '&response_type=code';
+        url += '&scope=' + encodeURIComponent('https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email');
+        url += '&prompt=consent';
+        url += '&state=' + encodeURIComponent(rnd);
+        url += '&access_type=offline';
 
         // Redirect user to the URL
         window.location.href = url;
     }
 
     const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get("code"); // Get the authorization code from URL parameters
-
-    if (code) {
-        // When the webpage is loaded, check if it's redirected from the Google login page.
-        (async () => {
+    const code = urlParams.get('code'); // Get the authorization code from URL parameters
+        
+    if (code) { // When the webpage is loaded, check if it's redirected from the Google login page.
+        (async ()=>{
             // Safely retrieve access token using clientSecretRequest
             const data = await skapi.clientSecretRequest({
                 clientSecretName: "ggltoken",
-                url: "https://oauth2.googleapis.com/token",
+                url: 'https://oauth2.googleapis.com/token',
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -1129,20 +1064,20 @@ Once the access token is fetched, you can call [`openidLogin(event?:SubmitEvent 
                     client_id: GOOGLE_CLIENT_ID,
                     client_secret: "$CLIENT_SECRET",
                     redirect_uri: REDIRECT_URL,
-                    grant_type: "authorization_code",
-                },
+                    grant_type: 'authorization_code'
+                }
             });
 
             if (data.error) {
                 console.error(data);
-                throw data;
+                throw data
             }
 
             let ACCESS_TOKEN = data.access_token;
             // Use openIdLogin to log in
-            await skapi.openIdLogin({ id: "google", token: ACCESS_TOKEN });
-            window.location.href = "/";
-        })();
+            await skapi.openIdLogin({ id: 'google', token: ACCESS_TOKEN });
+            window.location.href = '/';
+        })()
     }
 </script>
 ```
@@ -1165,7 +1100,7 @@ Then, when calling `openIdLogin`, use the `merge` option to control what is merg
 For example, to merge only the user's "name" attribute:
 
 ```js
-skapi.openIdLogin({ id: "by_skapi", token: ACCESS_TOKEN, merge: ["name"] });
+skapi.openIdLogin({ id: 'by_skapi', token: ACCESS_TOKEN, merge: ["name"] });
 ```
 
 :::danger
@@ -1176,20 +1111,16 @@ After a merge, the user can no longer log in with a password. This action cannot
 You can first attempt login without the `merge` parameter and only prompt the user to merge if the account already exists:
 
 ```js
-skapi.openIdLogin({ id: "by_skapi", token: ACCESS_TOKEN }).catch((err) => {
-    if (err.code === "ACCOUNT_EXISTS") {
-        if (confirm("An account already exists. Merge them now?")) {
-            return skapi.openIdLogin({
-                id: "by_skapi",
-                token: ACCESS_TOKEN,
-                merge: true,
-            });
+skapi.openIdLogin({ id: 'by_skapi', token: ACCESS_TOKEN })
+    .catch(err => {
+        if (err.code === 'ACCOUNT_EXISTS') {
+            if (confirm('An account already exists. Merge them now?')) {
+                return skapi.openIdLogin({ id: 'by_skapi', token: ACCESS_TOKEN, merge: true });
+            }
         }
-    }
-    throw err; // Re-throw if not handled
-});
+        throw err; // Re-throw if not handled
+    });
 ```
-
 :::
 
 <br>
@@ -1202,10 +1133,10 @@ User must be logged in to call this method
 
 User with verified E-Mail can:
 
--   Reset their password if they've forgotten it.
--   Receive newsletter from the service owner if they choose to.
--   Recover their disabled account.
--   Allow their email address to be public to other users if they choose.
+- Reset their password if they've forgotten it.
+- Receive newsletter from the service owner if they choose to.
+- Recover their disabled account.
+- Allow their email address to be public to other users if they choose.
 
 You can verify your user's email address with [`verifyEmail()`](/api-reference/user/README.md#verifyemail).
 
@@ -1218,24 +1149,24 @@ The example below shows how you can verify your users email address.
 1. The first method call, without any arguments, sends a verification email to the user.
 2. The second call completes the verification process by passing the verification code that user retrieved from their email.
 
-```js
-// Send verification code to user's E-Mail
-skapi.verifyEmail().then((res) => {
-    // 'SUCCESS: Verification code has been sent.'
+``` js
+  // Send verification code to user's E-Mail
+  skapi.verifyEmail().then(res=>{
+     // 'SUCCESS: Verification code has been sent.'
     console.log(res);
 
     // Prompt user to enter the verification code
-    let code = prompt("Enter the verification code sent to your E-Mail");
-
+    let code = prompt('Enter the verification code sent to your E-Mail');
+    
     // Verify E-Mail with the code
-    skapi.verifyEmail({ code }).then((res) => {
-        // SUCCESS: "email" is verified.
-        window.alert("Your email is verified");
+    skapi.verifyEmail({ code }).then(res=>{
+      // SUCCESS: "email" is verified.
+      window.alert('Your email is verified');
     });
-});
+  });
 ```
 
-For more detailed information on all the parameters and options available with the [`verifyEmail()`](/api-reference/user/README.md#verifyemail) method,
+For more detailed information on all the parameters and options available with the [`verifyEmail()`](/api-reference/user/README.md#verifyemail) method, 
 please refer to the API Reference below:
 
 ### [`verifyEmail(params?): Promise(string)`](/api-reference/user/README.md#verifyemail)
@@ -1243,6 +1174,7 @@ please refer to the API Reference below:
 :::warning
 The user's email verified state will be lost if the user had changed their email address.
 :::
+
 
 <br>
 
@@ -1304,7 +1236,7 @@ skapi.updateProfile(params).then((user) => {
 For more detailed information on all the parameters and options available with the [`updateProfile()`](/api-reference/user/README.md#updateprofile) method,
 please refer to the API Reference below:
 
-### [`updateProfile(params, options?): Promise<UserProfile>`](/api-reference/user/README.md#updateprofile)
+### [`updateProfile(params): Promise<UserProfile>`](/api-reference/user/README.md#updateprofile)
 
 :::danger
 Be aware that user profile attributes only take `string` as a value.
@@ -1355,7 +1287,8 @@ skapi.updateProfile(params).then((user) => {
 For more detailed information on all the parameters and options available with the [`updateProfile()`](/api-reference/user/README.md#updateprofile) method,
 please refer to the API Reference below:
 
-### [`updateProfile(params, options?): Promise<UserProfile>`](/api-reference/user/README.md#updateprofile)
+### [`updateProfile(params): Promise<UserProfile>`](/api-reference/user/README.md#updateprofile)
+
 
 <br>
 
@@ -1373,43 +1306,36 @@ Password should be at least 6 characters and no more than 60 characters.
 
 ```html [Form]
 <form onsubmit="skapi.changePassword(event).then(res => alert(res))">
-    <input
-        type="password"
-        name="current_password"
-        placeholder="Current Password"
-        required
-    /><br />
-    <input
-        type="password"
-        name="new_password"
-        placeholder="New Password"
-        required
-    /><br />
-    <input type="submit" value="Change Password" />
+    <input type="password" name="current_password" placeholder="Current Password" required><br>
+    <input type="password" name="new_password" placeholder="New Password" required><br>
+    <input type="submit" value="Change Password">
 </form>
 ```
 
-```js [JS]
+``` js [JS]
 let params = {
-    current_password: "current password",
-    new_password: "new password",
-};
+    current_password: 'current password',
+    new_password: 'new password'
+}
 
-skapi.changePassword(params).then((res) => {
+skapi.changePassword(params)
+  .then(res => {
     alert(res); // SUCCESS: Password has been changed.
-});
+  });
 ```
 
 :::
 
-For more detailed information on all the parameters and options available with the [`changePassword()`](/api-reference/user/README.md#changepassword) method,
+For more detailed information on all the parameters and options available with the [`changePassword()`](/api-reference/user/README.md#changepassword) method, 
 please refer to the API Reference below:
+
 
 ### [`changePassword(params): Promise<string>`](/api-reference/user/README.md#changepassword)
 
 <br>
 
 # Disable / Recover Account
+
 
 ## Disabling account
 
@@ -1420,7 +1346,7 @@ User must be logged in to call this method
 :::warning
 If your service does not allow users to signup, the users will not be able to disable their account.
 
-For more information on how to allow/disallow users to signup from your service settings page, please refer to the [Service Settings](/service-settings/service-settings.md#allow-signup) page.
+For more information on how to allow/disallow users to signup from your service settings page, please refer to the [Service Settings](/service-settings/service-settings.md#allow-signup) page. 
 :::
 
 If user choose to leave your service, they can disable their account.
@@ -1428,13 +1354,13 @@ User's can disable their account by calling the [`disableAccount()`](/api-refere
 **All data related to the account will be deleted after 90 days**.
 User will be automatically logged out once their account has been disabled.
 
-```js
-skapi.disableAccount().then(() => {
-    // Account is disabled and user is logged out.
+``` js
+skapi.disableAccount().then(()=>{
+  // Account is disabled and user is logged out.
 });
 ```
 
-For more detailed information on all the parameters and options available with the [`disableAccount()`](/api-reference/user/README.md#disableaccount) method,
+For more detailed information on all the parameters and options available with the [`disableAccount()`](/api-reference/user/README.md#disableaccount) method, 
 please refer to the API Reference below:
 
 ### [`disableAccount(): Promise(string)`](/api-reference/user/README.md#disableaccount)
@@ -1443,8 +1369,8 @@ please refer to the API Reference below:
 
 Disabled accounts can be reactivated **within 90 days** using the [`recoverAccount()`](/api-reference/user/README.md#recoveraccount) method. This method allows users to reactivate their disabled accounts under the following conditions:
 
--   The account email must be verified.
--   The [`recoverAccount()`](/api-reference/user/README.md#recoveraccount) method must be called from the `catch` block of a failed [`login()`](/api-reference/authentication/README.md#login) attempt using the disabled account.
+- The account email must be verified.
+- The [`recoverAccount()`](/api-reference/user/README.md#recoveraccount) method must be called from the `catch` block of a failed [`login()`](/api-reference/authentication/README.md#login) attempt using the disabled account.
 
 The [`recoverAccount()`](/api-reference/user/README.md#recoveraccount) method sends an email to the account owner, containing a confirmation link (The same signup confirmation email) for account recovery.
 
@@ -1453,8 +1379,7 @@ Additionally, you can provide an optional `string` argument to the [`recoverAcco
 :::code-group
 
 ```html [Form]
-<form
-    onsubmit="skapi.login(event)
+<form onsubmit="skapi.login(event)
     .then(u=>console.log('Login success.'))
     .catch(err=>{
         console.log(err.code); // USER_IS_DISABLED
@@ -1469,38 +1394,28 @@ Additionally, you can provide an optional `string` argument to the [`recoverAcco
             });
           }
         }
-    })"
->
-    <input type="email" name="email" placeholder="E-Mail" required /><br />
-    <input
-        id="password"
-        type="password"
-        name="password"
-        placeholder="Password"
-        required
-    /><br />
-    <input type="submit" value="Login" />
+    })">
+    <input type="email" name="email" placeholder="E-Mail" required><br>
+    <input id="password" type="password" name="password" placeholder="Password" required><br>
+    <input type="submit" value="Login">
 </form>
 ```
 
 ```js [JS]
 // user attempt to login
-skapi
-    .login({ email: "user@email.com", password: "password" })
-    .then((u) => console.log("Login success."))
-    .catch((err) => {
+skapi.login({email: 'user@email.com', password: 'password'})
+    .then(u=>console.log('Login success.'))
+    .catch(err=>{
         console.log(err.code); // USER_IS_DISABLED
-        if (err.code === "USER_IS_DISABLED") {
+        if(err.code === 'USER_IS_DISABLED') {
             // Send a recovery email to the user with a link.
             // When the user click on the link, the user will be redirected when account recovery is successful.
 
-            let recover = window.confirm(
-                "Do you want to recover your account?"
-            );
-            if (recover) {
-                skapi.recoverAccount("/welcome/back/page").then((res) => {
-                    console.log(res); // SUCCESS: Recovery e-mail has been sent.
-                });
+            let recover = window.confirm('Do you want to recover your account?')
+            if(recover) {
+            skapi.recoverAccount("/welcome/back/page").then(res=>{
+                console.log(res); // SUCCESS: Recovery e-mail has been sent.
+            });
             }
         }
     });
@@ -1515,15 +1430,16 @@ If the login attempt fails with the error code `"USER_IS_DISABLED"`, user can ch
 The [`recoverAccount()`](/api-reference/user/README.md#recoveraccount) method is called to send a recovery email to the user.
 The recovery email contains a link, and when the user clicks on the link, they will be redirected to the relative path of the website URL: `/welcome/back/page` upon successful account recovery.
 
-For more detailed information on all the parameters and options available with the [`recoverAccount()`](/api-reference/user/README.md#recoveraccount) method,
+For more detailed information on all the parameters and options available with the [`recoverAccount()`](/api-reference/user/README.md#recoveraccount) method, 
 please refer to the API Reference below:
 
 ### [`recoverAccount(redirect: boolean | string): Promise<string>`](/api-reference/user/README.md#recoveraccount)
-
+ 
 :::danger
 User should know their password, and have their account email verified.
 Otherwise user's account cannot be recovered.
 :::
+
 
 <br>
 
@@ -1533,6 +1449,7 @@ Otherwise user's account cannot be recovered.
 User must be logged in to call this method
 :::
 
+
 Users can search, retrieve information of other users in your service using the [`getUsers()`](/api-reference/user/README.md#getusers) method. By default, [`getUsers()`](/api-reference/user/README.md#getusers) will return all users chronologically from the most recent sign-up.
 
 User information retrieved from the database is returned as a list of [UserPublic](/api-reference/data-types/README.md#userpublic) objects.
@@ -1541,16 +1458,17 @@ User information retrieved from the database is returned as a list of [UserPubli
 Any attribute that is not set to public will not be retrieved.
 :::
 
+
 ```js
-skapi.getUsers().then((u) => {
-    console.log(u.list); // List of all users in your service, sorted by most recent sign-up date.
+skapi.getUsers().then(u=>{
+  console.log(u.list); // List of all users in your service, sorted by most recent sign-up date.
 });
 ```
 
 In the example above, the [`getUsers()`](/api-reference/user/README.md#getusers) method is called without any parameters.
 This retrieves a list of all user profiles in your service.
 
-For more detailed information on all the parameters and options available with the [`getUsers()`](/api-reference/user/README.md#getusers) method,
+For more detailed information on all the parameters and options available with the [`getUsers()`](/api-reference/user/README.md#getusers) method, 
 please refer to the API Reference below:
 
 ### [`getUsers(params?, fetchOptions?): Promise<DatabaseResponse<UserPublic>>`](/api-reference/user/README.md#getusers)
@@ -1563,13 +1481,13 @@ Following examples shows how you can search users based on attributes such as na
 
 ```js
 let params = {
-    searchFor: "name",
-    condition: ">=", // >= means greater or equal to given value. But on string value, it works as 'starts with' condition.
-    value: "Baksa",
-};
+  searchFor: 'name',
+  condition: '>=', // >= means greater or equal to given value. But on string value, it works as 'starts with' condition.
+  value: 'Baksa'
+}
 
-skapi.getUsers(params).then((u) => {
-    console.log(u.list); // List of users whose name starts with 'Baksa'
+skapi.getUsers(params).then(u=>{
+  console.log(u.list); // List of users whose name starts with 'Baksa'
 });
 ```
 
@@ -1577,13 +1495,13 @@ skapi.getUsers(params).then((u) => {
 
 ```js
 let timestampParams = {
-    searchFor: "timestamp",
-    condition: "<", // Less than given value
-    value: 1672498800000, //2023 Jan 1
-};
+  searchFor: 'timestamp',
+  condition: '<', // Less than given value
+  value: 1672498800000 //2023 Jan 1
+}
 
-skapi.getUsers(timestampParams).then((u) => {
-    console.log(u.list); // List of users who joined before 2023 jan 1
+skapi.getUsers(timestampParams).then(u=>{
+  console.log(u.list); // List of users who joined before 2023 jan 1
 });
 ```
 
@@ -1591,13 +1509,13 @@ skapi.getUsers(timestampParams).then((u) => {
 
 ```js
 let birthdateParams = {
-    searchFor: "birthdate",
-    value: "1985-01-01",
-    range: "1990-12-31", // Queries range of value from given value to given range value.
-};
+  searchFor: 'birthdate',
+  value: '1985-01-01',
+  range: '1990-12-31' // Queries range of value from given value to given range value.
+}
 
-skapi.getUsers(birthdateParams).then((u) => {
-    console.log(u.list); // List of users whose birthday is between 1985 ~ 1990
+skapi.getUsers(birthdateParams).then(u=>{
+  console.log(u.list); // List of users whose birthday is between 1985 ~ 1990
 });
 ```
 
@@ -1605,35 +1523,36 @@ The `searchFor` parameter specifies the attribute to search for, and the value p
 
 #### The following attributes can be used in `searchFor` to search for users:
 
--   `user_id`: unique user identifier, string
--   `email`: user's email address, string
--   `phone_number`: user's phone number, string
--   `name`: user's profile name, string
--   `address`: user's physical address, string
--   `gender`: user's gender, string
--   `birthdate`: user's birthdate in "YYYY-MM-DD" format, string
--   `locale`: the user's locale, a string representing the country code (e.g "US" for United States).
--   `subscribers`: number of subscribers the user has, number
--   `timestamp`: timestamp of user's sign-up, number(13 digit unix time)
--   `approved`: search by account approval status, object: `{ by: 'admin' | 'skapi' | 'master'; approved?: boolean }`
+- `user_id`: unique user identifier, string
+- `email`: user's email address, string
+- `phone_number`: user's phone number, string
+- `name`: user's profile name, string
+- `address`: user's physical address, string
+- `gender`: user's gender, string
+- `birthdate`: user's birthdate in "YYYY-MM-DD" format, string
+- `locale`: the user's locale, a string representing the country code (e.g "US" for United States).
+- `subscribers`: number of subscribers the user has, number
+- `timestamp`: timestamp of user's sign-up, number(13 digit unix time)
+- `approved`: search by account approval status, object: ```{ by: 'admin' | 'skapi' | 'master'; approved?: boolean }```
+
 
 #### The `condition` parameter allows you to set the search condition.
 
--   `>`: Greater than the given value.
--   `>=`: Greater or equal to the given value. When the value is `string`, it works as 'starts with' condition.
--   `=`: Equal to the given value. (default)
--   `<`: Lesser than the given value.
--   `<=`: Lesser or equal to the given value.
+- `>`: Greater than the given value.
+- `>=`: Greater or equal to the given value. When the value is `string`, it works as 'starts with' condition.
+- `=`: Equal to the given value. (default)
+- `<`: Lesser than the given value.
+- `<=`: Lesser or equal to the given value.
 
 When searching for a `string` attribute, `>` and `<` will search for strings that are higher or lower in the lexicographical order, respectively. And `>=` operator works as 'start with' condition.
 
 :::info
+- Conditional query does not work on `user_id`, `email`, `phone_number`, `approved`. It must be searched with the '=' condition.
+- Users cannot search for attributes that are not set to public.
+:::
 
--   Conditional query does not work on `user_id`, `email`, `phone_number`, `approved`. It must be searched with the '=' condition.
--   Users cannot search for attributes that are not set to public.
-    :::
 
-The `range` parameter enables searching for users based on a specific attribute value within a given range. For example, if searching by `timestamp` with a range of 1651748526 to 1651143726, only users created between the two timestamps will be returned.
+The `range` parameter enables searching for users based on a specific attribute value within a given range. For example, if searching by `timestamp` with a range of 1651748526 to 1651143726, only users created between the two timestamps will be returned. 
 
 :::warning
 The `range` parameter cannot be used with the `condition` parameter.
@@ -1647,17 +1566,16 @@ Users can use the [`postRecord()`](/api-reference/database/README.md#postrecord)
 
 It takes two arguments:
 
--   `data` The data to be saved in key-value pairs. It can be an object literal, `null`, `undefined`, or a form `SubmitEvent`. Once the record is uploaded, the given data will be stored as a value under the key name `data` in the returned [RecordData](/api-reference/data-types/README.md#recorddata).
+- `data` The data to be saved in key-value pairs. It can be an object literal, `null`, `undefined`, or a form `SubmitEvent`. Once the record is uploaded, the given data will be stored as a value under the key name `data` in the returned [RecordData](/api-reference/data-types/README.md#recorddata).
 
--   `config` (required): Configuration for the record to be uploaded. This is where you specify the table name, access group, index values, etc.
+- `config` (required): Configuration for the record to be uploaded. This is where you specify the table name, access group, index values, etc.
 
 Refer to the example below:
 
 :::code-group
 
 ```html [Form]
-<form
-    onsubmit="skapi.postRecord(event, { table: { name: 'my_collection', access_group: 'public' } }).then(rec => {
+<form onsubmit="skapi.postRecord(event, { table: { name: 'my_collection', access_group: 'public' } }).then(rec => {
     console.log(rec);
     /*
     Returns:
@@ -1667,9 +1585,8 @@ Refer to the example below:
         ...
     }
     */
-})"
->
-    <input name="something" placeholder="Say something" value="Hello World" />
+})">
+    <input name="something" placeholder="Say something" value="Hello World"/>
     <input type="submit" value="Submit" />
 </form>
 ```
@@ -1677,15 +1594,15 @@ Refer to the example below:
 ```js [JS]
 // Data to be saved in key:value pairs
 let data = {
-    something: "Hello World",
-};
+    something: "Hello World"
+}
 
 // Configuration for the record to be uploaded
 let config = {
-    table: { name: "my_collection", access_group: "public" },
-};
+    table: { name: 'my_collection', access_group: 'public' }
+}
 
-skapi.postRecord(data, config).then((rec) => {
+skapi.postRecord(data, config).then(rec=>{
     console.log(rec);
     /*
     Returns:
@@ -1697,7 +1614,6 @@ skapi.postRecord(data, config).then((rec) => {
     */
 });
 ```
-
 :::
 
 This example demonstrates using the [`postRecord()`](/api-reference/database/README.md#postrecord) method to create a record in the database.
@@ -1720,18 +1636,17 @@ When uploading the record with access restrictions, see [`Access Restrictions`](
 Both authenticated and anonymous users can upload data to your service using the [`postRecord()`](/api-reference/database/README.md#postrecord) method.
 
 Limitations for anonymous (unsigned) users:
-
 1. They can only create records in the `public` access group (see [`Access Restrictions`](/database/access-restrictions.md)).
 2. They cannot edit or delete any records they create.
 3. They cannot create records that use [`Subscription`](/database/subscription.md) features.
 4. They cannot create records with [`Unique ID`](/database/unique-id.md) features.
-   :::
+:::
 
 ::: danger
 When an anonymous user uploads a record, the `user_id` in the returned [`RecordData`](/api-reference/data-types/README.md#recorddata) is temporary and should NOT be used for user queries.
 :::
 
-For more detailed information on all the parameters and options available with the [`postRecord()`](/api-reference/database/README.md#postrecord) method,
+For more detailed information on all the parameters and options available with the [`postRecord()`](/api-reference/database/README.md#postrecord) method, 
 please refer to the API Reference below:
 
 ### [`postRecord(data, config):Promise<RecordData>`](/api-reference/database/README.md#postrecord)
@@ -1750,9 +1665,8 @@ Conversely, if a table has no records, it will be automatically deleted.
 The [`getRecords()`](/api-reference/database/README.md#getrecords) method allows you to fetch records from the database. It retrieves records based on the specified query parameters and returns a promise that resolves to the [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse) containing the [RecordData](/api-reference/data-types/README.md#recorddata) object.
 
 It takes two arguments:
-
--   `query`: Specifies the query parameters for fetching records.
--   `fetchOptions`: (optional)
+- `query`: Specifies the query parameters for fetching records.
+- `fetchOptions`: (optional)
     Specifies additional configuration options for fetching database records
     For more information, see [Database Fetch Options](/database/fetch.md#database-fetch-options).
 
@@ -1760,10 +1674,10 @@ It takes two arguments:
 
 ```js
 let query = {
-    table: { name: "my_collection", access_group: "public" },
-};
+    table: { name: 'my_collection', access_group: 'public' }
+}
 
-skapi.getRecords(query).then((response) => {
+skapi.getRecords(query).then(response=>{
     // response
     /**
      * endOfList: true,
@@ -1782,7 +1696,7 @@ The retrieved records are accessed through the `response.list` property.
 
 When fetching the records with access restrictions, see [`Access Restrictions`](/database/access-restrictions.md).
 
-For more detailed information on all the parameters and options available with the [`getRecords()`](/api-reference/database/README.md#getrecords) method,
+For more detailed information on all the parameters and options available with the [`getRecords()`](/api-reference/database/README.md#getrecords) method, 
 please refer to the API Reference below:
 
 ### [`getRecords(query, fetchOptions?): Promise<DatabaseResponse<RecordData>>`](/api-reference/database/README.md#getrecords)
@@ -1793,10 +1707,10 @@ You can fetch a record by its unique ID using the [`getRecords()`](/api-referenc
 
 ```js
 let query = {
-    record_id: "record_id_to_fetch",
+    record_id: 'record_id_to_fetch'
 };
 
-skapi.getRecords(query).then((response) => {
+skapi.getRecords(query).then(response => {
     // response
     /**
      * endOfList: true,
@@ -1813,6 +1727,7 @@ In this example, the `query` object includes the `record_id` property set to the
 
 The `response.list` will contain the record data if the record exists.
 
+
 ## Database Fetch Options
 
 [FetchOptions](/api-reference/data-types/README.md#fetchoptions) can control the number of the record per fetch, fetching the next batch of records, fetching the records by ascending/descending order... etc.
@@ -1820,6 +1735,7 @@ The `response.list` will contain the record data if the record exists.
 This is used globally for all database related methods that allows optional [FetchOptions](/api-reference/data-types/README.md#fetchoptions) argument.
 
 See full list of parameters: [FetchOptions](/api-reference/data-types/README.md#fetchoptions)
+
 
 #### Limit Results with `fetchOptions.limit`
 
@@ -1841,30 +1757,32 @@ If set to `false`, list of data can be fetched in descending order
 For example, let's say there is millions of record in the database table 'my_collection'.
 We can fetch the first 100 data, then paginate to the next 100 data by setting `fetchOptions.fetchMore` to `true`.
 
-```js
+``` js
 let query = {
-    table: { name: "my_collection", access_group: "public" },
-};
+    table: { name: 'my_collection', access_group: 'public' }
+}
 
 let fetchOptions = {
-    limit: 100, // Limit each fetch to 100 data.
-    fetchMore: false, // When false, database always gives you the first batch of data.
-    ascending: false, // Fetch in decending order.
-};
+  limit: 100, // Limit each fetch to 100 data.
+  fetchMore: false, // When false, database always gives you the first batch of data.
+  ascending: false // Fetch in decending order.
+}
 
-skapi.getRecords(query, fetchOptions).then((res) => {
-    console.log(res.list); // List of up to 100 data in the database.
+skapi.getRecords(query, fetchOptions).then(res=>{
+  console.log(res.list); // List of up to 100 data in the database.
+  
+  if(!res.endOfList) {
+    // If there is more data to fetch, and if user chooses to, they can retrieve the next batch of 100.
 
-    if (!res.endOfList) {
-        // If there is more data to fetch, and if user chooses to, they can retrieve the next batch of 100.
-
-        fetchOptions.fetchMore = true;
-        if (confirm("Fetch more records?")) {
-            skapi.getUsers(query, fetchOptions).then((res) => {
+    fetchOptions.fetchMore = true;
+    if(confirm('Fetch more records?')) {
+        skapi.getUsers(query, fetchOptions)
+            .then(res=>{
                 console.log(res.list); // List of the next 100 data from the database.
-            });
-        }
+            }
+        );
     }
+  }
 });
 ```
 
@@ -1908,15 +1826,15 @@ Anonymous (unsigned) users cannot create records using unique ID.
 
 ```js
 let data = {
-    myData: "This is a record with a unique ID",
+    myData: "This is a record with a unique ID"
 };
 
 let config = {
-    table: { name: "my_table", access_group: "public" },
-    unique_id: "My Unique ID %$#@",
+    table: { name: 'my_table', access_group: 'public' },
+    unique_id: 'My Unique ID %$#@'
 };
 
-skapi.postRecord(data, config).then((record) => {
+skapi.postRecord(data, config).then(record => {
     console.log(record);
     /*
     Returns:
@@ -1939,11 +1857,11 @@ After uploading the record, you can fetch the record using the unique ID with [`
 
 ```js
 let params = {
-    unique_id: "My Unique ID %$#@",
+    unique_id: 'My Unique ID %$#@'
 };
 
-skapi.getRecords(params).then((response) => {
-    console.log(response.list); // record with the unique ID
+skapi.getRecords(params).then(response => {
+    console.log(response.list);  // record with the unique ID
 });
 ```
 
@@ -1951,20 +1869,21 @@ skapi.getRecords(params).then((response) => {
 
 By using [`getUniqueId()`](/api-reference/database/README.md#getuniqueid) method, you can fetch list of unique ID's that are registered in your database.
 
-Below is an example where you can fetch list of unique ID that starts with **"guitar\_"**
+Below is an example where you can fetch list of unique ID that starts with **"guitar_"**
 
 ```js
 let params = {
-    unique_id: "guitar_",
-    condition: ">=",
+    unique_id: 'guitar_',
+    condition: '>='
 };
 
-skapi.getUniqueId(params).then((response) => {
-    console.log(response.list); // [{unique_id: "...", record_id: "..."}, ...]
+skapi.getUniqueId(params).then(response => {
+    console.log(response.list);  // [{unique_id: "...", record_id: "..."}, ...]
 });
 ```
 
 <br>
+
 
 # Access Restrictions
 
@@ -1975,11 +1894,12 @@ This allows you to set access restrictions on records using the `access_group` p
 
 The following values can be set for `table.access_group`:
 
--   Number 0 to 99: Integer from 0 to 99 can be set to define the access level.
--   `private`: Only the uploader of the record will have access.
--   `public`: The record will be accessible to everyone. (Equivalent to number 0)
--   `authorized`: The record will only be accessible to users who are logged into your service. (Equivalent to number 1)
--   `admin`: Only admin can use this group. The record will only be accessible to the admin of your service. (Equivalent to number 99)
+- Number 0 to 99: Integer from 0 to 99 can be set to define the access level.
+- `private`: Only the uploader of the record will have access.
+- `public`: The record will be accessible to everyone. (Equivalent to number 0)
+- `authorized`: The record will only be accessible to users who are logged into your service. (Equivalent to number 1)
+- `admin`: Only admin can use this group. The record will only be accessible to the admin of your service. (Equivalent to number 99)
+
 
 If `access_group` is not set, the default value is `public`.
 
@@ -2005,20 +1925,21 @@ Here's an example that demonstrates uploading record with `authorized` level acc
 
 ```js
 let data = {
-    myData: "Only for authorized users",
+    myData: "Only for authorized users"
 };
 
 let config = {
     table: {
-        name: "ForAuthorizedUsers",
-        access_group: "authorized",
-    },
+        name: 'ForAuthorizedUsers',
+        access_group: 'authorized'
+    }
 };
 
-skapi.postRecord(data, config).then((record) => {
+skapi.postRecord(data, config).then(record => {
     console.log(record); // Only the logged users will have access this record.
 });
 ```
+
 
 ## Fetching Records with Access Restrictions
 
@@ -2027,26 +1948,27 @@ In order to fetch records with `access_group` that is not `public`, you need to 
 ```js
 let config = {
     table: {
-        name: "ForAuthorizedUsers",
-        access_group: "authorized",
-    },
+        name: 'ForAuthorizedUsers',
+        access_group: 'authorized'
+    }
 };
 
-skapi.getRecords(config).then((response) => {
-    // response
-    /**
-     * endOfList: true,
-     * list: [
-     *  {
-     *      data: { myData: "Only for authorized users" },
-     *      table: { name: 'ForAuthorizedUsers', access_group: 'authorized' },
-     *      ...
-     *  }, ...
-     * ],
-     * startKey: 'end',
-     * ...
-     */
-});
+skapi.getRecords(config)
+    .then(response => {
+        // response
+        /**
+         * endOfList: true,
+         * list: [
+         *  {
+         *      data: { myData: "Only for authorized users" },
+         *      table: { name: 'ForAuthorizedUsers', access_group: 'authorized' },
+         *      ...
+         *  }, ...
+         * ],
+         * startKey: 'end',
+         * ...
+         */
+    });
 ```
 
 ## Private Records
@@ -2059,17 +1981,17 @@ The example below demonstrates uploading a private record:
 
 ```js
 let data = {
-    myData: "My private data",
+    myData: "My private data"
 };
 
 let config = {
     table: {
-        name: "PrivateCollection",
-        access_group: "private",
-    },
+        name: 'PrivateCollection',
+        access_group: 'private'
+    }
 };
 
-skapi.postRecord(data, config).then((record) => {
+skapi.postRecord(data, config).then(record => {
     console.log(record); // Only the uploader will be able to access this record.
 });
 ```
@@ -2078,10 +2000,11 @@ Then, if someone else tries to fetch the record, they will get an error:
 
 ```js
 let config = {
-    record_id: "record_id_of_the_private_record",
+    record_id: 'record_id_of_the_private_record'
 };
 
-skapi.getRecords(config).catch((err) => alert(err.message)); // User has no access to private record.
+skapi.getRecords(config)
+    .catch(err=>alert(err.message)); // User has no access to private record.
 ```
 
 ## Grant Private Access
@@ -2090,9 +2013,9 @@ Users can grant private access of their record to other users by using the [`gra
 
 ```js
 skapi.grantPrivateRecordAccess({
-    record_id: "record_id_of_the_private_record",
-    user_id: "user_id_to_grant_access",
-});
+    record_id: 'record_id_of_the_private_record',
+    user_id: 'user_id_to_grant_access'
+})
 ```
 
 When the user is granted access to the record, they will be able to fetch the record either if it's private or even if it has higher access group than the user.
@@ -2107,9 +2030,9 @@ Users can remove access of their private record from other users by using the [`
 
 ```js
 skapi.removePrivateRecordAccess({
-    record_id: "record_id_of_the_private_record",
-    user_id: "user_id_to_remove_access",
-});
+    record_id: 'record_id_of_the_private_record',
+    user_id: 'user_id_to_remove_access'
+})
 ```
 
 ## Allowing Others to Grant Private Access to Others
@@ -2121,20 +2044,19 @@ The owner of the record can also allow other granted users to grant private acce
 When uploading a record, if the uploader set `source.allow_granted_to_grant_others` to `true` users with private access to the record can grant access to other users as well.
 
 ```js
-skapi
-    .postRecord(null, {
-        table: {
-            name: "record_can_be_granted",
-            access_group: "private",
-        },
-        source: {
-            allow_granted_to_grant_others: true,
-        },
-    })
-    .then((r) => {
-        // now other users with an private access can also grant private access to the record (r) to others.
-    });
+skapi.postRecord(null, {
+    table: {
+        name: 'record_can_be_granted',
+        access_group: 'private'
+    },
+    source: {
+        allow_granted_to_grant_others: true
+    }
+}).then(r=>{
+    // now other users with an private access can also grant private access to the record (r) to others.
+})
 ```
+
 
 ## Listing Private Access Grants
 
@@ -2145,29 +2067,29 @@ Provide either `record_id` or `user_id` (at least one is required).
 :::
 
 ```js
-skapi
-    .listPrivateRecordAccess({
-        // Optional: one or both of these fields
-        record_id: "record_can_be_granted",
-        user_id: "user_id_to_check_granted",
-    })
-    .then((res) => {
-        // Response shape:
-        // {
-        //   list: [
-        //     { user_id: 'xxxx-xxxx...', record_id: 'record_id_123' },
-        //     ...
-        //   ],
-        //   ...
-        // }
-    });
+skapi.listPrivateRecordAccess({
+    // Optional: one or both of these fields
+    record_id: 'record_can_be_granted',
+    user_id: 'user_id_to_check_granted'
+}).then(res => {
+    // Response shape:
+    // {
+    //   list: [
+    //     { user_id: 'xxxx-xxxx...', record_id: 'record_id_123' },
+    //     ...
+    //   ],
+    //   ...
+    // }
+})
 ```
+
 
 <br>
 
+
 # Updating a Record
 
-The [`postRecord()`](/api-reference/database/README.md#postrecord) method can also be used to update an existing record. You can specify the `record_id` in the `config` object in order to do so.
+The [`postRecord()`](/api-reference/database/README.md#postrecord) method can also be used to update an existing record. You can specify the `record_id` in the `config` object in order to do so. 
 
 [`postRecord()`](/api-reference/database/README.md#postrecord) will overwrite the user's record data to a new data.
 
@@ -2180,19 +2102,19 @@ Users must be logged in to update a record.
 
 ```js
 let updatedData = {
-    newData: "Overwritten with new data.",
+  newData: "Overwritten with new data."
 };
 
 let config = {
-    record_id: "record_id_to_update",
-    table: {
-        name: "new_table_name",
-        access_group: "private", // change access group to private
-    },
+  record_id: 'record_id_to_update',
+  table: {
+    name: 'new_table_name',
+    access_group: 'private' // change access group to private
+  }
 };
 
-skapi.postRecord(updatedData, config).then((record) => {
-    console.log(record);
+skapi.postRecord(updatedData, config).then(record => {
+  console.log(record);
 });
 ```
 
@@ -2204,15 +2126,15 @@ Then, only the `config` will be updated with the previous data untouched.
 
 ```js
 let new_config = {
-    record_id: "record_id_to_update",
-    table: {
-        name: "new_table_name",
-        access_group: "private", // change access group to private
-    },
+  record_id: 'record_id_to_update',
+  table: {
+    name: 'new_table_name',
+    access_group: 'private' // change access group to private
+  }
 };
 
-skapi.postRecord(undefined, new_config).then((record) => {
-    console.log(record);
+skapi.postRecord(undefined, new_config).then(record => {
+  console.log(record);
 });
 ```
 
@@ -2234,32 +2156,27 @@ To create a readonly record, you can set the `readonly` parameter in the `config
 
 ```js
 let data = {
-    myData: "Hello World",
+  myData: "Hello World"
 };
 
 let config = {
-    table: { name: "my_collection", access_group: "public" },
-    readonly: true,
+  table: { name: 'my_collection', access_group: 'public' },
+  readonly: true
 };
 
 let read_only_record_id;
-skapi.postRecord(data, config).then((record) => {
-    console.log(record);
-    read_only_record_id = record.record_id;
+skapi.postRecord(data, config).then(record => {
+  console.log(record);
+  read_only_record_id = record.record_id;
 });
 ```
 
 When the record is created with `readonly` set to `true`, the user will not be able edit or delete the record anymore.
 
 ```js
-skapi
-    .postRecord(
-        { myData: "Can this be updated?" },
-        { record_id: read_only_record_id }
-    )
-    .catch((err) => {
-        alert(err.message); // Record is readonly.
-    });
+skapi.postRecord({ myData: "Can this be updated?" }, { record_id: read_only_record_id }).catch(err=>{
+    alert(err.message); // Record is readonly.
+})
 ```
 
 <br>
@@ -2393,18 +2310,21 @@ Uploaded files follow the access restrictions of the record.
 User must have access to the record in order to download the file.
 :::
 
-`getFile(dataType?: string, progress?: () => void )` allows you to download the file in various ways:
+`getFile()` allows you to download the file in various ways:
 
 -   `blob`: Downloads the file as a [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob) object.
 -   `base64`: Downloads the file as a base64 string.
--   `endpoint`: If the file access requires authentication or needs token update, you can request the a updated endpoint of the file.
+-   `endpoint`: If the file access requires authentication or needs token update, you can request an updated endpoint of the file.
+-   `download` (or omitted): Triggers file download from the web browser.
+-   `text`: Downloads the file as text string.
+-   `info`: Returns file information.
 
-If no argument is passed, the file will be downloaded from the web browser.
+The method has three arguments:
 
-`getFile(dataType?: string, progress?: () => void )` method have two arguments:
-
--   `dataType`: Type of ways for file to be downloaded. Can be `"blob"` or `"base64"` or `"endpoint"` url. By default, it will trigger download from the web browser.
--   `progress`: Progress callback function. Can be useful when downloading large file as a blob and you want to show progress bar. (Will not work when download type is `endpoint` or web browser download.)
+-   `url`: The URL or file reference to download.
+-   `config`: Optional configuration object with:
+    -   `dataType`: Type of download - `blob`, `base64`, `endpoint`, `text`, `info` or `download`. Defaults to `download`
+-   `progressCallback`: Optional progress callback function. Useful when downloading large files as blob to show progress bar. (Will not work with `endpoint` or `download` types.)
 
 If the file has private access restriction, you must use the `endpoint` type to get the file endpoint URL.
 The endpoint URL will be a signed URL that can expire after a certain amount of time.
@@ -2499,6 +2419,7 @@ skapi.getFile(fileUrl, { dataType: "info" }).then((fileInfo) => {
 });
 ```
 
+
 <br>
 
 # Deleting Records
@@ -2587,7 +2508,8 @@ Read more about admin access [here](/admin/intro.md).
 For more detailed information on all the parameters and options available with the [`deleteRecords()`](/api-reference/database/README.md#deleterecords) method,
 please refer to the API Reference below:
 
-### [`deleteRecords(params): Promise<string>`](/api-reference/database/README.md#deleterecords)
+### [`deleteRecords(params): Promise<string | DatabaseResponse<string>>`](/api-reference/database/README.md#deleterecords)
+
 
 <br>
 
@@ -2599,9 +2521,9 @@ You can fetch a list of table names and number of records in each tables and tot
 You can fetch a list of table using the `getTables()` method.
 
 ```js
-skapi.getTables().then((response) => {
+skapi.getTables().then(response=>{
     console.log(response); // List of all tables in the database
-});
+})
 ```
 
 ### Querying tables
@@ -2609,14 +2531,12 @@ skapi.getTables().then((response) => {
 You can query table names that meets the `condition`.
 
 ```js
-skapi
-    .getTables({
-        table: "C",
-        condition: ">",
-    })
-    .then((response) => {
-        console.log(response); // Table names starting from 'C'
-    });
+skapi.getTables({
+    table: 'C',
+    condition: '>'
+}).then(response => {
+    console.log(response); // Table names starting from 'C'
+})
 ```
 
 In this example, the condition property is set to `>`, and `table` is set to `C`.
@@ -2624,12 +2544,14 @@ This query will return the table names that come after table 'C' in lexographic 
 
 To fetch the table names that starts with 'C', you can set the condition to `>=` instead.
 
-For more detailed information on all the parameters and options available with the [`getTables()`](/api-reference/database/README.md#gettables) method,
+For more detailed information on all the parameters and options available with the [`getTables()`](/api-reference/database/README.md#gettables) method, 
 please refer to the API Reference below:
 
 ### [`getTables(query, fetchOptions?): Promise<DatabaseResponse<Table>>`](/api-reference/database/README.md#gettables)
 
+
 <br>
+
 
 # Indexing
 
@@ -2647,55 +2569,53 @@ This enables searching for music albums by release year when quering records.
 let album = {
     title: "Getz/Gilberto",
     artist: "Stan Getz, João Gilberto",
-    tracks: 10,
+    tracks: 10
 };
 
 let config = {
-    table: { name: "Albums", access_group: "public" },
+    table: {name: "Albums", access_group: "public"},
     index: {
         name: "year",
-        value: 1964,
-    },
+        value: 1964
+    }
 };
 
 skapi.postRecord(album, config);
 ```
+
 
 ## Querying with Index
 
 Once indexed record is uploaded, you can fetch records based on the "year" in the "Albums" table.
 
 ```js
-skapi
-    .getRecords({
-        table: { name: "Albums", access_group: "public" },
-        index: {
-            name: "year",
-            value: 1964,
-        },
-    })
-    .then((response) => {
-        console.log(response.list); // List of albums released on year 1964.
-    });
+skapi.getRecords({
+    table: {name: "Albums", access_group: "public"},
+    index: {
+        name: "year",
+        value: 1964
+    }
+}).then(response => {
+    console.log(response.list); // List of albums released on year 1964.
+});
 ```
+
 
 ## Querying Index with Conditions
 
 You can broaden your search by using the `condition` parameter within the `index` parameter.
 
 ```js
-skapi
-    .getRecords({
-        table: { name: "Albums", access_group: "public" },
-        index: {
-            name: "year",
-            value: 1960,
-            condition: ">", // Greater than given value
-        },
-    })
-    .then((response) => {
-        console.log(response.list); // List of albums released after the year 1960.
-    });
+skapi.getRecords({
+    table: {name: "Albums", access_group: "public"},
+    index: {
+        name: "year",
+        value: 1960,
+        condition: '>' // Greater than given value
+    }
+}).then(response => {
+    console.log(response.list); // List of albums released after the year 1960.
+});
 ```
 
 The index value can be of type `number`, `string`, or `boolean`.
@@ -2707,11 +2627,12 @@ When the index value type is `string`, `>` and `<` will search for strings that 
 
 The `condition` parameter takes the following string values:
 
--   `>`: Greater than the given value.
--   `>=`: Greater or equal to the given value. When the value is `string`, it works as 'starts with' condition.
--   `=`: Equal to the given value. (default)
--   `<`: Lesser than the given value.
--   `<=`: Lesser or equal to the given value.
+- `>`: Greater than the given value.
+- `>=`: Greater or equal to the given value. When the value is `string`, it works as 'starts with' condition.
+- `=`: Equal to the given value. (default)
+- `<`: Lesser than the given value.
+- `<=`: Lesser or equal to the given value.
+
 
 :::warning
 When querying an index with conditions, it will only return records with the same value type.
@@ -2720,10 +2641,11 @@ ex) '2' and 2 are different values.
 :::
 
 :::danger
-`index.name` should NOT have special characters. Only allowed special characters are: [ ] ^ \_ \` : ; < = > ? @ and period.
+`index.name` should NOT have special characters. Only allowed special characters are: [ ] ^ _ \` : ; < = > ? @ and period.
 
-`index.value` should NOT have special characters. Only allowed special characters are: [ ] ^ \_ \` : ; < = > ? @ and white space.
+`index.value` should NOT have special characters. Only allowed special characters are: [ ] ^ _ \` : ; < = > ? @ and white space.
 :::
+
 
 ## Query Index with Range
 
@@ -2733,57 +2655,57 @@ To do so, specify the `range` parameter in the `index` object within the [`getRe
 For example, consider the following scenario:
 
 ```js
-skapi
-    .getRecords({
-        table: { name: "Albums", access_group: "public" },
-        index: {
-            name: "year",
-            value: 1960,
-            range: 1970,
-        },
-    })
-    .then((response) => {
-        console.log(response.list); // List of albums released from 1960 to 1970.
-    });
+skapi.getRecords({
+    table: {name: "Albums", access_group: "public"},
+    index: {
+        name: "year",
+        value: 1960,
+        range: 1970
+    }
+}).then(response => {
+    console.log(response.list); // List of albums released from 1960 to 1970.
+});
 ```
 
 In the example above, the [`getRecords()`](/api-reference/database/README.md#getrecords) method will retrieve all records in the "Albums" table that have a "year" index value between 1960 and 1970 (inclusive).
 
 :::warning
+- When using the `range` parameter, the `value` and `range` parameter values should be same type of data.
+- The `range` and `condition` parameter cannot be used simultaneously.
+:::
 
--   When using the `range` parameter, the `value` and `range` parameter values should be same type of data.
--   The `range` and `condition` parameter cannot be used simultaneously.
-    :::
 
 ## Query Index with Reserved Keywords
 
-Skapi has reserved a few keywords to help with querying your records.
+Skapi has reserved a few keywords to help with querying your records. 
 The reserved keywords are:
 
--   `$uploaded`: Fetches the timestamp(13 digits millisecond format) at which the record was created.
--   `$updated`: Fetches the timestamp(13 digits millisecond format) at which the record was last updated.
--   `$referenced_count`: Fetch by the number of records that are [referencing](/database/referencing.md) the record. This can be useful if you need a query like: 'Post that has the most comments'
--   `$user_id`: Fetches list of record uploaded by given user ID.
+- `$uploaded`: Fetches the timestamp(13 digits millisecond format) at which the record was created.
+  
+- `$updated`: Fetches the timestamp(13 digits millisecond format) at which the record was last updated.
+  
+- `$referenced_count`: Fetch by the number of records that are [referencing](/database/referencing.md) the record. This can be useful if you need a query like: 'Post that has the most comments'
+  
+- `$user_id`: Fetches list of record uploaded by given user ID.
 
 With the exception of `$user_id`, all of these reserved keywords can be queried with `condition` and `range` just like any other index values. `$user_id` cannot be queried with condition or range.
 
-## Querying Index with Reserved Keywords
 
+## Querying Index with Reserved Keywords
 For example, let's query records created after 2021:
 
 ```js
-skapi
-    .getRecords({
-        table: { name: "Albums", access_group: "public" },
-        index: {
-            name: "$uploaded",
-            value: 1609459200000, // this timestamp is 2021 January 1,
-            condition: ">",
-        },
-    })
-    .then((response) => {
-        console.log(response.list); // List of albums uploaded after 2021.
-    });
+skapi.getRecords({
+    table: {name: "Albums", access_group: "public"},
+    index: {
+        name: '$uploaded',
+        value: 1609459200000, // this timestamp is 2021 January 1,
+        condition: '>'
+    }
+}).then(response => {
+    console.log(response.list); // List of albums uploaded after 2021.
+});
+ 
 ```
 
 ## Compound Index Names
@@ -2798,16 +2720,16 @@ In the example below, we are uploading a record with a compound index name:
 ```js
 let album_data = {
     title: "Dukkha",
-    tracks: 7,
+    tracks: 7
 };
 
 skapi.postRecord(album_data, {
-    table: { name: "Albums", access_group: "public" },
+    table: {name: 'Albums', access_group: 'public'},
     index: {
-        name: "Band.AsianSpiceHouse.year",
-        value: 2023,
-    },
-});
+        name: 'Band.AsianSpiceHouse.year',
+        value: 2023
+    }
+})
 ```
 
 In this example, we have created a compound index name by joining the artist type, artist name, and "year" with a period.
@@ -2820,18 +2742,16 @@ When compound index name is used, you can also query records by artist type(Band
 For example, you can query all albums performed by a **'Band'** using the following code:
 
 ```js
-skapi
-    .getRecords({
-        table: { name: "Albums", access_group: "public" },
-        index: {
-            name: "Band.",
-            value: "",
-            condition: ">", // More than
-        },
-    })
-    .then((response) => {
-        console.log(response.list); // All albums by "Band" type artists.
-    });
+skapi.getRecords({
+    table: {name: 'Albums', access_group: 'public'},
+    index: {
+        name: 'Band.',
+        value: '',
+        condition: '>' // More than
+    }
+}).then(response=>{
+    console.log(response.list); // All albums by "Band" type artists.
+})
 ```
 
 Notice `index.name` value includes a period at the end: **'Band.'**.
@@ -2843,44 +2763,41 @@ this will retrieve all records where the index name begins with **'Band.'**.
 The next example shows how you can query albums by artist name.
 
 ```js
-skapi
-    .getRecords({
-        table: { name: "Albums", access_group: "public" },
-        index: {
-            name: "Band.",
-            value: "Asian",
-            condition: ">=", // Starts with
-        },
-    })
-    .then((response) => {
-        console.log(response.list); // All albums by "Band" with band name starting with 'Asian'
-    });
+skapi.getRecords({
+    table: {name: 'Albums', access_group: 'public'},
+    index: {
+        name: 'Band.',
+        value: 'Asian',
+        condition: '>=' // Starts with
+    }
+}).then(response=>{
+    console.log(response.list); // All albums by "Band" with band name starting with 'Asian'
+})
 ```
 
 In this example, the `value` of the index is set to "Asian" and the `condition` is set to "more than or equal".
 This allows you to query all artist names starting with "Asian" where the index `name` begins with "Band."
+
 
 ### Querying with full compound index name
 
 Finally, you can query the band Asian Spice House albums by release year as follows:
 
 ```js
-skapi
-    .getRecords({
-        table: { name: "Albums", access_group: "public" },
-        index: {
-            name: "Band.AsianSpiceHouse.year",
-            value: 2010,
-            condition: ">",
-        },
-    })
-    .then((response) => {
-        console.log(response.list); // All albums by Asian Spice House released after 2010.
-    });
+skapi.getRecords({
+    table: {name: 'Albums', access_group: 'public'},
+    index: {
+        name: 'Band.AsianSpiceHouse.year',
+        value: 2010,
+        condition: '>'
+    }
+}).then(response=>{
+    console.log(response.list); // All albums by Asian Spice House released after 2010.
+})
 ```
 
 :::warning
-When querying the child index names from the compound index, you need to specify the index respecting the hierarchy of the compound index name.
+When querying the child index names from the compound index, you need to specify the index respecting the hierarchy of the compound index name. 
 
 From the example above, you cannot simply use **'Band.year'** as an index name to query by the year values.
 You must provide the full **'Band.AsianSpiceHouse.year'** as an index name if you want to query the actual value of the index.
@@ -2894,42 +2811,40 @@ Index information is useful when you want to list all index names used in a tabl
 
 The index information includes:
 
--   `average_number`: The average of the number type values.
--   `total_number`: The total sum of the number values.
--   `number_count`: The total number of records with number as the index value.
--   `average_bool`: The rate of true values for booleans.
--   `total_bool`: The total number of true values for booleans.
--   `bool_count`: The total number of records with boolean as the index value.
--   `string_count`: The total number of records with string as the index value.
--   `index_name`: The name of the index.
+- `average_number`: The average of the number type values.
+- `total_number`: The total sum of the number values.
+- `number_count`: The total number of records with number as the index value.
+- `average_bool`: The rate of true values for booleans.
+- `total_bool`: The total number of true values for booleans.
+- `bool_count`: The total number of records with boolean as the index value.
+- `string_count`: The total number of records with string as the index value.
+- `index_name`: The name of the index.
+
 
 For example, let say we have a table called "VoteBoard" that lets user upload records with a compound index name such as "Vote.Beer".
 The index value will be boolean.
-
 ```js
 skapi.postRecord(null, {
-    table: { name: "VoteBoard", access_group: "public" },
+    table: {name: 'VoteBoard', access_group: 'public'},
     index: {
-        name: "Vote.Beer",
-        value: true, // or false
-    },
-});
+        name: 'Vote.Beer',
+        value: true // or false
+    }
+})
 ```
 
 Then you can fetch information about the **"Vote.Beer"** index in the **"VoteBoard"** table to find out the rating of **"Vote.Beer"**.
 
 ```js
-skapi
-    .getIndexes({
-        table: "VoteBoard", // Table name is required
-        index: "Vote.Beer", // index name
-    })
-    .then((response) => {
-        console.log(response.list[0]); // index information of "Vote.Beer"
-    });
+skapi.getIndexes({
+    table: 'VoteBoard', // Table name is required
+    index: 'Vote.Beer' // index name
+}).then(response => {
+    console.log(response.list[0]); // index information of "Vote.Beer"
+});
 ```
 
-For more detailed information on all the parameters and options available with the [`getIndexes()`](/api-reference/database/README.md#getindex) method,
+For more detailed information on all the parameters and options available with the [`getIndexes()`](/api-reference/database/README.md#getindex) method, 
 please refer to the API Reference below:
 
 ### [`getIndexes(query, fetchOptions?): Promise<DatabaseResponse<Index>>`](/api-reference/database/README.md#getindex)
@@ -2953,49 +2868,51 @@ For example, if you expect to get the index `Vote.Beer` from ordering `average_b
 
 ```js
 let config = {
-    ascending: false,
+    ascending: false
 };
 
 let query = {
-    table: "VoteBoard",
-    index: "Vote.",
+    table: 'VoteBoard',
+    index: 'Vote.',
     order: {
-        by: "average_bool",
-    },
+        by: 'average_bool'
+    }
 };
 
-skapi.getIndexes(query, config).then((response) => {
+skapi.getIndexes(query, config).then(response => {
     console.log(response.list); // List of indexes ordered from high votes.
 });
 ```
 
 Note that in the `config` object, the `ascending` value is set to `false`.
 
-So the list will be ordered in _descending_ order from highest votes to lower votes.
+So the list will be ordered in *descending* order from highest votes to lower votes.
 
 For example, to list all indexes under "Vote." that has higher votes then 50% and order them by `average_bool`, you can do the following:
 
 ```js
 let config = {
-    ascending: false,
+    ascending: false
 };
 
 let query = {
-    table: "VoteBoard",
-    index: "Vote.",
+    table: 'VoteBoard',
+    index: 'Vote.',
     order: {
-        by: "average_bool",
+        by: 'average_bool',
         value: 0.5,
-        condition: ">",
-    },
+        condition: '>'
+    }
 };
 
-skapi.getIndexes(query, config).then((response) => {
+skapi.getIndexes(query, config).then(response => {
     console.log(response.list); // List of votes that rates higher then 50%, ordered from high votes.
 });
 ```
 
+
 <br>
+
 
 # Tags
 
@@ -3012,23 +2929,23 @@ Here's an example of how to add tags to a record:
 let record = {
     title: "Dukkha",
     artist: "Asian Spice House",
-    tracks: 7,
+    tracks: 7
 };
 
 let config = {
-    table: { name: "Albums", access_group: "public" },
+    table: {name: 'Albums', access_group: 'public'},
     index: {
         name: "year",
-        value: 2023,
+        value: 2023
     },
-    tags: ["Indie", "Experimental"],
-};
+    tags: ['Indie', 'Experimental']
+}
 
 skapi.postRecord(record, config);
 ```
 
 :::danger
-Tags should NOT have special characters. Only allowed special characters are: [ ] ^ \_ ` : ; < = > ? @ and white space.
+Tags should NOT have special characters. Only allowed special characters are: [ ] ^ _ ` : ; < = > ? @ and white space.
 :::
 
 ## Querying Records by Tag
@@ -3038,20 +2955,18 @@ You can also utilize tags in your queries.
 Example below lists albums released after 2020, that have the tag 'Experimental'.
 
 ```js
-skapi
-    .getRecords({
-        table: { name: "Albums", access_group: "public" },
-        index: {
-            name: "year",
-            value: 2020,
-            condition: ">",
-        },
-        tag: "Experimental",
-    })
-    .then((response) => {
-        // List of albums released after 2020, that have the tag 'Experimental'.
-        console.log(response.list);
-    });
+skapi.getRecords({
+    table: {name: 'Albums', access_group: 'public'},
+    index: {
+        name: "year",
+        value: 2020,
+        condition: '>'
+    },
+    tag: 'Experimental'
+}).then(response=>{
+    // List of albums released after 2020, that have the tag 'Experimental'.
+    console.log(response.list);
+});
 ```
 
 :::tip
@@ -3063,26 +2978,26 @@ Following Example below shows fetching albums with the tag 'Experimental' OR 'In
 
 ```js
 let experimental = skapi.getRecords({
-    table: { name: "Albums", access_group: "public" },
-    tag: "Experimental",
-});
+    table: {name: 'Albums', access_group: 'public'},
+    tag: 'Experimental'
+})
 
 let indie = skapi.getRecords({
-    table: { name: "Albums", access_group: "public" },
-    tag: "Indie",
+    table: {name: 'Albums', access_group: 'public'},
+    tag: 'Indie'
 });
 
-Promise.all([experimental, indie]).then((res) => {
+Promise.all([experimental, indie]).then(res=>{
     let experimental = res[0].list;
     let indie = res[1].list;
 
     let or_list = {};
-    for (let r of experimental) or_list[r.record_id] = r;
-    for (let r of indie) or_list[r.record_id] = r;
+    for(let r of experimental) or_list[r.record_id] = r;
+    for(let r of indie) or_list[r.record_id] = r;
 
     // 'Experimental' OR 'Indie' in { [record_id]: record } format.
     console.log(or_list);
-});
+})
 ```
 
 ## Fetching Tag Information
@@ -3090,16 +3005,13 @@ Promise.all([experimental, indie]).then((res) => {
 You can fetch all tags used in a table with [`getTags()`](/api-reference/database/README.md#gettags).
 
 ```js
-skapi
-    .getTags({
-        table: "MyTable",
-    })
-    .then((response) => {
-        console.log(response); // List of all tags in table named 'MyTable'
-    });
+skapi.getTags({
+    table: 'MyTable'
+}).then(response=>{
+    console.log(response); // List of all tags in table named 'MyTable'
+})
 ```
-
-For more detailed information on all the parameters and options available with the [`getTags()`](/api-reference/database/README.md#gettags) method,
+For more detailed information on all the parameters and options available with the [`getTags()`](/api-reference/database/README.md#gettags) method, 
 please refer to the API Reference below:
 
 ### [`getTags(query, fetchOptions?): Promise<DatabaseResponse<Tag>>`](/api-reference/database/README.md#gettags)
@@ -3109,18 +3021,17 @@ please refer to the API Reference below:
 You can also query tags that meets the `condition`.
 
 ```js
-skapi
-    .getTags({
-        table: "MyTable",
-        tag: "A",
-        condition: ">",
-    })
-    .then((response) => {
-        console.log(response); // List of all tags starting from 'A' in table named 'MyTable'
-    });
+skapi.getTags({
+    table: 'MyTable',
+    tag: 'A',
+    condition: '>'
+}).then(response=>{
+    console.log(response); // List of all tags starting from 'A' in table named 'MyTable'
+})
 ```
 
-In this example, the condition property is set to `>`, and `table` is set to `A`. This query will return the table names that come after table 'A' in lexographic order, such as 'Ab', 'B', 'C', 'D' and so on.
+In this example, the condition property is set to `>`, and `table` is set to `A`.  This query will return the table names that come after table 'A' in lexographic order, such as 'Ab', 'B', 'C', 'D' and so on.
+
 
 <br>
 
@@ -3140,19 +3051,19 @@ First lets upload a record to be referenced.
 
 ```js
 let data = {
-    post: "What do you think of this post?",
+    post: "What do you think of this post?"
 };
 
 let config = {
-    unique_id: "unique id of the post",
-    table: { name: "Posts", access_group: "public" },
+    unique_id: 'unique id of the post',
+    table: { name: 'Posts', access_group: 'public' }
 };
 
 let referenced_record_id;
 
-skapi.postRecord(data, config).then((response) => {
+skapi.postRecord(data, config).then(response => {
     // The original post has been uploaded. Now, users can upload another record that references it.
-    referenced_record_id = response.record_id; // Record ID of the record to be referenced.
+    referenced_record_id = response.record_id;  // Record ID of the record to be referenced.
 });
 ```
 
@@ -3163,12 +3074,12 @@ we can use the uploaded record's ID in `reference` when uploading a comment reco
 
 ```js
 let commentRecord = {
-    comment: "I like it!",
+    comment: "I like it!"
 };
 
 let commentConfig = {
-    table: { name: "Comments", access_group: "public" },
-    reference: referenced_record_id,
+    table: { name: 'Comments', access_group: 'public' },
+    reference: referenced_record_id
 };
 
 skapi.postRecord(commentRecord, commentConfig);
@@ -3179,14 +3090,12 @@ skapi.postRecord(commentRecord, commentConfig);
 Now you can query all the records that references the original record by passing the record ID in the `reference` parameter in [`getRecords()`](/api-reference/database/README.md#getrecords) method.:
 
 ```js
-skapi
-    .getRecords({
-        table: { name: "Comments", access_group: "public" },
-        reference: referenced_record_id,
-    })
-    .then((response) => {
-        console.log(response.list); // Array of comments of the reference record.
-    });
+skapi.getRecords({
+    table: { name: 'Comments', access_group: 'public' },
+    reference: referenced_record_id,
+}).then(response => {
+    console.log(response.list);  // Array of comments of the reference record.
+});
 ```
 
 :::tip
@@ -3204,86 +3113,81 @@ To avoid unintended sharing of private records, do not permit users to upload a 
 When uploading a record, you can also reference the record using the unique ID.
 
 ```js
-skapi.postRecord(
-    {
-        comment: "I like it!",
-    },
-    {
-        table: { name: "Comments", access_group: "public" },
-        reference: "unique id of the post",
-    }
-);
+skapi.postRecord({
+    comment: "I like it!"
+}, {
+    table: { name: 'Comments', access_group: 'public' },
+    reference: 'unique id of the post'
+});
 ```
+
 
 ## Fetching References with Unique ID
 
 If the reference record has a unique ID setup, you can also fetch records based on the unique ID of the record being referenced.
 
 ```js
-skapi
-    .getRecords({
-        table: { name: "Comments", access_group: "public" },
-        reference: "unique id of the post",
-    })
-    .then((response) => {
-        console.log(response.list); // Array of records in 'Comments' table referencing the record with the unique ID.
-    });
+skapi.getRecords({
+    table: { name: 'Comments', access_group: 'public' },
+    reference: 'unique id of the post'
+}).then(response => {
+    console.log(response.list);  // Array of records in 'Comments' table referencing the record with the unique ID.
+});
 ```
 
 More on unique ID can be found [here](/database/unique-id.md).
+
 
 ## Using reference to fetch certain user's post
 
 You can also query all the records posted by certain user giving a `user_id` as a value of `reference` parameter.
 
 ```js
-skapi
-    .getRecords({
-        table: { name: "Comments", access_group: "public" },
-        reference: "user-id-whose-post-you-want",
-    })
-    .then((response) => {
-        console.log(response.list); // Array of records in 'Comments' table posted by a certain user
-    });
+skapi.getRecords({
+    table: { name: 'Comments', access_group: 'public' },
+    reference: 'user-id-whose-post-you-want'
+}).then(response => {
+    console.log(response.list);  // Array of records in 'Comments' table posted by a certain user
+});
 ```
+
 
 ## Removing a reference
 
 To remove a reference, set the the `reference` parameter to `null` when updating the record.
 
 ```js
-skapi
-    .postRecord(undefined, {
-        record_id: "record_id_of_the_comment_to_remove",
-        reference: null,
-    })
-    .then((record) => {
-        console.log(record); // The reference has been removed.
-    });
+skapi.postRecord(undefined, {
+    record_id: 'record_id_of_the_comment_to_remove',
+    reference: null
+}).then(record => {
+    console.log(record);  // The reference has been removed.
+});
 ```
 
 ## Reference source settings in [`postRecord()`](/api-reference/database/README.md#postrecord)
 
 When uploading record via [`postRecord()`](/api-reference/database/README.md#postrecord), you can set restrictions on referencing from other records using additional parameters in `source`.
 
--   `source.referencing_limit`: Allowed maximum number of times that other records can reference the uploading record.
-    This is useful if you are building ticketing system where only a certain number of people purchase a ticket.
-    If this parameter is set to `null`, the number of references is unlimited. The default value is `null`.
-    Set `referencing_limit` to `0` to prevent others to reference the uploading record.
+- `source.referencing_limit`: Allowed maximum number of times that other records can reference the uploading record.
+  This is useful if you are building ticketing system where only a certain number of people purchase a ticket.
+  If this parameter is set to `null`, the number of references is unlimited. The default value is `null`.
+  Set `referencing_limit` to `0` to prevent others to reference the uploading record.
 
--   `source.prevent_multiple_referencing`: If set to `true`, single user will be allowed to reference this record only once.
-    This is useful for building a voting system where each users are allowed to vote only once.
+- `source.prevent_multiple_referencing`: If set to `true`, single user will be allowed to reference this record only once.
+  This is useful for building a voting system where each users are allowed to vote only once.
 
--   `source.can_remove_referencing_records`: If set to `true`, the owner of the record has an authority to remove the referencing records.
-    When the owner removes the record, all the referenceing records will be removed.
-    This can be useful when you want to build a discussion board where the owner can remove the comments.
-    The default value is `false`.
+- `source.can_remove_referencing_records`: If set to `true`, the owner of the record has an authority to remove the referencing records.
+  When the owner removes the record, all the referenceing records will be removed.
+  This can be useful when you want to build a discussion board where the owner can remove the comments.
+  The default value is `false`.
 
--   `source.only_granted_can_reference`: When set to `true`, only the user who has granted private access to the record can reference this record.
+- `source.only_granted_can_reference`: When set to `true`, only the user who has granted private access to the record can reference this record.
 
--   `source.referencing_index_restrictions`: You can set list of restrictions on the index values of the referencing record.
-    This is useful when you want to restrict the referencing record to have certain index names and values.
-    This only affects referencing records that has an index.
+- `source.referencing_index_restrictions`: You can set list of restrictions on the index values of the referencing record.
+  This is useful when you want to restrict the referencing record to have certain index names and values.
+  This only affects referencing records that has an index.
+
 
 ## Referencing Index Restrictions
 
@@ -3298,35 +3202,32 @@ Example below shows how you can build a review board where only **10** people ar
 It is important to set restrictions on index values for cases like rating systems where you want to prevent users from posting malicious data to mess up your index informations.
 
 ```js
-let pollPost = skapi.postRecord(
-    {
-        title: `How would you rate Stan Getz, João Gilberto's album "Getz/Gilberto"?`,
-        description: "Only 10 people are allowed to vote",
-    },
-    {
-        unique_id: "Review board of GetzGilberto",
-        table: { name: "ReviewBoard", access_group: "public" },
-        source: {
-            prevent_multiple_referencing: true,
-            referencing_limit: 10,
-            referencing_index_restrictions: [
-                {
-                    name: "Review.Album.GetzGilberto",
-                    value: 1,
-                    range: 5,
-                },
-            ],
-        },
+let pollPost = skapi.postRecord({
+    title: `How would you rate Stan Getz, João Gilberto's album "Getz/Gilberto"?`,
+    description: "Only 10 people are allowed to vote"
+}, {
+    unique_id: 'Review board of GetzGilberto',
+    table: { name: 'ReviewBoard', access_group: 'public' },
+    source: {
+        prevent_multiple_referencing: true,
+        referencing_limit: 10,
+        referencing_index_restrictions: [
+            {
+                name: 'Review.Album.GetzGilberto',
+                value: 1,
+                range: 5
+            }
+        ]
     }
-);
+})
 ```
 
 As shown in the example above, the `referencing_index_restrictions` parameter is an array of objects that contains the following properties:
 
--   `name`: The name of the index value. (required)
--   `value`: The value of the index. (optional)
--   `range`: The range of the index value. (optional)
--   `condition`: The condition of the index value. (optional)
+- `name`: The name of the index value. (required)
+- `value`: The value of the index. (optional)
+- `range`: The range of the index value. (optional)
+- `condition`: The condition of the index value. (optional)
 
 You can set many index restrictions by adding more objects to the array.
 
@@ -3342,32 +3243,30 @@ If `condition` is set, the referencing record must have the same index name with
 For example, if you want your referencing record's index value to be less than **5**, you can set the parameter as shown below:
 
 ```js
-let pollPost = skapi.postRecord(
-    {
-        title: `How would you rate Stan Getz, João Gilberto's album "Getz/Gilberto"?`,
-        description: "Only 10 people are allowed to vote",
-    },
-    {
-        unique_id: "Review board of GetzGilberto",
-        table: { name: "ReviewBoard", access_group: "public" },
-        source: {
-            prevent_multiple_referencing: true,
-            referencing_limit: 10,
-            referencing_index_restrictions: [
-                {
-                    name: "Review.Album.GetzGilberto",
-                    value: 5,
-                    condition: "<",
-                },
-            ],
-        },
+let pollPost = skapi.postRecord({
+    title: `How would you rate Stan Getz, João Gilberto's album "Getz/Gilberto"?`,
+    description: "Only 10 people are allowed to vote"
+}, {
+    unique_id: 'Review board of GetzGilberto',
+    table: { name: 'ReviewBoard', access_group: 'public' },
+    source: {
+        prevent_multiple_referencing: true,
+        referencing_limit: 10,
+        referencing_index_restrictions: [
+            {
+                name: 'Review.Album.GetzGilberto',
+                value: 5,
+                condition: '<'
+            }
+        ]
     }
-);
+})
 ```
 
 `condition` can be one of the following: `=`, `!=`, `>`, `<`, `>=`, `<=`.
 
 `condition` cannot be used with `range`.
+
 
 ## Creating a Poll with Restricted Referencing
 
@@ -3375,42 +3274,41 @@ Now people can post a review by referencing the **pollPost**:
 
 ```js
 // Now only 10 people can post references for this record
-skapi.postRecord(
-    {
-        comment: "This rocks! I'd give 4.5 out of 5!",
-    },
-    {
-        table: { name: "ReviewBoard", access_group: "public" },
-        reference: "Review board of GetzGilberto",
-        index: {
-            name: "Review.Album.GetzGilberto",
-            value: 4.5,
-        },
+skapi.postRecord({
+    comment: "This rocks! I'd give 4.5 out of 5!"
+}, {
+    table: { name: 'ReviewBoard', access_group: 'public' },
+    reference: 'Review board of GetzGilberto',
+    index: {
+        name: 'Review.Album.GetzGilberto',
+        value: 4.5
     }
-);
+});
 ```
 
 Note that the "Review.Album.GetzGilberto" `index` uses a `value` of type `number` so you can later retrieve the average rating and total sum of the values.
 
+
 ## Powerful Ways to Use Reference Records
 
 1. Discussion board
+   
+   The owner of the reference record has all access to the referencing records.
+   
+   Meaning, the user who uploaded the source of the reference record can have authority to delete the referencing records owned by other users, have access to all access levels referencing records including private records.
 
-    The owner of the reference record has all access to the referencing records.
-
-    Meaning, the user who uploaded the source of the reference record can have authority to delete the referencing records owned by other users, have access to all access levels referencing records including private records.
-
-    This is useful when you want to build a discussion board where the owner can remove the comments, let users post private comments to reference owner.
-
+   This is useful when you want to build a discussion board where the owner can remove the comments, let users post private comments to reference owner.
+   
 2. Rating/voting system
+   
+   You can set restrictions on the number of times a record can be referenced, prevent multiple referencing for each users, and restrict the index values of the referencing record.
 
-    You can set restrictions on the number of times a record can be referenced, prevent multiple referencing for each users, and restrict the index values of the referencing record.
-
-    While Skapi database works as schema-less in nature, you can use this characteristic to have more control over how your users can post data to your service.
+   While Skapi database works as schema-less in nature, you can use this characteristic to have more control over how your users can post data to your service.
 
 3. Sharing private data between limited users
+   
+   If the reference record has a private access group, only the users who have access to the reference record can access the referencing records.
 
-    If the reference record has a private access group, only the users who have access to the reference record can access the referencing records.
 
 <br>
 
@@ -3422,17 +3320,17 @@ Skapi database provides a subscription feature.
 
 The subscription feature is useful when you want users to subscribe to certain users and fetch feeds from their subscriptions.
 
-With subscription features, the uploader can also restrict certain users from accessing their specific posts that are uploaded to the subscription table.
+With the subscription feature, the uploader can also restrict certain users from accessing specific posts uploaded to the subscription table.
 
 You can let users upload records to the subscription table by setting `table.subscription.is_subscription_record` to `true` in [`postRecord()`](/api-reference/database/README.md#postrecord) parameters.
 
 When `table.subscription.upload_to_feed` is set to `true`, subscribed users can later fetch all the feeds from all the users they are subscribed to at once using the [`getFeed()`](/api-reference/database/README.md#getfeed) method.
 
-The subscription feature can be useful when you are building a social media platform where users can follow each other contents and fetch their feeds.
+The subscription feature is useful when building a social media platform where users can follow each other's content and fetch their feeds.
 
 With the subscription feature, users can also block certain users from accessing their subscription group records.
 
-The subscription feature can track the number of subscribers of the user, feed, notify mass users, etc.
+The subscription feature can track subscriber counts, manage feeds, and send mass notifications, etc.
 
 Let's assume **user 'A'** uploads a record in table 'Posts' with subscription group 1.
 
@@ -3443,14 +3341,13 @@ skapi.postRecord(null, {
         name: "Posts",
         access_group: "authorized",
         subscription: {
-            is_subscription_record: true,
-            upload_to_feed: true,
+            is_subscription_record: true
         },
     },
 });
 ```
 
-To allow other users to access the records that requires subscription, they must first subscribe to the uploader using the [`subscribe()`](/api-reference/database/README.md#subscribe) method:
+To allow other users to access records that require a subscription, they must first subscribe to the uploader using the [`subscribe()`](/api-reference/database/README.md#subscribe) method:
 
 :::warning
 Subscribers will not get feeds that are posted prior to the subscription.
@@ -3463,10 +3360,10 @@ Anonymous (unsigned) users cannot create subscription records.
 ## Subscribing
 
 :::warning
-User must be logged in to call this method
+User must be logged in to call this method.
 :::
 
-Lets assume **user 'B'** wants to access **user 'A'**s subscription record, **user 'B'** will need to subscribe to **user 'A'**.
+Let's assume **user 'B'** wants to access **user 'A'**'s subscription records. **User 'B'** will need to subscribe to **user 'A'**.
 
 ```js
 // User 'B' subscribes to user 'A'.
@@ -3499,8 +3396,8 @@ skapi
 ```
 
 :::tip
-Number of subscribers of the user will be tracked in [UserPublic](/api-reference/data-types/README.md#userpublic) object
-that can be retrieved using the [`getUsers()`](/api-reference/database/README.md#getusers) method.
+The number of subscribers for a user is tracked in the [UserPublic](/api-reference/data-types/README.md#userpublic) object,
+which can be retrieved using the [`getUsers()`](/api-reference/database/README.md#getusers) method.
 :::
 
 :::danger
@@ -3512,10 +3409,10 @@ that can be retrieved using the [`getUsers()`](/api-reference/database/README.md
 ## Unsubscribing
 
 :::warning
-User must be logged in to call this method
+User must be logged in to call this method.
 :::
 
-Users can unsubscribe from the subscription group 1 they have subscribed to using the [`unsubscribe()`](/api-reference/database/README.md#unsubscribe) method.
+Users can unsubscribe from subscription group 1 using the [`unsubscribe()`](/api-reference/database/README.md#unsubscribe) method.
 
 ```js
 // User 'B'
@@ -3527,24 +3424,24 @@ skapi.unsubscribe({
 For more detailed information on all the parameters and options available with the [`unsubscribe()`](/api-reference/database/README.md#unsubscribe) method,
 please refer to the API Reference below:
 
-### [`unsubscribe(option): Promise<User | string>`](/api-reference/database/README.md#unsubscribe)
+### [`unsubscribe(option): Promise<string>`](/api-reference/database/README.md#unsubscribe)
 
 :::warning
-When unsubscribed, subscription information may need some time to be updated. (Usually almost immediate)
+After unsubscribing, subscription information may need some time to update (usually almost immediate).
 :::
 
 ## Blocking and Unblocking Subscribers
 
 :::warning
-User must be logged in to call this method
+User must be logged in to call this method.
 :::
 
-One of the benifit of subscription feature is that users can block certain users from accessing their subscription level records.
-But as metioned above, subscription is not meant to be used as a security restriction.
+One of the benefits of the subscription feature is that users can block certain users from accessing their subscription-level records.
+But, as mentioned above, subscriptions are not meant to be used as a security restriction.
 
-Even when user has blocked certain users, they still have access to the files attached to the records since the file access level is not restricted to the subscription access unless it's private or higher access group than the accessing user.
+Even when a user has blocked certain users, those users still have access to files attached to the records, since file access is not restricted by subscription unless the file is private or uses a higher access group than the accessing user.
 
-Other than files, blocked users will not have access to any of the record data in the subscription access level.
+Other than files, blocked users will not have access to any record data at the subscription access level.
 
 To block a subscriber, user can call the [`blockSubscriber()`](/api-reference/database/README.md#blocksubscriber) method:
 
@@ -3600,7 +3497,7 @@ Either the `params.subscriber` or `params.subscription` value must be provided.
 
 ```js
 /**
- * Retrieve all subscription information where userB is the subscriber
+ * Retrieve all subscription information where user 'B' is the subscriber
  */
 skapi
     .getSubscriptions({
@@ -3611,7 +3508,7 @@ skapi
     });
 
 /**
- * Retrieve all subscription information where userA is being subscribed to
+ * Retrieve all subscription information where user A is being subscribed to
  */
 skapi
     .getSubscriptions({
@@ -3622,7 +3519,7 @@ skapi
     });
 
 /**
- * Check if userB is subscribed to userA
+ * Check if user 'B' is subscribed to user 'A'
  */
 skapi
     .getSubscriptions({
@@ -3641,20 +3538,36 @@ please refer to the API Reference below:
 
 ## Getting Feed
 
-The [`getFeed()`](/api-reference/database/README.md#getfeed) method retrieves the feed of the user.
+The [`getFeed()`](/api-reference/database/README.md#getfeed) method retrieves the user's feed.
 
-This method retrieves all the records that the user has ever subscribed to.
+This method retrieves feed records from users the current user subscribes to.
 
 You can use this method to build a feed page for the user.
 
 ### Examples
 
+First, the user 'A' must upload a record as a feed.
+
+```js
+// User 'A' uploads record as a feed.
+skapi.postRecord(null, {
+  table: {
+    name:'Posts',
+    access_group: 'authorized',
+    subscription: {
+      upload_to_feed: true
+    }
+}})
+```
+
+Then user 'B', who is subscribed to user 'A', can fetch the uploaded feeds from users they subscribe to.
+
 ```js
 /**
- * Retrieve all feed of access_group 1
+ * User 'B' Retrieves all feed of access_group: "authorized"
  */
-skapi.getFeed({ access_group: 1 }).then((response) => {
-    console.log(response.list); // all records that is access_group 1 that userB has ever subscribed to.
+skapi.getFeed({access_group: 'authorized'}).then((response) => {
+  console.log(response.list); // Fetch all feed records in the 'authorized' access group from users userB subscribes to.
 });
 ```
 
@@ -3667,10 +3580,11 @@ When a user unsubscribes from another user, all past records from that user will
 :::
 
 :::warning
-Users will only see record feeds from the time they subscribed to the user onwards.
+Users only see feed records from the time they subscribed onward.
 :::
 
-### [`getFeed(fetchOptions?): Promise<DatabaseResponse<RecordData>>`](/api-reference/database/README.md#getfeed)
+### [`getFeed(params?, fetchOptions?): Promise<DatabaseResponse<RecordData>>`](/api-reference/database/README.md#getfeed)
+
 
 <br>
 
@@ -3729,11 +3643,11 @@ The application will be hosted on port `3300`
 
 :::danger Important!
 
-Replace the `SERVICE_ID` and `OWNER_ID` value to your own service in `service.js`
+Replace the `SERVICE_ID` value to your own service in `service.js`
 
-Currently the service is running on **Trial Mode**.
+<!-- Currently the service is running on **Trial Mode**. -->
 
-**All the user data will be deleted every 14 days.**
+<!-- **All the user data will be deleted every 14 days.** -->
 
 You can get your own service ID from [Skapi](https://www.skapi.com)
 
@@ -4761,6 +4675,7 @@ Since this is a portion of the complete repository code and doesn't include supp
 </script>
 ```
 
+
 <br>
 
 # Connecting to Realtime
@@ -4792,7 +4707,6 @@ let RealtimeCallback = (rt) => {
       type: 'message' | 'error' | 'success' | 'close' | 'notice' | 'private' | 'reconnect' | 'rtc:incoming' | 'rtc:closed';
       message?: any;
       connectRTC?: (params: RTCReceiverParams, callback: RTCEvent) => Promise<RTCResolved>; // Incoming RTC
-      hangup?: () => void; // Reject incoming RTC connection.
       sender?: string; // user_id of the sender
       sender_cid?: string; // scid of the sender
       sender_rid?: string; // group of the sender
@@ -4865,6 +4779,7 @@ When the user closes the tab or refresh the browser, the connection will be clos
 And when the connection is closed user will be removed from the group.
 :::
 
+
 <br>
 
 # Sending Realtime Data
@@ -4878,7 +4793,7 @@ User can send any JSON data over to any users by using [`postRealtime()`](/api-r
 For more detailed information on all the parameters and options available with the [`postRealtime()`](/api-reference/realtime/README.md#postrealtime) method,
 please refer to the API Reference below:
 
-### [`postRealtime(message, recipient, notification): Promise<{ type: 'success', message: string }>`](/api-reference/realtime/README.md#postrealtime)
+### [`postRealtime(message, recipient, notification?): Promise<{ type: 'success', message: string }>`](/api-reference/realtime/README.md#postrealtime)
 
 :::warning
 The receiver must also be connected to the realtime connection to receive the data.
@@ -4944,6 +4859,7 @@ let RealtimeCallback = (rt) => {
 
 skapi.connectRealtime(RealtimeCallback);
 ```
+
 
 <br>
 
@@ -5039,7 +4955,7 @@ let RealtimeCallback = (rt) => {
 skapi.connectRealtime(RealtimeCallback);
 ```
 
-### [`postRealtime(message, recipient): Promise<{ type: 'success', message: string }>`](/api-reference/realtime/README.md#postrealtime)
+### [`postRealtime(message, recipient, notification?): Promise<{ type: 'success', message: string }>`](/api-reference/realtime/README.md#postrealtime)
 
 :::warning
 The user must be joined to the group to send data to the group.
@@ -5130,7 +5046,8 @@ skapi
 For more detailed information on all the parameters and options available with the [`getRealtimeUsers()`](/api-reference/realtime/README.md#getrealtimeusers) method,
 please refer to the API Reference below:
 
-### [`getRealtimeUsers(params, fetchOptions?): Promise<DatabaseResponse<{ user_id:string; connection_id:string; }[]>>`](/api-reference/realtime/README.md#getrealtimeusers)
+### [`getRealtimeUsers(params?, fetchOptions?): Promise<DatabaseResponse<{ user_id:string; connection_id:string; }[]>>`](/api-reference/realtime/README.md#getrealtimeusers)
+
 
 <br>
 
@@ -5157,12 +5074,14 @@ To create RTC connection, both party needs to be online and need to utilize real
 2. Once both parties are connected to realtime, both parties should join same realtime group by using [`joinRealtime()`](/api-reference/realtime/README.md#joinrealtime)
 
 3. Now both parties can see each other's `connection ID(cid)` either by calling [`getRealtimeUsers()`](/api-reference/realtime/README.md#getrealtimeusers) method or from the [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback).
-
-    One of the party can request RTC connection by using the opponent's `cid` with [`connectRTC()`](/api-reference/realtime/README.md#connectrtc) method.
+   
+   One of the party can request RTC connection by using the opponent's `cid` with [`connectRTC()`](/api-reference/realtime/README.md#connectrtc) method.
 
 4. If media streaming is used, users should give permission to allow their device to be used.
 
+
 Below is an example code of the process:
+
 
 ### 1. Basic UI Interface
 
@@ -5275,7 +5194,6 @@ You can host your application in skapi.com or host from your personal servers.
 To receive push notifications, users must first subscribe. This requires obtaining a VAPID key and registering a service worker. It is possible to get the VAPID key by calling the method [`vapidPublicKey()`](/api-reference/realtime/README.md#vapidpublickey) and after subscribe by using the method [`subscribeNotification()`](/api-reference/realtime/README.md#subscribenotification).
 
 ### Steps:
-
 1. Retrieve the VAPID key using [`vapidPublicKey()`](/api-reference/realtime/README.md#vapidpublickey).
 2. Request notification permission from the device user.
 3. Add the service worker [`sw.js`](#service-worker-sw-js) file to your environment.
@@ -5284,7 +5202,6 @@ To receive push notifications, users must first subscribe. This requires obtaini
 6. Send the subscription details to Skapi using [`subscribeNotification()`](/api-reference/realtime/README.md#subscribenotification).
 
 ### Code Example:
-
 ```js
 /**
  * Converts a Base64 string into a Uint8Array, required for push subscriptions.
@@ -5305,7 +5222,7 @@ function urlBase64ToUint8Array(base64String) {
     for (let i = 0; i < rawData.length; ++i) {
         outputArray[i] = rawData.charCodeAt(i);
     }
-
+    
     return outputArray;
 }
 
@@ -5333,12 +5250,10 @@ const registration = await navigator.serviceWorker.register("/sw.js");
 await navigator.serviceWorker.ready;
 
 // Subscribe to push notifications using the VAPID public key
-const subscription = await registration.pushManager
-    .subscribe({
-        userVisibleOnly: true, // Ensures notifications are always visible to the user
-        applicationServerKey: urlBase64ToUint8Array(vapid), // Convert VAPID key to Uint8Array
-    })
-    .then((sub) => sub.toJSON()); // Convert subscription object to JSON format
+const subscription = await registration.pushManager.subscribe({
+    userVisibleOnly: true, // Ensures notifications are always visible to the user
+    applicationServerKey: urlBase64ToUint8Array(vapid), // Convert VAPID key to Uint8Array
+}).then(sub => sub.toJSON()); // Convert subscription object to JSON format
 
 // Log the subscription object for debugging
 console.log("Subscription object:", subscription);
@@ -5349,16 +5264,14 @@ await skapi.subscribeNotification(subscription.endpoint, subscription.keys);
 
 ## Unsubscribing to Notifications
 
-To stop receiving notifications, users need to unsubscribe by calling the method [`unsubscribenotification()`](/api-reference/realtime/README.md#unsubscribenotification) and passing the endpoint and keys as parameters.
+To stop receiving notifications, users need to unsubscribe by calling the method [`unsubscribenotification()`](/api-reference/realtime/README.md#unsubscribenotification) and passing the endpoint and keys as parameters. 
 
 ### Steps:
-
 1. Retrieve the current push subscription from `navigator.serviceWorker.ready.pushManager.getSubscription()`.
 2. If a subscription exists, call `unsubscribe()` on it.
 3. Notify Skapi by calling [`unsubscribeNotification()`](/api-reference/realtime/README.md#unsubscribenotification).
 
 ### Code Example:
-
 ```js
 // Ensure the service worker is ready before interacting with push notifications
 const registration = await navigator.serviceWorker.ready;
@@ -5379,10 +5292,7 @@ const subscriptionJSON = subscription.toJSON();
 await subscription.unsubscribe();
 
 // Inform Skapi to remove this subscription from its records
-const response = await skapi.unsubscribeNotification(
-    subscription.endpoint,
-    subscriptionJSON.keys
-);
+const response = await skapi.unsubscribeNotification(subscription.endpoint, subscriptionJSON.keys);
 ```
 
 ## Service Worker (`sw.js`)
@@ -5390,24 +5300,27 @@ const response = await skapi.unsubscribeNotification(
 A service worker file (`sw.js`) is required to handle incoming push notifications and user interactions. It runs in the background, allowing notifications to be received even when the site is closed. This file must be present in your project and correctly registered; otherwise, push notifications won’t work.
 
 ### Code Example:
-
 ```js
-self.addEventListener("push", function (event) {
+self.addEventListener('push', function(event) {
     const data = event.data.json();
     const title = data.title || "Default Title";
     const options = {
         body: data.body || "Default Body",
-        icon: "icon-192x192.png",
-        badge: "icon-192x192.png",
+        icon: 'icon-192x192.png',
+        badge: 'icon-192x192.png'
     };
-
-    event.waitUntil(self.registration.showNotification(title, options));
+    
+    event.waitUntil(
+        self.registration.showNotification(title, options)
+    );
 });
 
-self.addEventListener("notificationclick", function (event) {
+self.addEventListener('notificationclick', function(event) {
     event.notification.close();
     let url = event.target.location.origin;
-    event.waitUntil(clients.openWindow(url));
+    event.waitUntil(
+        clients.openWindow(url)
+    );
 });
 ```
 
@@ -5417,12 +5330,14 @@ You can let users use [`postRealtime()`](/api-reference/realtime/README.md#postr
 In case the recipient is not connected to realtime, you can set the `notification` argument to notify user with notification message.
 
 ```js
-skapi
-    .postRealtime({ msg: "Hello World!" }, "recipient_user_id", {
+skapi.postRealtime(
+    { msg: "Hello World!" },
+    'recipient_user_id',
+    { 
         title: "New Message",
-        body: "Someone sent you a message!",
-    })
-    .then((res) => console.log(res));
+        body: "Someone sent you a message!"
+    }
+).then(res => console.log(res));
 ```
 
 If the receiver has subscribed to push notification API, they will receive the notification message that is set in `notification` argument.
@@ -5430,13 +5345,15 @@ If the receiver has subscribed to push notification API, they will receive the n
 Below example shows how to send notification regardless user is connected to realtime connection. By setting `always` options to `true`, notification will always be triggered or the receiver.
 
 ```js
-skapi
-    .postRealtime({ msg: "Hello World!" }, "recipient_user_id", {
+skapi.postRealtime(
+    { msg: "Hello World!" },
+    'recipient_user_id',
+    { 
         title: "New Message",
         body: "Someone sent you a message!",
-        config: { always: true },
-    })
-    .then((res) => console.log(res));
+        config: { always: true }
+    }
+).then(res => console.log(res));
 ```
 
 ## Sending Notifications (For Admins)
@@ -5446,29 +5363,30 @@ Admins can use the [`pushNotification()`](/api-reference/realtime/README.md#push
 You can also target a specific user or multiple users by providing their IDs. If no user IDs are specified, the notification will be sent to all users who have subscribed to notifications in your system.
 
 ### Steps:
-
 1. Call [`pushNotification()`](/api-reference/realtime/README.md#pushnotification) with the title and body.
 2. Optionally, provide user IDs to send notifications to specific users.
 3. If no user IDs are provided, the notification will be sent to all subscribers.
 
 ### Code Examples:
-
 ```js
-skapi.pushNotification({
-    title: "Hello",
-    body: "Hi there!",
-}); // Sends to all subscribers
+skapi.pushNotification(
+    { 
+        title: "Hello",
+        body: "Hi there!"
+    }
+); // Sends to all subscribers
 ```
 
 ```js
 skapi.pushNotification(
-    {
+    { 
         title: "Admin Alert",
-        body: "Only for selected users",
+        body: "Only for selected users"
     },
     ["user1", "user2"]
 );
 ```
+
 
 <br>
 
@@ -5485,11 +5403,10 @@ The [`secureRequest()`](/api-reference/api-bridge/README.md#securerequest) metho
 :::
 
 The `params` object accepts the following properties:
+ - `url`: A string representing the URL of your custom API.
+ - `data`: An object representing the data to be sent to your custom API.
 
--   `url`: A string representing the URL of your custom API.
--   `data`: An object representing the data to be sent to your custom API.
-
-For more detailed information on all the parameters and options available with the [`secureRequest()`](/api-reference/api-bridge/README.md#securerequest) method,
+For more detailed information on all the parameters and options available with the [`secureRequest()`](/api-reference/api-bridge/README.md#securerequest) method, 
 please refer to the API Reference below:
 
 ### [`secureRequest(params): Promise<any>`](/api-reference/api-bridge/README.md#securerequest)
@@ -5499,17 +5416,15 @@ please refer to the API Reference below:
 Below is an example of a user making a secure request to your custom API that are hosted in `http://your.custom.api.com:3000/myapi`
 
 ```js
-skapi
-    .secureRequest({
-        url: "http://your.custom.api.com:3000/myapi",
-        data: {
-            some_data: "Hello",
-        },
-    })
-    .then((response) => {
-        // response from your custom API
-        console.log(response);
-    });
+skapi.secureRequest({
+    url: 'http://your.custom.api.com:3000/myapi',
+    data: {
+        some_data: 'Hello'
+    }
+}).then(response => {
+    // response from your custom API
+    console.log(response);
+});
 ```
 
 Skapi will mirror your request to your custom API. From your API, it receives user information along with the request data.
@@ -5522,18 +5437,18 @@ Below is an example of handling the request from your custom API:
 ## Node.js Example
 
 ```js
-const http = require("http");
+const http = require('http');
 
 http.createServer(function (request, response) {
-    if (request.method === "POST") {
-        if (request.url === "/myapi") {
-            let body = "";
+    if (request.method === 'POST') {
+        if (request.url === '/myapi') {
+            let body = '';
 
-            request.on("data", function (data) {
+            request.on('data', function (data) {
                 body += data;
             });
 
-            request.on("end", function () {
+            request.on('end', function () {
                 body = JSON.parse(body);
                 console.log(body);
 
@@ -5549,12 +5464,12 @@ http.createServer(function (request, response) {
                 //     "api_key": 'your api secret key',
                 // }
 
-                if (body.api_key === "your api secret key") {
-                    response.writeHead(200, { "Content-Type": "text/html" });
+                if (body.api_key === 'your api secret key') {
+                    response.writeHead(200, {'Content-Type': 'text/html'});
                     // do something
-                    response.end("success");
+                    response.end('success');
                 } else {
-                    response.writeHead(401, { "Content-Type": "text/html" });
+                    response.writeHead(401, {'Content-Type': 'text/html'});
                     response.end("api key mismatch");
                 }
             });
@@ -5579,7 +5494,7 @@ class MyServer(BaseHTTPRequestHandler):
         content_length = int(self.headers["Content-Length"])
         body = json.loads(self.rfile.read(content_length).decode("utf-8"))
         print(body)
-
+        
         # {
         #     "user": {
         #         "user_id": "...",
@@ -5610,6 +5525,7 @@ except KeyboardInterrupt:
     myServer.server_close()
 ```
 
+
 <br>
 
 # Using 3rd Party APIs
@@ -5619,32 +5535,32 @@ If you are using 3rd party API's that requires a client secret, you can use [`cl
 First you need to save your client secret key in your **3rd Party API Keys** page.
 
 1. Navigate to the **3rd Party API Keys** page from your service page.
- <!-- ![Client Secret Key](/menucli.png) -->
+  <!-- ![Client Secret Key](/menucli.png) -->
 
 2. Click on the **+** button to add a new client secret key of your 3rd party API.
- <!-- ![Register Client Secret Key](/addbutt.png) -->
+  <!-- ![Register Client Secret Key](/addbutt.png) -->
 
 <!-- ![Client Secret Key Dialog](/clientsecdialog.png)
 You can add a new client secret key by providing a **name** for the key and the **client secret** value. -->
 
--   The `Name` field is the name of the key that you will use when defining the `clientSecretName` parameter in the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method.
+- The `Name` field is the name of the key that you will use when defining the `clientSecretName` parameter in the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method.
 
--   The `Client Secret Key` is the actual secret key value that you will use as a placeholder in the `data`, `params`, or `headers` or `url` parameter of the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method.
+- The `Client Secret Key` is the actual secret key value that you will use as a placeholder in the `data`, `params`, or `headers` or `url` parameter of the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method.
 
--   The toggle for **Locked** indicates whether the key is public or private. When set to **Locked**, it means that only the users that are logged in can have access to your 3rd party api, while by default anybody can have access to your 3rd party api.
+- The toggle for **Locked** indicates whether the key is public or private. When set to **Locked**, it means that only the users that are logged in can have access to your 3rd party api, while by default anybody can have access to your 3rd party api.
 
 Once the client secret key is saved, you can use the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method below to make secure requests to your 3rd party API's.
 
 The list parameters of `params` of the method is shown as below:
 
--   `url`: A string representing the URL of your 3rd party API.
--   `clientSecretName`: A string representing the key name of the client secret key you may have saved in your service dashboard.
--   `method`: A string representing the method of the request. It can be either "GET" or "POST".
--   `headers`: An object representing the headers of the request.
--   `data`: An object representing the data to be sent to your 3rd party API. It is only used when `method` is "POST".
--   `params`: An object representing the query string parameters of the request. It is only used when `method` is "GET".
+  - `url`: A string representing the URL of your 3rd party API.
+  - `clientSecretName`: A string representing the key name of the client secret key you may have saved in your service dashboard.
+  - `method`: A string representing the method of the request. It can be either "GET" or "POST".
+  - `headers`: An object representing the headers of the request.
+  - `data`: An object representing the data to be sent to your 3rd party API. It is only used when `method` is "POST".
+  - `params`: An object representing the query string parameters of the request. It is only used when `method` is "GET".
 
-For more detailed information on all the parameters and options available with the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method,
+For more detailed information on all the parameters and options available with the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method, 
 please refer to the API Reference below:
 
 ### [`clientSecretRequest(params): Promise<any>`](/api-reference/api-bridge/README.md#clientsecretrequest)
@@ -5664,9 +5580,9 @@ We will referencing the OpenAI API documentation to understand how to make secur
 1. Create an OpenAI account and get your API secret key from [here](https://beta.openai.com/account/api-keys).
 2. Save your OpenAI API secret key in **3rd Party API Keys** page.
 
-    For this example, save your OpenAI API's secret key name as `openai`.
-
-    We will use this key name when making the client secret request to the OpenAI API.
+   For this example, save your OpenAI API's secret key name as `openai`.
+   
+   We will use this key name when making the client secret request to the OpenAI API.
 
 #### Understanding the API call
 
@@ -5680,7 +5596,7 @@ This means the API call should be made using the `POST` method to the `https://a
 
 Next, you will see curl example of the API call:
 
-```bash
+``` bash
 curl https://api.openai.com/v1/images/generations \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
@@ -5702,43 +5618,35 @@ Since we cannot expose the API secret key in the frontend, we will be using the 
 
 ```html [Form]
 <form onsubmit="skapi.clientSecretRequest(event).then(r=>console.log(r))">
-    <input name="clientSecretName" hidden value="openai" />
-    <input
-        name="url"
-        hidden
-        value="https://api.openai.com/v1/images/generations"
-    />
-    <input name="method" hidden value="POST" />
-    <input name="headers[Content-Type]" hidden value="application/json" />
-    <input name="headers[Authorization]" hidden value="Bearer $CLIENT_SECRET" />
-    <input name="data[model]" hidden value="dall-e-3" />
-    <input name="data[n]" hidden type="number" value="1" />
-    <input name="data[size]" hidden value="1024x1024" />
-    <textarea
-        name="data[prompt]"
-        placeholder="Describe an image"
-        required
-    ></textarea>
-    <input type="submit" value="Generate" />
+  <input name="clientSecretName" hidden value="openai">
+  <input name="url" hidden value="https://api.openai.com/v1/images/generations">
+  <input name="method" hidden value="POST">
+  <input name="headers[Content-Type]" hidden value='application/json'>
+  <input name="headers[Authorization]" hidden value="Bearer $CLIENT_SECRET">
+  <input name="data[model]" hidden value="dall-e-3">
+  <input name="data[n]" hidden type='number' value="1">
+  <input name="data[size]" hidden value="1024x1024">
+  <textarea name='data[prompt]' placeholder="Describe an image" required></textarea>
+  <input type="submit" value="Generate">
 </form>
 ```
 
 ```js [JS]
 skapi.clientSecretRequest({
-    clientSecretName: "openai",
-    url: "https://api.openai.com/v1/images/generations",
-    method: "POST",
+    clientSecretName: 'openai',
+    url: 'https://api.openai.com/v1/images/generations',
+    method: 'POST',
     headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer $CLIENT_SECRET",
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer $CLIENT_SECRET'
     },
     data: {
         model: "dall-e-3",
-        prompt: "A cute baby sea otter",
+        "prompt": "A cute baby sea otter",
         n: 1,
-        size: "1024x1024",
-    },
-});
+        size: "1024x1024"
+    }
+})
 ```
 
 The example above shows how we can compose the request headers and data to make a secure request to the OpenAI API.
@@ -5767,26 +5675,22 @@ You can send public newsletters to your users by sending your email to the endpo
 First, the users must subscribe to the public newsletter to receive your public newsletters:
 
 :::code-group
-
 ```html [Form]
 <form onsubmit="skapi.subscribeNewsletter(event).then(res => alert(res))">
-    <input type="email" name="email" placeholder="your@email.com" />
-    <input hidden name="redirect" value="https://your.domain.com/successpage" />
-    <input hidden name="group" value="public" />
-    <input type="submit" value="Subscribe" />
+    <input type="email" name="email" placeholder='your@email.com'/>
+    <input hidden name="redirect" value="https://your.domain.com/successpage"/>
+    <input hidden name="group" value="public"/>
+    <input type="submit" value="Subscribe"/>
 </form>
 ```
 
 ```js [JS]
-skapi
-    .subscribeNewsletter({
-        email: "users@email.com",
-        redirect: "https://your.domain.com/successpage",
-        group: "public",
-    })
-    .then((res) => alert(res));
+skapi.subscribeNewsletter({
+    email: 'users@email.com',
+    redirect: 'https://your.domain.com/successpage',
+    group: 'public'
+}).then(res => alert(res));
 ```
-
 :::
 
 The example above shows how to let your visitors subscribe to the public newsletter by calling [`subscribeNewsletter()`](/api-reference/email/README.md#subscribenewsletter).
@@ -5798,7 +5702,7 @@ If the confirmation is successful, the user will be redirected to the redirect u
 All the public newsletters will have unsubscribe link at the bottom of the email.
 When the user clicks the unsubscribe link, they will no longer receive your public newsletters.
 
-For more detailed information on all the parameters and options available with the [`subscribeNewsletter()`](/api-reference/email/README.md#subscribenewsletter) method,
+For more detailed information on all the parameters and options available with the [`subscribeNewsletter()`](/api-reference/email/README.md#subscribenewsletter) method, 
 please refer to the API Reference below:
 
 ### [`subscribeNewsletter(params, callbacks):Promise<string>`](/api-reference/email/README.md#subscribenewsletter)
@@ -5809,35 +5713,31 @@ Instead, they must have their [`email verifed`](/user-account/email-verification
 :::
 
 ## Sending Service Newsletters
-
+  
 You can send service newsletters to your users with an account. To subscribe to service newsletters the user must be logged in.
 Service newsletters can be useful to send information, notifications, and other service-related emails.
 
 First, user must subscribe to the service newsletter to receive the email.
 
 :::warning
-
--   User must be logged in to subscribe to your service newsletters.
--   User must have their email verified to subscribe to your service newsletters.
-    :::
+- User must be logged in to subscribe to your service newsletters.
+- User must have their email verified to subscribe to your service newsletters.
+:::
 
 :::code-group
 
 ```html [Form]
 <form onsubmit="skapi.subscribeNewsletter(event).then(res => alert(res))">
-    <input hidden name="group" value="authorized" />
-    <input type="submit" value="Subscribe" />
+    <input hidden name="group" value="authorized"/>
+    <input type="submit" value="Subscribe"/>
 </form>
 ```
 
 ```js [JS]
-skapi
-    .subscribeNewsletter({
-        group: "authorized",
-    })
-    .then((res) => alert(res));
+skapi.subscribeNewsletter({
+    group: 'authorized'
+}).then(res => alert(res));
 ```
-
 :::
 
 The example above shows how to let your visitors subscribe to the service newsletters by calling [`subscribeNewsletter()`](/api-reference/email/README.md#subscribenewsletter).
@@ -5849,9 +5749,8 @@ The [`adminNewsletterRequest()`](/api-reference/email/README.html#adminnewslette
 To send newsletters, an admin must first request a personalized endpoint using [`adminNewsletterRequest()`](/api-reference/email/README.html#adminnewsletterrequest). This method verifies admin privileges and returns a unique URL for sending emails.
 
 ```js [JS]
-skapi.adminNewsletterRequest().then((response) => {
-    console.log("Your newsletter endpoint:", response);
-});
+skapi.adminNewsletterRequest().then(response => {
+    console.log("Your newsletter endpoint:", response)});
 ```
 
 :::warning
@@ -5863,17 +5762,16 @@ This endpoint is specific to the requesting admin and can only receive emails fr
 You can let the user check if they have subscribed to the service newsletters by calling [`getNewsletterSubscription()`](/api-reference/email/README.md#getnewslettersubscription).
 
 ```js
-skapi
-    .getNewsletterSubscription({
-        group: "authorized",
-    })
-    .then((subs) => {
-        if (subs.length) {
-            // user is subscribed to the service newsletter
-        } else {
-            // no subscription
-        }
-    });
+skapi.getNewsletterSubscription({
+    group: 'authorized'
+}).then(subs => {
+    if (subs.length) {
+        // user is subscribed to the service newsletter
+    }
+    else {
+        // no subscription
+    }
+})
 ```
 
 ## Unsubscribing from the service newsletters
@@ -5881,13 +5779,11 @@ skapi
 You can let the user unsubscribe from the service newsletters by calling [`unsubscribeNewsletter()`](/api-reference/email/README.md#unsubscribenewsletter).
 
 ```js
-skapi
-    .unsubscribeNewsletter({
-        group: "authorized",
-    })
-    .then((res) => {
-        // user is unsubscribed from the service newsletter
-    });
+skapi.unsubscribeNewsletter({
+    group: 'authorized'
+}).then(res => {
+    // user is unsubscribed from the service newsletter
+})
 ```
 
 ## Fetching Sent Emails
@@ -5898,7 +5794,7 @@ By default, it fetches all the public newsletters from the database in descendin
 In the newsletter object, the `url` is the URL of the html file of the newsletter. You can use the URL to fetch the newsletter content.
 
 ```js
-skapi.getNewsletters().then((newsletters) => {
+skapi.getNewsletters().then(newsletters => {
     // newsletters.list is an array of newsletters
     /*
     {
@@ -5911,10 +5807,10 @@ skapi.getNewsletters().then((newsletters) => {
         url: string; // URL of the newsletter
     }  
     */
-});
+})
 ```
 
-For more detailed information on all the parameters and options available with the [`getNewsletters()`](/api-reference/email/README.md#getnewsletters) method,
+For more detailed information on all the parameters and options available with the [`getNewsletters()`](/api-reference/email/README.md#getnewsletters) method, 
 please refer to the API Reference below:
 
 ### [`getNewsletters(params, options?): Promise<DatabaseResponse<Newsletter>>`](/api-reference/email/README.md#getnewsletters)
@@ -5928,19 +5824,14 @@ Below is an example of fetching service newsletters that are sent to the service
 For full parameters and options, see [`getNewsletters(params, options?)`](/api-reference/email/README.md#getnewsletters).
 
 ```js
-skapi
-    .getNewsletters(
-        {
-            searchFor: "timestamp",
-            value: Date.now() - 86400000, // 24 hours ago
-            condition: "<",
-            group: "authorized",
-        },
-        { ascending: false }
-    )
-    .then((newsletters) => {
-        // newsletters.list is an array of newsletters
-        /*
+skapi.getNewsletters({
+    searchFor: 'timestamp',
+    value: Date.now() - 86400000, // 24 hours ago
+    condition: '<',
+    group: 'authorized',
+}, { ascending: false }).then(newsletters => {
+    // newsletters.list is an array of newsletters
+    /*
     {
         message_id: string; // Message ID of the newsletter
         timestamp: number; // Timestamp of the newsletter
@@ -5951,7 +5842,7 @@ skapi
         url: string; // URL of the newsletter
     }  
     */
-    });
+})
 ```
 
 <br>
@@ -5967,18 +5858,15 @@ You can use [`sendInquiry()`](/api-reference/email/README.md#sendinquiry) to let
 :::code-group
 
 ```html [Form]
-<form
-    id="inquiry-form"
-    onsubmit="skapi.sendInquiry(event).then(res => {
+<form id="inquiry-form" onsubmit="skapi.sendInquiry(event).then(res => {
     alert(res) // 'SUCCESS: Inquiry has been sent.'
-})"
->
+})">
     <label for="name">Name:</label>
-    <input type="text" id="name" name="name" required />
+    <input type="text" id="name" name="name" required>
     <label for="email">Email:</label>
-    <input type="email" id="email" name="email" required />
+    <input type="email" id="email" name="email" required>
     <label for="subject">Subject:</label>
-    <input type="text" id="subject" name="subject" required />
+    <input type="text" id="subject" name="subject" required>
     <label for="message">Message:</label>
     <textarea id="message" name="message" required></textarea>
     <button type="submit">Send Inquiry</button>
@@ -5987,12 +5875,12 @@ You can use [`sendInquiry()`](/api-reference/email/README.md#sendinquiry) to let
 
 ```js [JS]
 let params = {
-    name: "John Doe",
-    email: "john@doe.com",
-    subject: "Inquiry",
-    message: "Hello, I have a question.",
-};
-skapi.sendInquiry(params).then((inquiry) => {
+    name: 'John Doe',
+    email: 'john@doe.com',
+    subject: 'Inquiry',
+    message: 'Hello, I have a question.'
+}
+skapi.sendInquiry(params).then(inquiry => {
     console.log(inquiry); // 'SUCCESS: Inquiry has been sent.'
 });
 ```
@@ -6007,3 +5895,4 @@ Be sure to turn on the `Prevent Inquiry` option in the [Service Settings](/servi
 :::
 
 <br>
+
