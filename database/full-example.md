@@ -4,14 +4,14 @@ This is a HTML example for building photo uploading application using Skapi's da
 
 This example demonstrates complex database examples such as:
 
-- Posting an image file and description
-- Post as a private data
-- Posting comments
-- Like button
-- List post in order of most liked, most recent, most commented
-- Seach post via hashtag
-- Fetching more data (Pagination)
-- Subscribing to users and fetching subscription feeds
+-   Posting an image file and description
+-   Post as a private data
+-   Posting comments
+-   Like button
+-   List post in order of most liked, most recent, most commented
+-   Seach post via hashtag
+-   Fetching more data (Pagination)
+-   Subscribing to users and fetching subscription feeds
 
 ...All in a single HTML file - **welcome.html**
 
@@ -25,13 +25,11 @@ So we recommend installing innerHTML string highlighting extention like one belo
 
 [es6-string-html](https://marketplace.visualstudio.com/items/?itemName=Tobermory.es6-string-html)
 
-
 ## Download
 
 Download the full project [Here](https://github.com/alsdk9879/skapi-database-html-template/archive/refs/heads/main.zip)
 
 Or visit our [Github page](https://github.com/alsdk9879/skapi-database-html-template)
-
 
 ## How To Run
 
@@ -55,16 +53,15 @@ The application will be hosted on port `3300`
 
 :::danger Important!
 
-Replace the `SERVICE_ID` and `OWNER_ID` value to your own service in `service.js`
+Replace the `SERVICE_ID` value to your own service in `service.js`
 
-Currently the service is running on **Trial Mode**.
+<!-- Currently the service is running on **Trial Mode**. -->
 
-**All the user data will be deleted every 14 days.**
+<!-- **All the user data will be deleted every 14 days.** -->
 
 You can get your own service ID from [Skapi](https://www.skapi.com)
 
 :::
-
 
 ## Example
 
@@ -88,8 +85,8 @@ Since this is a portion of the complete repository code and doesn't include supp
     <a href="logout.html">Logout</a>
 
     <script>
-        /* 
-            Get user profile and display it on the page, 
+        /*
+            Get user profile and display it on the page,
             Set user variable to use it later.
         */
         let user = skapi.getProfile().then(u => {
@@ -539,11 +536,11 @@ Since this is a portion of the complete repository code and doesn't include supp
         let html = /*html*/`
 
             <span style='font-weight:bold'>${uploader.name}</span>
-            
+
             <!--
                 Following <strong> tag will allow the user to subscribe to the uploader.
                 When the user clicks the <strong> element, it will call the subscribe() function.
-                We will declare the subscribe() function later.    
+                We will declare the subscribe() function later.
             -->
             <strong
                 class='clickable subscribe strong_subs-${p.user_id}'
@@ -572,7 +569,7 @@ Since this is a portion of the complete repository code and doesn't include supp
             </button>
 
             <br>
-            
+
             <small>Posted: ${new Date(p.updated).toLocaleString()}</small>
 
             <br>
@@ -585,9 +582,9 @@ Since this is a portion of the complete repository code and doesn't include supp
             <img src='${p.bin.pic[0].url}'>
 
             <br>
-            
+
             <small>Liked: <span id="span_likedCount-${p.record_id}">${p.referenced_count}</span></small>
-            
+
             <!--
                 Following <strong> tag will allow the user to like the post.
                 When the user clicks the <strong> element, it will call the like() function.
@@ -631,7 +628,7 @@ Since this is a portion of the complete repository code and doesn't include supp
                 <input name='comment' placeholder='Write Comment' style="width: 0; flex-grow:9;">
                 <input type='submit' style="width: unset; flex-grow:1;">
             </form>
-            
+
             <!--
                 Following <div> will show the comments of the post.
                 We will later fetch the comments and append the <div> to the <div> tag.
@@ -828,7 +825,7 @@ Since this is a portion of the complete repository code and doesn't include supp
         let commentHtml = /*html*/ `
         <small>
             <strong>${userInfo.name}</strong>
-            <span>(${new Date(postComment.updated).toLocaleString()})</span>    
+            <span>(${new Date(postComment.updated).toLocaleString()})</span>
             <br>
             <span>${postComment.data.comment}</span>
         </small>`;
