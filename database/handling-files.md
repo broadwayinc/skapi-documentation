@@ -13,13 +13,15 @@ This can be useful if the user is uploading huge files, you can show a progress 
 Here's an example demonstrating how you can upload files using Skapi:
 
 ```html
-<form onsubmit="skapi.postRecord(event, {
+<form
+    onsubmit="skapi.postRecord(event, {
     table: {
         name: 'my_photos',
         access_group: 'authorized'
     },
     progress: (p)=>console.log(p) 
-}).then(rec=>console.log(rec))">
+}).then(rec=>console.log(rec))"
+>
     <input name="description" />
     <input name="picture" multiple type="file" />
     <input type="submit" value="Submit" />
@@ -67,14 +69,16 @@ The [ProgressCallback](/api-reference/data-types/README.md#progresscallback) wil
 
 ```js
 let progressCallback = (p) => {
-    if(p.status === 'upload' && p.currentFile) {
+    if (p.status === "upload" && p.currentFile) {
         console.log(`Progress: ${p.progress}%`);
-        console.log('Current uploading file:' + p.currentFile.name);
+        console.log("Current uploading file:" + p.currentFile.name);
     }
-}
-skapi.postRecord(someData, { table: { name: 'my_photos', access_group: 'authorized' }, progress: progressCallback })
+};
+skapi.postRecord(someData, {
+    table: { name: "my_photos", access_group: "authorized" },
+    progress: progressCallback,
+});
 ```
-
 
 ## Downloading Files
 
@@ -83,9 +87,9 @@ To download files from the record, you can use the `getFile()` method on the [Bi
 Below is an example of how you can download a file from a record:
 
 ```js
-skapi.getRecords({ record_id: 'record_id_with_file' }).then(rec => {
+skapi.getRecords({ record_id: "record_id_with_file" }).then((rec) => {
     let record = rec.list[0]; // record with files attached.
-    
+
     /*
     // record
     {
@@ -113,7 +117,7 @@ skapi.getRecords({ record_id: 'record_id_with_file' }).then(rec => {
     */
 
     let fileToDownload = record.bin.picture[0]; // get the file object from the record
-    
+
     fileToDownload.getFile(); // browser will download the file.
 });
 ```
@@ -123,16 +127,21 @@ Uploaded files follow the access restrictions of the record.
 User must have access to the record in order to download the file.
 :::
 
-`getFile(dataType?: string, progress?: () => void )` allows you to download the file in various ways:
-- `blob`: Downloads the file as a [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob) object.
-- `base64`: Downloads the file as a base64 string.
-- `endpoint`: If the file access requires authentication or needs token update, you can request the a updated endpoint of the file.
+`getFile()` allows you to download the file in various ways:
 
-If no argument is passed, the file will be downloaded from the web browser.
+-   `blob`: Downloads the file as a [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob) object.
+-   `base64`: Downloads the file as a base64 string.
+-   `endpoint`: If the file access requires authentication or needs token update, you can request an updated endpoint of the file.
+-   `download` (or omitted): Triggers file download from the web browser.
+-   `text`: Downloads the file as text string.
+-   `info`: Returns file information.
 
-`getFile(dataType?: string, progress?: () => void )` method have two arguments:
-- `dataType`: Type of ways for file to be downloaded. Can be `"blob"` or `"base64"` or `"endpoint"` url. By default, it will trigger download from the web browser.
-- `progress`: Progress callback function. Can be useful when downloading large file as a blob and you want to show progress bar. (Will not work when download type is `endpoint` or web browser download.)
+The method has three arguments:
+
+-   `url`: The URL or file reference to download.
+-   `config`: Optional configuration object with:
+    -   `dataType`: Type of download - `blob`, `base64`, `endpoint`, `text`, `info` or `download`. Defaults to `download`
+-   `progressCallback`: Optional progress callback function. Useful when downloading large files as blob to show progress bar. (Will not work with `endpoint` or `download` types.)
 
 If the file has private access restriction, you must use the `endpoint` type to get the file endpoint URL.
 The endpoint URL will be a signed URL that can expire after a certain amount of time.
@@ -142,24 +151,23 @@ If the file is an image or a video, you can use the url on img tag or video tag 
 Below is an example of how you can get the endpoint URL of the access restricted private file (The user must have private access granted.):
 
 ```js
-fileToDownload.getFile('endpoint').then(url => {
+fileToDownload.getFile("endpoint").then((url) => {
     console.log(url); // endpoint of the file. https://...
 });
-
 ```
 
 Below is an example of how you can download a file as a blob, base64 with progress callback:
 
 ```js
-let progressInfo = p => {
+let progressInfo = (p) => {
     console.log(p); // Download progress information
 };
 
-fileToDownload.getFile('blob', progressInfo).then(b => {
+fileToDownload.getFile("blob", progressInfo).then((b) => {
     console.log(b); // Blob object of the file.
 });
 
-fileToDownload.getFile('base64', progressInfo).then(b => {
+fileToDownload.getFile("base64", progressInfo).then((b) => {
     console.log(b); // base64 string
 });
 ```
@@ -180,13 +188,19 @@ skapi.postRecord(undefined, { record_id: 'record_id_with_file', remove_bin: [fil
 If you have the endpoint URL of the file, you can also pass the URL as a string in the `remove_bin` parameter:
 
 ```js
-skapi.postRecord(undefined, { record_id: 'record_id_with_file', remove_bin: ['https://...'] });
+skapi.postRecord(undefined, {
+    record_id: "record_id_with_file",
+    remove_bin: ["https://..."],
+});
 ```
 
 If you want to remove all files from the record, you can pass the `remove_bin` parameter as `null`:
 
 ```js
-skapi.postRecord(undefined, { record_id: 'record_id_with_file', remove_bin: null }); // removes all files from the record.
+skapi.postRecord(undefined, {
+    record_id: "record_id_with_file",
+    remove_bin: null,
+}); // removes all files from the record.
 ```
 
 :::warning
@@ -204,8 +218,8 @@ You can use [`getFile()`](/api-reference/database/README.md#getfile) method to g
 Below is an example of how you can get the file information from the endpoint URL:
 
 ```js
-let fileUrl = 'https://...';
-skapi.getFile(fileUrl, { dataType: 'info' }).then(fileInfo => {
+let fileUrl = "https://...";
+skapi.getFile(fileUrl, { dataType: "info" }).then((fileInfo) => {
     console.log(fileInfo);
     /*
     {
