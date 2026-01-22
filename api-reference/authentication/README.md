@@ -55,6 +55,26 @@ See [UserProfile](/api-reference/data-types/README.md#userprofile)
   code: 'EXISTS';
   message: "user already exists.";
 }
+|
+{
+  code: 'REQUEST_EXCEED';
+  message: "Too many attempts. Please try again later.";
+}
+|
+{
+  code: 'CODE_DELIVERY_FAILURE';
+  message: "Failed to deliver verification code.";
+}
+|
+{
+  code: 'INVALID_REQUEST';
+  message: "Signup validation failed.";
+}
+|
+{
+  code: 'ERROR';
+  message: "Failed to signup.";
+}
 ```
 
 ## resendSignupConfirmation
