@@ -1,6 +1,11 @@
 # Version History
 
-### Current version: 1.2.7
+### Current version: 1.2.8
+
+- Removed dependency on Queuecumber.
+- Fixed issues with uploading subscription records and feeds.
+
+**1.2.7**
 - Fixed types, removed deprecated parameters.
 
 **1.2.2**
