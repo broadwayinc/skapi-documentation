@@ -175,6 +175,6 @@ openidLogin(
 ```ts
 {
     code: "ACCOUNT_EXISTS";
-    message: "The account already exists."
+    message: "The account already exists." // This occurs when the user's OpenID unique ID has already been registered through a basic signup.
 }
 ```

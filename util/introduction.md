@@ -2,10 +2,6 @@
 
 Skapi provides several utility functions used throughout the library.
 
-```js
-const util = skapi.util; // Utility methods
-```
-
 These include:
 
 - Extract form values as a JavaScript object
