@@ -4,6 +4,7 @@
 
 - Removed dependency on Queuecumber.
 - Fixed issues with uploading subscription records and feeds.
+- Updated README.md.
 
 **1.2.7**
 - Fixed types, removed deprecated parameters.

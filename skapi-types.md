@@ -101,6 +101,26 @@ See [UserProfile](/api-reference/data-types/README.md#userprofile)
   code: 'EXISTS';
   message: "user already exists.";
 }
+|
+{
+  code: 'REQUEST_EXCEED';
+  message: "Too many attempts. Please try again later.";
+}
+|
+{
+  code: 'CODE_DELIVERY_FAILURE';
+  message: "Failed to deliver verification code.";
+}
+|
+{
+  code: 'INVALID_REQUEST';
+  message: "Signup validation failed.";
+}
+|
+{
+  code: 'ERROR';
+  message: "Failed to signup.";
+}
 ```
 
 ## resendSignupConfirmation
@@ -221,7 +241,7 @@ openidLogin(
 ```ts
 {
     code: "ACCOUNT_EXISTS";
-    message: "The account already exists."
+    message: "The account already exists." // This occurs when the user's OpenID unique ID has already been registered through a basic signup.
 }
 ```
 
