@@ -1,5 +1,9 @@
 # Version History
 
+### Current version: 1.2.10
+
+- Fixed error code on `signup()`.
+
 ### Current version: 1.2.9
 
 - Removed dependency on Queuecumber.
