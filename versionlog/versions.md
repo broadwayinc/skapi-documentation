@@ -4,7 +4,7 @@
 
 - Fixed error code on `signup()`.
 
-### Current version: 1.2.9
+**1.2.9**
 
 - Removed dependency on Queuecumber.
 - Fixed issues with uploading subscription records and feeds.
