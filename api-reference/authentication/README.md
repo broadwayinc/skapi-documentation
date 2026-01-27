@@ -53,7 +53,7 @@ See [UserProfile](/api-reference/data-types/README.md#userprofile)
 ```ts
 {
   code: 'EXISTS';
-  message: "user already exists.";
+  message: "The account already exists.";
 }
 |
 {
@@ -159,8 +159,23 @@ forgotPassword(
 #### Errors
 ```ts
 {
-    code: "LimitExceededException";
-    message: "Attempt limit exceeded, please try after some time."
+    code: "NOT_EXISTS";
+    message: "Username/client id combination not found."
+}
+|
+{
+    code: "INVALID_REQUEST";
+    message: "User is disabled." | "User password cannot be reset in the current state."
+}
+|
+{
+    code: "REQUEST_EXCEED";
+    message: "Attempt limit exceeded, please try after some time." | "Rate exceeded";
+}
+|
+{
+    code: "CODE_DELIVERY_FAILURE";
+    message: "Unable to deliver code to user"
 }
 ```
 
@@ -195,6 +210,11 @@ openidLogin(
 ```ts
 {
     code: "ACCOUNT_EXISTS";
-    message: "The account already exists." // This occurs when the user's OpenID unique ID has already been registered through a basic signup.
+    message: "The account already exists."; // This occurs when the user's OpenID unique ID has already been registered through a basic signup.
+}
+|
+{
+    code: "INVALID_REQUEST";
+    message: "The account needs to be confirmed."; // This occurs when the account is already signed up and requires confirmation from the user
 }
 ```
