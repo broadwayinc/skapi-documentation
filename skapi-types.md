@@ -154,7 +154,7 @@ See [UserProfile](/api-reference/data-types/README.md#userprofile)
 ```ts
 {
   code: "SIGNUP_CONFIRMATION_NEEDED";
-  message: "User's signup confirmation is required.";
+  message: "The account signup needs to be confirmed.";
 }
 |
 {
