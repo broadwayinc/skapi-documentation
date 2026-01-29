@@ -1,6 +1,10 @@
 # Version History
 
-### Current version: 1.2.10
+### Current version: 1.2.11
+
+- HOT FIX: Fixed bug for fetchMore parameter for all requests.
+
+**1.2.10**
 
 - Fixed error code on `signup()`.
 
