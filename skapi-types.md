@@ -1506,7 +1506,7 @@ type Tag = {
 
 ```ts
 type UniqueId = {
-    unqiue_id: string; // Unique ID of the record
+    unique_id: string; // Unique ID of the record
     record_id: string; // Record ID of the unique ID
 }
 ```
