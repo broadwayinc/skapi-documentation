@@ -1226,6 +1226,44 @@ unblockAccount(params: {
 
 Below are the data type references in TypeScript format.
 
+You can import types in typescript project as below:
+
+```ts
+import type {
+    ConnectionInfo,
+    Condition,
+    RTCReceiverParams,
+    RTCConnectorParams,
+    RTCConnector,
+    RTCResolved,
+    RTCEvent,
+    WebSocketMessage,
+    RealtimeCallback,
+    DelRecordQuery,
+    GetRecordQuery,
+    PostRecordConfig,
+    BinaryFile,
+    RecordData,
+    Connection,
+    Form,
+    Newsletter,
+    Newsletters,
+    UserProfilePublicSettings,
+    UserAttributes,
+    UserProfile,
+    UserPublic,
+    ProgressCallback,
+    FetchOptions,
+    DatabaseResponse,
+    FileInfo,
+    Table,
+    Index,
+    Tag,
+    UniqueId,
+    Subscription
+} from "skapi-js";
+```
+
 ## ConnectionInfo
 
 ```ts
@@ -1352,7 +1390,7 @@ type UserPublic = {
 ```ts
 type DatabaseResponse<T> = {
     list: T[]; // List of data from the database.
-    startKey: { [key: string]: any; }; // Use this start key to fetch more data on the next api call.
+    startKey: { [key: string]: any; } | 'end'; // Use this start key to fetch more data on the next api call.
     endOfList: boolean; // true, when the query has reached the end of data.
     startKeyHistory: string[]; // List of stringified start keys.
 };
