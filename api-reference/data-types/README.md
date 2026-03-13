@@ -190,6 +190,7 @@ type RecordData = {
         name: string; // Table name
         access_group: number | 'private' | 'public' | 'authorized' | 'admin'; // Allowed access level of this record.
         subscription?: {
+            is_subscription_record: boolean;
             upload_to_feed: boolean; // When true, record will be shown in the subscribers feeds that is retrieved via getFeed() method.
             notify_subscribers: boolean; // When true, subscribers will receive notification when the record is uploaded.
             feed_referencing_records: boolean; // When true, records referencing this record will be included to the subscribers feed.
@@ -360,7 +361,7 @@ type Newsletter = {
 type RealtimeCallback = (rt: {
     type: 'message' | 'error' | 'success' | 'close' | 'notice' | 'private' | 'reconnect' | 'rtc:incoming' | 'rtc:closed';
     message?: any;
-    connectRTC?: (params: RTCReceiverParams, callback: RTCEvent) => Promise<RTCResolved>; // Incoming RTC
+    connectRTC?: (params: RTCReceiverParams, callback: (e: RTCEvent) => void) => Promise<RTCResolved>; // Incoming RTC
     hangup?: () => void; // Reject incoming RTC connection.
     sender?: string; // user_id of the sender
     sender_cid?: string; // scid of the sender
@@ -394,8 +395,8 @@ type RTCResolved = {
 ## RTCEvent
 
 ```ts
-type RTCEvent = (e: {
+type RTCEvent = {
     type: 'track' | 'connectionstatechange' | 'close' | 'message' | 'open' | 'bufferedamountlow' | 'error' | 'icecandidate' | 'icecandidateend' | 'icegatheringstatechange' | 'negotiationneeded' | 'signalingstatechange';
     [key: string]: any;
-}) => void
+}
 ```

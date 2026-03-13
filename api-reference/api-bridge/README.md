@@ -1,29 +1,18 @@
-# API Reference: API Bridge
+# API Reference: Third-Party APIs
 
 Below are the parameters and return data type references for the methods in TypeScript format.
-
-## secureRequest
-
-```ts
-secureRequest(
-    params: {
-        url: string;
-        data?: any;
-    }
-): Promise<any>
-```
 
 ## clientSecretRequest
 
 ```ts
 clientSecretRequest(
     params: {
-        url: string;
-        clientSecretName: string;
-        method: 'get' | 'post' | 'GET' | 'POST';
-        headers?: { [key: string]: string };
-        data?: { [key: string]: any };
-        params?: { [key: string]: string };
+        clientSecretName: string; // The name of the client secret key registered in your Skapi service.
+        url: string; // The third-party API endpoint URL.
+        method: 'GET' | 'POST'; // The HTTP method, either `GET` or `POST`.
+        headers?: { [key: string]: string }; // Request headers as a key-value object.
+        data?: { [key: string]: any }; // Request body as a key-value object (used when `method` is `POST`).
+        params?: { [key: string]: string }; // Query parameters as a key-value object (used when `method` is `GET`).
     }
 ): Promise<any>
 ```

@@ -21,7 +21,7 @@ For example, if you registered `mywebsite` as your subdomain, and have uploaded 
 
 :::info
 - When you overwrite a file with the same name, the file will be replaced with the new file.
-- When overwriting or deleting a file, please allow couple of minutes for CDN to update it's cache.
+- When overwriting or deleting a file, please allow couple of minutes (15 minutes max) for CDN to update it's cache.
 :::
 
 :::danger

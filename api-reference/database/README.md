@@ -13,7 +13,7 @@ postRecord(
         /** When the table is given as a string value, the value is the table name. */
         /** 'table' is optional when 'record_id' or 'unique_id' is used. */
         /** When the table is given as a string value, the given value will be set as table.name and table.access_group will be 'public' **/
-        table: string | {
+        table: {
             name: string; // Other than space and period, special characters are not allowed.
             access_group?: number | 'private' | 'public' | 'authorized' | 'admin';  // Default: 'public', otherwise not available to anonymous users.
             /** Subscription settings; not available to anonymous users. */
@@ -68,10 +68,10 @@ getRecords(
         unique_id?: string; // Unique ID of the record. When unique ID is given, it will fetch the record with the given unique ID. All other parameters are bypassed.
         /** When the table is given as a string value, the given value will be set as table.name and table.access_group will be 'public' **/
         /** 'table' is optional when 'record_id' or 'unique_id' is used. */
-        table: string | {
+        table: {
             name: string,
             access_group?: number | 'private' | 'public' | 'authorized' | 'admin'; // 0 to 99 if using number. Default: 'public'
-            subscription?: string; // User ID that requester is subscribed to.
+            subscription?: string; // User ID that requester is subscribed to. (eg. "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")
         };
 
         /**

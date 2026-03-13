@@ -2,26 +2,40 @@
 
 ## Posting Feeds
 
-Skapi database provides a subscription feature.
+Skapi database includes a subscription feature.
 
-The subscription feature is useful when you want users to subscribe to certain users and fetch feeds from their subscriptions.
+This feature lets users subscribe to other users and view feed records from those subscriptions.
 
-With the subscription feature, the uploader can also restrict certain users from accessing specific posts uploaded to the subscription table.
+Uploaders can also block specific users from accessing subscription-level records.
 
 You can let users upload records to the subscription table by setting `table.subscription.is_subscription_record` to `true` in [`postRecord()`](/api-reference/database/README.md#postrecord) parameters.
 
-When `table.subscription.upload_to_feed` is set to `true`, subscribed users can later fetch all the feeds from all the users they are subscribed to at once using the [`getFeed()`](/api-reference/database/README.md#getfeed) method.
+When `table.subscription.upload_to_feed` is set to `true`, subscribed users can fetch feed records from all subscribed users at once using [`getFeed()`](/api-reference/database/README.md#getfeed).
 
-The subscription feature is useful when building a social media platform where users can follow each other's content and fetch their feeds.
+### Subscription options overview
 
-With the subscription feature, users can also block certain users from accessing their subscription group records.
+The `table.subscription` object controls how a record behaves for subscribers.
 
-The subscription feature can track subscriber counts, manage feeds, and send mass notifications, etc.
+-   `is_subscription_record`: Marks the record as subscription-scoped. Subscribed users can retrieve these records with [`getRecords()`](/api-reference/database/README.md#getrecords) (using `table.subscription`).
+-   `upload_to_feed`: Publishes the record to subscriber feeds so it can appear in [`getFeed()`](/api-reference/database/README.md#getfeed).
+-   `notify_subscribers`: Sends notifications to subscribers when the record is uploaded.
+-   `feed_referencing_records`: Includes records that reference this record in subscriber feeds.
+-   `notify_referencing_records`: Sends notifications when referencing records are created or updated.
 
-Let's assume **user 'A'** uploads a record in table 'Posts' with subscription group 1.
+You can enable these options independently or combine them depending on your product behavior.
+
+For example:
+
+-   Use `is_subscription_record: true` without `upload_to_feed` when records should be accessible to subscribers but not appear in feed timelines.
+-   Use `upload_to_feed: true` for timeline-style content.
+-   Add `notify_subscribers: true` when users should receive immediate alerts.
+
+This is useful for social apps where users follow each other, consume feed content, and track subscriber counts.
+
+Assume **user A** uploads a record in table `Posts` as a subscription record.
 
 ```js
-// User 'A' uploads record in subscription table.
+// User A uploads a subscription record.
 skapi.postRecord(null, {
     table: {
         name: "Posts",
@@ -33,11 +47,28 @@ skapi.postRecord(null, {
 });
 ```
 
-To allow other users to access records that require a subscription, they must first subscribe to the uploader using the [`subscribe()`](/api-reference/database/README.md#subscribe) method:
+You can also configure full feed and notification behavior at upload time:
 
-:::warning
-Subscribers will not get feeds that are posted prior to the subscription.
-:::
+```js
+skapi.postRecord({
+    title: "New post",
+    body: "Hello subscribers!"
+}, {
+    table: {
+        name: "Posts",
+        access_group: "authorized",
+        subscription: {
+            is_subscription_record: true,
+            upload_to_feed: true,
+            notify_subscribers: true,
+            feed_referencing_records: false,
+            notify_referencing_records: false
+        }
+    }
+});
+```
+
+To allow other users to access records that require a subscription, they must first subscribe to the uploader using the [`subscribe()`](/api-reference/database/README.md#subscribe) method:
 
 :::warning
 Anonymous (unsigned) users cannot create subscription records.
@@ -49,25 +80,30 @@ Anonymous (unsigned) users cannot create subscription records.
 User must be logged in to call this method.
 :::
 
-Let's assume **user 'B'** wants to access **user 'A'**'s subscription records. **User 'B'** will need to subscribe to **user 'A'**.
+Assume **user B** wants to access **user A**'s subscription records. **User B** must first subscribe to **user A**.
 
 ```js
-// User 'B' subscribes to user 'A'.
+// User B subscribes to user A.
 skapi.subscribe({
     user_id: "user_id_of_user_A",
-    get_feed: true, // Required to enable the get_feed method
+    get_feed: true, // Required to use getFeed() later.
 });
 ```
 
 :::tip
-To use the [`getFeed()`](/database/subscription.html#getting-feed) method later, be sure to include the parameter `get_feed: true` shown in [`subscribe(option): Promise<string>`](/api-reference/database/README.md#subscribe)
+To use the [`getFeed()`](/database/subscription.html#getting-feed) method later, be sure to include `get_feed: true` in [`subscribe()`](/api-reference/database/README.md#subscribe).
+
+`table.subscription.upload_to_feed` must be set to `true` for records to appear in subscriber feeds.
 :::
 
-Once the **user 'B'** has subscribed to **user 'A'**,
-**user 'B'** can now have access to the records in that subscription table.
+:::warning
+Subscribers will not get feeds that are posted prior to the subscription.
+:::
+
+Once **user B** subscribes to **user A**, **user B** can access records in that subscription table.
 
 ```js
-// User 'B' now can get records that requires subscription of user 'A'
+// User B can now retrieve records that require subscription to user A.
 skapi
     .getRecords({
         table: {
@@ -77,18 +113,15 @@ skapi
         },
     })
     .then((response) => {
-        console.log(response.list); // All posts user 'A' uploaded to table 'Posts' in subscription group 1.
+        console.log(response.list); // All records user A uploaded to the Posts table as subscription records.
     });
 ```
 
 :::tip
-The number of subscribers for a user is tracked in the [UserPublic](/api-reference/data-types/README.md#userpublic) object,
-which can be retrieved using the [`getUsers()`](/api-reference/database/README.md#getusers) method.
+Subscriber counts are tracked in the [UserPublic](/api-reference/data-types/README.md#userpublic) object,
+which you can retrieve with [`getUsers()`](/api-reference/database/README.md#getusers).
 :::
 
-:::danger
-`table.subscription.upload_to_feed` should be set to `true` for record to show up in subscription table.
-:::
 
 ### [`subscribe(option): Promise<Subscription>`](/api-reference/database/README.md#subscribe)
 
@@ -98,7 +131,7 @@ which can be retrieved using the [`getUsers()`](/api-reference/database/README.m
 User must be logged in to call this method.
 :::
 
-Users can unsubscribe from subscription group 1 using the [`unsubscribe()`](/api-reference/database/README.md#unsubscribe) method.
+Users can unsubscribe using [`unsubscribe()`](/api-reference/database/README.md#unsubscribe).
 
 ```js
 // User 'B'
@@ -107,8 +140,7 @@ skapi.unsubscribe({
 });
 ```
 
-For more detailed information on all the parameters and options available with the [`unsubscribe()`](/api-reference/database/README.md#unsubscribe) method,
-please refer to the API Reference below:
+For full parameter and option details, see the API reference below:
 
 ### [`unsubscribe(option): Promise<string>`](/api-reference/database/README.md#unsubscribe)
 
@@ -122,68 +154,66 @@ After unsubscribing, subscription information may need some time to update (usua
 User must be logged in to call this method.
 :::
 
-One of the benefits of the subscription feature is that users can block certain users from accessing their subscription-level records.
-But, as mentioned above, subscriptions are not meant to be used as a security restriction.
+One benefit of the subscription feature is that users can block specific users from subscription-level records.
+However, subscriptions are not a full security boundary.
 
-Even when a user has blocked certain users, those users still have access to files attached to the records, since file access is not restricted by subscription unless the file is private or uses a higher access group than the accessing user.
+Even when a user is blocked, they may still access files attached to records unless those files are private or use a higher access group.
 
-Other than files, blocked users will not have access to any record data at the subscription access level.
+Blocked users cannot access subscription-level record data.
 
-To block a subscriber, user can call the [`blockSubscriber()`](/api-reference/database/README.md#blocksubscriber) method:
+To block a subscriber, call [`blockSubscriber()`](/api-reference/database/README.md#blocksubscriber):
 
 ### Blocking a Subscriber
 
 ```js
-// User 'A' blocks user 'B' from accessing all subscription group 1.
+// User A blocks user B from subscription records.
 skapi
     .blockSubscriber({
         user_id: "user_id_of_user_B",
     })
     .then((res) => {
-        // User 'B' no longer have access to user A's subscription group 1.
+        // User B no longer has access to user A's subscription records.
     });
 ```
 
-For more detailed information on all the parameters and options available with the [`blockSubscriber()`](/api-reference/database/README.md#blocksubscriber) method,
-please refer to the API Reference below:
+For full parameter and option details, see the API reference below:
 
 ### [`blockSubscriber(option): Promise<string>`](/api-reference/database/README.md#blocksubscriber)
 
 ### Unblocking a Subscriber
 
 ```js
-// User 'A' unblocks user 'B' from subscription group 1.
+// User A unblocks user B.
 skapi
     .unblockSubscriber({
         user_id: "user_id_of_user_B",
     })
     .then((res) => {
-        // User 'B' now has access to user A's subscription group 1.
+        // User B can access user A's subscription records again.
     });
 ```
 
-For more detailed information on all the parameters and options available with the [`unblockSubscriber()`](/api-reference/database/README.md#unblocksubscriber) method,
-please refer to the API Reference below:
+For full parameter and option details, see the API reference below:
 
 ### [`unblockSubscriber(option): Promise<string>`](/api-reference/database/README.md#unblocksubscriber)
 
-## Listing subscriptions
+## Listing Subscriptions
 
 The [`getSubscriptions()`](/api-reference/database/README.md#getsubscriptions) method retrieves subscription information from the database.
 
-### params:
+### Parameters
 
--   `subscriber`: The user ID of the subscriber.
--   `subscription`: The user ID of the uploader and the subscription group.
--   `blocked`: Set to `true` to only retrieve blocked subscriptions.
+-   `subscriber`: User ID of the subscriber.
+-   `subscription`: User ID of the user being subscribed to.
+-   `blocked`: Set to `true` to return only blocked subscriptions.
 
-Either the `params.subscriber` or `params.subscription` value must be provided.
+Provide at least one of `params.subscriber` or `params.subscription`.
 
 ### Examples
 
 ```js
 /**
- * Retrieve all subscription information where user 'B' is the subscriber
+ * Retrieve all subscriptions where user B is the subscriber.
  */
 skapi
     .getSubscriptions({
@@ -194,7 +224,7 @@ skapi
     });
 
 /**
- * Retrieve all subscription information where user A is being subscribed to
+ * Retrieve all subscriptions where user A is being subscribed to.
  */
 skapi
     .getSubscriptions({
@@ -205,7 +235,7 @@ skapi
     });
 
 /**
- * Check if user 'B' is subscribed to user 'A'
+ * Check whether user B is subscribed to user A.
  */
 skapi
     .getSubscriptions({
@@ -217,43 +247,43 @@ skapi
     });
 ```
 
-For more detailed information on all the parameters and options available with the [`getSubscriptions()`](/api-reference/database/README.md#getsubscriptions) method,
-please refer to the API Reference below:
+For full parameter and option details, see the API reference below:
 
 ### [`getSubscriptions(params, fetchOptions?): Promise<DatabaseResponse<Subscription>>`](/api-reference/database/README.md#getsubscriptions)
 
 ## Getting Feed
 
-The [`getFeed()`](/api-reference/database/README.md#getfeed) method retrieves the user's feed.
+[`getFeed()`](/api-reference/database/README.md#getfeed) retrieves the current user's feed.
 
-This method retrieves feed records from users the current user subscribes to.
+It returns feed records from users the current user has subscribed to.
 
 You can use this method to build a feed page for the user.
 
 ### Examples
 
-First, the user 'A' must upload a record as a feed.
+First, user A must upload a record to the feed.
 
 ```js
-// User 'A' uploads record as a feed.
+// User A uploads a record to the feed.
 skapi.postRecord(null, {
-  table: {
-    name:'Posts',
-    access_group: 'authorized',
-    subscription: {
-      upload_to_feed: true
+    table: {
+        name: 'Posts',
+        access_group: 'authorized',
+        subscription: {
+            upload_to_feed: true
+        }
     }
-}})
+});
 ```
 
-Then user 'B', who is subscribed to user 'A', can fetch the uploaded feeds from users they subscribe to.
+Then user B, who is subscribed to user A, can fetch feed records from subscribed users.
 
 ```js
 /**
- * User 'B' Retrieves all feed of access_group: "authorized"
+ * User B retrieves all feed records with access_group: "authorized".
  */
-skapi.getFeed({access_group: 'authorized'}).then((response) => {
-  console.log(response.list); // Fetch all feed records in the 'authorized' access group from users userB subscribes to.
+skapi.getFeed({ access_group: 'authorized' }).then((response) => {
+    console.log(response.list); // Feed records from subscribed users in the 'authorized' access group.
 });
 ```
 

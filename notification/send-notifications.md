@@ -3,21 +3,50 @@
 Skapi provides methods to manage push notifications, including subscribing, unsubscribing, and sending notifications. This guide explains how to implement push notifications using Skapi from the client side.
 
 :::danger HTTPS REQUIRED.
-Notifications only works on HTTPS environment.
-You need to setup a HTTPS environment when developing a notifications feature for your web application.
+Notifications only work in an HTTPS environment.
+You need to set up HTTPS when developing notification features for your web application.
 
-You can host your application in skapi.com or host from your personal servers.
+You can host your application on skapi.com or on your own servers.
 :::
+
+## Setting Up Service Worker
+
+The first step for web push notifications is to set up a service worker. In this guide, we use a file named `sw.js` in the project folder. The service worker handles incoming notifications and user interactions in the background, so notifications can still arrive even when the site is closed. This file must exist in your project and be registered correctly, or push notifications will not work.
+
+### sw.js
+```js
+self.addEventListener('push', function(event) {
+    const data = event.data.json();
+    const title = data.title || "Default Title";
+    const options = {
+        body: data.body || "Default Body",
+        icon: 'icon-192x192.png',
+        badge: 'icon-192x192.png'
+    };
+    
+    event.waitUntil(
+        self.registration.showNotification(title, options)
+    );
+});
+
+self.addEventListener('notificationclick', function(event) {
+    event.notification.close();
+    let url = event.target.location.origin;
+    event.waitUntil(
+        clients.openWindow(url)
+    );
+});
+```
 
 ## Subscribing to Notifications
 
-To receive push notifications, users must first subscribe. This requires obtaining a VAPID key and registering a service worker. It is possible to get the VAPID key by calling the method [`vapidPublicKey()`](/api-reference/realtime/README.md#vapidpublickey) and after subscribe by using the method [`subscribeNotification()`](/api-reference/realtime/README.md#subscribenotification).
+To receive push notifications, users must subscribe first. This requires a VAPID key and a registered service worker. You can get the VAPID key by calling [`vapidPublicKey()`](/api-reference/realtime/README.md#vapidpublickey), then subscribe by calling [`subscribeNotification()`](/api-reference/realtime/README.md#subscribenotification).
 
 ### Steps:
 1. Retrieve the VAPID key using [`vapidPublicKey()`](/api-reference/realtime/README.md#vapidpublickey).
-2. Request notification permission from the device user.
-3. Add the service worker [`sw.js`](#service-worker-sw-js) file to your environment.
-4. Register a service worker and request notification permissions.
+2. Request notification permission from the user.
+3. Add the service worker file (`sw.js`) to your project.
+4. Register the service worker.
 5. Subscribe to push notifications using `navigator.serviceWorker.pushManager.subscribe()`.
 6. Send the subscription details to Skapi using [`subscribeNotification()`](/api-reference/realtime/README.md#subscribenotification).
 
@@ -84,7 +113,7 @@ await skapi.subscribeNotification(subscription.endpoint, subscription.keys);
 
 ## Unsubscribing to Notifications
 
-To stop receiving notifications, users need to unsubscribe by calling the method [`unsubscribenotification()`](/api-reference/realtime/README.md#unsubscribenotification) and passing the endpoint and keys as parameters. 
+To stop receiving notifications, users must unsubscribe by calling [`unsubscribeNotification()`](/api-reference/realtime/README.md#unsubscribenotification) with the endpoint and keys.
 
 ### Steps:
 1. Retrieve the current push subscription from `navigator.serviceWorker.ready.pushManager.getSubscription()`.
@@ -115,39 +144,10 @@ await subscription.unsubscribe();
 const response = await skapi.unsubscribeNotification(subscription.endpoint, subscriptionJSON.keys);
 ```
 
-## Service Worker (`sw.js`)
-
-A service worker file (`sw.js`) is required to handle incoming push notifications and user interactions. It runs in the background, allowing notifications to be received even when the site is closed. This file must be present in your project and correctly registered; otherwise, push notifications won’t work.
-
-### Code Example:
-```js
-self.addEventListener('push', function(event) {
-    const data = event.data.json();
-    const title = data.title || "Default Title";
-    const options = {
-        body: data.body || "Default Body",
-        icon: 'icon-192x192.png',
-        badge: 'icon-192x192.png'
-    };
-    
-    event.waitUntil(
-        self.registration.showNotification(title, options)
-    );
-});
-
-self.addEventListener('notificationclick', function(event) {
-    event.notification.close();
-    let url = event.target.location.origin;
-    event.waitUntil(
-        clients.openWindow(url)
-    );
-});
-```
-
 ## Sending Notifications
 
-You can let users use [`postRealtime()`](/api-reference/realtime/README.md#postrealtime) to send notification to each other.
-In case the recipient is not connected to realtime, you can set the `notification` argument to notify user with notification message.
+You can let users send notifications to each other with [`postRealtime()`](/api-reference/realtime/README.md#postrealtime).
+If the recipient is not connected to Realtime, set the `notification` argument to send a push notification message.
 
 ```js
 skapi.postRealtime(
@@ -160,9 +160,9 @@ skapi.postRealtime(
 ).then(res => console.log(res));
 ```
 
-If the receiver has subscribed to push notification API, they will receive the notification message that is set in `notification` argument.
+If the recipient has subscribed to the Push Notification API, they will receive the message set in the `notification` argument.
 
-Below example shows how to send notification regardless user is connected to realtime connection. By setting `always` options to `true`, notification will always be triggered or the receiver.
+The example below shows how to send a notification regardless of whether the recipient is connected to Realtime. By setting `config.always` to `true`, a notification is always triggered for the recipient.
 
 ```js
 skapi.postRealtime(

@@ -1,173 +1,200 @@
 # OpenID Login
 
-Skapi provides support for OpenID authentication profiles.
+Skapi supports OpenID authentication profiles.
 
 ## What is OpenID?
 
-OpenID is an open standard and decentralized authentication protocol that allows users to be authenticated by relying on a third-party service, called an OpenID provider, without needing to have a separate identity and password for each service. This simplifies the login process for users and enhances security by reducing the number of passwords that need to be managed.
-
-With OpenID, users can log in to multiple websites using a single set of credentials from an OpenID provider such as Google, Facebook, or other identity providers. This process involves redirecting the user to the OpenID provider's login page, where they authenticate themselves, and then returning to the original website with a token that confirms their identity.
+OpenID is an authentication standard that lets users sign in with an identity provider (for example, Google) instead of creating a separate password for every app.
 
 ## Login with OpenID Profile
 
-If you have access to an OpenID provider's API, you can register your OpenID logger from your Skapi service page.
+If you have access to an OpenID provider API, you can register an OpenID logger in your Skapi service settings.
 
-Although OpenID providers have different authentication methods, the general process follows these steps:
+Although providers differ in details, the overall process is:
 
-1. Register an OpenID logger in Skapi
-2. Redirect the user to the OpenID provider's login page
-3. Redirect the authenticated user back to your webpage
-4. Retrieve the access token to call [`openidLogin()`](/api-reference/authentication/README.md#openidlogin)
-5. The user will be logged into your Skapi application
+1. You redirect the user to the provider's login page.
+2. The provider authenticates the user.
+3. The user is redirected back to your app.
+4. Exchange the returned authorization code for an access token using a secure client secret request.
+5. Call [`openidLogin()`](/api-reference/authentication/README.md#openidlogin) with that token.
 
 ## Google OAuth Example
 
-In this example, we'll demonstrate implementing Google OAuth authentication.
+This example shows how to implement Google OAuth authentication.
 
 ### 1. Set Up Google OAuth Service
 
 Go to the [Google Cloud Console](https://console.cloud.google.com/) and create your OAuth service.
 
-Follow their [instructions](https://support.google.com/googleapi/answer/6158849?hl=en). Make sure to set up the correct redirect URL that points to your web application.
+Follow Google's [setup instructions](https://support.google.com/cloud/answer/15549257?sjid=3416534526948669406-NC), and make sure your redirect URL points back to your web app.
 
 ### 2. Register Your OpenID Logger in Skapi
 
 1. Log in to [skapi.com](https://www.skapi.com).
-2. Click on the service where you want to register your OpenID Logger.
+2. Open the service where you want to register an OpenID logger.
 3. From the side menu, click on **OpenID Logger**.
-4. Click **+** on the top right side of the table to add logger.
-5. Set up the *Logger ID*. This is an identifier used when calling [`openidLogin()`](/api-reference/authentication/README.md#openidlogin). You can use any name, but for this example, set it to **google**.
-6. Set up the *Username Key*. This should be an OpenID attribute name that holds a unique identifier. For this example, set it to **email**.
-7. Set up the *request URL* to the Google API where you can retrieve the user's profile. Set it to `https://www.googleapis.com/oauth2/v3/userinfo`.
-8. Set up the Header [JSON] as shown below:
-    ```
-    {
-        "Authorization": "Bearer $TOKEN"
-    }
-    ```
-9. Click **Save**.
+4. Click **+** at the top-right of the table.
+5. Fill in the logger form:
+
+    - **Logger ID:**
+        This value is used when calling [`openidLogin()`](/api-reference/authentication/README.md#openidlogin). You can use any name. For this guide, use **google**.
+
+    - **Username Key:** An OpenID attribute that uniquely identifies the user. For this example, use **email**.
+    - **Request URL:** The profile API URL. For this example, use `https://www.googleapis.com/oauth2/v3/userinfo`.
+    
+    - **Request Method:** Use the method required by the API. For this example, use `GET`.
+
+    - **Condition**
+
+        You can set conditions to allow login only when profile values match your rules.
+
+        - **Profile Attribute Name:** The profile attribute to compare. Leave blank for this example.
+        - **Profile Attribute Value:** The value to compare against. Leave blank for this example.
+        - **Condition:** Comparison rule. Leave default for this example.
+    
+    - **Header [JSON]:** Request headers as JSON. Use:
+
+        ```
+        {
+            "Authorization": "Bearer $TOKEN"
+        }
+        ```
+
+    - **Get Parameter [JSON] | Post Body [JSON]**
+    
+    You can define query parameters or a request body in JSON format. Leave blank for this example.
+
+6. Click **Save**.
 
 
 ### 3. Register Client Secret Key
 
-When retrieving an access token for Google OAuth, the Google API requires a client secret key.
+To retrieve an access token from Google OAuth, you need a client secret key.
 
-Since the client secret key should not be exposed, register the client secret key of your OAuth service in Skapi.
+Because the client secret must not be exposed in frontend code, register it securely in Skapi.
 
 1. In the service page, click on the **Client Secret Key** menu.
-2. Click **+** on the top right side of the table to add key.
-3. Give a name to your secret key. You can use any name, but for this example, set it to **ggltoken**.
-4. Enter the client secret key you obtained from your Google OAuth service.
-5. Click **Save**.
+2. Click **+** at the top-right of the table.
+3. In the form, enter:
+    - **Name:** A key identifier. For this guide, use **ggltoken**.
+    - **Client Secret Key:** The exact secret from your Google OAuth app.
+
+4. Click **Save**.
+
+For more information about registering a client secret key, see [Client Secret Keys](/api-bridge/client-secret-request.html).
 
 ### 4. Set Up Link to Google Login
 
-Create a link URL and button for the Google OAuth login page.
+Create a button that redirects users to Google's OAuth login page.
 
 ```html
-<button onclick='googleLogin()'>Google Login</button>
+<button onclick="googleLogin()">Google Login</button>
 <script>
-    const GOOGLE_CLIENT_ID = "1234567890123-your.google.client.id"; // Replace this with your actual client ID
-    const REDIRECT_URL = window.location.href.split('?')[0]; // Current URL to redirect back from Google login page
+    const GOOGLE_CLIENT_ID = '1234567890123-your.google.client.id';
+    const REDIRECT_URL = window.location.origin + window.location.pathname;
 
     function googleLogin() {
-        let rnd = Math.random().toString(36).substring(2); // Generate a random string
+        const state = crypto.randomUUID();
+        const authURL = new URL('https://accounts.google.com/o/oauth2/v2/auth');
 
-        // Build link to login page
-        let url = 'https://accounts.google.com/o/oauth2/v2/auth';
-        url += '?client_id=' + GOOGLE_CLIENT_ID;
-        url += '&redirect_uri=' + encodeURIComponent(REDIRECT_URL);
-        url += '&response_type=code';
-        url += '&scope=' + encodeURIComponent('https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email');
-        url += '&prompt=consent';
-        url += '&state=' + encodeURIComponent(rnd);
-        url += '&access_type=offline';
+        authURL.searchParams.set('client_id', GOOGLE_CLIENT_ID);
+        authURL.searchParams.set('redirect_uri', REDIRECT_URL);
+        authURL.searchParams.set('response_type', 'code');
+        authURL.searchParams.set('scope', 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email');
+        authURL.searchParams.set('prompt', 'consent');
+        authURL.searchParams.set('state', state);
+        authURL.searchParams.set('access_type', 'offline');
 
-        // Redirect user to the URL
-        window.location.href = url;
+        window.location.href = authURL.toString();
     }
 </script>
 ```
 
 ### 5. Set Up Access Token Retrieval
 
-When the user is authenticated and redirected back to your web application, use [`clientSecretRequest()`](/api-bridge/client-secret-request) to retrieve the access token. You need to add code that runs when the user is redirected back from the Google login page.
+After the user signs in with Google and is redirected back to your app, use [`clientSecretRequest()`](/api-bridge/client-secret-request) to exchange the authorization code for an access token.
 
-Once the access token is fetched, you can call [`openidLogin(event?:SubmitEvent | params): Promise<string>`](/api-reference/authentication/README.md#openidlogin) to log your users into your web application.
+Then call [`openidLogin(event?: SubmitEvent | params): Promise<string>`](/api-reference/authentication/README.md#openidlogin) to sign the user in to your Skapi service.
 
 ```html
-<button onclick='googleLogin()'>Google Login</button>
+<button onclick="googleLogin()">Google Login</button>
 <script>
-    const GOOGLE_CLIENT_ID = "1234567890123-your.google.client.id"; // Replace this with your actual client ID
-    const REDIRECT_URL = window.location.href.split('?')[0]; // Current URL to redirect back from Google login page
+    const GOOGLE_CLIENT_ID = '1234567890123-your.google.client.id';
+    const REDIRECT_URL = window.location.origin + window.location.pathname;
 
     function googleLogin() {
-        let rnd = Math.random().toString(36).substring(2); // Generate a random string
+        const state = crypto.randomUUID();
+        const authURL = new URL('https://accounts.google.com/o/oauth2/v2/auth');
 
-        // Build link to login page
-        let url = 'https://accounts.google.com/o/oauth2/v2/auth';
-        url += '?client_id=' + GOOGLE_CLIENT_ID;
-        url += '&redirect_uri=' + encodeURIComponent(REDIRECT_URL);
-        url += '&response_type=code';
-        url += '&scope=' + encodeURIComponent('https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email');
-        url += '&prompt=consent';
-        url += '&state=' + encodeURIComponent(rnd);
-        url += '&access_type=offline';
+        authURL.searchParams.set('client_id', GOOGLE_CLIENT_ID);
+        authURL.searchParams.set('redirect_uri', REDIRECT_URL);
+        authURL.searchParams.set('response_type', 'code');
+        authURL.searchParams.set('scope', 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email');
+        authURL.searchParams.set('prompt', 'consent');
+        authURL.searchParams.set('state', state);
+        authURL.searchParams.set('access_type', 'offline');
 
-        // Redirect user to the URL
-        window.location.href = url;
+        window.location.href = authURL.toString();
     }
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code'); // Get the authorization code from URL parameters
-        
-    if (code) { // When the webpage is loaded, check if it's redirected from the Google login page.
-        (async ()=>{
-            // Safely retrieve access token using clientSecretRequest
-            const data = await skapi.clientSecretRequest({
-                clientSecretName: "ggltoken",
+    async function handleOAuthCallback() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+
+        if (!code) {
+            return;
+        }
+
+        try {
+            const tokenResponse = await skapi.clientSecretRequest({
+                clientSecretName: 'ggltoken',
                 url: 'https://oauth2.googleapis.com/token',
-                method: "POST",
+                method: 'POST',
                 headers: {
-                    "Content-Type": "application/json",
+                    'Content-Type': 'application/json'
                 },
                 data: {
-                    code: code,
+                    code,
                     client_id: GOOGLE_CLIENT_ID,
-                    client_secret: "$CLIENT_SECRET",
+                    client_secret: '$CLIENT_SECRET',
                     redirect_uri: REDIRECT_URL,
                     grant_type: 'authorization_code'
                 }
             });
 
-            if (data.error) {
-                console.error(data);
-                throw data
+            if (!tokenResponse?.access_token) {
+                throw tokenResponse;
             }
 
-            let ACCESS_TOKEN = data.access_token;
-            // Use openIdLogin to log in
-            await skapi.openIdLogin({ id: 'google', token: ACCESS_TOKEN });
+            await skapi.openIdLogin({ id: 'google', token: tokenResponse.access_token });
+
+            window.history.replaceState({}, document.title, REDIRECT_URL);
             window.location.href = '/';
-        })()
+        }
+        catch (error) {
+            console.error('Google OAuth login failed:', error);
+            alert('Login failed. Please try again.');
+        }
     }
+
+    handleOAuthCallback();
 </script>
 ```
 
 :::warning
-For this Google OAuth example, we use [`clientSecretRequest()`](/api-bridge/client-secret-request) to request an access token with a secured client secret key, and [`openidLogin()`](/api-reference/authentication/README.md#openidlogin) to actually sign up/log in the user to your service using the obtained access token.
+In this Google OAuth example, [`clientSecretRequest()`](/api-bridge/client-secret-request) securely exchanges the authorization code for an access token, and [`openidLogin()`](/api-reference/authentication/README.md#openidlogin) signs in the user with that token.
 
-Be sure to set up both Client Secret Keys and OpenID Loggers, and use the clientSecretName and OpenID Logger ID to securely make requests from the frontend.
+Make sure both your client secret key and OpenID logger are configured, and use the correct `clientSecretName` and logger ID.
 :::
 
 ### [`openidLogin(event?:SubmitEvent | params): Promise<string>`](/api-reference/authentication/README.md#openidlogin)
 
 ## Merging an OpenID Account with a Previous Account
 
-There are situations where you may want to merge a user's OpenID account with their existing account. You cannot merge an account that was created by an admin.
+In some cases, you may want to merge a user's OpenID account with an existing account. Accounts created by admins cannot be merged.
 
 To enable merging, set your OpenID Logger ID to `by_skapi`.
-Then, when calling `openIdLogin`, use the `merge` option to control what is merged. Set `merge: true` to merge all supported attributes, or pass an array of attribute names to merge only those fields.
+Then, when calling `openIdLogin`, use the `merge` option to control what gets merged. Set `merge: true` to merge all supported attributes, or pass an array to merge only specific fields.
 
 For example, to merge only the user's "name" attribute:
 

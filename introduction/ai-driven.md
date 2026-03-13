@@ -1,50 +1,30 @@
-# AI-Driven Development
+# Working with AI Assistants
 
-Skapi works seamlessly with AI-powered coding assistants.
+Skapi works smoothly with CLI-based AI coding assistants, such as Claude Code, OpenAI Codex, and Gemini CLI.
 
-To help your assistant understand how to integrate the Skapi API into your project, download and use the system prompt file described below.
-
-## For Chat-Based Platforms (e.g., ChatGPT, Lovable)
+If you are building your project with an AI coding assistant, use the system prompt file below to help it understand how to integrate the Skapi API.
 
 ### 1. Download the system prompt file
 
 <a href="https://docs.skapi.com/SKAPI.md" download="SKAPI.md">⬇️ SKAPI.md (Click to Download)</a>
 
-### 2. Go to your AI website and send a prompt
+### 2. Rename and add it to your project folder
 
-In your AI chat website or app (for example, ChatGPT at chat.openai.com or Lovable), start a new chat, attach the SKAPI.md file, and paste the following as your first LLM prompt:
-
-```
-Use the file "SKAPI.md" as a system prompt.
-My Skapi service ID is: "xxxxxxxxxxxx-xxxxx-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".
-Build me a [describe what you want].
-```
-
-Replace the placeholder service ID with your actual service ID, and customize the last line with what you want to build.
-
-## For AI Code Generators (e.g., Claude Code, OpenAI Codex, Gemini CLI)
-
-### 1. Download the system prompt file
-
-<a href="https://docs.skapi.com/SKAPI.md" download="SKAPI.md">⬇️ SKAPI.md (Click to Download)</a>
-
-### 2. Rename and add it to your project
-
-Rename the downloaded SKAPI.md file to a filename your tool recognizes, then add it to your project folder.
+Rename the downloaded `SKAPI.md` file to the filename your tool expects, then place it in your project root.
 
 Examples:
 
-- AGENT.md for OpenAI Codex
-- CLAUDE.md for Anthropic Claude
-- GEMINI.md for Gemini CLI
+- `AGENT.md` for OpenAI Codex
+- `CLAUDE.md` for Anthropic Claude
+- `GEMINI.md` for Gemini CLI
 
 ### 3. Start writing prompts
 
-When you invoke your code generator, include a prompt like:
+When you run your coding assistant, start with a prompt like this:
 
 ```
-My Skapi service ID is: "xxxxxxxxxxxx-xxxxx-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".
+My Skapi service ID is: "s1_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-xxxx".
 Build me a [describe what you want].
 ```
 
-Replace the placeholder service ID with your actual service ID before you run the command.
+Replace the placeholder service ID with your actual service ID before running your prompt.

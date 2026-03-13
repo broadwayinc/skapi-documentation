@@ -1,23 +1,91 @@
-# Getting Started
+# What is Skapi?
 
-Welcome to Skapi! This guide will walk you through the essential steps to get started: creating a service, importing the Skapi library into your project, and establishing a connection between your application and the Skapi server.
+Skapi is a serverless backend infrastructure platform for AI agents, web developers, and anyone who needs a secure, scalable backend without managing servers.
 
+## What is backend infrastructure?
 
-## 1. Create a Service
+Backend infrastructure is the part of your service that users do not see directly. It handles authentication, data storage, permissions, and security.
+
+For example, your frontend is what people interact with (buttons, pages, and forms). Your backend makes those features work safely and reliably behind the scenes.
+
+Whether your project is a simple photo gallery or a large ticketing platform, you need backend infrastructure if your service runs online.
+
+In Skapi, this backend infrastructure is called a **Service**.
+
+With Skapi, you create one service per project. That service becomes the complete backend infrastructure for your web app.
+
+## Creating a Service
 
 1. Sign up for an account at [skapi.com](https://www.skapi.com/signup).
-2. Log in and navigate to the [My Services](https://www.skapi.com/my-services) page.
-3. Click on **Create** on Create a new service, create a name for your service and proceed.
+2. Log in, go to your services page, enter a service name, and click **Create**.
 
-## 2. Initialize the Skapi Library
+## Service Settings
 
-Skapi is compatible with both vanilla HTML and webpack-based projects (e.g., Vue, React, Angular, etc.).
-You can import the library using a `<script>` tag or install it via npm.
+You can set additional settings for your service.
+
+- **Name:** The service name used to identify your service on the **My Services** page.
+
+- **CORS:** Configure CORS to allow requests from specific domains. If left empty, CORS defaults to `*`. To restrict access, set one or more domains, for example, `https://example.com` or `https://example.com, https://example2.com`. Requests from domains not listed in CORS will be blocked. In production, set CORS to specific domains to help prevent unauthorized access to your service.
+
+- **Allow Signup:**
+  You can prevent user signups by turning off this option. This setting prevents new signups and account deletion in your service.
+  When this option is off, only admins can create or disable user accounts from the **Users** page. This is useful for private services with a limited user group.
+
+- **Allow Inquiries:**
+  You can allow anonymous users to send inquiries to your service via [`sendInquiry()`](https://docs.skapi.com/api-reference/email/README.html#sendinquiry).
+  When users send an inquiry, it is forwarded to your email. Turn this option off if you want to reduce spam.
+
+- **Freeze Database:**
+  You can freeze your database to prevent write operations.
+  When the database is frozen, all user write operations are blocked and only read operations are allowed. When this option is enabled, only the service owner can write to the database.
+
+- **Allow Anonymous Posts to Database:**
+  You can allow anonymous users (users who are not logged in) to post public records to the database.
+  Use caution when enabling this option, as it may increase the risk of malicious submissions. Make sure your app includes defensive validation when handling anonymous records.
+
+- **Enable/Disable:**
+  You can temporarily disable your service.
+  This is useful during maintenance when you need to block access without losing data.
+  When your service is disabled, all requests are blocked, and it appears as disabled on the **My Services** page.
+
+:::warning
+Disabling your service will not pause your subscription. You will still be charged for the service even when it is disabled.
+:::
+
+## Deleting Your Service
+
+You can delete your service only under these conditions:
+- your subscription has expired, or
+- you are on the trial plan.
+
+You can delete your service from the service settings page.
+
+The **Delete Service** button is located at the bottom of the service settings page.
+
+When you click **Delete Service**, you will be asked to confirm deletion.
+
+:::danger
+When you delete your service, all related data is permanently deleted and cannot be recovered.
+:::
+
+<br>
+
+
+# Getting Started
+
+After creating your service in Skapi, connect it to your frontend.
+
+Your frontend is the part users see, such as pages, buttons, and forms. It can be plain HTML or a JavaScript framework like Vue or React.
+
+Skapi works with vanilla HTML and modern JavaScript frameworks (for example Vue, React, and Angular).
+
+To use Skapi, import the library and initialize it with your service ID.
 
 ### For HTML Projects
 
-For vanilla HTML projects, import Skapi using a script tag and initialize the library.
-For static HTML projects, ensure that the Skapi class is initialized in the HTML header on all pages. 
+For vanilla HTML projects, import Skapi using a script tag and initialize the library as shown below.
+Initialize the Skapi class in the HTML `<head>` of each page that uses Skapi.
+When you initialize the class, use the exact service ID from your Skapi dashboard.
 
 ```html
 <!-- index.html -->
@@ -28,15 +96,21 @@ For static HTML projects, ensure that the Skapi class is initialized in the HTML
 </script>
 ```
 
+::: tip NOTE
+Replace `'service_id'` with your actual service ID from your Skapi dashboard after you create a service.
+
+Example format: `'s1_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-xxxx'`
+:::
+
 ### For SPA Projects
 
-To use Skapi in Single Page Application (SPA) projects such as Vue, React, or Angular, install skapi-js via npm.
+To use Skapi in a Single Page Application (SPA) such as Vue, React, or Angular, install `skapi-js` with npm.
 
 ```sh
 $ npm i skapi-js
 ```
 
-Then, import the library into your main JavaScript file:
+Then import the library in your main JavaScript file:
 
 ```javascript
 // main.js
@@ -48,16 +122,41 @@ export { skapi }
 // You can now import skapi from anywhere in your project.
 ```
 
-::: warning
-Replace `'service_id'` in `new Skapi()` with your actual service ID.
-Format: `xxxxxxxxxxxx-xxxxx-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
+### For TypeScript Projects
 
-You can get your service ID from your service dashboard.
-:::
+Skapi includes TypeScript support, so you can import both the class and related types.
 
-## 3. Get Connection Information
+```typescript
+import { Skapi } from 'skapi-js';
+import type { RecordData, DatabaseResponse } from 'skapi-js';
 
-When your client has successfully connected to the Skapi server, you can use the [`getConnectionInfo()`](/api-reference/connection/README.md#getconnectioninfo) method to retrieve connection information.
+const skapi = new Skapi('service_id');
+let databaseRecords: DatabaseResponse<RecordData>;
+```
+
+### Node.js (CommonJS)
+
+To use Skapi in Node.js (CommonJS), import the library as shown below:
+
+```javascript
+const { Skapi } = require('skapi-js');
+const skapi = new Skapi('service_id');
+```
+
+### Node.js (ESM)
+
+```javascript
+import { Skapi } from 'skapi-js';
+const skapi = new Skapi('service_id');
+```
+
+> **Note:** When running Skapi in Node.js, browser-specific features such as WebSocket, WebRTC, and Notifications are not available.
+
+
+
+## Get Connection Information
+
+After your client connects to Skapi, call [`getConnectionInfo()`](https://docs.skapi.com/api-reference/connection/README.html#getconnectioninfo) to retrieve connection details.
 
 ::: code-group
 ```html [HTML]
@@ -105,10 +204,9 @@ skapi.getConnectionInfo().then(info => {
 :::
 
 
+## Advanced Settings
 
-## 4. Advanced Settings
-
-You can configure additional options when initializing the Skapi class.
+You can pass additional options when initializing the Skapi class.
 
 ### new Skapi(...)
 
@@ -116,13 +214,12 @@ You can configure additional options when initializing the Skapi class.
 class Skapi {
   constructor(
     service: string, // Skapi service ID
-    owner: string,   // Skapi owner ID
     options?: {
         autoLogin?: boolean;        // Default: true
         requestBatchSize?: number;  // Default: 30. Maximum number of requests processed per batch.
         eventListener?: {
-            onLogin?: (user: UserProfile | null) => void;
-            onUserUpdate?: (user: UserProfile | null) => void;
+            onLogin?: (user: UserProfile | null) => void; // Fires on initial page load (after Skapi initializes), on login/logout, and when a session expires. The callback receives a UserProfile object if the user is logged in; otherwise, it receives null.
+            onUserUpdate?: (user: UserProfile | null) => void; // Fires on initial page load (after Skapi initializes), on login/logout, when a session expires, and when the user's profile is updated. The callback receives a UserProfile object if the user is logged in; otherwise, it receives null.
             onBatchProcess?: (process: {
                 batchToProcess: number; // Number of batches left to process
                 itemsToProcess: number; // Number of items left to process
@@ -140,24 +237,24 @@ Options overview:
 
 - `autoLogin` (boolean, default: true)
     - Automatically restores the user's session on page load.
-    - See: [Auto Login](/authentication/login-logout.html#auto-login)
+    - See: [Auto Login](https://docs.skapi.com/authentication/login-logout.html#auto-login)
 
 - `requestBatchSize` (number, default: 30)
     - Maximum number of requests processed per batch.
 
 - `eventListener` (callbacks for key events)
     - `onLogin(user: UserProfile | null)`
-        - Fires on initial page load (after Skapi initializes), on login/logout, and when a session expires.
-        - See: [Listening to Login/Logout Status](/authentication/login-logout.html#listening-to-login-logout-status)
+        - Fires on initial page load (after Skapi initializes), on login/logout, and when a session expires. The callback receives a `UserProfile` object if the user is logged in; otherwise, it receives `null`.
+        - See: [Listening to Login/Logout Status](https://docs.skapi.com/authentication/login-logout.html#listening-to-login-logout-status)
 
     - `onUserUpdate(user: UserProfile | null)`
-        - Fires when the user's profile is updated.
-        - See: [Listening to User Profile Updates](/authentication/user-info.html#listening-to-user-s-profile-updates)
+        - Fires on initial page load (after Skapi initializes), on login/logout, when a session expires, and when the user's profile is updated. The callback receives a `UserProfile` object if the user is logged in; otherwise, it receives `null`.
+        - See: [Listening to User Profile Updates](https://docs.skapi.com/authentication/user-info.html#listening-to-user-s-profile-updates)
 
     - `onBatchProcess(process)`
-        - Fires everytime after Skapi completes processing a request batch.
+        - Fires each time Skapi completes processing a request batch.
 
-Type reference: See [UserProfile](/api-reference/data-types/README.md#userprofile).
+Type reference: See [UserProfile](https://docs.skapi.com/api-reference/data-types/README.html#userprofile).
 
 <br>
 
@@ -166,9 +263,9 @@ Type reference: See [UserProfile](/api-reference/data-types/README.md#userprofil
 
 Skapi can handle HTML `onsubmit` events directly by passing the `SubmitEvent` as the first argument to Skapi methods.
 
-Skapi's form handling simplifies the process of managing form submissions in web applications, allowing developers to easily process and send form data without manual handling.
+This makes form handling much simpler. You can process and send form data without manually reading each field.
 
-In this example, we'll use the [`skapi.mock()`](/api-reference/connection/README.md#mock) method to send a request to the Skapi service and receive a response.
+In this example, we use [`skapi.mock()`](https://docs.skapi.com/api-reference/connection/README.html#mock) to send a request and receive a response.
 
 Here is an example of using a `<form>` with Skapi:
 
@@ -179,7 +276,7 @@ Here is an example of using a `<form>` with Skapi:
 </form>
 ```
 
-The above example is equivalent to the following code:
+This is equivalent to writing the following code manually:
 
 ```html
 <input id="hello" placeholder="Say Hi">
@@ -199,14 +296,14 @@ The above example is equivalent to the following code:
 </script>
 ```
 
-As you can see, when a form submit event is passed as the first argument to a Skapi method, Skapi automatically converts your form input values into key-value JavaScript data. The input `name` becomes the key, and depending on the input type, the value corresponds to what the user has entered. 
+When a form submit event is passed as the first argument to a Skapi method, Skapi automatically converts form input values into JavaScript key-value data. The input `name` becomes the key, and the value is resolved based on the input type.
 
 ## Nested Values and Arrays
 
 You can create nested values and arrays by using the `[]` syntax in the `name` attribute.
 The resolved data structure will depend on the input type.
 
-When the key name inside the `[]` is a number, Skapi will resolve the value as an array.
+If the key inside `[]` is a number, Skapi resolves the value as an array.
 
 ```html
 <form onsubmit="skapi.mock(event).then(r => console.log(r))">
@@ -240,39 +337,37 @@ The above example will resolve to the following structure:
 }
 ```
 
-As you can see, Skapi provides convenient form data handling by automatically structuring user input data based on the input type and the `name` attribute.
+Skapi automatically structures user input based on input type and the `name` attribute.
 
 Number inputs are resolved as numbers, radio inputs are resolved as the selected value, and checkbox inputs are resolved as boolean values or strings if a value is specified.
 
-When multiple inputs share the same name without using `[]` syntax, Skapi will attempt to convert the values into an array.
+When multiple inputs share the same name without `[]`, Skapi attempts to convert the values into an array.
 
 
 ## Using Input Elements, Textarea, and Select Elements
 
-Skapi can handle various input elements, including text, number, radio, checkbox, textarea, and select elements.
+Skapi also works with individual input elements, including text, number, radio, checkbox, textarea, and select elements.
 
 ```html
 <input name="my_message" id="message_input">
 <button onclick="skapi.mock(document.getElementById('message_input'))
-  .then(r => {
-    alert(r.my_message);
-  })">Mock</button>
+  .then(r => alert(r.my_message))">Mock</button>
 ```
 
-In the example above, we use the `id` attribute to reference the input element and pass it directly to the Skapi method.
+In this example, we use the `id` attribute to reference the input element and pass it directly to a Skapi method.
 
-This approach is useful when you want to handle individual user input from a specific input element.
+This approach is useful when you want to handle a single field instead of a full form.
 
 
 ## Using the `action` Attribute in the `<form>` Element
 
-When you specify a URL in the `action` attribute of a `<form>` element, the user will be redirected to that page upon a successful request.
+When you set a URL in a form's `action` attribute, the user is redirected to that page after a successful request.
 
-On the destination page, you can use the [`skapi.getFormResponse()`](/api-reference/connection/README.md#getformresponse) method to retrieve the resolved data from the previous page.
+On the destination page, use [`skapi.getFormResponse()`](https://docs.skapi.com/api-reference/connection/README.html#getformresponse) to retrieve the resolved data from the previous page.
 
-The example below demonstrates how users can submit a form in `index.html` and then fetch the resolved data from the redirected page `welcome.html`.
+The example below shows how to submit a form in `index.html` and read the resolved data in `welcome.html`.
 
-For this example, create two HTML files in the same directory.
+For this example, create these two HTML files in the same directory.
 
 ```
 .
@@ -323,15 +418,63 @@ When building a static website, you can use the `action` attribute to redirect u
 
 Each page should have the Skapi library imported and initialized.
 
-In contrast, in a single-page application, it may not be necessary to redirect users to a new page.
+In a single-page application, redirecting to another page is often unnecessary.
 :::
+
+<br>
+
+# Working with AI Assistants
+
+Skapi works smoothly with CLI-based AI coding assistants, such as Claude Code, OpenAI Codex, and Gemini CLI.
+
+If you are building your project with an AI coding assistant, use the system prompt file below to help it understand how to integrate the Skapi API.
+
+### 1. Download the system prompt file
+
+<a href="https://docs.skapi.com/SKAPI.md" download="SKAPI.md">⬇️ SKAPI.md (Click to Download)</a>
+
+### 2. Rename and add it to your project folder
+
+Rename the downloaded `SKAPI.md` file to the filename your tool expects, then place it in your project root.
+
+Examples:
+
+- `AGENT.md` for OpenAI Codex
+- `CLAUDE.md` for Anthropic Claude
+- `GEMINI.md` for Gemini CLI
+
+### 3. Start writing prompts
+
+When you run your coding assistant, start with a prompt like this:
+
+```
+My Skapi service ID is: "s1_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-xxxx".
+Build me a [describe what you want].
+```
+
+Replace the placeholder service ID with your actual service ID before running your prompt.
+
+<br>
+
+# What is Authentication?
+
+Authentication is the process of verifying the identity of a user.
+
+It is a fundamental part of any application because it controls access to your app and its resources.
+
+Authenticated users can be allowed to post data to your database and use your custom APIs.
+
+Skapi provides a full-featured authentication system out of the box, with no additional configuration required.
+
+In this section, you will learn how to let users create an account, log in, log out, and recover their account if they forget their password.
+
 
 <br>
 
 
 # Creating an Account
 
-To let users create a new account in your service, you can use the [`signup()`](/api-reference/authentication/README.md#signup) method. 
+To let users create a new account in your service, you can use the [`signup()`](https://docs.skapi.com/api-reference/authentication/README.html#signup) method. 
 
 ### Example: Creating an Account
 
@@ -416,12 +559,12 @@ skapi.signup(parameters, options)
 
 :::
 
-When the `options.login` is set to `true`, the method will return the [UserProfile](/api-reference/data-types/README.md#userprofile) object.
+When the `options.login` is set to `true`, the method will return the [UserProfile](https://docs.skapi.com/api-reference/data-types/README.html#userprofile) object.
 
-For more detailed information on all the parameters and options available with the [`signup()`](/api-reference/authentication/README.md#signup) method, 
+For more detailed information on all the parameters and options available with the [`signup()`](https://docs.skapi.com/api-reference/authentication/README.html#signup) method, 
 please refer to the API Reference below:
 
-### [`signup(params, options?): Promise<UserProfile | string>`](/api-reference/authentication/README.md#signup)  
+### [`signup(params, options?): Promise<UserProfile | string>`](https://docs.skapi.com/api-reference/authentication/README.html#signup)  
 
 
 
@@ -432,18 +575,18 @@ please refer to the API Reference below:
 
 You can require users to confirm their signup via email.
 This is useful for preventing malicious users from creating fake accounts.
-User data will not be created unless the user confirms their account.
+The account is not fully activated until the user confirms it.
 
 ## E-Mail Confirmation on Signup
 
-When an account is created with `options.signup_confirmation` set to `true` or URL string,
-users will receive an email with the signup confirmation link.
+When an account is created with `options.signup_confirmation` set to `true` or a URL string,
+the user receives a signup confirmation email.
 
 The user must click on the confirmation link before logging into your service.
 If the `options.signup_confirmation` value is a valid URL string,
-the user will be redirected to that url after successful signup confirmation.
+the user is redirected to that URL after successful confirmation.
 
-The URL string will work either with a full URL or relative path of your website.
+You can use either a full URL or a relative path on your website.
 
 Once the user has confirmed their signup, their profile will automatically be marked as email verified.
 
@@ -484,30 +627,30 @@ skapi.signup(parameters, options).then(res => {
 ```
 :::
 
-The example above shows how you can create a user account with the signup confirmation.
+The example above shows how to create an account with signup confirmation enabled.
 
-When the signup is successful, the user will get an email containing the confirmation link.
-Once clicked, the user will be confirmed by your service and be redirected to the given URL.
+After signup succeeds, the user receives an email with a confirmation link.
+After they click the link, the account is confirmed and the user is redirected to the URL you provided.
 
 If the `signup_confirmation` value was `true`,
-the user will see 'Your signup has been successfully confirmed.' message in their blank web browser tab.
+the user sees a blank browser tab with the message: 'Your signup has been successfully confirmed.'
 
 :::danger
 When setting the `signup_confirmation` value to a relative URL path (e.g. `/relative/path.html`), it will not work if the website is not hosted.
 
-It's because on local file systems your actual file url would be something like: `file:///C:/Users/username/Desktop/website/index.html`. And skapi does not collect folder informations of the user's local computer.
+This happens because local files use paths like `file:///C:/Users/username/Desktop/website/index.html`, and Skapi cannot resolve folder paths on a user's local computer.
 
 Set your redirect URL of `signup_confirmation` to be the full URL (e.g. `https://your.website.com/path/to/your/success/page`).
 :::
 
-You can also customize the email template for the signup confirmation email.
+You can also customize the signup confirmation email template.
 
-For more info on email templates, see [Automated E-Mail](/email/email-templates.md).
+For more info on email templates, see [Automated E-Mail](https://docs.skapi.com/email/email-templates.md).
 
 ## Resending Signup Confirmation Email
 
 
-If you need to resend the confirmation email, use the [`resendSignupConfirmation()`](/api-reference/authentication/README.md#resendsignupconfirmation) method. 
+If you need to resend the confirmation email, use the [`resendSignupConfirmation()`](https://docs.skapi.com/api-reference/authentication/README.html#resendsignupconfirmation) method. 
 
 :::code-group
 ```html [Form]
@@ -558,18 +701,18 @@ skapi.login({email: 'user@email.com', password: 'password'})
 ```
 :::
 
-In this example, the user tries to login and receives a `SIGNUP_CONFIRMATION_NEEDED` error.
+In this example, the user tries to log in and receives a `SIGNUP_CONFIRMATION_NEEDED` error.
 
-Then, if the user chooses to, you can use the [`resendSignupConfirmation()`](/api-reference/authentication/README.md#resendsignupconfirmation) method to resend the confirmation email to the user's email address.
+If needed, you can then call [`resendSignupConfirmation()`](https://docs.skapi.com/api-reference/authentication/README.html#resendsignupconfirmation) to resend the confirmation email.
 
-For more detailed information on all the parameters and options available with the [`resendSignupConfirmation()`](/api-reference/authentication/README.md#resendsignupconfirmation) method, 
-please refer to the API Reference below:
+For detailed information about all parameters and options of [`resendSignupConfirmation()`](https://docs.skapi.com/api-reference/authentication/README.html#resendsignupconfirmation),
+see the API reference below:
 
-### [`resendSignupConfirmation(): Promise<string>`](/api-reference/authentication/README.md#resendsignupconfirmation)
+### [`resendSignupConfirmation(): Promise<string>`](https://docs.skapi.com/api-reference/authentication/README.html#resendsignupconfirmation)
 
 ::: warning
 - To resend signup confirmation emails, the user must have at least one login attempt to your service.
-- If the user fails to confirm within 7 days, their signup will be invalidated, and they will need to sign up again. 
+- If the user does not confirm within 7 days, the signup is invalidated and they must sign up again.
 :::
 
 
@@ -582,14 +725,14 @@ Once a user has signed up, they can log in to your service using their email and
 
 ## Login
 
-Use the [`login()`](/api-reference/authentication/README.md#login) method to log a user into your service.
+Use the [`login()`](https://docs.skapi.com/api-reference/authentication/README.html#login) method to log a user into your service.
 
-If the login is not successful due to invalid password, or user may not have confirm their signup etc... the [`login()`](/api-reference/authentication/README.md#login) method will throw an error.
+If the login is not successful due to invalid password, or user may not have confirm their signup etc... the [`login()`](https://docs.skapi.com/api-reference/authentication/README.html#login) method will throw an error.
 
-When successful, it will respond with the [`UserProfile`](/api-reference/data-types/README.md#userprofile) object.
+When successful, it will respond with the [`UserProfile`](https://docs.skapi.com/api-reference/data-types/README.html#userprofile) object.
 
 :::warning
-If `signup_confirmation` option was set to `true` during [`signup()`](/api-reference/authentication/README.md#signup),
+If `signup_confirmation` option was set to `true` during [`signup()`](https://docs.skapi.com/api-reference/authentication/README.html#signup),
 users will not be able to log in until they have confirmed their account.
 :::
 
@@ -597,10 +740,10 @@ users will not be able to log in until they have confirmed their account.
 When the user has successfully confirmed their signup and logged in, they will be sent a welcome email.
 You can also customize the email template for the signup confirmation email.
 
-For more info on email templates, see [Automated E-Mail](/email/email-templates.md).
+For more info on email templates, see [Automated E-Mail](https://docs.skapi.com/email/email-templates.md).
 :::
 
-Below is an example of a login form that uses the [`login()`](/api-reference/authentication/README.md#login) method.
+Below is an example of a login form that uses the [`login()`](https://docs.skapi.com/api-reference/authentication/README.html#login) method.
 When the user successfully logs in, they will be redirected to the `welcome.html` page.
 
 ::: code-group
@@ -646,10 +789,10 @@ skapi.login(parameters).then((user) => (window.href = "welcome.html"));
 
 :::
 
-For more detailed information on all the parameters and options available with the [`login()`](/api-reference/authentication/README.md#login) method,
+For more detailed information on all the parameters and options available with the [`login()`](https://docs.skapi.com/api-reference/authentication/README.html#login) method,
 please refer to the API Reference below:
 
-### [`login(params): Promise<UserProfile>`](/api-reference/authentication/README.md#login)
+### [`login(params): Promise<UserProfile>`](https://docs.skapi.com/api-reference/authentication/README.html#login)
 
 ## Auto Login
 
@@ -668,7 +811,7 @@ const skapi = new Skapi("service_id", options);
 
 ## Logout
 
-The [`logout()`](/api-reference/authentication/README.md#logout) method logs the user out from the service.
+The [`logout()`](https://docs.skapi.com/api-reference/authentication/README.html#logout) method logs the user out from the service.
 
 :::code-group
 
@@ -709,10 +852,10 @@ skapi.logout({ global: true }).then((res) => {
 
 :::
 
-For more detailed information on all the parameters and options available with the [`logout()`](/api-reference/authentication/README.md#logout) method,
+For more detailed information on all the parameters and options available with the [`logout()`](https://docs.skapi.com/api-reference/authentication/README.html#logout) method,
 please refer to the API Reference below:
 
-### [`logout(params?): Promise<string>`](/api-reference/authentication/README.md#logout)
+### [`logout(params?): Promise<string>`](https://docs.skapi.com/api-reference/authentication/README.html#logout)
 
 ## Listening to Login / Logout Status
 
@@ -724,7 +867,7 @@ The `onLogin` callback is triggered in the following cases:
 -   User logs in or logs out.
 -   User loses their session due to an expired token.
 
-If the user is logged in, the callback receives the [UserProfile](/api-reference/data-types/README.md#userprofile) object; otherwise, it receives `null`.
+If the user is logged in, the callback receives the [UserProfile](https://docs.skapi.com/api-reference/data-types/README.html#userprofile) object; otherwise, it receives `null`.
 
 ```js
 const options = {
@@ -758,10 +901,10 @@ The profile data is structured as an OpenID-compliant JavaScript object.
 
 ## Requesting User Information
 
-The [`getProfile()`](/api-reference/authentication/README.md#getprofile) method allows you to retrieve the user's information via promise method.
-It returns the [UserProfile](/api-reference/data-types/README.md#userprofile) object.
+The [`getProfile()`](https://docs.skapi.com/api-reference/authentication/README.html#getprofile) method allows you to retrieve the user's information via promise method.
+It returns the [UserProfile](https://docs.skapi.com/api-reference/data-types/README.html#userprofile) object.
 
-If the user is not logged in, [`getProfile()`](/api-reference/authentication/README.md#getprofile) returns `null`.
+If the user is not logged in, [`getProfile()`](https://docs.skapi.com/api-reference/authentication/README.html#getprofile) returns `null`.
 
 This method is particularly useful for determining the user's authentication state when they first visit or reload your website.
 
@@ -789,10 +932,10 @@ skapi.getProfile({ refreshToken: true }).then(profile=>{
 
 This can be useful when the user needs to get their updated profile when it's updated from another device, or admin might have made change to the users profile, or you just want your users to update their token for some other security reasons.
 
-For more detailed information on all the parameters and options available with the [`getProfile()`](/api-reference/authentication/README.md#getprofile) method, 
+For more detailed information on all the parameters and options available with the [`getProfile()`](https://docs.skapi.com/api-reference/authentication/README.html#getprofile) method, 
 please refer to the API Reference below:
 
-### [`getProfile(options?): Promise<UserProfile | null>`](/api-reference/authentication/README.md#getprofile)
+### [`getProfile(options?): Promise<UserProfile | null>`](https://docs.skapi.com/api-reference/authentication/README.html#getprofile)
 
 
 ## Listening to User's Profile Updates
@@ -805,7 +948,7 @@ The `onUserUpdate` callback function will be triggered in the following scenario
 - User loses their session due to an expired token.
 - User's profile information is updated.
 
-If the user is logged in, the callback receives the [UserProfile](/api-reference/data-types/README.md#userprofile) object; otherwise, it receives `null`.
+If the user is logged in, the callback receives the [UserProfile](https://docs.skapi.com/api-reference/data-types/README.html#userprofile) object; otherwise, it receives `null`.
 
 ```js
 const options = {
@@ -841,14 +984,14 @@ When the user forgets their password, they can request a verification code to re
 If the user's email is not verified, they will not be able to receive a verification code and may lose access to their account permanently.
 
 It is recommended to encourage users to verify their email addresses.
-For more info on email verification, see [Email Verification](/user-account/email-verification.md).
+For more info on email verification, see [Email Verification](https://docs.skapi.com/user-account/email-verification.md).
 :::
 
 ## Step 1: Request Verification Code
 
-Use the [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword) method to request a verification code.
+Use the [`forgotPassword()`](https://docs.skapi.com/api-reference/authentication/README.html#forgotpassword) method to request a verification code.
 
-In this example, the [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword) method is called with the user's email as a parameter.
+In this example, the [`forgotPassword()`](https://docs.skapi.com/api-reference/authentication/README.html#forgotpassword) method is called with the user's email as a parameter.
 
 The user will receive an email containing a verification code that they can use to reset their password.
 
@@ -873,24 +1016,24 @@ skapi.forgotPassword({email: 'someone@gmail.com'}).then(res=>{
 ```
 :::
 
-For more detailed information on all the parameters and options available with the [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword) method, 
+For more detailed information on all the parameters and options available with the [`forgotPassword()`](https://docs.skapi.com/api-reference/authentication/README.html#forgotpassword) method, 
 please refer to the API Reference below:
 
-### [`forgotPassword(params): Promise<string>`](/api-reference/authentication/README.md#forgotpassword)
+### [`forgotPassword(params): Promise<string>`](https://docs.skapi.com/api-reference/authentication/README.html#forgotpassword)
 
 ::: info
-Due to security reasons, [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword) will not tell the user whether the email exists.
+Due to security reasons, [`forgotPassword()`](https://docs.skapi.com/api-reference/authentication/README.html#forgotpassword) will not tell the user whether the email exists.
 :::
 
 You can also customize the email template for the verification email.
 
-For more info on email templates, see [E-Mail Templates](/email/email-templates.md).
+For more info on email templates, see [E-Mail Templates](https://docs.skapi.com/email/email-templates.md).
 
 ## Step 2: Reset Password
 
-The user will receive an email containing a verification code. After the user receives the verification code, they can use the [`resetPassword()`](/api-reference/authentication/README.md#resetpassword) method to reset their password.
+The user will receive an email containing a verification code. After the user receives the verification code, they can use the [`resetPassword()`](https://docs.skapi.com/api-reference/authentication/README.html#resetpassword) method to reset their password.
 
-The [`resetPassword()`](/api-reference/authentication/README.md#resetpassword) method is called with the user's email, the verification code received via email, and the new password.
+The [`resetPassword()`](https://docs.skapi.com/api-reference/authentication/README.html#resetpassword) method is called with the user's email, the verification code received via email, and the new password.
 
 Upon successful password reset, the user's account password will be set to the new password provided.
 
@@ -919,183 +1062,210 @@ skapi.resetPassword({
 ```
 :::
 
-For more detailed information on all the parameters and options available with the [`resetPassword()`](/api-reference/authentication/README.md#resetpassword) method, 
+For more detailed information on all the parameters and options available with the [`resetPassword()`](https://docs.skapi.com/api-reference/authentication/README.html#resetpassword) method, 
 please refer to the API Reference below:
 
-### [`resetPassword(params): Promise<string>`](/api-reference/authentication/README.md#resetpassword)
+### [`resetPassword(params): Promise<string>`](https://docs.skapi.com/api-reference/authentication/README.html#resetpassword)
 
 <br>
 
 # OpenID Login
 
-Skapi provides support for OpenID authentication profiles.
+Skapi supports OpenID authentication profiles.
 
 ## What is OpenID?
 
-OpenID is an open standard and decentralized authentication protocol that allows users to be authenticated by relying on a third-party service, called an OpenID provider, without needing to have a separate identity and password for each service. This simplifies the login process for users and enhances security by reducing the number of passwords that need to be managed.
-
-With OpenID, users can log in to multiple websites using a single set of credentials from an OpenID provider such as Google, Facebook, or other identity providers. This process involves redirecting the user to the OpenID provider's login page, where they authenticate themselves, and then returning to the original website with a token that confirms their identity.
+OpenID is an authentication standard that lets users sign in with an identity provider (for example, Google) instead of creating a separate password for every app.
 
 ## Login with OpenID Profile
 
-If you have access to an OpenID provider's API, you can register your OpenID logger from your Skapi service page.
+If you have access to an OpenID provider API, you can register an OpenID logger in your Skapi service settings.
 
-Although OpenID providers have different authentication methods, the general process follows these steps:
+Although providers differ in details, the overall process is:
 
-1. Register an OpenID logger in Skapi
-2. Redirect the user to the OpenID provider's login page
-3. Redirect the authenticated user back to your webpage
-4. Retrieve the access token to call [`openidLogin()`](/api-reference/authentication/README.md#openidlogin)
-5. The user will be logged into your Skapi application
+1. You redirect the user to the provider's login page.
+2. The provider authenticates the user.
+3. The user is redirected back to your app.
+4. Exchange the returned authorization code for an access token using a secure client secret request.
+5. Call [`openidLogin()`](https://docs.skapi.com/api-reference/authentication/README.html#openidlogin) with that token.
 
 ## Google OAuth Example
 
-In this example, we'll demonstrate implementing Google OAuth authentication.
+This example shows how to implement Google OAuth authentication.
 
 ### 1. Set Up Google OAuth Service
 
 Go to the [Google Cloud Console](https://console.cloud.google.com/) and create your OAuth service.
 
-Follow their [instructions](https://support.google.com/googleapi/answer/6158849?hl=en). Make sure to set up the correct redirect URL that points to your web application.
+Follow Google's [setup instructions](https://support.google.com/cloud/answer/15549257?sjid=3416534526948669406-NC), and make sure your redirect URL points back to your web app.
 
 ### 2. Register Your OpenID Logger in Skapi
 
 1. Log in to [skapi.com](https://www.skapi.com).
-2. Click on the service where you want to register your OpenID Logger.
+2. Open the service where you want to register an OpenID logger.
 3. From the side menu, click on **OpenID Logger**.
-4. Click **+** on the top right side of the table to add logger.
-5. Set up the *Logger ID*. This is an identifier used when calling [`openidLogin()`](/api-reference/authentication/README.md#openidlogin). You can use any name, but for this example, set it to **google**.
-6. Set up the *Username Key*. This should be an OpenID attribute name that holds a unique identifier. For this example, set it to **email**.
-7. Set up the *request URL* to the Google API where you can retrieve the user's profile. Set it to `https://www.googleapis.com/oauth2/v3/userinfo`.
-8. Set up the Header [JSON] as shown below:
-    ```
-    {
-        "Authorization": "Bearer $TOKEN"
-    }
-    ```
-9. Click **Save**.
+4. Click **+** at the top-right of the table.
+5. Fill in the logger form:
+
+    - **Logger ID:**
+        This value is used when calling [`openidLogin()`](https://docs.skapi.com/api-reference/authentication/README.html#openidlogin). You can use any name. For this guide, use **google**.
+
+    - **Username Key:** An OpenID attribute that uniquely identifies the user. For this example, use **email**.
+    - **Request URL:** The profile API URL. For this example, use `https://www.googleapis.com/oauth2/v3/userinfo`.
+    
+    - **Request Method:** Use the method required by the API. For this example, use `GET`.
+
+    - **Condition**
+
+        You can set conditions to allow login only when profile values match your rules.
+
+        - **Profile Attribute Name:** The profile attribute to compare. Leave blank for this example.
+        - **Profile Attribute Value:** The value to compare against. Leave blank for this example.
+        - **Condition:** Comparison rule. Leave default for this example.
+    
+    - **Header [JSON]:** Request headers as JSON. Use:
+
+        ```
+        {
+            "Authorization": "Bearer $TOKEN"
+        }
+        ```
+
+    - **Get Parameter [JSON] | Post Body [JSON]**
+    
+    You can define query parameters or a request body in JSON format. Leave blank for this example.
+
+6. Click **Save**.
 
 
 ### 3. Register Client Secret Key
 
-When retrieving an access token for Google OAuth, the Google API requires a client secret key.
+To retrieve an access token from Google OAuth, you need a client secret key.
 
-Since the client secret key should not be exposed, register the client secret key of your OAuth service in Skapi.
+Because the client secret must not be exposed in frontend code, register it securely in Skapi.
 
 1. In the service page, click on the **Client Secret Key** menu.
-2. Click **+** on the top right side of the table to add key.
-3. Give a name to your secret key. You can use any name, but for this example, set it to **ggltoken**.
-4. Enter the client secret key you obtained from your Google OAuth service.
-5. Click **Save**.
+2. Click **+** at the top-right of the table.
+3. In the form, enter:
+    - **Name:** A key identifier. For this guide, use **ggltoken**.
+    - **Client Secret Key:** The exact secret from your Google OAuth app.
+
+4. Click **Save**.
+
+For more information about registering a client secret key, see [Client Secret Keys](https://docs.skapi.com/api-bridge/client-secret-request.html).
 
 ### 4. Set Up Link to Google Login
 
-Create a link URL and button for the Google OAuth login page.
+Create a button that redirects users to Google's OAuth login page.
 
 ```html
-<button onclick='googleLogin()'>Google Login</button>
+<button onclick="googleLogin()">Google Login</button>
 <script>
-    const GOOGLE_CLIENT_ID = "1234567890123-your.google.client.id"; // Replace this with your actual client ID
-    const REDIRECT_URL = window.location.href.split('?')[0]; // Current URL to redirect back from Google login page
+    const GOOGLE_CLIENT_ID = '1234567890123-your.google.client.id';
+    const REDIRECT_URL = window.location.origin + window.location.pathname;
 
     function googleLogin() {
-        let rnd = Math.random().toString(36).substring(2); // Generate a random string
+        const state = crypto.randomUUID();
+        const authURL = new URL('https://accounts.google.com/o/oauth2/v2/auth');
 
-        // Build link to login page
-        let url = 'https://accounts.google.com/o/oauth2/v2/auth';
-        url += '?client_id=' + GOOGLE_CLIENT_ID;
-        url += '&redirect_uri=' + encodeURIComponent(REDIRECT_URL);
-        url += '&response_type=code';
-        url += '&scope=' + encodeURIComponent('https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email');
-        url += '&prompt=consent';
-        url += '&state=' + encodeURIComponent(rnd);
-        url += '&access_type=offline';
+        authURL.searchParams.set('client_id', GOOGLE_CLIENT_ID);
+        authURL.searchParams.set('redirect_uri', REDIRECT_URL);
+        authURL.searchParams.set('response_type', 'code');
+        authURL.searchParams.set('scope', 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email');
+        authURL.searchParams.set('prompt', 'consent');
+        authURL.searchParams.set('state', state);
+        authURL.searchParams.set('access_type', 'offline');
 
-        // Redirect user to the URL
-        window.location.href = url;
+        window.location.href = authURL.toString();
     }
 </script>
 ```
 
 ### 5. Set Up Access Token Retrieval
 
-When the user is authenticated and redirected back to your web application, use [`clientSecretRequest()`](/api-bridge/client-secret-request) to retrieve the access token. You need to add code that runs when the user is redirected back from the Google login page.
+After the user signs in with Google and is redirected back to your app, use [`clientSecretRequest()`](https://docs.skapi.com/api-bridge/client-secret-request) to exchange the authorization code for an access token.
 
-Once the access token is fetched, you can call [`openidLogin(event?:SubmitEvent | params): Promise<string>`](/api-reference/authentication/README.md#openidlogin) to log your users into your web application.
+Then call [`openidLogin(event?: SubmitEvent | params): Promise<string>`](https://docs.skapi.com/api-reference/authentication/README.html#openidlogin) to sign the user in to your Skapi service.
 
 ```html
-<button onclick='googleLogin()'>Google Login</button>
+<button onclick="googleLogin()">Google Login</button>
 <script>
-    const GOOGLE_CLIENT_ID = "1234567890123-your.google.client.id"; // Replace this with your actual client ID
-    const REDIRECT_URL = window.location.href.split('?')[0]; // Current URL to redirect back from Google login page
+    const GOOGLE_CLIENT_ID = '1234567890123-your.google.client.id';
+    const REDIRECT_URL = window.location.origin + window.location.pathname;
 
     function googleLogin() {
-        let rnd = Math.random().toString(36).substring(2); // Generate a random string
+        const state = crypto.randomUUID();
+        const authURL = new URL('https://accounts.google.com/o/oauth2/v2/auth');
 
-        // Build link to login page
-        let url = 'https://accounts.google.com/o/oauth2/v2/auth';
-        url += '?client_id=' + GOOGLE_CLIENT_ID;
-        url += '&redirect_uri=' + encodeURIComponent(REDIRECT_URL);
-        url += '&response_type=code';
-        url += '&scope=' + encodeURIComponent('https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email');
-        url += '&prompt=consent';
-        url += '&state=' + encodeURIComponent(rnd);
-        url += '&access_type=offline';
+        authURL.searchParams.set('client_id', GOOGLE_CLIENT_ID);
+        authURL.searchParams.set('redirect_uri', REDIRECT_URL);
+        authURL.searchParams.set('response_type', 'code');
+        authURL.searchParams.set('scope', 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email');
+        authURL.searchParams.set('prompt', 'consent');
+        authURL.searchParams.set('state', state);
+        authURL.searchParams.set('access_type', 'offline');
 
-        // Redirect user to the URL
-        window.location.href = url;
+        window.location.href = authURL.toString();
     }
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code'); // Get the authorization code from URL parameters
-        
-    if (code) { // When the webpage is loaded, check if it's redirected from the Google login page.
-        (async ()=>{
-            // Safely retrieve access token using clientSecretRequest
-            const data = await skapi.clientSecretRequest({
-                clientSecretName: "ggltoken",
+    async function handleOAuthCallback() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+
+        if (!code) {
+            return;
+        }
+
+        try {
+            const tokenResponse = await skapi.clientSecretRequest({
+                clientSecretName: 'ggltoken',
                 url: 'https://oauth2.googleapis.com/token',
-                method: "POST",
+                method: 'POST',
                 headers: {
-                    "Content-Type": "application/json",
+                    'Content-Type': 'application/json'
                 },
                 data: {
-                    code: code,
+                    code,
                     client_id: GOOGLE_CLIENT_ID,
-                    client_secret: "$CLIENT_SECRET",
+                    client_secret: '$CLIENT_SECRET',
                     redirect_uri: REDIRECT_URL,
                     grant_type: 'authorization_code'
                 }
             });
 
-            if (data.error) {
-                console.error(data);
-                throw data
+            if (!tokenResponse?.access_token) {
+                throw tokenResponse;
             }
 
-            let ACCESS_TOKEN = data.access_token;
-            // Use openIdLogin to log in
-            await skapi.openIdLogin({ id: 'google', token: ACCESS_TOKEN });
+            await skapi.openIdLogin({ id: 'google', token: tokenResponse.access_token });
+
+            window.history.replaceState({}, document.title, REDIRECT_URL);
             window.location.href = '/';
-        })()
+        }
+        catch (error) {
+            console.error('Google OAuth login failed:', error);
+            alert('Login failed. Please try again.');
+        }
     }
+
+    handleOAuthCallback();
 </script>
 ```
 
 :::warning
-For this Google OAuth example, we use [`clientSecretRequest()`](/api-bridge/client-secret-request) to request an access token with a secured client secret key, and [`openidLogin()`](/api-reference/authentication/README.md#openidlogin) to actually sign up/log in the user to your service using the obtained access token.
+In this Google OAuth example, [`clientSecretRequest()`](https://docs.skapi.com/api-bridge/client-secret-request) securely exchanges the authorization code for an access token, and [`openidLogin()`](https://docs.skapi.com/api-reference/authentication/README.html#openidlogin) signs in the user with that token.
 
-Be sure to set up both Client Secret Keys and OpenID Loggers, and use the clientSecretName and OpenID Logger ID to securely make requests from the frontend.
+Make sure both your client secret key and OpenID logger are configured, and use the correct `clientSecretName` and logger ID.
 :::
 
-### [`openidLogin(event?:SubmitEvent | params): Promise<string>`](/api-reference/authentication/README.md#openidlogin)
+### [`openidLogin(event?:SubmitEvent | params): Promise<string>`](https://docs.skapi.com/api-reference/authentication/README.html#openidlogin)
 
 ## Merging an OpenID Account with a Previous Account
 
-There are situations where you may want to merge a user's OpenID account with their existing account. You cannot merge an account that was created by an admin.
+In some cases, you may want to merge a user's OpenID account with an existing account. Accounts created by admins cannot be merged.
 
 To enable merging, set your OpenID Logger ID to `by_skapi`.
-Then, when calling `openIdLogin`, use the `merge` option to control what is merged. Set `merge: true` to merge all supported attributes, or pass an array of attribute names to merge only those fields.
+Then, when calling `openIdLogin`, use the `merge` option to control what gets merged. Set `merge: true` to merge all supported attributes, or pass an array to merge only specific fields.
 
 For example, to merge only the user's "name" attribute:
 
@@ -1125,76 +1295,22 @@ skapi.openIdLogin({ id: 'by_skapi', token: ACCESS_TOKEN })
 
 <br>
 
-# E-Mail Verification
-
-:::warning
-User must be logged in to call this method
-:::
-
-User with verified E-Mail can:
-
-- Reset their password if they've forgotten it.
-- Receive newsletter from the service owner if they choose to.
-- Recover their disabled account.
-- Allow their email address to be public to other users if they choose.
-
-You can verify your user's email address with [`verifyEmail()`](/api-reference/user/README.md#verifyemail).
-
-:::tip
-The user's email is automatically verified if [signup confirmation](/authentication/signup-confirmation.md) was requested in [`signup()`](/api-reference/authentication/README.md#signup).
-:::
-
-The example below shows how you can verify your users email address.
-
-1. The first method call, without any arguments, sends a verification email to the user.
-2. The second call completes the verification process by passing the verification code that user retrieved from their email.
-
-``` js
-  // Send verification code to user's E-Mail
-  skapi.verifyEmail().then(res=>{
-     // 'SUCCESS: Verification code has been sent.'
-    console.log(res);
-
-    // Prompt user to enter the verification code
-    let code = prompt('Enter the verification code sent to your E-Mail');
-    
-    // Verify E-Mail with the code
-    skapi.verifyEmail({ code }).then(res=>{
-      // SUCCESS: "email" is verified.
-      window.alert('Your email is verified');
-    });
-  });
-```
-
-For more detailed information on all the parameters and options available with the [`verifyEmail()`](/api-reference/user/README.md#verifyemail) method, 
-please refer to the API Reference below:
-
-### [`verifyEmail(params?): Promise(string)`](/api-reference/user/README.md#verifyemail)
-
-:::warning
-The user's email verified state will be lost if the user had changed their email address.
-:::
-
-
-<br>
-
 # Updating User Profile
 
 :::warning
-User must be logged in to call this method
+You must be logged in to call this method.
 :::
 
-User's profile can be updated using [`updateProfile()`](/api-reference/user/README.md#updateprofile).
-If the update is successful, the updated [UserProfile](/api-reference/data-types/README.md#userprofile) object is returned if the request was successful.
+You can update a user's profile using [`updateProfile()`](https://docs.skapi.com/api-reference/user/README.html#updateprofile).
+If successful, the method returns the updated [UserProfile](https://docs.skapi.com/api-reference/data-types/README.html#userprofile) object.
 
 :::danger
+-   If a user changes their email, their login email changes as well.
+-   When the email is changed, it becomes unverified.
+:::
 
--   When the user change their email, they will be also changing their login email as well.
--   When user's email is changed, the email will be unverified.
-    :::
-
-In this example, the user's name is updated by providing a new `name` value.
-If the update is successful, the updated user profile is returned.
+In this example, the user's name is updated by passing a new `name` value.
+If successful, the updated user profile is returned.
 
 :::code-group
 
@@ -1223,7 +1339,7 @@ let params = {
     // profile, // URL of the profile page.
     // website, // URL of the website.
     // nickname, // Nickname of the user.
-    // misc, // Additional string value that can be used freely. This value is only visible from skapi.getProfile(). Not to others.
+    // misc, // Additional string value for custom use. This value is visible only through skapi.getProfile().
 };
 
 skapi.updateProfile(params).then((user) => {
@@ -1233,22 +1349,19 @@ skapi.updateProfile(params).then((user) => {
 
 :::
 
-For more detailed information on all the parameters and options available with the [`updateProfile()`](/api-reference/user/README.md#updateprofile) method,
-please refer to the API Reference below:
+For full details on parameters and options, see the API reference below:
 
-### [`updateProfile(params): Promise<UserProfile>`](/api-reference/user/README.md#updateprofile)
+### [`updateProfile(params): Promise<UserProfile>`](https://docs.skapi.com/api-reference/user/README.html#updateprofile)
 
-:::danger
-Be aware that user profile attributes only take `string` as a value.
-
-If you need to upload an image files to the user's profile, use [`postRecord()`](/api-reference/database/README.md#postrecord) method to upload a public image file first and use the uploaded file's URL as a value in the user profile attributes.
+:::tip
+If you need to upload an image to a user's profile, first upload a public image file with [`postRecord()`](https://docs.skapi.com/api-reference/database/README.html#postrecord), then use the uploaded file URL in the profile attributes.
 :::
 
 ## Public Attributes
 
-Certain user profile attributes can be configured as public or private.
-When the profile is public, the user's profile information can be searched by other users.
-When the profile is private, the user's profile information cannot be searched by other users.
+Certain user profile attributes can be set as public or private.
+When an attribute is public, other users can find it.
+When an attribute is private, other users cannot find it.
 
 The following attributes can be set to public or private:
 
@@ -1260,7 +1373,7 @@ The following attributes can be set to public or private:
 
 By default, these attributes are set to private.
 
-Here is an example of setting the user's email to public:
+Here is an example that makes the user's email public:
 
 :::code-group
 
@@ -1284,10 +1397,62 @@ skapi.updateProfile(params).then((user) => {
 
 :::
 
-For more detailed information on all the parameters and options available with the [`updateProfile()`](/api-reference/user/README.md#updateprofile) method,
+For full details on parameters and options, see the API reference below:
+
+### [`updateProfile(params): Promise<UserProfile>`](https://docs.skapi.com/api-reference/user/README.html#updateprofile)
+
+
+<br>
+
+# E-Mail Verification
+
+:::warning
+User must be logged in to call this method
+:::
+
+User with verified E-Mail can:
+
+- Reset their password if they've forgotten it.
+- Receive newsletter from the service owner if they choose to.
+- Recover their disabled account.
+- Allow their email address to be public to other users if they choose.
+
+You can verify your user's email address with [`verifyEmail()`](https://docs.skapi.com/api-reference/user/README.html#verifyemail).
+
+:::tip
+The user's email is automatically verified if [signup confirmation](https://docs.skapi.com/authentication/signup-confirmation.md) was requested in [`signup()`](https://docs.skapi.com/api-reference/authentication/README.html#signup).
+:::
+
+The example below shows how you can verify your users email address.
+
+1. The first method call, without any arguments, sends a verification email to the user.
+2. The second call completes the verification process by passing the verification code that user retrieved from their email.
+
+``` js
+  // Send verification code to user's E-Mail
+  skapi.verifyEmail().then(res=>{
+     // 'SUCCESS: Verification code has been sent.'
+    console.log(res);
+
+    // Prompt user to enter the verification code
+    let code = prompt('Enter the verification code sent to your E-Mail');
+    
+    // Verify E-Mail with the code
+    skapi.verifyEmail({ code }).then(res=>{
+      // SUCCESS: "email" is verified.
+      window.alert('Your email is verified');
+    });
+  });
+```
+
+For more detailed information on all the parameters and options available with the [`verifyEmail()`](https://docs.skapi.com/api-reference/user/README.html#verifyemail) method, 
 please refer to the API Reference below:
 
-### [`updateProfile(params): Promise<UserProfile>`](/api-reference/user/README.md#updateprofile)
+### [`verifyEmail(params?): Promise(string)`](https://docs.skapi.com/api-reference/user/README.html#verifyemail)
+
+:::warning
+The user's email verified state will be lost if the user had changed their email address.
+:::
 
 
 <br>
@@ -1298,7 +1463,7 @@ please refer to the API Reference below:
 User must be logged in to call this method.
 :::
 
-The [`changePassword()`](/api-reference/user/README.md#changepassword) method allows users who are logged-in to change their password. This method requires the user's current password and the new password as parameters. If the password change is successful, the method will return a success message.
+The [`changePassword()`](https://docs.skapi.com/api-reference/user/README.html#changepassword) method allows users who are logged-in to change their password. This method requires the user's current password and the new password as parameters. If the password change is successful, the method will return a success message.
 
 Password should be at least 6 characters and no more than 60 characters.
 
@@ -1326,11 +1491,11 @@ skapi.changePassword(params)
 
 :::
 
-For more detailed information on all the parameters and options available with the [`changePassword()`](/api-reference/user/README.md#changepassword) method, 
+For more detailed information on all the parameters and options available with the [`changePassword()`](https://docs.skapi.com/api-reference/user/README.html#changepassword) method, 
 please refer to the API Reference below:
 
 
-### [`changePassword(params): Promise<string>`](/api-reference/user/README.md#changepassword)
+### [`changePassword(params): Promise<string>`](https://docs.skapi.com/api-reference/user/README.html#changepassword)
 
 <br>
 
@@ -1346,11 +1511,11 @@ User must be logged in to call this method
 :::warning
 If your service does not allow users to signup, the users will not be able to disable their account.
 
-For more information on how to allow/disallow users to signup from your service settings page, please refer to the [Service Settings](/service-settings/service-settings.md#allow-signup) page. 
+For more information on how to allow/disallow users to signup from your service settings page, please refer to the [Service Settings](https://docs.skapi.com/service-settings/service-settings.md#allow-signup) page. 
 :::
 
 If user choose to leave your service, they can disable their account.
-User's can disable their account by calling the [`disableAccount()`](/api-reference/user/README.md#disableaccount) method.
+User's can disable their account by calling the [`disableAccount()`](https://docs.skapi.com/api-reference/user/README.html#disableaccount) method.
 **All data related to the account will be deleted after 90 days**.
 User will be automatically logged out once their account has been disabled.
 
@@ -1360,21 +1525,21 @@ skapi.disableAccount().then(()=>{
 });
 ```
 
-For more detailed information on all the parameters and options available with the [`disableAccount()`](/api-reference/user/README.md#disableaccount) method, 
+For more detailed information on all the parameters and options available with the [`disableAccount()`](https://docs.skapi.com/api-reference/user/README.html#disableaccount) method, 
 please refer to the API Reference below:
 
-### [`disableAccount(): Promise(string)`](/api-reference/user/README.md#disableaccount)
+### [`disableAccount(): Promise(string)`](https://docs.skapi.com/api-reference/user/README.html#disableaccount)
 
 ## Recovering a Disabled Account
 
-Disabled accounts can be reactivated **within 90 days** using the [`recoverAccount()`](/api-reference/user/README.md#recoveraccount) method. This method allows users to reactivate their disabled accounts under the following conditions:
+Disabled accounts can be reactivated **within 90 days** using the [`recoverAccount()`](https://docs.skapi.com/api-reference/user/README.html#recoveraccount) method. This method allows users to reactivate their disabled accounts under the following conditions:
 
 - The account email must be verified.
-- The [`recoverAccount()`](/api-reference/user/README.md#recoveraccount) method must be called from the `catch` block of a failed [`login()`](/api-reference/authentication/README.md#login) attempt using the disabled account.
+- The [`recoverAccount()`](https://docs.skapi.com/api-reference/user/README.html#recoveraccount) method must be called from the `catch` block of a failed [`login()`](https://docs.skapi.com/api-reference/authentication/README.html#login) attempt using the disabled account.
 
-The [`recoverAccount()`](/api-reference/user/README.md#recoveraccount) method sends an email to the account owner, containing a confirmation link (The same signup confirmation email) for account recovery.
+The [`recoverAccount()`](https://docs.skapi.com/api-reference/user/README.html#recoveraccount) method sends an email to the account owner, containing a confirmation link (The same signup confirmation email) for account recovery.
 
-Additionally, you can provide an optional `string` argument to the [`recoverAccount()`](/api-reference/user/README.md#recoveraccount) method, which will redirect the user to the specified URL or relative path of your website upon successful account recovery.
+Additionally, you can provide an optional `string` argument to the [`recoverAccount()`](https://docs.skapi.com/api-reference/user/README.html#recoveraccount) method, which will redirect the user to the specified URL or relative path of your website upon successful account recovery.
 
 :::code-group
 
@@ -1423,17 +1588,17 @@ skapi.login({email: 'user@email.com', password: 'password'})
 
 :::
 
-In the example above, the [`recoverAccount()`](/api-reference/user/README.md#recoveraccount) method is called from the catch block of a failed login attempt using a disabled account.
+In the example above, the [`recoverAccount()`](https://docs.skapi.com/api-reference/user/README.html#recoveraccount) method is called from the catch block of a failed login attempt using a disabled account.
 
 If the login attempt fails with the error code `"USER_IS_DISABLED"`, user can choose to recover their account.
 
-The [`recoverAccount()`](/api-reference/user/README.md#recoveraccount) method is called to send a recovery email to the user.
+The [`recoverAccount()`](https://docs.skapi.com/api-reference/user/README.html#recoveraccount) method is called to send a recovery email to the user.
 The recovery email contains a link, and when the user clicks on the link, they will be redirected to the relative path of the website URL: `/welcome/back/page` upon successful account recovery.
 
-For more detailed information on all the parameters and options available with the [`recoverAccount()`](/api-reference/user/README.md#recoveraccount) method, 
+For more detailed information on all the parameters and options available with the [`recoverAccount()`](https://docs.skapi.com/api-reference/user/README.html#recoveraccount) method, 
 please refer to the API Reference below:
 
-### [`recoverAccount(redirect: boolean | string): Promise<string>`](/api-reference/user/README.md#recoveraccount)
+### [`recoverAccount(redirect: boolean | string): Promise<string>`](https://docs.skapi.com/api-reference/user/README.html#recoveraccount)
  
 :::danger
 User should know their password, and have their account email verified.
@@ -1443,16 +1608,16 @@ Otherwise user's account cannot be recovered.
 
 <br>
 
-# Search Users
+# Searching Users
 
 :::warning
 User must be logged in to call this method
 :::
 
 
-Users can search, retrieve information of other users in your service using the [`getUsers()`](/api-reference/user/README.md#getusers) method. By default, [`getUsers()`](/api-reference/user/README.md#getusers) will return all users chronologically from the most recent sign-up.
+Users can search, retrieve information of other users in your service using the [`getUsers()`](https://docs.skapi.com/api-reference/user/README.html#getusers) method. By default, [`getUsers()`](https://docs.skapi.com/api-reference/user/README.html#getusers) will return all users chronologically from the most recent sign-up.
 
-User information retrieved from the database is returned as a list of [UserPublic](/api-reference/data-types/README.md#userpublic) objects.
+User information retrieved from the database is returned as a list of [UserPublic](https://docs.skapi.com/api-reference/data-types/README.html#userpublic) objects.
 
 :::info
 Any attribute that is not set to public will not be retrieved.
@@ -1465,13 +1630,13 @@ skapi.getUsers().then(u=>{
 });
 ```
 
-In the example above, the [`getUsers()`](/api-reference/user/README.md#getusers) method is called without any parameters.
+In the example above, the [`getUsers()`](https://docs.skapi.com/api-reference/user/README.html#getusers) method is called without any parameters.
 This retrieves a list of all user profiles in your service.
 
-For more detailed information on all the parameters and options available with the [`getUsers()`](/api-reference/user/README.md#getusers) method, 
+For more detailed information on all the parameters and options available with the [`getUsers()`](https://docs.skapi.com/api-reference/user/README.html#getusers) method, 
 please refer to the API Reference below:
 
-### [`getUsers(params?, fetchOptions?): Promise<DatabaseResponse<UserPublic>>`](/api-reference/user/README.md#getusers)
+### [`getUsers(params?, fetchOptions?): Promise<DatabaseResponse<UserPublic>>`](https://docs.skapi.com/api-reference/user/README.html#getusers)
 
 ## Searching users with conditions
 
@@ -1533,7 +1698,7 @@ The `searchFor` parameter specifies the attribute to search for, and the value p
 - `locale`: the user's locale, a string representing the country code (e.g "US" for United States).
 - `subscribers`: number of subscribers the user has, number
 - `timestamp`: timestamp of user's sign-up, number(13 digit unix time)
-- `approved`: search by account approval status, object: ```{ by: 'admin' | 'skapi' | 'master'; approved?: boolean }```
+- `approved`: search by account approval status
 
 
 #### The `condition` parameter allows you to set the search condition.
@@ -1547,7 +1712,7 @@ The `searchFor` parameter specifies the attribute to search for, and the value p
 When searching for a `string` attribute, `>` and `<` will search for strings that are higher or lower in the lexicographical order, respectively. And `>=` operator works as 'start with' condition.
 
 :::info
-- Conditional query does not work on `user_id`, `email`, `phone_number`, `approved`. It must be searched with the '=' condition.
+- Conditional query does not work on `user_id`, `email`, `phone_number`. It must be searched with the '=' condition.
 - Users cannot search for attributes that are not set to public.
 :::
 
@@ -1560,13 +1725,87 @@ The `range` parameter cannot be used with the `condition` parameter.
 
 <br>
 
+# Skapi HTML Authentication Template
+
+This is a plain HTML template for Skapi's authentication features.
+
+This template packs all the authentication features you can use in your HTML application:
+
+-   Signup
+-   Signup email verification
+-   Login
+-   Forgot password
+-   Change password
+-   Update account profile
+-   Remove account
+-   Recover account
+
+## Download
+
+Download the full project [Here](https://github.com/kkb75281/skapi-auth-html-template/archive/refs/heads/main.zip)
+
+Or visit our [Github page](https://github.com/kkb75281/skapi-auth-html-template)
+
+## How To Run
+
+Download the project, unzip, and open the `index.html`.
+
+### Remote Server
+
+For hosting on remote server, install package:
+
+```
+npm i
+```
+
+Then run:
+
+```
+npm run dev
+```
+
+The application will be hosted on port `3300`
+
+:::danger Important!
+
+Replace the `SERVICE_ID` value to your own service in `service.js`
+
+<!-- Currently the service is running on **Trial Mode**. -->
+
+<!-- **All the user data will be deleted every 14 days.** -->
+
+You can get your own service ID from [Skapi](https://www.skapi.com)
+
+:::
+
+
+<br>
+
+# What is a database?
+
+A database is storage for your web application's data.
+
+That data can be simple values (such as comments, likes, or ratings) or files (such as images, documents, and videos). It should be stored securely, read efficiently, and indexed in a way that makes searching and organizing easy.
+
+With Skapi, you can store anything from small JSON objects to large binary files up to 5 TB per file. Skapi handles security, indexing, and file storage for you.
+
+Files are served through a CDN, and access is controlled by the access group set by the uploader.
+
+Skapi's database is user-centric, which means frontend developers can configure schema behavior and security rules directly.
+
+With this approach, you can get started quickly without complex setup or rigid schema definitions.
+
+In this section, you will learn how to store and retrieve data, and how Skapi's indexing system helps you search it efficiently.
+
+<br>
+
 # Creating a Record
 
-Users can use the [`postRecord()`](/api-reference/database/README.md#postrecord) method to create a new record or update existing records in the database.
+Users can use the [`postRecord()`](https://docs.skapi.com/api-reference/database/README.html#postrecord) method to create a new record or update existing records in the database.
 
 It takes two arguments:
 
-- `data` The data to be saved in key-value pairs. It can be an object literal, `null`, `undefined`, or a form `SubmitEvent`. Once the record is uploaded, the given data will be stored as a value under the key name `data` in the returned [RecordData](/api-reference/data-types/README.md#recorddata).
+- `data` The data to be saved in key-value pairs. It can be an object literal, `null`, `undefined`, or a form `SubmitEvent`. Once the record is uploaded, the given data will be stored as a value under the key name `data` in the returned [RecordData](https://docs.skapi.com/api-reference/data-types/README.html#recorddata).
 
 - `config` (required): Configuration for the record to be uploaded. This is where you specify the table name, access group, index values, etc.
 
@@ -1616,12 +1855,12 @@ skapi.postRecord(data, config).then(rec=>{
 ```
 :::
 
-This example demonstrates using the [`postRecord()`](/api-reference/database/README.md#postrecord) method to create a record in the database.
-When the request is successful, the [RecordData](/api-reference/data-types/README.md#recorddata) is returned.
+This example demonstrates using the [`postRecord()`](https://docs.skapi.com/api-reference/database/README.html#postrecord) method to create a record in the database.
+When the request is successful, the [RecordData](https://docs.skapi.com/api-reference/data-types/README.html#recorddata) is returned.
 
 In this example, the first argument takes the actual data to be uploaded to the database.
 The data is a Javascript object that has string value in the key 'something'.
-The given data will be stord under the key name `data` of the returned [RecordData](/api-reference/data-types/README.md#recorddata).
+The given data will be stord under the key name `data` of the returned [RecordData](https://docs.skapi.com/api-reference/data-types/README.html#recorddata).
 
 And in the second argument we have set table name to be `my_collection` and access group to be `public`.
 `config.table` is a required parameter in the configuration object and the `config.table.name` should not contain any special characters.
@@ -1630,26 +1869,26 @@ And in the second argument we have set table name to be `my_collection` and acce
 If `config.table` is given as a **string**, the given value will be set as `config.table.name` and the record will be uploaded with `config.table.access_group` set to `"public"`.
 :::
 
-When uploading the record with access restrictions, see [`Access Restrictions`](/database/access-restrictions.md).
+When uploading the record with access restrictions, see [`Access Restrictions`](https://docs.skapi.com/database/access-restrictions.md).
 
 ::: danger
-Both authenticated and anonymous users can upload data to your service using the [`postRecord()`](/api-reference/database/README.md#postrecord) method.
+Both authenticated and anonymous users can upload data to your service using the [`postRecord()`](https://docs.skapi.com/api-reference/database/README.html#postrecord) method.
 
 Limitations for anonymous (unsigned) users:
-1. They can only create records in the `public` access group (see [`Access Restrictions`](/database/access-restrictions.md)).
+1. They can only create records in the `public` access group (see [`Access Restrictions`](https://docs.skapi.com/database/access-restrictions.md)).
 2. They cannot edit or delete any records they create.
-3. They cannot create records that use [`Subscription`](/database/subscription.md) features.
-4. They cannot create records with [`Unique ID`](/database/unique-id.md) features.
+3. They cannot create records that use [`Subscription`](https://docs.skapi.com/database/subscription.md) features.
+4. They cannot create records with [`Unique ID`](https://docs.skapi.com/database/unique-id.md) features.
 :::
 
 ::: danger
-When an anonymous user uploads a record, the `user_id` in the returned [`RecordData`](/api-reference/data-types/README.md#recorddata) is temporary and should NOT be used for user queries.
+When an anonymous user uploads a record, the `user_id` in the returned [`RecordData`](https://docs.skapi.com/api-reference/data-types/README.html#recorddata) is temporary and should NOT be used for user queries.
 :::
 
-For more detailed information on all the parameters and options available with the [`postRecord()`](/api-reference/database/README.md#postrecord) method, 
+For more detailed information on all the parameters and options available with the [`postRecord()`](https://docs.skapi.com/api-reference/database/README.html#postrecord) method, 
 please refer to the API Reference below:
 
-### [`postRecord(data, config):Promise<RecordData>`](/api-reference/database/README.md#postrecord)
+### [`postRecord(data, config):Promise<RecordData>`](https://docs.skapi.com/api-reference/database/README.html#postrecord)
 
 :::tip Note
 Skapi database does not require you to pre-setup your database schema.
@@ -1662,13 +1901,13 @@ Conversely, if a table has no records, it will be automatically deleted.
 
 # Fetching Records
 
-The [`getRecords()`](/api-reference/database/README.md#getrecords) method allows you to fetch records from the database. It retrieves records based on the specified query parameters and returns a promise that resolves to the [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse) containing the [RecordData](/api-reference/data-types/README.md#recorddata) object.
+The [`getRecords()`](https://docs.skapi.com/api-reference/database/README.html#getrecords) method allows you to fetch records from the database. It retrieves records based on the specified query parameters and returns a promise that resolves to the [DatabaseResponse](https://docs.skapi.com/api-reference/data-types/README.html#databaseresponse) containing the [RecordData](https://docs.skapi.com/api-reference/data-types/README.html#recorddata) object.
 
 It takes two arguments:
 - `query`: Specifies the query parameters for fetching records.
 - `fetchOptions`: (optional)
     Specifies additional configuration options for fetching database records
-    For more information, see [Database Fetch Options](/database/fetch.md#database-fetch-options).
+    For more information, see [Database Fetch Options](https://docs.skapi.com/database/fetch.md#database-fetch-options).
 
 ### Fetching Records from a Table
 
@@ -1694,16 +1933,16 @@ The example above retrieve records from a table named 'my_collection' with `acce
 The `table` parameter in the `query` argument sets the table name you want to fetch records from.
 The retrieved records are accessed through the `response.list` property.
 
-When fetching the records with access restrictions, see [`Access Restrictions`](/database/access-restrictions.md).
+When fetching the records with access restrictions, see [`Access Restrictions`](https://docs.skapi.com/database/access-restrictions.md).
 
-For more detailed information on all the parameters and options available with the [`getRecords()`](/api-reference/database/README.md#getrecords) method, 
+For more detailed information on all the parameters and options available with the [`getRecords()`](https://docs.skapi.com/api-reference/database/README.html#getrecords) method, 
 please refer to the API Reference below:
 
-### [`getRecords(query, fetchOptions?): Promise<DatabaseResponse<RecordData>>`](/api-reference/database/README.md#getrecords)
+### [`getRecords(query, fetchOptions?): Promise<DatabaseResponse<RecordData>>`](https://docs.skapi.com/api-reference/database/README.html#getrecords)
 
 ### Fetching Record by ID
 
-You can fetch a record by its unique ID using the [`getRecords()`](/api-reference/database/README.md#getrecords) method. When fetching a record by ID, you don't need to provide any additional configuration parameters.
+You can fetch a record by its unique ID using the [`getRecords()`](https://docs.skapi.com/api-reference/database/README.html#getrecords) method. When fetching a record by ID, you don't need to provide any additional configuration parameters.
 
 ```js
 let query = {
@@ -1730,11 +1969,11 @@ The `response.list` will contain the record data if the record exists.
 
 ## Database Fetch Options
 
-[FetchOptions](/api-reference/data-types/README.md#fetchoptions) can control the number of the record per fetch, fetching the next batch of records, fetching the records by ascending/descending order... etc.
+[FetchOptions](https://docs.skapi.com/api-reference/data-types/README.html#fetchoptions) can control the number of the record per fetch, fetching the next batch of records, fetching the records by ascending/descending order... etc.
 
-This is used globally for all database related methods that allows optional [FetchOptions](/api-reference/data-types/README.md#fetchoptions) argument.
+This is used globally for all database related methods that allows optional [FetchOptions](https://docs.skapi.com/api-reference/data-types/README.html#fetchoptions) argument.
 
-See full list of parameters: [FetchOptions](/api-reference/data-types/README.md#fetchoptions)
+See full list of parameters: [FetchOptions](https://docs.skapi.com/api-reference/data-types/README.html#fetchoptions)
 
 
 #### Limit Results with `fetchOptions.limit`
@@ -1808,15 +2047,15 @@ However for efficiency, avoid trying to fetch all the data at once. Fetch only d
 
 # Unique ID
 
-When uploading a record with [`postRecord()`](/api-reference/database/README.md#postrecord), you can set a unique ID for the record. This unique ID can be used to fetch the record later.
+When uploading a record with [`postRecord()`](https://docs.skapi.com/api-reference/database/README.html#postrecord), you can set a unique ID for the record. This unique ID can be used to fetch the record later.
 Unique ID must be a string and must be unique across all records in the table.
 
 This feature is useful when you want to create a record with a unique identifier, such as a order ID, or any other unique identifier.
 
-Unique ID can be used to fetch the record using the [`getRecords()`](/api-reference/database/README.md#getrecords) method.
+Unique ID can be used to fetch the record using the [`getRecords()`](https://docs.skapi.com/api-reference/database/README.html#getrecords) method.
 
 Unique ID can be also used when fetching references of a record.
-More on referencing can be found [here](/database/referencing.md).
+More on referencing can be found [here](https://docs.skapi.com/database/referencing.md).
 
 :::warning
 Anonymous (unsigned) users cannot create records using unique ID.
@@ -1849,11 +2088,11 @@ skapi.postRecord(data, config).then(record => {
 ```
 
 The example above demonstrates uploading a record with a unique ID.
-When the request is successful, the [RecordData](/api-reference/data-types/README.md#recorddata) is returned.
+When the request is successful, the [RecordData](https://docs.skapi.com/api-reference/data-types/README.html#recorddata) is returned.
 
 ## Fetching a Record with Unique ID
 
-After uploading the record, you can fetch the record using the unique ID with [`getRecords()`](/api-reference/database/README.md#getrecords) method.
+After uploading the record, you can fetch the record using the unique ID with [`getRecords()`](https://docs.skapi.com/api-reference/database/README.html#getrecords) method.
 
 ```js
 let params = {
@@ -1867,7 +2106,7 @@ skapi.getRecords(params).then(response => {
 
 ## Fetching Unique ID List
 
-By using [`getUniqueId()`](/api-reference/database/README.md#getuniqueid) method, you can fetch list of unique ID's that are registered in your database.
+By using [`getUniqueId()`](https://docs.skapi.com/api-reference/database/README.html#getuniqueid) method, you can fetch list of unique ID's that are registered in your database.
 
 Below is an example where you can fetch list of unique ID that starts with **"guitar_"**
 
@@ -1912,7 +2151,7 @@ The user profile's access group can only be changed by the service owners.
 ::: tip
 Unless the user is referencing a private access granted record, the user cannot upload a record with `access_group` set to a higher level than their own access level.
 
-You can read more about referencing records [here](/database/referencing.md).
+You can read more about referencing records [here](https://docs.skapi.com/database/referencing.md).
 :::
 
 ::: warning
@@ -2009,7 +2248,7 @@ skapi.getRecords(config)
 
 ## Grant Private Access
 
-Users can grant private access of their record to other users by using the [`grantPrivateRecordAccess(params)`](/api-reference/database/README.md#grantprivateaccess) method.
+Users can grant private access of their record to other users by using the [`grantPrivateRecordAccess(params)`](https://docs.skapi.com/api-reference/database/README.html#grantprivateaccess) method.
 
 ```js
 skapi.grantPrivateRecordAccess({
@@ -2022,11 +2261,11 @@ When the user is granted access to the record, they will be able to fetch the re
 
 Access granted users can also see all the records that is referencing this record at all access groups including private records.
 
-You can read more about referencing records [here](/database/referencing.md).
+You can read more about referencing records [here](https://docs.skapi.com/database/referencing.md).
 
 ## Remove Private Access
 
-Users can remove access of their private record from other users by using the [`removePrivateRecordAccess(params)`](/api-reference/database/README.md#removeprivateaccess) method.
+Users can remove access of their private record from other users by using the [`removePrivateRecordAccess(params)`](https://docs.skapi.com/api-reference/database/README.html#removeprivateaccess) method.
 
 ```js
 skapi.removePrivateRecordAccess({
@@ -2060,7 +2299,7 @@ skapi.postRecord(null, {
 
 ## Listing Private Access Grants
 
-You can list records or users that have been granted private access using the [`listPrivateRecordAccess(params, fetchOptions)`](/api-reference/database/README.md#listprivaterecordaccess) method.
+You can list records or users that have been granted private access using the [`listPrivateRecordAccess(params, fetchOptions)`](https://docs.skapi.com/api-reference/database/README.html#listprivaterecordaccess) method.
 
 :::warning IMPORTANT
 Provide either `record_id` or `user_id` (at least one is required).
@@ -2089,9 +2328,9 @@ skapi.listPrivateRecordAccess({
 
 # Updating a Record
 
-The [`postRecord()`](/api-reference/database/README.md#postrecord) method can also be used to update an existing record. You can specify the `record_id` in the `config` object in order to do so. 
+The [`postRecord()`](https://docs.skapi.com/api-reference/database/README.html#postrecord) method can also be used to update an existing record. You can specify the `record_id` in the `config` object in order to do so. 
 
-[`postRecord()`](/api-reference/database/README.md#postrecord) will overwrite the user's record data to a new data.
+[`postRecord()`](https://docs.skapi.com/api-reference/database/README.html#postrecord) will overwrite the user's record data to a new data.
 
 For record config parameters, you only need to include the parameters you want to update along with the `record_id` parameter.
 All other fields in the record will remain unchanged unless explicitly included in the method call.
@@ -2188,9 +2427,9 @@ This allows you to upload any size of binary files to the database without any a
 
 ## Uploading Files
 
-To upload files, you can pass the HTML form `SubmitEvent` or `FormData` that includes `FileList` object when calling the [`postRecord()`](/api-reference/database/README.md#postrecord) method.
+To upload files, you can pass the HTML form `SubmitEvent` or `FormData` that includes `FileList` object when calling the [`postRecord()`](https://docs.skapi.com/api-reference/database/README.html#postrecord) method.
 
-Additionally, We can log the progress of the upload by passing a [ProgressCallback](/api-reference/data-types/README.md#progresscallback) in the `progress` parameter in the second argument of [`postRecord()`](/api-reference/database/README.md#postrecord).
+Additionally, We can log the progress of the upload by passing a [ProgressCallback](https://docs.skapi.com/api-reference/data-types/README.html#progresscallback) in the `progress` parameter in the second argument of [`postRecord()`](https://docs.skapi.com/api-reference/database/README.html#postrecord).
 This can be useful if the user is uploading huge files, you can show a progress bar.
 
 Here's an example demonstrating how you can upload files using Skapi:
@@ -2212,7 +2451,7 @@ Here's an example demonstrating how you can upload files using Skapi:
 ```
 
 The `name` attribute of the file input element will serve as the key name of the file data.
-Regarless the file input is multi or single, the file(s) will **ALWAYS** be uploaded as an array of [BinaryFile](/api-reference/data-types/README.md#binaryfile) object under the key name `picture`(the name of the file input element) in the `bin` key of the [RecordData](/api-reference/data-types/README.md#recorddata) as shown below:
+Regarless the file input is multi or single, the file(s) will **ALWAYS** be uploaded as an array of [BinaryFile](https://docs.skapi.com/api-reference/data-types/README.html#binaryfile) object under the key name `picture`(the name of the file input element) in the `bin` key of the [RecordData](https://docs.skapi.com/api-reference/data-types/README.html#recorddata) as shown below:
 
 ```js
 // record data
@@ -2236,19 +2475,19 @@ Regarless the file input is multi or single, the file(s) will **ALWAYS** be uplo
 }
 ```
 
-The `bin` data will contain array of [BinaryFile](/api-reference/data-types/README.md#binaryfile) objects.
+The `bin` data will contain array of [BinaryFile](https://docs.skapi.com/api-reference/data-types/README.html#binaryfile) objects.
 This process is handled seamlessly without any complicated file handling required.
 
 Once the files are uploaded, Skapi serves the files using a CDN with no additional setup required.
 
 :::danger
-If the file is uploaded in a record where the access group is not 'public', the URL value in the [BinaryFile](/api-reference/data-types/README.md#binaryfile) objects can expire for security reasons.
+If the file is uploaded in a record where the access group is not 'public', the URL value in the [BinaryFile](https://docs.skapi.com/api-reference/data-types/README.html#binaryfile) objects can expire for security reasons.
 :::
 
 ## Progress Information
 
-When uploading files via [`postRecord()`](/api-reference/database/README.md#postrecord) method, you can attach a [ProgressCallback](/api-reference/data-types/README.md#progresscallback) in the `progress` parameter when uploading files.
-The [ProgressCallback](/api-reference/data-types/README.md#progresscallback) will trigger whenever there is a byte loaded to/from the backend.
+When uploading files via [`postRecord()`](https://docs.skapi.com/api-reference/database/README.html#postrecord) method, you can attach a [ProgressCallback](https://docs.skapi.com/api-reference/data-types/README.html#progresscallback) in the `progress` parameter when uploading files.
+The [ProgressCallback](https://docs.skapi.com/api-reference/data-types/README.html#progresscallback) will trigger whenever there is a byte loaded to/from the backend.
 
 ```js
 let progressCallback = (p) => {
@@ -2265,7 +2504,7 @@ skapi.postRecord(someData, {
 
 ## Downloading Files
 
-To download files from the record, you can use the `getFile()` method on the [BinaryFile](/api-reference/data-types/README.md#binaryfile) object in the record.
+To download files from the record, you can use the `getFile()` method on the [BinaryFile](https://docs.skapi.com/api-reference/data-types/README.html#binaryfile) object in the record.
 
 Below is an example of how you can download a file from a record:
 
@@ -2357,8 +2596,8 @@ fileToDownload.getFile("base64", progressInfo).then((b) => {
 
 ## Removing Files
 
-To remove files, use the `remove_bin` parameter in the `config` argument of the [`postRecord()`](/api-reference/database/README.md#postrecord) method.
-When updating a record, you can remove files by passing the `remove_bin` parameter as an array of [BinaryFile](/api-reference/data-types/README.md#binaryfile) objects or the endpoint URLs of the files that need to be removed from the record.
+To remove files, use the `remove_bin` parameter in the `config` argument of the [`postRecord()`](https://docs.skapi.com/api-reference/database/README.html#postrecord) method.
+When updating a record, you can remove files by passing the `remove_bin` parameter as an array of [BinaryFile](https://docs.skapi.com/api-reference/data-types/README.html#binaryfile) objects or the endpoint URLs of the files that need to be removed from the record.
 
 Here's an example demonstrating how you can remove files from a record:
 
@@ -2396,7 +2635,7 @@ If you remove the record that is holding the files, all files that the deleted r
 
 ## Get File Information
 
-You can use [`getFile()`](/api-reference/database/README.md#getfile) method to get the file information just from the endpoint URL of the file.
+You can use [`getFile()`](https://docs.skapi.com/api-reference/database/README.html#getfile) method to get the file information just from the endpoint URL of the file.
 
 Below is an example of how you can get the file information from the endpoint URL:
 
@@ -2428,10 +2667,10 @@ skapi.getFile(fileUrl, { dataType: "info" }).then((fileInfo) => {
 User must be logged in to call this method
 :::
 
-The [`deleteRecords()`](/api-reference/database/README.md#deleterecords) method allows users to delete records that they own.
+The [`deleteRecords()`](https://docs.skapi.com/api-reference/database/README.html#deleterecords) method allows users to delete records that they own.
 When the record is deleted, all the files that were uploaded to the record will be deleted as well.
 
-The `params` object accepts similar parameters as the [`getRecords()`](/api-reference/database/README.md#getrecords) method.
+The `params` object accepts similar parameters as the [`getRecords()`](https://docs.skapi.com/api-reference/database/README.html#getrecords) method.
 
 If the `record_id` is provided, it will delete the record with the given `record_id`.
 
@@ -2502,13 +2741,13 @@ When deleting records by database query, user will not delete records that they 
 
 However, if the user is an admin, they can delete any records in the database. So be cafeful when admin is using this method.
 
-Read more about admin access [here](/admin/intro.md).
+Read more about admin access [here](https://docs.skapi.com/admin/intro.md).
 :::
 
-For more detailed information on all the parameters and options available with the [`deleteRecords()`](/api-reference/database/README.md#deleterecords) method,
+For more detailed information on all the parameters and options available with the [`deleteRecords()`](https://docs.skapi.com/api-reference/database/README.html#deleterecords) method,
 please refer to the API Reference below:
 
-### [`deleteRecords(params): Promise<string | DatabaseResponse<string>>`](/api-reference/database/README.md#deleterecords)
+### [`deleteRecords(params): Promise<string | DatabaseResponse<string>>`](https://docs.skapi.com/api-reference/database/README.html#deleterecords)
 
 
 <br>
@@ -2516,7 +2755,7 @@ please refer to the API Reference below:
 # Table Information
 
 Skapi keeps track of all the tables in your database.
-You can fetch a list of table names and number of records in each tables and total database size consumed in the table using the [`getTables()`](/api-reference/database/README.md#gettables) method.
+You can fetch a list of table names and number of records in each tables and total database size consumed in the table using the [`getTables()`](https://docs.skapi.com/api-reference/database/README.html#gettables) method.
 
 You can fetch a list of table using the `getTables()` method.
 
@@ -2544,10 +2783,10 @@ This query will return the table names that come after table 'C' in lexographic 
 
 To fetch the table names that starts with 'C', you can set the condition to `>=` instead.
 
-For more detailed information on all the parameters and options available with the [`getTables()`](/api-reference/database/README.md#gettables) method, 
+For more detailed information on all the parameters and options available with the [`getTables()`](https://docs.skapi.com/api-reference/database/README.html#gettables) method, 
 please refer to the API Reference below:
 
-### [`getTables(query, fetchOptions?): Promise<DatabaseResponse<Table>>`](/api-reference/database/README.md#gettables)
+### [`getTables(query, fetchOptions?): Promise<DatabaseResponse<Table>>`](https://docs.skapi.com/api-reference/database/README.html#gettables)
 
 
 <br>
@@ -2650,7 +2889,7 @@ ex) '2' and 2 are different values.
 ## Query Index with Range
 
 In addition to conditions, you can also retrieve records based on a range of values in the index.
-To do so, specify the `range` parameter in the `index` object within the [`getRecords()`](/api-reference/database/README.md#getrecords) method.
+To do so, specify the `range` parameter in the `index` object within the [`getRecords()`](https://docs.skapi.com/api-reference/database/README.html#getrecords) method.
 
 For example, consider the following scenario:
 
@@ -2667,7 +2906,7 @@ skapi.getRecords({
 });
 ```
 
-In the example above, the [`getRecords()`](/api-reference/database/README.md#getrecords) method will retrieve all records in the "Albums" table that have a "year" index value between 1960 and 1970 (inclusive).
+In the example above, the [`getRecords()`](https://docs.skapi.com/api-reference/database/README.html#getrecords) method will retrieve all records in the "Albums" table that have a "year" index value between 1960 and 1970 (inclusive).
 
 :::warning
 - When using the `range` parameter, the `value` and `range` parameter values should be same type of data.
@@ -2684,7 +2923,7 @@ The reserved keywords are:
   
 - `$updated`: Fetches the timestamp(13 digits millisecond format) at which the record was last updated.
   
-- `$referenced_count`: Fetch by the number of records that are [referencing](/database/referencing.md) the record. This can be useful if you need a query like: 'Post that has the most comments'
+- `$referenced_count`: Fetch by the number of records that are [referencing](https://docs.skapi.com/database/referencing.md) the record. This can be useful if you need a query like: 'Post that has the most comments'
   
 - `$user_id`: Fetches list of record uploaded by given user ID.
 
@@ -2805,7 +3044,7 @@ You must provide the full **'Band.AsianSpiceHouse.year'** as an index name if yo
 
 ## Fetching Index Information
 
-Skapi tracks the index information in each table. You can fetch the index information using the [`getIndexes()`](/api-reference/database/README.md#getindex) method.
+Skapi tracks the index information in each table. You can fetch the index information using the [`getIndexes()`](https://docs.skapi.com/api-reference/database/README.html#getindex) method.
 
 Index information is useful when you want to list all index names used in a table or find out the total number of the records indexed to that index name or average/total value of the index values.
 
@@ -2844,10 +3083,10 @@ skapi.getIndexes({
 });
 ```
 
-For more detailed information on all the parameters and options available with the [`getIndexes()`](/api-reference/database/README.md#getindex) method, 
+For more detailed information on all the parameters and options available with the [`getIndexes()`](https://docs.skapi.com/api-reference/database/README.html#getindex) method, 
 please refer to the API Reference below:
 
-### [`getIndexes(query, fetchOptions?): Promise<DatabaseResponse<Index>>`](/api-reference/database/README.md#getindex)
+### [`getIndexes(query, fetchOptions?): Promise<DatabaseResponse<Index>>`](https://docs.skapi.com/api-reference/database/README.html#getindex)
 
 ### Querying index value
 
@@ -2918,7 +3157,7 @@ skapi.getIndexes(query, config).then(response => {
 
 Tags are additional information that can be associated with a record. They provide additional search criteria to perform more detailed queries, either on their own or in combination with indexes. Unlike indexes, tags cannot be queried with conditional operators.
 
-To add tags to a record, you can use the `config.tags` parameter in the [`postRecord()`](/api-reference/database/README.md#postrecord) method.
+To add tags to a record, you can use the `config.tags` parameter in the [`postRecord()`](https://docs.skapi.com/api-reference/database/README.html#postrecord) method.
 This parameter accepts a string or an array of strings or string with comma separated values, allowing you to add multiple tags to a single record.
 
 ## Adding Tags to a Record
@@ -3002,7 +3241,7 @@ Promise.all([experimental, indie]).then(res=>{
 
 ## Fetching Tag Information
 
-You can fetch all tags used in a table with [`getTags()`](/api-reference/database/README.md#gettags).
+You can fetch all tags used in a table with [`getTags()`](https://docs.skapi.com/api-reference/database/README.html#gettags).
 
 ```js
 skapi.getTags({
@@ -3011,10 +3250,10 @@ skapi.getTags({
     console.log(response); // List of all tags in table named 'MyTable'
 })
 ```
-For more detailed information on all the parameters and options available with the [`getTags()`](/api-reference/database/README.md#gettags) method, 
+For more detailed information on all the parameters and options available with the [`getTags()`](https://docs.skapi.com/api-reference/database/README.html#gettags) method, 
 please refer to the API Reference below:
 
-### [`getTags(query, fetchOptions?): Promise<DatabaseResponse<Tag>>`](/api-reference/database/README.md#gettags)
+### [`getTags(query, fetchOptions?): Promise<DatabaseResponse<Tag>>`](https://docs.skapi.com/api-reference/database/README.html#gettags)
 
 ### Querying tags
 
@@ -3087,7 +3326,7 @@ skapi.postRecord(commentRecord, commentConfig);
 
 ## Fetching References
 
-Now you can query all the records that references the original record by passing the record ID in the `reference` parameter in [`getRecords()`](/api-reference/database/README.md#getrecords) method.:
+Now you can query all the records that references the original record by passing the record ID in the `reference` parameter in [`getRecords()`](https://docs.skapi.com/api-reference/database/README.html#getrecords) method.:
 
 ```js
 skapi.getRecords({
@@ -3135,7 +3374,7 @@ skapi.getRecords({
 });
 ```
 
-More on unique ID can be found [here](/database/unique-id.md).
+More on unique ID can be found [here](https://docs.skapi.com/database/unique-id.md).
 
 
 ## Using reference to fetch certain user's post
@@ -3165,9 +3404,9 @@ skapi.postRecord(undefined, {
 });
 ```
 
-## Reference source settings in [`postRecord()`](/api-reference/database/README.md#postrecord)
+## Reference source settings in [`postRecord()`](https://docs.skapi.com/api-reference/database/README.html#postrecord)
 
-When uploading record via [`postRecord()`](/api-reference/database/README.md#postrecord), you can set restrictions on referencing from other records using additional parameters in `source`.
+When uploading record via [`postRecord()`](https://docs.skapi.com/api-reference/database/README.html#postrecord), you can set restrictions on referencing from other records using additional parameters in `source`.
 
 - `source.referencing_limit`: Allowed maximum number of times that other records can reference the uploading record.
   This is useful if you are building ticketing system where only a certain number of people purchase a ticket.
@@ -3316,26 +3555,40 @@ Note that the "Review.Album.GetzGilberto" `index` uses a `value` of type `number
 
 ## Posting Feeds
 
-Skapi database provides a subscription feature.
+Skapi database includes a subscription feature.
 
-The subscription feature is useful when you want users to subscribe to certain users and fetch feeds from their subscriptions.
+This feature lets users subscribe to other users and view feed records from those subscriptions.
 
-With the subscription feature, the uploader can also restrict certain users from accessing specific posts uploaded to the subscription table.
+Uploaders can also block specific users from accessing subscription-level records.
 
-You can let users upload records to the subscription table by setting `table.subscription.is_subscription_record` to `true` in [`postRecord()`](/api-reference/database/README.md#postrecord) parameters.
+You can let users upload records to the subscription table by setting `table.subscription.is_subscription_record` to `true` in [`postRecord()`](https://docs.skapi.com/api-reference/database/README.html#postrecord) parameters.
 
-When `table.subscription.upload_to_feed` is set to `true`, subscribed users can later fetch all the feeds from all the users they are subscribed to at once using the [`getFeed()`](/api-reference/database/README.md#getfeed) method.
+When `table.subscription.upload_to_feed` is set to `true`, subscribed users can fetch feed records from all subscribed users at once using [`getFeed()`](https://docs.skapi.com/api-reference/database/README.html#getfeed).
 
-The subscription feature is useful when building a social media platform where users can follow each other's content and fetch their feeds.
+### Subscription options overview
 
-With the subscription feature, users can also block certain users from accessing their subscription group records.
+The `table.subscription` object controls how a record behaves for subscribers.
 
-The subscription feature can track subscriber counts, manage feeds, and send mass notifications, etc.
+-   `is_subscription_record`: Marks the record as subscription-scoped. Subscribed users can retrieve these records with [`getRecords()`](https://docs.skapi.com/api-reference/database/README.html#getrecords) (using `table.subscription`).
+-   `upload_to_feed`: Publishes the record to subscriber feeds so it can appear in [`getFeed()`](https://docs.skapi.com/api-reference/database/README.html#getfeed).
+-   `notify_subscribers`: Sends notifications to subscribers when the record is uploaded.
+-   `feed_referencing_records`: Includes records that reference this record in subscriber feeds.
+-   `notify_referencing_records`: Sends notifications when referencing records are created or updated.
 
-Let's assume **user 'A'** uploads a record in table 'Posts' with subscription group 1.
+You can enable these options independently or combine them depending on your product behavior.
+
+For example:
+
+-   Use `is_subscription_record: true` without `upload_to_feed` when records should be accessible to subscribers but not appear in feed timelines.
+-   Use `upload_to_feed: true` for timeline-style content.
+-   Add `notify_subscribers: true` when users should receive immediate alerts.
+
+This is useful for social apps where users follow each other, consume feed content, and track subscriber counts.
+
+Assume **user A** uploads a record in table `Posts` as a subscription record.
 
 ```js
-// User 'A' uploads record in subscription table.
+// User A uploads a subscription record.
 skapi.postRecord(null, {
     table: {
         name: "Posts",
@@ -3347,11 +3600,28 @@ skapi.postRecord(null, {
 });
 ```
 
-To allow other users to access records that require a subscription, they must first subscribe to the uploader using the [`subscribe()`](/api-reference/database/README.md#subscribe) method:
+You can also configure full feed and notification behavior at upload time:
 
-:::warning
-Subscribers will not get feeds that are posted prior to the subscription.
-:::
+```js
+skapi.postRecord({
+    title: "New post",
+    body: "Hello subscribers!"
+}, {
+    table: {
+        name: "Posts",
+        access_group: "authorized",
+        subscription: {
+            is_subscription_record: true,
+            upload_to_feed: true,
+            notify_subscribers: true,
+            feed_referencing_records: false,
+            notify_referencing_records: false
+        }
+    }
+});
+```
+
+To allow other users to access records that require a subscription, they must first subscribe to the uploader using the [`subscribe()`](https://docs.skapi.com/api-reference/database/README.html#subscribe) method:
 
 :::warning
 Anonymous (unsigned) users cannot create subscription records.
@@ -3363,25 +3633,30 @@ Anonymous (unsigned) users cannot create subscription records.
 User must be logged in to call this method.
 :::
 
-Let's assume **user 'B'** wants to access **user 'A'**'s subscription records. **User 'B'** will need to subscribe to **user 'A'**.
+Assume **user B** wants to access **user A**'s subscription records. **User B** must first subscribe to **user A**.
 
 ```js
-// User 'B' subscribes to user 'A'.
+// User B subscribes to user A.
 skapi.subscribe({
     user_id: "user_id_of_user_A",
-    get_feed: true, // Required to enable the get_feed method
+    get_feed: true, // Required to use getFeed() later.
 });
 ```
 
 :::tip
-To use the [`getFeed()`](/database/subscription.html#getting-feed) method later, be sure to include the parameter `get_feed: true` shown in [`subscribe(option): Promise<string>`](/api-reference/database/README.md#subscribe)
+To use the [`getFeed()`](https://docs.skapi.com/database/subscription.html#getting-feed) method later, be sure to include `get_feed: true` in [`subscribe()`](https://docs.skapi.com/api-reference/database/README.html#subscribe).
+
+`table.subscription.upload_to_feed` must be set to `true` for records to appear in subscriber feeds.
 :::
 
-Once the **user 'B'** has subscribed to **user 'A'**,
-**user 'B'** can now have access to the records in that subscription table.
+:::warning
+Subscribers will not get feeds that are posted prior to the subscription.
+:::
+
+Once **user B** subscribes to **user A**, **user B** can access records in that subscription table.
 
 ```js
-// User 'B' now can get records that requires subscription of user 'A'
+// User B can now retrieve records that require subscription to user A.
 skapi
     .getRecords({
         table: {
@@ -3391,20 +3666,17 @@ skapi
         },
     })
     .then((response) => {
-        console.log(response.list); // All posts user 'A' uploaded to table 'Posts' in subscription group 1.
+        console.log(response.list); // All records user A uploaded to the Posts table as subscription records.
     });
 ```
 
 :::tip
-The number of subscribers for a user is tracked in the [UserPublic](/api-reference/data-types/README.md#userpublic) object,
-which can be retrieved using the [`getUsers()`](/api-reference/database/README.md#getusers) method.
+Subscriber counts are tracked in the [UserPublic](https://docs.skapi.com/api-reference/data-types/README.html#userpublic) object,
+which you can retrieve with [`getUsers()`](https://docs.skapi.com/api-reference/database/README.html#getusers).
 :::
 
-:::danger
-`table.subscription.upload_to_feed` should be set to `true` for record to show up in subscription table.
-:::
 
-### [`subscribe(option): Promise<Subscription>`](/api-reference/database/README.md#subscribe)
+### [`subscribe(option): Promise<Subscription>`](https://docs.skapi.com/api-reference/database/README.html#subscribe)
 
 ## Unsubscribing
 
@@ -3412,7 +3684,7 @@ which can be retrieved using the [`getUsers()`](/api-reference/database/README.m
 User must be logged in to call this method.
 :::
 
-Users can unsubscribe from subscription group 1 using the [`unsubscribe()`](/api-reference/database/README.md#unsubscribe) method.
+Users can unsubscribe using [`unsubscribe()`](https://docs.skapi.com/api-reference/database/README.html#unsubscribe).
 
 ```js
 // User 'B'
@@ -3421,10 +3693,9 @@ skapi.unsubscribe({
 });
 ```
 
-For more detailed information on all the parameters and options available with the [`unsubscribe()`](/api-reference/database/README.md#unsubscribe) method,
-please refer to the API Reference below:
+For full parameter and option details, see the API reference below:
 
-### [`unsubscribe(option): Promise<string>`](/api-reference/database/README.md#unsubscribe)
+### [`unsubscribe(option): Promise<string>`](https://docs.skapi.com/api-reference/database/README.html#unsubscribe)
 
 :::warning
 After unsubscribing, subscription information may need some time to update (usually almost immediate).
@@ -3436,68 +3707,66 @@ After unsubscribing, subscription information may need some time to update (usua
 User must be logged in to call this method.
 :::
 
-One of the benefits of the subscription feature is that users can block certain users from accessing their subscription-level records.
-But, as mentioned above, subscriptions are not meant to be used as a security restriction.
+One benefit of the subscription feature is that users can block specific users from subscription-level records.
+However, subscriptions are not a full security boundary.
 
-Even when a user has blocked certain users, those users still have access to files attached to the records, since file access is not restricted by subscription unless the file is private or uses a higher access group than the accessing user.
+Even when a user is blocked, they may still access files attached to records unless those files are private or use a higher access group.
 
-Other than files, blocked users will not have access to any record data at the subscription access level.
+Blocked users cannot access subscription-level record data.
 
-To block a subscriber, user can call the [`blockSubscriber()`](/api-reference/database/README.md#blocksubscriber) method:
+To block a subscriber, call [`blockSubscriber()`](https://docs.skapi.com/api-reference/database/README.html#blocksubscriber):
 
 ### Blocking a Subscriber
 
 ```js
-// User 'A' blocks user 'B' from accessing all subscription group 1.
+// User A blocks user B from subscription records.
 skapi
     .blockSubscriber({
         user_id: "user_id_of_user_B",
     })
     .then((res) => {
-        // User 'B' no longer have access to user A's subscription group 1.
+        // User B no longer has access to user A's subscription records.
     });
 ```
 
-For more detailed information on all the parameters and options available with the [`blockSubscriber()`](/api-reference/database/README.md#blocksubscriber) method,
-please refer to the API Reference below:
+For full parameter and option details, see the API reference below:
 
-### [`blockSubscriber(option): Promise<string>`](/api-reference/database/README.md#blocksubscriber)
+### [`blockSubscriber(option): Promise<string>`](https://docs.skapi.com/api-reference/database/README.html#blocksubscriber)
 
 ### Unblocking a Subscriber
 
 ```js
-// User 'A' unblocks user 'B' from subscription group 1.
+// User A unblocks user B.
 skapi
     .unblockSubscriber({
         user_id: "user_id_of_user_B",
     })
     .then((res) => {
-        // User 'B' now has access to user A's subscription group 1.
+        // User B can access user A's subscription records again.
     });
 ```
 
-For more detailed information on all the parameters and options available with the [`unblockSubscriber()`](/api-reference/database/README.md#unblocksubscriber) method,
-please refer to the API Reference below:
+For full parameter and option details, see the API reference below:
 
-### [`unblockSubscriber(option): Promise<string>`](/api-reference/database/README.md#unblocksubscriber)
+### [`unblockSubscriber(option): Promise<string>`](https://docs.skapi.com/api-reference/database/README.html#unblocksubscriber)
 
-## Listing subscriptions
+## Listing Subscriptions
 
-The [`getSubscriptions()`](/api-reference/database/README.md#getsubscriptions) method retrieves subscription information from the database.
+The [`getSubscriptions()`](https://docs.skapi.com/api-reference/database/README.html#getsubscriptions) method retrieves subscription information from the database.
 
-### params:
+### Parameters
 
--   `subscriber`: The user ID of the subscriber.
--   `subscription`: The user ID of the uploader and the subscription group.
--   `blocked`: Set to `true` to only retrieve blocked subscriptions.
+-   `subscriber`: User ID of the subscriber.
+-   `subscription`: User ID of the user being subscribed to.
+-   `blocked`: Set to `true` to return only blocked subscriptions.
 
-Either the `params.subscriber` or `params.subscription` value must be provided.
+Provide at least one of `params.subscriber` or `params.subscription`.
 
 ### Examples
 
 ```js
 /**
- * Retrieve all subscription information where user 'B' is the subscriber
+ * Retrieve all subscriptions where user B is the subscriber.
  */
 skapi
     .getSubscriptions({
@@ -3508,7 +3777,7 @@ skapi
     });
 
 /**
- * Retrieve all subscription information where user A is being subscribed to
+ * Retrieve all subscriptions where user A is being subscribed to.
  */
 skapi
     .getSubscriptions({
@@ -3519,7 +3788,7 @@ skapi
     });
 
 /**
- * Check if user 'B' is subscribed to user 'A'
+ * Check whether user B is subscribed to user A.
  */
 skapi
     .getSubscriptions({
@@ -3531,43 +3800,43 @@ skapi
     });
 ```
 
-For more detailed information on all the parameters and options available with the [`getSubscriptions()`](/api-reference/database/README.md#getsubscriptions) method,
-please refer to the API Reference below:
+For full parameter and option details, see the API reference below:
 
-### [`getSubscriptions(params, fetchOptions?): Promise<DatabaseResponse<Subscription>>`](/api-reference/database/README.md#getsubscriptions)
+### [`getSubscriptions(params, fetchOptions?): Promise<DatabaseResponse<Subscription>>`](https://docs.skapi.com/api-reference/database/README.html#getsubscriptions)
 
 ## Getting Feed
 
-The [`getFeed()`](/api-reference/database/README.md#getfeed) method retrieves the user's feed.
+[`getFeed()`](https://docs.skapi.com/api-reference/database/README.html#getfeed) retrieves the current user's feed.
 
-This method retrieves feed records from users the current user subscribes to.
+It returns feed records from users the current user has subscribed to.
 
 You can use this method to build a feed page for the user.
 
 ### Examples
 
-First, the user 'A' must upload a record as a feed.
+First, user A must upload a record to the feed.
 
 ```js
-// User 'A' uploads record as a feed.
+// User A uploads a record to the feed.
 skapi.postRecord(null, {
-  table: {
-    name:'Posts',
-    access_group: 'authorized',
-    subscription: {
-      upload_to_feed: true
+    table: {
+        name: 'Posts',
+        access_group: 'authorized',
+        subscription: {
+            upload_to_feed: true
+        }
     }
-}})
+});
 ```
 
-Then user 'B', who is subscribed to user 'A', can fetch the uploaded feeds from users they subscribe to.
+Then user B, who is subscribed to user A, can fetch feed records from subscribed users.
 
 ```js
 /**
- * User 'B' Retrieves all feed of access_group: "authorized"
+ * User B retrieves all feed records with access_group: "authorized".
  */
-skapi.getFeed({access_group: 'authorized'}).then((response) => {
-  console.log(response.list); // Fetch all feed records in the 'authorized' access group from users userB subscribes to.
+skapi.getFeed({ access_group: 'authorized' }).then((response) => {
+    console.log(response.list); // Feed records from subscribed users in the 'authorized' access group.
 });
 ```
 
@@ -3583,7 +3852,7 @@ When a user unsubscribes from another user, all past records from that user will
 Users only see feed records from the time they subscribed onward.
 :::
 
-### [`getFeed(params?, fetchOptions?): Promise<DatabaseResponse<RecordData>>`](/api-reference/database/README.md#getfeed)
+### [`getFeed(params?, fetchOptions?): Promise<DatabaseResponse<RecordData>>`](https://docs.skapi.com/api-reference/database/README.html#getfeed)
 
 
 <br>
@@ -3655,9 +3924,9 @@ You can get your own service ID from [Skapi](https://www.skapi.com)
 
 ## Example
 
-Below is part of the repository code. You can see how it handles complex database examples.
+Below is part of the repository code, showing how it handles complex database scenarios.
 
-Since this is a portion of the complete repository code and doesn't include supporting files like `service.js`, direct copy and paste will not work.
+Because this is only a portion of the full repository and does not include supporting files such as `service.js` and `main.css`, direct copy-and-paste will not work.
 
 **welcome.html**
 
@@ -4678,6 +4947,168 @@ Since this is a portion of the complete repository code and doesn't include supp
 
 <br>
 
+# Using Third-Party APIs
+
+You can connect Skapi to third-party APIs (services outside your app), such as AI services, map services, payment services, or your own external APIs.
+
+If the API requires a client secret, use [`clientSecretRequest()`](https://docs.skapi.com/api-reference/api-bridge/README.html#clientsecretrequest) to send secure `POST` or `GET` requests.
+
+Because client secrets must never be exposed in frontend code, register each secret key securely in Skapi.
+
+## Registering Client Secret Keys
+
+1. In your Skapi service dashboard, click **Client Secret Key**.
+2. Click **+** at the top-right of the table.
+3. In the form, enter:
+  - **Name:** A label for this key. You will use this value as `clientSecretName` in [`clientSecretRequest()`](https://docs.skapi.com/api-reference/api-bridge/README.html#clientsecretrequest).
+  - **Client Secret Key:** The actual secret value. Use `$CLIENT_SECRET` in your `data`, `params`, `headers`, or `url` fields where the real secret should be inserted.
+  - **Locked:** Controls access to this key. If **Locked** is enabled, only logged-in users can use it. If disabled, any user can use it.
+
+4. Click **Save**.
+
+
+## Sending Requests to Third-Party APIs
+
+After you save your client secret key, use [`clientSecretRequest(params)`](https://docs.skapi.com/api-reference/api-bridge/README.html#clientsecretrequest) to send secure requests to third-party APIs.
+
+The example below sends a `POST` request to a third-party API using a key saved as `YourSecretKeyName`. It places `$CLIENT_SECRET` in the `Authorization` header.
+
+```js [JS]
+skapi.clientSecretRequest({
+    clientSecretName: 'YourSecretKeyName',
+    url: 'https://third.party.com/api',
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer $CLIENT_SECRET'
+    }
+})
+```
+
+The `params` object supports these fields:
+
+- `clientSecretName`: Name of the client secret key saved in your Skapi service.
+- `url`: Third-party API endpoint URL.
+- `method`: HTTP method (`GET` or `POST`).
+- `headers`: Request headers as key-value pairs.
+- `data`: Request body as key-value pairs (used when `method` is `POST`).
+- `params`: Query parameters as key-value pairs (used when `method` is `GET`).
+
+
+:::warning
+When using `clientSecretRequest()`, include the `$CLIENT_SECRET` placeholder in at least one of these values: `data`, `params`, `headers`, or `url`.
+:::
+
+For full parameter details, see the API reference below:
+
+### [`clientSecretRequest(params): Promise<any>`](https://docs.skapi.com/api-reference/api-bridge/README.html#clientsecretrequest)
+
+
+## OpenAI Images API
+
+In this example, you will use Skapi to call the [OpenAI Images API](https://developers.openai.com/api/reference/resources/images/methods/generate) securely.
+
+First, we review the OpenAI API request format. Then we build the same request with `clientSecretRequest()`.
+
+#### Prerequisites
+
+1. Create an OpenAI account and get your API secret key from [platform.openai.com](https://platform.openai.com/).
+2. Save your OpenAI API secret key on the **Client Secret Key** page in Skapi.
+
+  For this example, save the key with the name `openai`.
+
+  You will use this name as `clientSecretName` in the request.
+
+#### Understanding the API call
+
+According to the API documentation, the endpoint is:
+
+```
+POST https://api.openai.com/v1/images/generations
+```
+
+This means the request uses `POST` to `https://api.openai.com/v1/images/generations`.
+
+The curl example looks like this:
+
+``` bash
+curl https://api.openai.com/v1/images/generations \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -d '{
+    "model": "gpt-image-1.5",
+    "prompt": "A cute baby sea otter",
+    "n": 1,
+    "size": "1024x1024"
+  }'
+```
+
+From this example, the request needs these headers:
+
+- `Content-Type: application/json`
+- `Authorization: Bearer $OPENAI_API_KEY`
+
+The request body should include fields such as `model`, `prompt`, `n`, and `size`.
+
+`$OPENAI_API_KEY` is a placeholder for your OpenAI secret key.
+
+Because secrets must not be exposed in frontend code, use [`clientSecretRequest()`](https://docs.skapi.com/api-reference/api-bridge/README.html#clientsecretrequest) and pass `Bearer $CLIENT_SECRET` instead:
+::: code-group
+
+```html [Form]
+<form onsubmit="skapi.clientSecretRequest(event).then(r=>console.log(r))">
+  <input name="clientSecretName" hidden value="openai">
+  <input name="url" hidden value="https://api.openai.com/v1/images/generations">
+  <input name="method" hidden value="POST">
+  <input name="headers[Content-Type]" hidden value='application/json'>
+  <input name="headers[Authorization]" hidden value="Bearer $CLIENT_SECRET">
+  <input name="data[model]" hidden value="gpt-image-1.5">
+  <input name="data[n]" hidden type='number' value="1">
+  <input name="data[size]" hidden value="1024x1024">
+  <textarea name='data[prompt]' required>A cute baby sea otter</textarea>
+  <input type="submit" value="Generate">
+</form>
+```
+
+```js [JS]
+skapi.clientSecretRequest({
+    clientSecretName: 'openai',
+    url: 'https://api.openai.com/v1/images/generations',
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer $CLIENT_SECRET'
+    },
+    data: {
+        model: "gpt-image-1.5",
+        "prompt": "A cute baby sea otter",
+        n: 1,
+        size: "1024x1024"
+    }
+})
+```
+:::
+The example above shows how to build request headers and body data for a secure OpenAI API call.
+Use `$CLIENT_SECRET` in the `Authorization` header and set `clientSecretName` to `openai`, which is the key name saved in your Skapi dashboard.
+
+When the request runs, Skapi replaces `$CLIENT_SECRET` with your stored secret key and returns the response from the OpenAI API.
+
+<br>
+
+# What is Realtime Connection?
+
+Skapi's realtime connection features include WebSocket data exchange, WebRTC, and notifications.
+
+These technologies enable real-time chat, data transfer, and audio/video communication between users.
+
+Realtime messaging lets you transfer JSON data between users through either WebSocket connections or WebRTC.
+
+Skapi WebRTC provides peer-to-peer connections that can transfer large amounts of data quickly, making it suitable for use cases such as video chat.
+
+The notification feature allows your web apps and PWAs to receive real-time notifications.
+
+<br>
+
 # Connecting to Realtime
 
 Skapi's realtime connection let's you transfer JSON data between users in realtime.
@@ -4690,14 +5121,14 @@ User must be logged in to call this method
 :::
 
 Before you start sending realtime data, you must create a realtime connection.
-You can create a realtime connection by calling [`connectRealtime()`](/api-reference/realtime/README.md#connectrealtime) method.
+You can create a realtime connection by calling [`connectRealtime()`](https://docs.skapi.com/api-reference/realtime/README.html#connectrealtime) method.
 
-For more detailed information on all the parameters and options available with the [`connectRealtime()`](/api-reference/realtime/README.md#connectrealtime) method,
+For more detailed information on all the parameters and options available with the [`connectRealtime()`](https://docs.skapi.com/api-reference/realtime/README.html#connectrealtime) method,
 please refer to the API Reference below:
 
-### [`connectRealtime(RealtimeCallback): Promise<WebSocket>`](/api-reference/realtime/README.md#connectrealtime)
+### [`connectRealtime(RealtimeCallback): Promise<WebSocket>`](https://docs.skapi.com/api-reference/realtime/README.html#connectrealtime)
 
-Once the connection is established, you can start receiving realtime data from the [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback).
+Once the connection is established, you can start receiving realtime data from the [RealtimeCallback](https://docs.skapi.com/api-reference/data-types/README.html#realtimecallback).
 
 ```js
 let RealtimeCallback = (rt) => {
@@ -4721,7 +5152,7 @@ let RealtimeCallback = (rt) => {
 skapi.connectRealtime(RealtimeCallback);
 ```
 
-In the example above, the [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback) function is executed whenever data is transferred between users.
+In the example above, the [RealtimeCallback](https://docs.skapi.com/api-reference/data-types/README.html#realtimecallback) function is executed whenever data is transferred between users.
 
 When the callback runs, it receives a message object with the following properties:
 
@@ -4754,13 +5185,13 @@ When the callback runs, it receives a message object with the following properti
 
 ## Closing Connection
 
-You can close the realtime connection by calling [`closeRealtime()`](/api-reference/realtime/README.md#closerealtime) method.
+You can close the realtime connection by calling [`closeRealtime()`](https://docs.skapi.com/api-reference/realtime/README.html#closerealtime) method.
 
 ```js
 skapi.closeRealtime();
 ```
 
-When the connection is successfully closed, [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback) will trigger with following callback data:
+When the connection is successfully closed, [RealtimeCallback](https://docs.skapi.com/api-reference/data-types/README.html#realtimecallback) will trigger with following callback data:
 
 ```ts
 {
@@ -4769,10 +5200,10 @@ When the connection is successfully closed, [RealtimeCallback](/api-reference/da
 }
 ```
 
-For more detailed information on all the parameters and options available with the [`closeRealtime()`](/api-reference/realtime/README.md#closerealtime) method,
+For more detailed information on all the parameters and options available with the [`closeRealtime()`](https://docs.skapi.com/api-reference/realtime/README.html#closerealtime) method,
 please refer to the API Reference below:
 
-### [`closeRealtime(): Promise<void>`](/api-reference/realtime/README.md#closerealtime)
+### [`closeRealtime(): Promise<void>`](https://docs.skapi.com/api-reference/realtime/README.html#closerealtime)
 
 :::tip
 When the user closes the tab or refresh the browser, the connection will be closed automatically.
@@ -4788,12 +5219,12 @@ Once the realtime connection is established, users can start sending realtime da
 
 ## Sending Data to a User
 
-User can send any JSON data over to any users by using [`postRealtime()`](/api-reference/realtime/README.md#postrealtime) method.
+User can send any JSON data over to any users by using [`postRealtime()`](https://docs.skapi.com/api-reference/realtime/README.html#postrealtime) method.
 
-For more detailed information on all the parameters and options available with the [`postRealtime()`](/api-reference/realtime/README.md#postrealtime) method,
+For more detailed information on all the parameters and options available with the [`postRealtime()`](https://docs.skapi.com/api-reference/realtime/README.html#postrealtime) method,
 please refer to the API Reference below:
 
-### [`postRealtime(message, recipient, notification?): Promise<{ type: 'success', message: string }>`](/api-reference/realtime/README.md#postrealtime)
+### [`postRealtime(message, recipient, notification?): Promise<{ type: 'success', message: string }>`](https://docs.skapi.com/api-reference/realtime/README.html#postrealtime)
 
 :::warning
 The receiver must also be connected to the realtime connection to receive the data.
@@ -4819,12 +5250,12 @@ skapi
 
 Example above shows how to send realtime data to a user with an id: 'recipient_user_id' (Should be the user_id of user's profile).
 
-[`postRealtime()`](/api-reference/realtime/README.md#postrealtime) method can be used directly from the form element as shown in the example above.
-[`postRealtime()`](/api-reference/realtime/README.md#postrealtime) takes two arguments:
+[`postRealtime()`](https://docs.skapi.com/api-reference/realtime/README.html#postrealtime) method can be used directly from the form element as shown in the example above.
+[`postRealtime()`](https://docs.skapi.com/api-reference/realtime/README.html#postrealtime) takes two arguments:
 
 -   `message`: The data to be sent to the recipient. It can be any JSON parsable data, or a SubmitEvent object.
 -   `recipient`: The user ID of the recipient or the name of the group the user have joined.
--   `notification`: Notification to send with the realtime message, or notification to use when user is not connected to realtime. See [`Sending Notifications`](/notification/send-notifications.html#sending-notifications)
+-   `notification`: Notification to send with the realtime message, or notification to use when user is not connected to realtime. See [`Sending Notifications`](https://docs.skapi.com/notification/send-notifications.html#sending-notifications)
 
 When the message is sent successfully, the method will return the following object:
 
@@ -4837,7 +5268,7 @@ When the message is sent successfully, the method will return the following obje
 
 ## Receiving Data from a User
 
-On the receiver’s side, the message is delivered to the [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback) defined when creating the realtime connection with [`connectRealtime()`](/api-reference/realtime/README.md#connectrealtime). The callback receives an object whose `type` property is set to `"private"`.
+On the receiver’s side, the message is delivered to the [RealtimeCallback](https://docs.skapi.com/api-reference/data-types/README.html#realtimecallback) defined when creating the realtime connection with [`connectRealtime()`](https://docs.skapi.com/api-reference/realtime/README.html#connectrealtime). The callback receives an object whose `type` property is set to `"private"`.
 
 Below is an example of how the other user receives the sent data from the RealtimeCallback function:
 
@@ -4870,7 +5301,7 @@ This can be used to create group chats, group notifications, etc.
 
 ## Joining a Group
 
-Users can join a group by calling [`joinRealtime()`](/api-reference/realtime/README.md#joinrealtime) method.
+Users can join a group by calling [`joinRealtime()`](https://docs.skapi.com/api-reference/realtime/README.html#joinrealtime) method.
 
 params argument takes the following parameters:
 
@@ -4894,10 +5325,10 @@ When the user is joined to the group successfully, the method will return the fo
 }
 ```
 
-For more detailed information on all the parameters and options available with the [`joinRealtime()`](/api-reference/realtime/README.md#joinrealtime) method,
+For more detailed information on all the parameters and options available with the [`joinRealtime()`](https://docs.skapi.com/api-reference/realtime/README.html#joinrealtime) method,
 please refer to the API Reference below:
 
-### [`joinRealtime(params): Promise<{ type: 'success', message: string }>`](/api-reference/realtime/README.md#joinrealtime)
+### [`joinRealtime(params): Promise<{ type: 'success', message: string }>`](https://docs.skapi.com/api-reference/realtime/README.html#joinrealtime)
 
 :::tip
 Even if the user has joined the group, they can still receive realtime data sent individually to them.
@@ -4905,7 +5336,7 @@ Even if the user has joined the group, they can still receive realtime data sent
 
 ## Sending Data to a Group
 
-Once the user has joined the group, they can send any JSON data to it using the [`postRealtime()`](/api-reference/realtime/README.md#postrealtime) method. The message (JSON data) will be broadcast to all users in the group.
+Once the user has joined the group, they can send any JSON data to it using the [`postRealtime()`](https://docs.skapi.com/api-reference/realtime/README.html#postrealtime) method. The message (JSON data) will be broadcast to all users in the group.
 
 The example below shows how to send realtime data to a group named "HelloWorld":
 
@@ -4927,14 +5358,14 @@ skapi
 
 :::
 
-For more detailed information on all the parameters and options available with the [`postRealtime()`](/api-reference/realtime/README.md#postrealtime) method,
+For more detailed information on all the parameters and options available with the [`postRealtime()`](https://docs.skapi.com/api-reference/realtime/README.html#postrealtime) method,
 please refer to the API Reference below:
 
 ## Receiving Data from the Group
 
-When a message (JSON data) is broadcast in the group, every user receives it as an argument to the RealtimeCallback defined when creating the realtime connection with [`connectRealtime()`](/api-reference/realtime/README.md#connectrealtime). The callback receives an object whose `type` property is set to `"message"`.
+When a message (JSON data) is broadcast in the group, every user receives it as an argument to the RealtimeCallback defined when creating the realtime connection with [`connectRealtime()`](https://docs.skapi.com/api-reference/realtime/README.html#connectrealtime). The callback receives an object whose `type` property is set to `"message"`.
 
-The example below shows how other users receive the broadcasted data from the group named "HelloWorld" via [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback) function:
+The example below shows how other users receive the broadcasted data from the group named "HelloWorld" via [RealtimeCallback](https://docs.skapi.com/api-reference/data-types/README.html#realtimecallback) function:
 
 ```js
 let RealtimeCallback = (rt) => {
@@ -4955,7 +5386,7 @@ let RealtimeCallback = (rt) => {
 skapi.connectRealtime(RealtimeCallback);
 ```
 
-### [`postRealtime(message, recipient, notification?): Promise<{ type: 'success', message: string }>`](/api-reference/realtime/README.md#postrealtime)
+### [`postRealtime(message, recipient, notification?): Promise<{ type: 'success', message: string }>`](https://docs.skapi.com/api-reference/realtime/README.html#postrealtime)
 
 :::warning
 The user must be joined to the group to send data to the group.
@@ -4963,7 +5394,7 @@ The user must be joined to the group to send data to the group.
 
 ## Leaving a Group
 
-Also, if you want to leave the group, you can call [`joinRealtime(params)`](/api-reference/realtime/README.md#leaverealtime) method with a `params.group` value as empty `string` or `null`.
+Also, if you want to leave the group, you can call [`joinRealtime(params)`](https://docs.skapi.com/api-reference/realtime/README.html#leaverealtime) method with a `params.group` value as empty `string` or `null`.
 
 ```js
 skapi.joinRealtime({ group: null });
@@ -4972,7 +5403,7 @@ skapi.joinRealtime({ group: null });
 ## Changing the Group
 
 Users can join only one group at a time.
-If you want your user to change groups, you can call [`joinRealtime(params)`](/api-reference/realtime/README.md#joinrealtime) method with a different `params.group` value.
+If you want your user to change groups, you can call [`joinRealtime(params)`](https://docs.skapi.com/api-reference/realtime/README.html#joinrealtime) method with a different `params.group` value.
 
 ```js
 skapi.joinRealtime({ group: "Another Group Name" });
@@ -4980,7 +5411,7 @@ skapi.joinRealtime({ group: "Another Group Name" });
 
 ## Listing Groups
 
-Users can get a list of realtime groups by calling [`getRealtimeGroups()`](/api-reference/realtime/README.md#getrealtimegroups) method.
+Users can get a list of realtime groups by calling [`getRealtimeGroups()`](https://docs.skapi.com/api-reference/realtime/README.html#getrealtimegroups) method.
 
 Example below shows listing all groups existing in your service:
 
@@ -5015,14 +5446,14 @@ skapi
     });
 ```
 
-For more detailed information on all the parameters and options available with the [`getRealtimeGroups()`](/api-reference/realtime/README.md#getrealtimegroups) method,
+For more detailed information on all the parameters and options available with the [`getRealtimeGroups()`](https://docs.skapi.com/api-reference/realtime/README.html#getrealtimegroups) method,
 please refer to the API Reference below:
 
-### [`getRealtimeGroups(params?, fetchOptions?): Promise<DatabaseResponse<{ group: string; number_of_users: number; }>>`](/api-reference/realtime/README.md#getrealtimegroups)
+### [`getRealtimeGroups(params?, fetchOptions?): Promise<DatabaseResponse<{ group: string; number_of_users: number; }>>`](https://docs.skapi.com/api-reference/realtime/README.html#getrealtimegroups)
 
 ## Listing Users in a Group
 
-Users can get a list of users in a group by calling [`getRealtimeUsers()`](/api-reference/realtime/README.md#getrealtimeusers) method.
+Users can get a list of users in a group by calling [`getRealtimeUsers()`](https://docs.skapi.com/api-reference/realtime/README.html#getrealtimeusers) method.
 
 Example below shows listing all users in the "HelloWorld" group:
 
@@ -5043,49 +5474,68 @@ skapi
     });
 ```
 
-For more detailed information on all the parameters and options available with the [`getRealtimeUsers()`](/api-reference/realtime/README.md#getrealtimeusers) method,
+For more detailed information on all the parameters and options available with the [`getRealtimeUsers()`](https://docs.skapi.com/api-reference/realtime/README.html#getrealtimeusers) method,
 please refer to the API Reference below:
 
-### [`getRealtimeUsers(params?, fetchOptions?): Promise<DatabaseResponse<{ user_id:string; connection_id:string; }[]>>`](/api-reference/realtime/README.md#getrealtimeusers)
+### [`getRealtimeUsers(params?, fetchOptions?): Promise<DatabaseResponse<{ user_id:string; connection_id:string; }[]>>`](https://docs.skapi.com/api-reference/realtime/README.html#getrealtimeusers)
 
 
 <br>
 
 # WebRTC
 
-Skapi provides easy integration of WebRTC, allowing developers to quickly set up real-time communication features in their applications.
+Skapi makes WebRTC integration easy, allowing developers to quickly add real-time communication features to their applications.
 
 WebRTC (Web Real-Time Communication) is a technology that enables peer-to-peer media and data streaming between two parties.
 This can be used for video calls, voice calls, and data exchange, making it a versatile tool for various real-time communication needs.
 
 :::danger HTTPS REQUIRED.
-WebRTC only works on HTTPS environment.
-You need to setup a HTTPS environment when developing a WebRTC feature for your web application.
+WebRTC only works in an HTTPS environment.
+You need to set up an HTTPS environment when developing WebRTC features for your web application.
 
-You can host your application in skapi.com or host from your personal servers.
+You can host your application on skapi.com or on your own servers.
 :::
 
 ## Creating RTC Connection
 
-To create RTC connection, both party needs to be online and need to utilize realtime connection.
+To create an RTC connection, both parties must be online and connected to Realtime.
 
-1. Both party should create realtime connection by using [`connectRealtime()`](/api-reference/realtime/README.md#connectrealtime) method.
+One user initiates the call with the other user's `cid` via [`connectRTC()`](https://docs.skapi.com/api-reference/realtime/README.html#connectrtc), and the other user receives an `rtc:incoming` event.
 
-2. Once both parties are connected to realtime, both parties should join same realtime group by using [`joinRealtime()`](/api-reference/realtime/README.md#joinrealtime)
+If media streaming is enabled, users must grant camera/microphone permission.
 
-3. Now both parties can see each other's `connection ID(cid)` either by calling [`getRealtimeUsers()`](/api-reference/realtime/README.md#getrealtimeusers) method or from the [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback).
-   
-   One of the party can request RTC connection by using the opponent's `cid` with [`connectRTC()`](/api-reference/realtime/README.md#connectrtc) method.
+## Overall Flow
 
-4. If media streaming is used, users should give permission to allow their device to be used.
+Before reading the full code, here is the call flow in plain language:
 
+1. **Both users connect to Realtime**  
+    Each browser starts a Realtime connection with [`connectRealtime()`](https://docs.skapi.com/api-reference/realtime/README.html#connectrealtime) and joins the same room with [`joinRealtime()`](https://docs.skapi.com/api-reference/realtime/README.html#joinrealtime).
 
-Below is an example code of the process:
+2. **Users discover each other in the room**  
+    When someone joins, Realtime sends a `USER_JOINED` notice via [RealtimeCallback](https://docs.skapi.com/api-reference/data-types/README.html#realtimecallback), which includes the user's connection info (`cid`).
+    Both parties can also see each other's `connection ID (cid)` by calling [`getRealtimeUsers()`](https://docs.skapi.com/api-reference/realtime/README.html#getrealtimeusers).
+
+3. **One user starts a call**  
+    The caller uses the other user's `cid` with `connectRTC(...)` to begin WebRTC negotiation.
+
+4. **The other user receives an incoming call**  
+    The receiver gets an `rtc:incoming` event and can accept or reject.
+    - If accepted, `connectRTC(...)` completes on the receiver side.
+    - Both browsers request camera/microphone access if media is enabled.
+
+5. **Media streams and connection events are handled**  
+    - Local stream is shown in the local video element.
+    - Remote stream arrives in the `track` event and is shown in the remote video element.
+    - Connection lifecycle events (`connecting`, `connected`, `disconnected`, `failed`, `closed`) update UI and cleanup state.
+    - Optional RTC data channel events (`open`, `message`, `close`, etc.) are handled in the same callback.
+
+In short: **Realtime is used for signaling (who is online, incoming call events), and WebRTC is used for the actual peer-to-peer media/data connection.**
 
 
 ### 1. Basic UI Interface
 
-Here we will add video element to display users and simple dialog to display incomming calls.
+Here we add video elements to display local and remote streams, and a simple dialog for incoming/outgoing calls.
+The `call_dialog` &lt;dialog&gt; content is generated dynamically when an RTC call event occurs.
 
 ```html
 <!-- skapi should be previously initialized... -->
@@ -5098,40 +5548,86 @@ Here we will add video element to display users and simple dialog to display inc
     }
 </style>
 
-<!-- Below are the video elements which it will display incoming / outgoing media streams -->
+<!-- Video elements for displaying local and remote media streams -->
 <video id="localVideo" autoplay muted></video>
-<video id="remoteVideo" autoplay></video>
+<video id="remoteVideo" autoplay hidden></video>
 
-<!-- This will be a dialog for outgoing, incomming calls -->
+<!-- Dialog used for outgoing and incoming calls -->
 <dialog id="call_dialog"></dialog>
 ```
 
 ### 2. Setting Up Realtime and RTC
 
-Below is an simple example of setting up RTC video call.
+Below is a simple example of setting up an RTC video call.
 
 ```js
-let call = null; // This will later be defined to resolved RTC connection object.
+let call = null; // This will later be set to the resolved RTC connection object.
 
-// RTC event listener
-// This callback is used on connectRTC() on both calling and receiving side.
-function RTCEvent(e) {
-    if (e.type === 'track') {
-        // Incoming Media Stream...
-        document.getElementById('remoteVideo').srcObject = e.streams[0];
-        call_dialog.close();
+// This RTCCallback is used in connectRTC() on both the calling and receiving sides.
+
+function RTCCallback(e) {
+    console.log("RTC Callback:", e);
+
+    switch (e.type) {
+        // RTC Events
+        case "negotiationneeded":
+            // RTC negotiation is needed. Send an offer.
+            break;
+
+        case "track":
+            // Attach the incoming media stream to the remote video element.
+            document.getElementById('remoteVideo').srcObject = e.streams[0];
+            document.getElementById("remoteVideo").play();
+            break;
+
+        case "connectionstatechange":
+            // RTC connection state
+
+            if (
+                e.state === "disconnected" ||
+                e.state === "failed" ||
+                e.state === "closed"
+            ) {
+                // RTC has disconnected. Hide the opponent video element.
+                document.getElementById('remoteVideo').hidden = true;
+                
+            } else if (state === "connecting") {
+                // Callback executed when the user is connected to RTC.
+                // Show the opponent video element.
+                document.getElementById('remoteVideo').hidden = false;
+            }
+            break;
+
+        // Data Channel Events
+        case "close":
+            // Data channel is closed
+            break;
+        case "message":
+            // Data channel message received from remote peer.
+            console.log(`Message received from RTC data channel:`, e.data);
+            break;
+        case "open":
+            // Data channel opened
+            break;
+        case "bufferedamountlow":
+            // Data channel low buffer
+            break;
+        case "error":
+            // Data channel error
+            break;
     }
 }
+
 // Realtime event listener
-// This callback will listen to user joining the room.
+// This callback listens for users joining the room.
 function RealtimeCallback(rt) {
     if(rt.type === 'notice') {
         if(rt.code === 'USER_JOINED') {
             if(call) return;
 
-            // When opponent joins a room, and it's not the user itself, user can make a RTC call
+            // When another user joins the room, start an RTC call.
             if(skapi.user.user_id !== rt.sender) {
-                call = await skapi.connectRTC({cid: rt.sender_cid, media: { audio: true, video: true}}, RTCEvent);
+                call = await skapi.connectRTC({cid: rt.sender_cid, media: { audio: true, video: true}}, RTCCallback);
 
                 call_dialog.innerHTML = /*html*/`
                     <p>Outgoing call</p>
@@ -5147,13 +5643,13 @@ function RealtimeCallback(rt) {
     }
 
     if (rt.type === 'rtc:incoming') {
-        // incomming rtc call
+        // incoming RTC call
         call = rt;
 
         call_dialog.innerHTML = /*html*/`
             <p>Incoming call</p>
             <button onclick='
-                call.connectRTC({ media: {audio: true, video: true} }, RTCEvent)
+                call.connectRTC({ media: {audio: true, video: true} }, RTCCallback)
                     .then(rtc => {
                         rtcConnection = rtc; // Save resolved RTC connection object
                         document.getElementById("localVideo").srcObject = rtcConnection.media; // Show outgoing local media stream
@@ -5167,13 +5663,13 @@ function RealtimeCallback(rt) {
     }
 
     else if (rt.type === 'rtc:closed') {
-        // rtc connection is closed
+        // RTC connection is completely closed
         call = null;
     }
 }
 
-skapi.connectRealtime(RealtimeCallback); // Connect to realtime
-skapi.joinRealtime({ group: 'RTCCall' }); // Join a realtime group
+skapi.connectRealtime(RealtimeCallback); // Connect to Realtime
+skapi.joinRealtime({ group: 'RTCCall' }); // Join a Realtime group
 ```
 
 <br>
@@ -5183,23 +5679,52 @@ skapi.joinRealtime({ group: 'RTCCall' }); // Join a realtime group
 Skapi provides methods to manage push notifications, including subscribing, unsubscribing, and sending notifications. This guide explains how to implement push notifications using Skapi from the client side.
 
 :::danger HTTPS REQUIRED.
-Notifications only works on HTTPS environment.
-You need to setup a HTTPS environment when developing a notifications feature for your web application.
+Notifications only work in an HTTPS environment.
+You need to set up HTTPS when developing notification features for your web application.
 
-You can host your application in skapi.com or host from your personal servers.
+You can host your application on skapi.com or on your own servers.
 :::
+
+## Setting Up Service Worker
+
+The first step for web push notifications is to set up a service worker. In this guide, we use a file named `sw.js` in the project folder. The service worker handles incoming notifications and user interactions in the background, so notifications can still arrive even when the site is closed. This file must exist in your project and be registered correctly, or push notifications will not work.
+
+### sw.js
+```js
+self.addEventListener('push', function(event) {
+    const data = event.data.json();
+    const title = data.title || "Default Title";
+    const options = {
+        body: data.body || "Default Body",
+        icon: 'icon-192x192.png',
+        badge: 'icon-192x192.png'
+    };
+    
+    event.waitUntil(
+        self.registration.showNotification(title, options)
+    );
+});
+
+self.addEventListener('notificationclick', function(event) {
+    event.notification.close();
+    let url = event.target.location.origin;
+    event.waitUntil(
+        clients.openWindow(url)
+    );
+});
+```
 
 ## Subscribing to Notifications
 
-To receive push notifications, users must first subscribe. This requires obtaining a VAPID key and registering a service worker. It is possible to get the VAPID key by calling the method [`vapidPublicKey()`](/api-reference/realtime/README.md#vapidpublickey) and after subscribe by using the method [`subscribeNotification()`](/api-reference/realtime/README.md#subscribenotification).
+To receive push notifications, users must subscribe first. This requires a VAPID key and a registered service worker. You can get the VAPID key by calling [`vapidPublicKey()`](https://docs.skapi.com/api-reference/realtime/README.html#vapidpublickey), then subscribe by calling [`subscribeNotification()`](https://docs.skapi.com/api-reference/realtime/README.html#subscribenotification).
 
 ### Steps:
-1. Retrieve the VAPID key using [`vapidPublicKey()`](/api-reference/realtime/README.md#vapidpublickey).
-2. Request notification permission from the device user.
-3. Add the service worker [`sw.js`](#service-worker-sw-js) file to your environment.
-4. Register a service worker and request notification permissions.
+1. Retrieve the VAPID key using [`vapidPublicKey()`](https://docs.skapi.com/api-reference/realtime/README.html#vapidpublickey).
+2. Request notification permission from the user.
+3. Add the service worker file (`sw.js`) to your project.
+4. Register the service worker.
 5. Subscribe to push notifications using `navigator.serviceWorker.pushManager.subscribe()`.
-6. Send the subscription details to Skapi using [`subscribeNotification()`](/api-reference/realtime/README.md#subscribenotification).
+6. Send the subscription details to Skapi using [`subscribeNotification()`](https://docs.skapi.com/api-reference/realtime/README.html#subscribenotification).
 
 ### Code Example:
 ```js
@@ -5264,12 +5789,12 @@ await skapi.subscribeNotification(subscription.endpoint, subscription.keys);
 
 ## Unsubscribing to Notifications
 
-To stop receiving notifications, users need to unsubscribe by calling the method [`unsubscribenotification()`](/api-reference/realtime/README.md#unsubscribenotification) and passing the endpoint and keys as parameters. 
+To stop receiving notifications, users must unsubscribe by calling [`unsubscribeNotification()`](https://docs.skapi.com/api-reference/realtime/README.html#unsubscribenotification) with the endpoint and keys.
 
 ### Steps:
 1. Retrieve the current push subscription from `navigator.serviceWorker.ready.pushManager.getSubscription()`.
 2. If a subscription exists, call `unsubscribe()` on it.
-3. Notify Skapi by calling [`unsubscribeNotification()`](/api-reference/realtime/README.md#unsubscribenotification).
+3. Notify Skapi by calling [`unsubscribeNotification()`](https://docs.skapi.com/api-reference/realtime/README.html#unsubscribenotification).
 
 ### Code Example:
 ```js
@@ -5295,39 +5820,10 @@ await subscription.unsubscribe();
 const response = await skapi.unsubscribeNotification(subscription.endpoint, subscriptionJSON.keys);
 ```
 
-## Service Worker (`sw.js`)
-
-A service worker file (`sw.js`) is required to handle incoming push notifications and user interactions. It runs in the background, allowing notifications to be received even when the site is closed. This file must be present in your project and correctly registered; otherwise, push notifications won’t work.
-
-### Code Example:
-```js
-self.addEventListener('push', function(event) {
-    const data = event.data.json();
-    const title = data.title || "Default Title";
-    const options = {
-        body: data.body || "Default Body",
-        icon: 'icon-192x192.png',
-        badge: 'icon-192x192.png'
-    };
-    
-    event.waitUntil(
-        self.registration.showNotification(title, options)
-    );
-});
-
-self.addEventListener('notificationclick', function(event) {
-    event.notification.close();
-    let url = event.target.location.origin;
-    event.waitUntil(
-        clients.openWindow(url)
-    );
-});
-```
-
 ## Sending Notifications
 
-You can let users use [`postRealtime()`](/api-reference/realtime/README.md#postrealtime) to send notification to each other.
-In case the recipient is not connected to realtime, you can set the `notification` argument to notify user with notification message.
+You can let users send notifications to each other with [`postRealtime()`](https://docs.skapi.com/api-reference/realtime/README.html#postrealtime).
+If the recipient is not connected to Realtime, set the `notification` argument to send a push notification message.
 
 ```js
 skapi.postRealtime(
@@ -5340,9 +5836,9 @@ skapi.postRealtime(
 ).then(res => console.log(res));
 ```
 
-If the receiver has subscribed to push notification API, they will receive the notification message that is set in `notification` argument.
+If the recipient has subscribed to the Push Notification API, they will receive the message set in the `notification` argument.
 
-Below example shows how to send notification regardless user is connected to realtime connection. By setting `always` options to `true`, notification will always be triggered or the receiver.
+The example below shows how to send a notification regardless of whether the recipient is connected to Realtime. By setting `config.always` to `true`, a notification is always triggered for the recipient.
 
 ```js
 skapi.postRealtime(
@@ -5358,12 +5854,12 @@ skapi.postRealtime(
 
 ## Sending Notifications (For Admins)
 
-Admins can use the [`pushNotification()`](/api-reference/realtime/README.md#pushnotification) method to send notifications to users.
+Admins can use the [`pushNotification()`](https://docs.skapi.com/api-reference/realtime/README.html#pushnotification) method to send notifications to users.
 **Only admins** can use this method to send notifications to **all** users.
 You can also target a specific user or multiple users by providing their IDs. If no user IDs are specified, the notification will be sent to all users who have subscribed to notifications in your system.
 
 ### Steps:
-1. Call [`pushNotification()`](/api-reference/realtime/README.md#pushnotification) with the title and body.
+1. Call [`pushNotification()`](https://docs.skapi.com/api-reference/realtime/README.html#pushnotification) with the title and body.
 2. Optionally, provide user IDs to send notifications to specific users.
 3. If no user IDs are provided, the notification will be sent to all subscribers.
 
@@ -5390,270 +5886,1123 @@ skapi.pushNotification(
 
 <br>
 
-# Secure Post Request
+# Skapi HTML Chat Full Example
 
-You can use [`secureRequest()`](/api-reference/api-bridge/README.md#securerequest) method to make a secure `POST` request to your custom API's.
+This is a HTML example for building basic chat application using Skapi's realtime features.
 
-:::warning
-User must be logged in to call this method.
-:::
+Users must login to post and fetch realtime messages.
 
-:::warning
-The [`secureRequest()`](/api-reference/api-bridge/README.md#securerequest) method does not support HTML Forms.
-:::
+This example features:
 
-The `params` object accepts the following properties:
- - `url`: A string representing the URL of your custom API.
- - `data`: An object representing the data to be sent to your custom API.
+-   Creating, joining, and leaving chat rooms
+-   Sending and receiving websocket messages
+-   Fetching messengers info
+-   Sending private messeges to user
 
-For more detailed information on all the parameters and options available with the [`secureRequest()`](/api-reference/api-bridge/README.md#securerequest) method, 
-please refer to the API Reference below:
+All the main code is in **welcome.html**
 
-### [`secureRequest(params): Promise<any>`](/api-reference/api-bridge/README.md#securerequest)
+## Recommended VSCode Extention
 
-## Example: Making a secure request to your custom API
+For HTML projects we often tend to use element.innerHTML.
 
-Below is an example of a user making a secure request to your custom API that are hosted in `http://your.custom.api.com:3000/myapi`
+So we recommend installing innerHTML string highlighting extention like one below:
 
-```js
-skapi.secureRequest({
-    url: 'http://your.custom.api.com:3000/myapi',
-    data: {
-        some_data: 'Hello'
-    }
-}).then(response => {
-    // response from your custom API
-    console.log(response);
-});
+[es6-string-html](https://marketplace.visualstudio.com/items/?itemName=Tobermory.es6-string-html)
+
+## Download
+
+Download the full project [Here](https://github.com/kkb75281/skapi-chat-html-template/archive/refs/heads/main.zip)
+
+Or visit our [Github page](https://github.com/kkb75281/skapi-chat-html-template)
+
+## How To Run
+
+Download the project, unzip, and open the `index.html`.
+
+### Remote Server
+
+For hosting on remote server, install package:
+
+```
+npm i
 ```
 
-Skapi will mirror your request to your custom API. From your API, it receives user information along with the request data.
-If you have set the secret key in your [service settings](/service-settings/additional.md) page, the request will contain your secret key.
+Then run:
 
-You can have your custom API's to check the secret key in the request data. If the secret key is not matched, you can return the error response.
+```
+npm run dev
+```
 
-Below is an example of handling the request from your custom API:
+The application will be hosted on port `3000`
 
-## Node.js Example
+:::danger Important!
 
-```js
-const http = require('http');
+Replace the `SERVICE_ID` value to your own service in `service.js`
 
-http.createServer(function (request, response) {
-    if (request.method === 'POST') {
-        if (request.url === '/myapi') {
-            let body = '';
+<!-- Currently the service is running on **Trial Mode**. -->
 
-            request.on('data', function (data) {
-                body += data;
-            });
+<!-- **All the user data will be deleted every 14 days.** -->
 
-            request.on('end', function () {
-                body = JSON.parse(body);
-                console.log(body);
+You can get your own service ID from [Skapi](https://www.skapi.com)
 
-                // {
-                //     "user": {
-                //         "user_id": "...",
-                //         "group": 1,
-                //         "locale": "KR",
-                //         "request_locale": "KR",
-                //         ...
-                //     },
-                //     "data": {"some_data": "Hello"},
-                //     "api_key": 'your api secret key',
-                // }
+:::
 
-                if (body.api_key === 'your api secret key') {
-                    response.writeHead(200, {'Content-Type': 'text/html'});
-                    // do something
-                    response.end('success');
-                } else {
-                    response.writeHead(401, {'Content-Type': 'text/html'});
-                    response.end("api key mismatch");
+
+## Example
+
+Below is part of the repository code, showing how it handles more advanced chat app scenarios.
+
+Because this is only a portion of the full repository and does not include supporting files such as `service.js` and `main.css`, you cannot copy and paste it directly.
+
+
+**welcome.html**
+
+```html
+<!DOCTYPE html>
+<meta charset="utf-8" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="main.css" />
+<script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
+
+<script src="service.js"></script>
+
+<main>
+    <div class="flex-wrap">
+        <h1 id="WelcomeMessage"></h1>
+        <a href="logout.html">Logout</a>
+    </div>
+
+    <script>
+        /*
+            Get user profile and display it on the page.
+        */
+        skapi.getProfile().then((u) => {
+            if (u) {
+                let welcomeMessage = document.getElementById("WelcomeMessage");
+                if (welcomeMessage) {
+                    welcomeMessage.innerHTML = `Welcome, ${
+                        u.name || u.email || u.user_id
+                    }!`;
                 }
-            });
+
+                let userInfo = document.getElementById("UserInfo");
+                if (userInfo) {
+                    userInfo.innerHTML = JSON.stringify(u, null, 2);
+                }
+            }
+            return u;
+        });
+
+        let participants = {};
+        let sendTo = null;
+
+        let getUserInfo = async (user_id) => {
+            if (!participants[user_id]) {
+                // get user info from skapi if not already fetched
+                // This is to avoid fetching the same user info multiple times.
+
+                if (user_id === skapi.user.user_id) {
+                    // If the user is the current user, return the current user info.
+                    participants[user_id] = skapi.user;
+                    return skapi.user;
+                }
+
+                let user = (
+                    await skapi.getUsers({
+                        searchFor: "user_id",
+                        value: user_id,
+                    })
+                ).list?.[0];
+                if (user) {
+                    participants[user_id] = user;
+
+                    // Append the user to the participants list
+                    let strongTag = document.createElement("strong");
+                    strongTag.id = user.user_id;
+                    strongTag.innerText =
+                        user.name || user.email || user.user_id;
+
+                    let participantsList =
+                        document.getElementById("participants");
+                    participantsList.appendChild(strongTag);
+                    participantsList.appendChild(document.createElement("br"));
+
+                    // Add event listener to the user name to open the private message dialog.
+                    // This is to avoid adding the event listener to the current user.
+                    strongTag.classList.add("clickable");
+                    strongTag.onclick = (e) => {
+                        console.log({ e });
+                        sendTo = user;
+                        document.getElementById("privateMsgTo").innerText =
+                            sendTo.name || sendTo.email || sendTo.user_id;
+                        document.getElementById("privateMsgSender").showModal();
+                    };
+                }
+            }
+
+            return participants[user_id];
+        };
+
+        let RealtimeCallback = async (rt) => {
+            // Callback executed when there is data transfer between the users.
+            /**
+            rt = {
+                type: 'message' | 'private' | 'error' | 'success' | 'close' | 'notice',
+                message: '...',
+                ...
+            }
+            */
+            console.log(rt);
+            if (rt.type === "private") {
+                // Private message
+
+                if (rt.sender === skapi.user.user_id) {
+                    // If the sender is the current user, do nothing.
+                    return;
+                }
+
+                let msgSender = await getUserInfo(rt.sender);
+                let username =
+                    msgSender.name || msgSender.email || msgSender.user_id;
+
+                let privateMsgFrom = document.getElementById("privateMsgFrom");
+                privateMsgFrom.innerHTML = username;
+
+                let privateMsg = document.getElementById("privateMsg");
+                privateMsg.innerHTML = rt.message.msg;
+
+                document.getElementById("privateMsgDialog").showModal();
+            }
+            if (rt.type === "message") {
+                // Append the message to the chatbox
+                let chatbox = document.getElementById("chatMessages");
+                if (chatbox) {
+                    let user_id = rt.sender;
+                    let user = await getUserInfo(user_id);
+                    let username = user.name || user.email || user.user_id;
+
+                    let textAlign =
+                        user_id === skapi.user.user_id ? "right" : "left";
+
+                    let userClass =
+                        user_id === skapi.user.user_id ? "user" : "";
+
+                    chatbox.innerHTML += /*html*/ `<div style='word-wrap:break-word; margin-top: 12px; text-align: ${textAlign}'><strong>${username}</strong><br><p class="msg ${userClass}">${rt.message.chatmsg}</p></div>`;
+
+                    chatbox.scrollTop = chatbox.scrollHeight; // Scroll to the bottom
+                }
+            } else if (rt.type === "error") {
+                // alert(rt.message);
+                console.error(rt.message);
+            } else if (rt.type === "notice") {
+                if (rt.message.includes("message group")) {
+                    // User joined the group
+                    let user_id = rt.sender;
+                    let message = rt.message;
+
+                    if (["USER_LEFT", "USER_DISCONNECTED"].includes(rt.code)) {
+                        // remove the user from the participants list
+                        let participantsList =
+                            document.getElementById("participants");
+                        let participant = document.getElementById(user_id);
+                        let participantBr = participant.nextSibling;
+                        participantsList.removeChild(participantBr);
+                        participantsList.removeChild(participant);
+
+                        let user = await getUserInfo(user_id);
+                        let chatbox = document.getElementById("chatMessages");
+                        message = message.replace(
+                            /"([^"]+)"/,
+                            `"${user.name || user.email || user.user_id}"`
+                        );
+                        chatbox.innerHTML += `<p>${message}</p>`;
+                        chatbox.scrollTop = chatbox.scrollHeight; // Scroll to the bottom
+
+                        delete participants[user_id];
+                    } else if ("USER_JOINED" === rt.code) {
+                        // Add the user to the participants list
+                        let user = await getUserInfo(user_id);
+                        let chatbox = document.getElementById("chatMessages");
+                        message = message.replace(
+                            /"([^"]+)"/,
+                            `"${user.name || user.email || user.user_id}"`
+                        );
+                        chatbox.innerHTML += `<p>${message}</p>`;
+                        chatbox.scrollTop = chatbox.scrollHeight; // Scroll to the bottom
+                    }
+                }
+            }
+        };
+
+        // Connect to the realtime websocket
+        skapi.connectRealtime(RealtimeCallback);
+    </script>
+
+    <section id="groupList" hidden>
+        <br /><br />
+        <script>
+            async function checkIfGroupExists(event) {
+                let group = (await skapi.getRealtimeGroups(event)).list;
+                if (group.length) {
+                    alert("Group already exists.");
+                }
+            }
+        </script>
+        <form action="#{value}" onsubmit="checkIfGroupExists(event)">
+            <input name="searchFor" value="group" hidden />
+            <input name="condition" value="=" hidden />
+            <label
+                >Create New Chat Group:
+                <input
+                    type="text"
+                    id="el_inp_group"
+                    name="value"
+                    placeholder="Enter group name"
+                    required
+                />
+            </label>
+            <button type="submit">Create</button>
+        </form>
+
+        <br />
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Chat Group</th>
+                    <th>Users</th>
+                </tr>
+            </thead>
+            <style>
+                table {
+                    border-collapse: collapse;
+                    width: 100%;
+                }
+
+                th,
+                td {
+                    padding: 8px;
+                    text-align: left;
+                    border-bottom: 1px solid #ddd;
+                }
+
+                tr:hover {
+                    background-color: #f5f5f5;
+                }
+                th {
+                    background-color: #4caf50;
+                    color: white;
+                }
+                th:first-child {
+                    width: 70%;
+                }
+                tr:nth-child(even) {
+                    background-color: #f2f2f2;
+                }
+                tr:nth-child(odd) {
+                    background-color: #ffffff;
+                }
+            </style>
+            <tbody id="RealtimeGroups">
+                <tr>
+                    <td>Loading...</td>
+                    <td>...</td>
+                </tr>
+                <!-- Realtime groups will be displayed here -->
+            </tbody>
+            <script>
+                skapi
+                    .getRealtimeGroups({
+                        searchFor: "groups",
+                        condition: ">",
+                        value: " ",
+                    })
+                    .then((res) => {
+                        console.log("Realtime groups:", res); // [{ group: 'HelloWorld', number_of_users: 1 }, ...]
+                        if (res.list.length) {
+                            let RealtimeGroups =
+                                document.getElementById("RealtimeGroups");
+                            if (RealtimeGroups) {
+                                RealtimeGroups.innerHTML = res.list
+                                    .map(
+                                        (group) =>
+                                            /*html*/ `<tr><td><a href="#${group.group}">${group.group}</a></td><td>${group.number_of_users}</td></tr>`
+                                    )
+                                    .join("");
+                            }
+                        } else {
+                            let RealtimeGroups =
+                                document.getElementById("RealtimeGroups");
+                            if (RealtimeGroups) {
+                                RealtimeGroups.innerHTML = `<tr><td colspan="2">No groups found.</td></tr>`;
+                            }
+                        }
+                    });
+            </script>
+        </table>
+    </section>
+
+    <section id="chatbox" hidden>
+        <h2>Chat Group <span id="el_groupname"></span></h2>
+
+        <div style="display: flex">
+            <div id="chatMessages"></div>
+            <div id="participants"></div>
+        </div>
+
+        <style>
+            #chatMessages {
+                height: 300px;
+                overflow-y: auto;
+                padding: 12px 16px;
+                flex-grow: 1;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+                border-top-right-radius: 0;
+                border-bottom-right-radius: 0;
+            }
+            #participants {
+                width: 33%;
+                overflow-x: auto;
+                height: 300px;
+                overflow-y: auto;
+                padding: 12px 16px;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+                border-top-left-radius: 0;
+                border-bottom-left-radius: 0;
+                border-left: none;
+                flex-shrink: 0;
+            }
+            .clickable {
+                cursor: pointer;
+                color: blue;
+                text-decoration: underline;
+            }
+
+            .msg {
+                margin: 4px 0 0;
+                background-color: #eee;
+                padding: 8px 12px;
+                border-radius: 8px;
+                width: fit-content;
+                position: relative;
+                word-break: break-all;
+            }
+
+            .msg:before {
+                border-top: 0 solid #eee;
+                border-left: 0 solid transparent;
+                border-right: 10px solid #eee;
+                border-bottom: 10px solid transparent;
+                content: "";
+                position: absolute;
+                top: 8px;
+                left: -8px;
+            }
+
+            .msg.user {
+                margin-left: auto;
+            }
+
+            .msg.user:before {
+                content: none;
+            }
+
+            .msg.user:after {
+                border-top: 10px solid #eee;
+                border-left: 0 solid transparent;
+                border-right: 10px solid transparent;
+                border-bottom: 0px solid transparent;
+                content: "";
+                position: absolute;
+                top: 8px;
+                right: -8px;
+            }
+        </style>
+        <br />
+        <form
+            onsubmit="skapi.postRealtime(event, currentGroup).then(()=>this.reset())"
+        >
+            <input
+                type="text"
+                name="chatmsg"
+                placeholder="Type your message..."
+                required
+            />
+            <button type="submit">Send</button>
+        </form>
+        <br />
+
+        <a href="welcome.html">Back to group list</a>
+    </section>
+</main>
+
+<dialog id="privateMsgDialog">
+    <strong>Private Message From: <span id="privateMsgFrom"></span></strong>
+    <p id="privateMsg"></p>
+    <button
+        id="closeDialog"
+        onclick="document.getElementById('privateMsgDialog').close()"
+    >
+        Close
+    </button>
+</dialog>
+
+<dialog id="privateMsgSender">
+    <div class="flex-wrap">
+        <strong>Private Message To: <span id="privateMsgTo"></span></strong>
+        <sup
+            id="closeDialog"
+            onclick="document.getElementById('privateMsgSender').close()"
+            style="cursor: pointer; font-size: 22px"
+            >&times;</sup
+        >
+    </div>
+
+    <form
+        onsubmit="skapi.postRealtime(event, sendTo.user_id).then(()=>{ this.reset(); document.getElementById('privateMsgSender').close(); });"
+    >
+        <input name="msg" placeholder="Write Message..." required />
+        <input type="submit" value="Send" style="margin: 4px 0" />
+    </form>
+</dialog>
+
+<script>
+    let currentGroup = null;
+    function joinGroup() {
+        document.getElementById("participants").innerHTML = ""; // Clear participants
+        document.getElementById("chatMessages").innerHTML = ""; // Clear chat messages
+
+        // Clear participants except the current user
+        for (let user_id in participants) {
+            if (user_id !== skapi.user.user_id) {
+                delete participants[user_id];
+            }
+        }
+
+        console.log("Initial hash:", location.hash);
+        if (location.hash) {
+            document.getElementById("chatbox").hidden = false; // Show chatbox
+            document.getElementById("groupList").hidden = true; // Hide group list
+
+            // Get the new hash value
+            currentGroup = location.hash.replace("#", "");
+            document.getElementById(
+                "el_groupname"
+            ).innerText = `"${currentGroup}"`;
+
+            skapi
+                .getRealtimeUsers({
+                    group: currentGroup,
+                })
+                .then((u) =>
+                    Promise.all(
+                        u.list.map((user) => getUserInfo(user.user_id))
+                    ).then((res) => console.log(participants))
+                );
+
+            return skapi.joinRealtime({ group: currentGroup });
+        } else {
+            document.getElementById("chatbox").hidden = true; // Hide chatbox
+            document.getElementById("groupList").hidden = false; // Show group list
+            document.getElementById("el_groupname").innerText = "";
+            return skapi.joinRealtime({ group: null }); // leave group
         }
     }
-}).listen(3000);
+    // Add an event listener for the hashchange event
+    window.addEventListener("hashchange", joinGroup);
+
+    // Optionally, handle the initial hash when the page loads
+    document.addEventListener("DOMContentLoaded", joinGroup);
+</script>
 ```
-
-## Python Example
-
-```py
-from http.server import BaseHTTPRequestHandler, HTTPServer
-import json
-
-class MyServer(BaseHTTPRequestHandler):
-    def do_OPTION(self):
-        self.send_response(200)
-        self.end_headers()
-
-    def do_POST(self):
-        print("POST")
-        content_length = int(self.headers["Content-Length"])
-        body = json.loads(self.rfile.read(content_length).decode("utf-8"))
-        print(body)
-        
-        # {
-        #     "user": {
-        #         "user_id": "...",
-        #         "group": 1,
-        #         "locale": "KR",
-        #         "request_locale": "KR",
-        #         ...
-        #     },
-        #     "data": {"some_data": "Hello"},
-        #     "api_key": 'your api secret key',
-        # }
-
-        if self.path == "/myapi":
-            if body.get("api_key") == "your api secret key":
-                self.send_response(200)
-                self.end_headers()
-                self.wfile.write("success".encode("utf-8"))
-            else:
-                self.send_response(401)
-                self.end_headers()
-                self.wfile.write("api key mismatch".encode("utf-8"))
-
-myServer = HTTPServer(("", 3000), MyServer)
-
-try:
-    myServer.serve_forever()
-except KeyboardInterrupt:
-    myServer.server_close()
-```
-
 
 <br>
 
-# Using 3rd Party APIs
+# Skapi HTML Video Call Example
 
-If you are using 3rd party API's that requires a client secret, you can use [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) to make a secure `POST` or `GET` request to your 3rd party API's.
+This is a HTML example for building basic video call application using Skapi's webrtc features.
 
-First you need to save your client secret key in your **3rd Party API Keys** page.
+Users must login to request or receive video calls.
 
-1. Navigate to the **3rd Party API Keys** page from your service page.
-  <!-- ![Client Secret Key](/menucli.png) -->
+This example features:
 
-2. Click on the **+** button to add a new client secret key of your 3rd party API.
-  <!-- ![Register Client Secret Key](/addbutt.png) -->
+-   List available receivers
+-   Requesting video call
+-   Receive incomming video call
+-   Hangup incomming, outgoing calls
 
-<!-- ![Client Secret Key Dialog](/clientsecdialog.png)
-You can add a new client secret key by providing a **name** for the key and the **client secret** value. -->
+All the main code is in **welcome.html**
 
-- The `Name` field is the name of the key that you will use when defining the `clientSecretName` parameter in the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method.
+## Recommended VSCode Extention
 
-- The `Client Secret Key` is the actual secret key value that you will use as a placeholder in the `data`, `params`, or `headers` or `url` parameter of the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method.
+For HTML projects we often tend to use element.innerHTML.
 
-- The toggle for **Locked** indicates whether the key is public or private. When set to **Locked**, it means that only the users that are logged in can have access to your 3rd party api, while by default anybody can have access to your 3rd party api.
+So we recommend installing innerHTML string highlighting extention like one below:
 
-Once the client secret key is saved, you can use the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method below to make secure requests to your 3rd party API's.
+[es6-string-html](https://marketplace.visualstudio.com/items/?itemName=Tobermory.es6-string-html)
 
-The list parameters of `params` of the method is shown as below:
+## Download
 
-  - `url`: A string representing the URL of your 3rd party API.
-  - `clientSecretName`: A string representing the key name of the client secret key you may have saved in your service dashboard.
-  - `method`: A string representing the method of the request. It can be either "GET" or "POST".
-  - `headers`: An object representing the headers of the request.
-  - `data`: An object representing the data to be sent to your 3rd party API. It is only used when `method` is "POST".
-  - `params`: An object representing the query string parameters of the request. It is only used when `method` is "GET".
+Download the full project [Here](https://github.com/kkb75281/skapi-webrtc-html-template/archive/refs/heads/main.zip)
 
-For more detailed information on all the parameters and options available with the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method, 
-please refer to the API Reference below:
+Or visit our [Github page](https://github.com/kkb75281/skapi-webrtc-html-template)
 
-### [`clientSecretRequest(params): Promise<any>`](/api-reference/api-bridge/README.md#clientsecretrequest)
+## How To Run
 
-:::warning
-When using `clientSecretRequest()`, you must include the `$CLIENT_SECRET` placeholder string in the `data` or `params` or `headers` or `url` parameter value.
+Download the project, unzip, and open the `index.html`.
+
+### Remote Server
+
+For hosting on remote server, install package:
+
+```
+npm i
+```
+
+Then run:
+
+```
+npm run dev
+```
+
+The application will be hosted on port `3000`
+
+:::danger HTTPS REQUIRED.
+WebRTC only works on HTTPS environment.
+You need to setup a HTTPS environment when developing a WebRTC feature for your web application.
+
+You can host your application in skapi.com or host from your personal servers.
 :::
 
-## Example: Making a secure request to OpenAI API image generator.
+:::danger Important!
 
-As an example, we will be using the [OpenAI API](https://platform.openai.com/docs/api-reference/images/create?lang=curl) image generator from Skapi.
+Replace the `SERVICE_ID` value to your own service in `service.js`
 
-We will referencing the OpenAI API documentation to understand how to make secure requests to the API.
+<!-- Currently the service is running on **Trial Mode**. -->
 
-#### Prerequisites
+<!-- **All the user data will be deleted every 14 days.** -->
 
-1. Create an OpenAI account and get your API secret key from [here](https://beta.openai.com/account/api-keys).
-2. Save your OpenAI API secret key in **3rd Party API Keys** page.
+You can get your own service ID from [Skapi](https://www.skapi.com)
 
-   For this example, save your OpenAI API's secret key name as `openai`.
-   
-   We will use this key name when making the client secret request to the OpenAI API.
+:::
 
-#### Understanding the API call
 
-In the API documentation, we can see that the API call is made as follows:
+## Example
 
-```
-POST https://api.openai.com/v1/images/generations
-```
+Below is part of the repository code, showing how it handles more advanced video chat app scenarios.
 
-This means the API call should be made using the `POST` method to the `https://api.openai.com/v1/images/generations` URL.
+Because this is only a portion of the full repository and does not include supporting files such as `service.js` and `main.css`, you cannot copy and paste it directly.
 
-Next, you will see curl example of the API call:
 
-``` bash
-curl https://api.openai.com/v1/images/generations \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $OPENAI_API_KEY" \
-  -d '{
-    "model": "dall-e-3",
-    "prompt": "A cute baby sea otter",
-    "n": 1,
-    "size": "1024x1024"
-  }'
-```
+**welcome.html**
 
-This means the API call to `https://api.openai.com/v1/images/generations` should be made with a `header` with `Content-Type` to `application/json` and `Authorization` to `Bearer $OPENAI_API_KEY`.
-And the post data should contain properties like `model`, `prompt`, `n`, and `size`.
+```html
+<!DOCTYPE html>
+<meta charset="utf-8" />
 
-The `$OPENAI_API_KEY` is the API secret key that you have obtained from the OpenAI website. And it is meant to be replaced with your API secret key.
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="main.css" />
+<script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
 
-Since we cannot expose the API secret key in the frontend, we will be using the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method to make a secure request to the OpenAI API:
-::: code-group
+<script src="service.js"></script>
 
-```html [Form]
-<form onsubmit="skapi.clientSecretRequest(event).then(r=>console.log(r))">
-  <input name="clientSecretName" hidden value="openai">
-  <input name="url" hidden value="https://api.openai.com/v1/images/generations">
-  <input name="method" hidden value="POST">
-  <input name="headers[Content-Type]" hidden value='application/json'>
-  <input name="headers[Authorization]" hidden value="Bearer $CLIENT_SECRET">
-  <input name="data[model]" hidden value="dall-e-3">
-  <input name="data[n]" hidden type='number' value="1">
-  <input name="data[size]" hidden value="1024x1024">
-  <textarea name='data[prompt]' placeholder="Describe an image" required></textarea>
-  <input type="submit" value="Generate">
-</form>
-```
+<dialog id="el_dl_calling"></dialog>
+<dialog id="el_dl_incoming"></dialog>
 
-```js [JS]
-skapi.clientSecretRequest({
-    clientSecretName: 'openai',
-    url: 'https://api.openai.com/v1/images/generations',
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer $CLIENT_SECRET'
-    },
-    data: {
-        model: "dall-e-3",
-        "prompt": "A cute baby sea otter",
-        n: 1,
-        size: "1024x1024"
+<script>
+    let call = null; // Calling object. This is assigned when the user is calling someone.
+    let receiver = null; // Receiver object. This is assigned when the user is receiving a call.
+    let rtcConnection = null; // Resolved RTC connection. This is assigned when the user is connected with a user via RTC.
+    let participants = {}; // Participants object. This is used to cache user information of the available participants in the list.
+    let cidList = {}; // Connection ID list. This is used to cache the connection ID of the participants in the list.
+</script>
+
+<main>
+    <div class="flex-wrap">
+        <h1 id="WelcomeMessage"></h1>
+        <a href="logout.html">Logout</a>
+    </div>
+
+    <script>
+        /*
+            Get user profile and display it on the page.
+        */
+        skapi.getProfile().then((u) => {
+            if (u) {
+                let welcomeMessage = document.getElementById("WelcomeMessage");
+                if (welcomeMessage) {
+                    welcomeMessage.innerHTML = `Welcome, ${
+                        u.name || u.email || u.user_id
+                    }!`;
+                }
+
+                let userInfo = document.getElementById("UserInfo");
+                if (userInfo) {
+                    userInfo.innerHTML = JSON.stringify(u, null, 2);
+                }
+            }
+            return u;
+        });
+    </script>
+
+    <section id="el_dl_calllist">
+        <h1>Connect WebRTC</h1>
+        <label>
+            <input type="checkbox" id="allow_video" checked /> Allow Video
+        </label>
+        <label>
+            <input type="checkbox" id="allow_audio" checked /> Allow Audio
+        </label>
+
+        <br /><br />
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th style="text-align: right">Connection ID</th>
+                </tr>
+            </thead>
+            <style>
+                table {
+                    border-collapse: collapse;
+                    width: 100%;
+                }
+
+                th,
+                td {
+                    padding: 8px;
+                    text-align: left;
+                    border-bottom: 1px solid #ddd;
+                }
+
+                tr:hover {
+                    background-color: #f5f5f5;
+                }
+
+                th {
+                    background-color: #4caf50;
+                    color: white;
+                }
+
+                tr:nth-child(even) {
+                    background-color: #f2f2f2;
+                }
+
+                tr:nth-child(odd) {
+                    background-color: #ffffff;
+                }
+            </style>
+            <tbody id="RealtimeParticipants">
+                <!-- Available realtime participants will be displayed here -->
+            </tbody>
+        </table>
+    </section>
+
+    <br />
+
+    <section style="text-align: center" id="el_video_call" hidden>
+        <video id="local" autoplay muted></video>
+        <video id="remote" autoplay muted></video>
+
+        <style>
+            video {
+                max-width: 100%;
+                width: 320px;
+                height: 240px;
+                border: solid 1px;
+            }
+        </style>
+
+        <br /><br />
+
+        <form
+            onsubmit="event.preventDefault(); rtcConnection.channels.default.send(document.getElementById('el_input_rtcMessage').value); this.reset();"
+        >
+            <input
+                type="text"
+                id="el_input_rtcMessage"
+                placeholder="Send RTC Message"
+                name="message"
+            />
+            <input type="submit" value="Send" />
+        </form>
+
+        <br />
+
+        <button type="button" onclick="rtcConnection.hangup()">
+            Disconnect
+        </button>
+    </section>
+
+    <section>
+        <h1>Websocket Log</h1>
+        <button
+            type="button"
+            onclick="document.getElementById('el_pre_rtcLog').innerText = ''"
+        >
+            Clear
+        </button>
+        <pre id="el_pre_rtcLog"></pre>
+    </section>
+
+    <style>
+        pre {
+            overflow-x: auto;
+        }
+
+        #el_pre_rtcLog {
+            height: 320px;
+            border: solid 1px #ccc;
+            border-radius: 8px;
+            padding: 16px;
+        }
+    </style>
+</main>
+<script>
+    function RTCCallback(e) {
+        let rtcLog = document.getElementById("el_pre_rtcLog"); // RTC Log
+        console.log("RTC Callback:", e);
+
+        switch (e.type) {
+            // RTC Events
+            case "negotiationneeded":
+                rtcLog.innerText += `RTC negotiation needed. Sending offer..\n`;
+                break;
+
+            case "track":
+                rtcLog.innerText += `Incoming Media Stream...\n`;
+                document.getElementById("remote").srcObject = e.streams[0];
+                document.getElementById("remote").play();
+                break;
+
+            case "connectionstatechange":
+                let state = e.state;
+                rtcLog.innerText +=
+                    `RTC Connection:${e.type}:${state}\n` +
+                    JSON.stringify(e, null, 2) +
+                    "\n-\n";
+                document.getElementById("el_dl_calling").close();
+                document.getElementById("el_dl_incoming").close();
+
+                let videoCallSection = document.getElementById("el_video_call");
+                let callList = document.getElementById("el_dl_calllist");
+                if (
+                    state === "disconnected" ||
+                    state === "failed" ||
+                    state === "closed"
+                ) {
+                    videoCallSection.hidden = true;
+                    callList.hidden = false;
+                } else if (state === "connecting") {
+                    // Callback executed when the user is connected to the server.
+                    el_pre_rtcLog.innerText += "Connected\n";
+                    videoCallSection.hidden = false;
+                    callList.hidden = true;
+                }
+                break;
+
+            // Data Channel Events
+            case "close":
+                rtcLog.innerText +=
+                    `Data Channel:${e.target.label}:${e.type}\n` +
+                    JSON.stringify(e, null, 2) +
+                    "\n-\n";
+                break;
+            case "message":
+                // Data Channel message received from remote peer
+                rtcLog.innerText +=
+                    `Data Channel:${e.target.label}:${e.type}\n` +
+                    JSON.stringify(e.data, null, 2) +
+                    "\n-\n";
+                break;
+            case "open":
+            // Data Channel opened
+            case "bufferedamountlow":
+            case "error":
+                rtcLog.innerText +=
+                    `Data Channel:${e.target.label}:${e.type}\n` +
+                    JSON.stringify(e, null, 2) +
+                    "\n-\n";
+                break;
+        }
+        // scroll to bottom
+        rtcLog.scrollTop = el_pre_rtcLog.scrollHeight;
     }
-})
+
+    async function callRTC(cid) {
+        event.preventDefault();
+
+        let params = {
+            media: {
+                audio: document.getElementById("allow_audio").checked,
+                video: document.getElementById("allow_video").checked,
+            },
+            cid,
+        };
+
+        call = await skapi.connectRTC(params, RTCCallback);
+
+        document.getElementById("el_dl_calling").innerHTML = /*html*/ `
+                <p>Calling</p>
+                <button onclick="call.hangup()">Hangup</button>
+            `;
+
+        document.getElementById("el_dl_calling").showModal();
+        rtcConnection = await call.connection;
+
+        if (!rtcConnection) {
+            alert("Call rejected.");
+        }
+        if (rtcConnection.media) {
+            document.getElementById("local").srcObject = rtcConnection.media;
+            document.getElementById("local").play();
+        }
+    }
+
+    async function addCallList(user_id, cid) {
+        if (user_id === skapi.user.user_id) {
+            // If the user is the current user, return the current user info, and do not add to the list.
+            participants[user_id] = skapi.user;
+            return skapi.user;
+        }
+
+        let user = participants[user_id];
+        if (!user) {
+            user = (
+                await skapi.getUsers({ searchFor: "user_id", value: user_id })
+            ).list?.[0];
+            participants[user_id] = user;
+        }
+
+        let RealtimeParticipants = document.getElementById(
+            "RealtimeParticipants"
+        );
+        let username = `${user.name || user.email || user.user_id}`;
+
+        // add the user to the list with the connection id and the call button
+        RealtimeParticipants.innerHTML += /*html*/ `
+            <tr id="el_tr_participant-${cid}">
+                <td>
+                    <strong>${username}</strong>
+                </td>
+                <td id="el_call-button-${cid}" style="text-align: right;">
+                    ${cid}
+                    <button type="button" onclick="callRTC('${cid}').catch(err=>alert(err.message))" style="width: fit-content">Call</button>
+                </td>
+            </tr>
+        `;
+        cidList[cid] = user_id;
+
+        return participants[user_id];
+    }
+
+    function realtimeCallback(rt) {
+        let log = rt;
+        try {
+            log = JSON.stringify(log, null, 2);
+        } catch (err) {}
+
+        el_pre_rtcLog.innerText += rt.type + ":\n" + log + "\n-\n";
+        // scroll to bottom
+        el_pre_rtcLog.scrollTop = el_pre_rtcLog.scrollHeight;
+        if (rt.type === "notice") {
+            // User joined the group
+            let user_id = rt.sender;
+
+            if (["USER_LEFT", "USER_DISCONNECTED"].includes(rt.code)) {
+                // remove the user from the call list
+                document
+                    .getElementById(`el_tr_participant-${rt.sender_cid}`)
+                    ?.remove();
+                delete participants[rt.sender];
+                delete cidList[rt.sender_cid];
+            } else if (rt.code === "USER_JOINED") {
+                // Add the user to the participants list
+                addCallList(user_id, rt.sender_cid);
+            }
+        }
+
+        if (rt.type === "rtc:incoming") {
+            receiver = rt;
+            let dl_incoming = document.getElementById("el_dl_incoming");
+            // Show incoming call dialog
+            dl_incoming.innerHTML = /*html*/ `
+                <p>Incoming call</p>
+                <button onclick='
+                    receiver.connectRTC({
+                        media: {
+                            audio: document.getElementById("allow_audio").checked,
+                            video: document.getElementById("allow_video").checked
+                        }
+                    }, RTCCallback)
+                        .then(rtc => {
+                            rtcConnection = rtc;
+                            if(rtc.media) {
+                                document.getElementById("local").srcObject = rtc.media;
+                                document.getElementById("local").play();
+                            }
+                        })
+                '>Accept</button>
+
+                <button onclick="receiver.hangup();">Reject</button>
+            `;
+
+            dl_incoming.showModal();
+        }
+    }
+
+    skapi.connectRealtime(realtimeCallback);
+
+    function getRealtimeUsers(refresh) {
+        skapi.getRealtimeUsers({ group: "RTCCall" }).then((res) => {
+            res.list = res.list.filter((p) => p.user_id !== skapi.user.user_id); // remove current user from the list
+            if (res.list.length) {
+                res.list.map((p) => addCallList(p.user_id, p.cid));
+            }
+        });
+    }
+
+    skapi.joinRealtime({ group: "RTCCall" }).then((r) => {
+        getRealtimeUsers();
+    }); // Join a realtime group
+</script>
 ```
 
-The example above shows how we can compose the request headers and data to make a secure request to the OpenAI API.
-Note that we have used the `$CLIENT_SECRET` placeholder string in the `Authorization` header value,
-and we have set `clientSecretName` to `openai` which is the key name that you may have saved your OpenAI API key in the service dashboard.
+<br>
 
-When the request is made, Skapi will replace the placeholder string with the client secret key that you have saved in your service dashboard, and return the response from the OpenAI API.
+# E-Mail Service
+
+Skapi provides three very convenient email services:
+
+- **Automated Emails**: Send automated emails to your users.
+
+    When user signs up, or when user forgets their password, gets invited to your service, or needs a welcome email to be sent, you can use Skapi's automated email service to setup your email templates and send emails to your users.
+
+- **Bulk Email Service**: Send bulk emails to your users.
+  
+    Skapi provides a built-in E-Mail service that allows you to send bulk emails to your users.
+    You can immediately collect email addresses from your users, and send newsletters using Skapi's E-Mail service.
+
+- **Receiving Inquiries**: Receive inquiries from your users.
+
+    Skapi provides a built-in E-Mail service that allows you to receive inquiries from your users.
+    You can immediately receive inquiries from your visitors, using Skapi's E-Mail service.
+
+In this section, you will learn how to setup automated emails for your service, and how to send bulk emails to your users.
+
+<br>
+
+# Automated E-Mails
+
+When the user signup, reset password, or change email, subscribes to public newsletters, get invited to your service,
+the system will send an automated email to the user.
+You can customize the email template of these service emails by sending your templates to the email endpoints.
+
+E-Mail endpoints can be found in your `Service Emails` page in your Skapi admin page.
+
+In the `Service Emails` page, select an email type you want to set the template.
+
+- **Signup Confirmation**
+  
+  Endpoint for signup confirmation email template. The user receives this email when they are requested for confirmation on signup.
+
+- **Welcome Email**
+  
+  Endpoint for welcome email template. The user receives this email when they signup, and have successfully verified their email, and logged in for the first time.
+
+- **Verification Email**
+  
+  Endpoint for verification email template. The user receives this email when verifes their email or when they request the [`forgotPassword()`](https://docs.skapi.com/api-reference/authentication/README.html#forgotpassword).
+  
+
+- **Invitation Email**
+  
+  Endpoint for invitation email template. The user receives this email when they are invited to the service.
+  You can send invitation to users from the `Users` page in your admin page in Skapi website.
+
+- **Newsletter Subscription**
+  
+  Endpoint for public newsletter subscription confirmation email template. The user receives this email when they subscribe to the public newsletter.
+
+Once you select the email type, the page will show the email endpoint address to set the template in the `Email Template` section.
+
+Following example shows the format for email endpoints:
+
+```
+xxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@mail.skapi.com
+```
+
+You may view already set templates, copy the end point.
+
+To customize the email template, just send your customized template via your e-mail to the endpoint address.
+
+:::danger
+- **DO NOT** share your email endpoint address with anyone. This endpoint is unique to your service and should be kept private.
+- You must use the same email address that you used to signup to Skapi.
+:::
+
+## Template Placeholders
+
+E-Mail templates takes custom placeholders that can be used to customize the email template.
+If there is a placeholder character in your email content, it will be replaced with the corresponding value.
+
+- **`${service_name}`**: Name of your service.
+- **`${name}`**: User's name from the profile. If the user has not set their name, it will be replaced with empty string.
+- **`${email}`**: User's email address.
+
+## Required Placeholders for signup confirmation email
+
+When sending signup confirmation email, you must include set a link with **`https://link.skapi`** as a url in your email content.
+The dummy url **`https://link.skapi`** will be replaced with the actual link that confirms the user's signup.
+
+Example below shows how to set the link with **`https://link.skapi`** url in gmail.
+Any other email service should have similar way to set the link.
+
+![gmail link](https://docs.skapi.com/linkexam.png)
+
+Below shows an example of signup confirmation template. In this example we included **`${service_name}`** in the subject, and **`${name}`** with link in the content.
+
+![signup confirmation template](https://docs.skapi.com/conftempexamp.png)
+
+
+## Required Placeholders for verification email
+
+When sending verification email, you must include **`${code}`** placeholders in your email content.
+The **`${code}`** placeholder will be replaced with the verification code that the user can use to verify their email.
+
+Example:
+```
+Your verification code is: ${code}
+```
+
+
+## Required Placeholders for invitation email
+
+Below are the required placeholders for invitation email.
+
+- **`https://link.skapi`**: Link to accept the invitation.
+- **`${email}`**: Invited person's login email.
+- **`${password}`**: Temporary password for the invited person.
+
+When user clicks on the link, they will be able to login with the temporary password.
+
+You can invite users to your service from the user page in your service page in Skapi website.
+
+:::tip
+To make the invitation email more personal, it would be good idea to include **`${name}`** placeholder in the template.
+:::
+
+## Required Placeholders for public newsletter subscription confirmation email
+
+When user subscribes to your public newsletters user receives subscription confirmation email.
+The subscription confirmation email contains a link to confirm the subscription.
+
+you must include **`https://link.skapi`** placeholders in your email content.
+
 
 <br>
 
@@ -5693,23 +7042,23 @@ skapi.subscribeNewsletter({
 ```
 :::
 
-The example above shows how to let your visitors subscribe to the public newsletter by calling [`subscribeNewsletter()`](/api-reference/email/README.md#subscribenewsletter).
+The example above shows how to let your visitors subscribe to the public newsletter by calling [`subscribeNewsletter()`](https://docs.skapi.com/api-reference/email/README.html#subscribenewsletter).
 
 When the request is successful, user will receive a confirmation email to verify their email address.
 User can confirm their email address by clicking the link in the email.
-If the confirmation is successful, the user will be redirected to the redirect url provided in the [`subscribeNewsletter()`](/api-reference/email/README.md#subscribenewsletter) parameter.
+If the confirmation is successful, the user will be redirected to the redirect url provided in the [`subscribeNewsletter()`](https://docs.skapi.com/api-reference/email/README.html#subscribenewsletter) parameter.
 
 All the public newsletters will have unsubscribe link at the bottom of the email.
 When the user clicks the unsubscribe link, they will no longer receive your public newsletters.
 
-For more detailed information on all the parameters and options available with the [`subscribeNewsletter()`](/api-reference/email/README.md#subscribenewsletter) method, 
+For more detailed information on all the parameters and options available with the [`subscribeNewsletter()`](https://docs.skapi.com/api-reference/email/README.html#subscribenewsletter) method, 
 please refer to the API Reference below:
 
-### [`subscribeNewsletter(params, callbacks):Promise<string>`](/api-reference/email/README.md#subscribenewsletter)
+### [`subscribeNewsletter(params, callbacks):Promise<string>`](https://docs.skapi.com/api-reference/email/README.html#subscribenewsletter)
 
 :::warning
 If the user is logged in, they will not be asked to confirm their email address.
-Instead, they must have their [`email verifed`](/user-account/email-verification).
+Instead, they must have their [`email verifed`](https://docs.skapi.com/user-account/email-verification).
 :::
 
 ## Sending Service Newsletters
@@ -5740,13 +7089,13 @@ skapi.subscribeNewsletter({
 ```
 :::
 
-The example above shows how to let your visitors subscribe to the service newsletters by calling [`subscribeNewsletter()`](/api-reference/email/README.md#subscribenewsletter).
+The example above shows how to let your visitors subscribe to the service newsletters by calling [`subscribeNewsletter()`](https://docs.skapi.com/api-reference/email/README.html#subscribenewsletter).
 
 ## Requesting Newsletter Endpoint for Admins
 
-The [`adminNewsletterRequest()`](/api-reference/email/README.html#adminnewsletterrequest) method allows administrators to request a personalized email endpoint for sending newsletters. Only users with administrator privileges (access group 99) can request this endpoint.
+The [`adminNewsletterRequest()`](https://docs.skapi.com/api-reference/email/README.html#adminnewsletterrequest) method allows administrators to request a personalized email endpoint for sending newsletters. Only users with administrator privileges (access group 99) can request this endpoint.
 
-To send newsletters, an admin must first request a personalized endpoint using [`adminNewsletterRequest()`](/api-reference/email/README.html#adminnewsletterrequest). This method verifies admin privileges and returns a unique URL for sending emails.
+To send newsletters, an admin must first request a personalized endpoint using [`adminNewsletterRequest()`](https://docs.skapi.com/api-reference/email/README.html#adminnewsletterrequest). This method verifies admin privileges and returns a unique URL for sending emails.
 
 ```js [JS]
 skapi.adminNewsletterRequest().then(response => {
@@ -5759,7 +7108,7 @@ This endpoint is specific to the requesting admin and can only receive emails fr
 
 ## Checking if the user is subscribed to the service newsletters
 
-You can let the user check if they have subscribed to the service newsletters by calling [`getNewsletterSubscription()`](/api-reference/email/README.md#getnewslettersubscription).
+You can let the user check if they have subscribed to the service newsletters by calling [`getNewsletterSubscription()`](https://docs.skapi.com/api-reference/email/README.html#getnewslettersubscription).
 
 ```js
 skapi.getNewsletterSubscription({
@@ -5776,7 +7125,7 @@ skapi.getNewsletterSubscription({
 
 ## Unsubscribing from the service newsletters
 
-You can let the user unsubscribe from the service newsletters by calling [`unsubscribeNewsletter()`](/api-reference/email/README.md#unsubscribenewsletter).
+You can let the user unsubscribe from the service newsletters by calling [`unsubscribeNewsletter()`](https://docs.skapi.com/api-reference/email/README.html#unsubscribenewsletter).
 
 ```js
 skapi.unsubscribeNewsletter({
@@ -5788,7 +7137,7 @@ skapi.unsubscribeNewsletter({
 
 ## Fetching Sent Emails
 
-You can fetch sent emails from the database by calling [`getNewsletters()`](/api-reference/email/README.md#getnewsletters).
+You can fetch sent emails from the database by calling [`getNewsletters()`](https://docs.skapi.com/api-reference/email/README.html#getnewsletters).
 By default, it fetches all the public newsletters from the database in descending timestamp.
 
 In the newsletter object, the `url` is the URL of the html file of the newsletter. You can use the URL to fetch the newsletter content.
@@ -5810,18 +7159,18 @@ skapi.getNewsletters().then(newsletters => {
 })
 ```
 
-For more detailed information on all the parameters and options available with the [`getNewsletters()`](/api-reference/email/README.md#getnewsletters) method, 
+For more detailed information on all the parameters and options available with the [`getNewsletters()`](https://docs.skapi.com/api-reference/email/README.html#getnewsletters) method, 
 please refer to the API Reference below:
 
-### [`getNewsletters(params, options?): Promise<DatabaseResponse<Newsletter>>`](/api-reference/email/README.md#getnewsletters)
+### [`getNewsletters(params, options?): Promise<DatabaseResponse<Newsletter>>`](https://docs.skapi.com/api-reference/email/README.html#getnewsletters)
 
 ### Fetching Sent Emails with Conditions
 
-You can fetch sent emails from the database with conditions by calling [`getNewsletters()`](/api-reference/email/README.md#getnewsletters).
+You can fetch sent emails from the database with conditions by calling [`getNewsletters()`](https://docs.skapi.com/api-reference/email/README.html#getnewsletters).
 
 Below is an example of fetching service newsletters that are sent to the service users before 24 hours ago in descending order.
 
-For full parameters and options, see [`getNewsletters(params, options?)`](/api-reference/email/README.md#getnewsletters).
+For full parameters and options, see [`getNewsletters(params, options?)`](https://docs.skapi.com/api-reference/email/README.html#getnewsletters).
 
 ```js
 skapi.getNewsletters({
@@ -5851,7 +7200,7 @@ skapi.getNewsletters({
 
 Skapi provides a built-in E-Mail service that allows you to receive inquiries from your users.
 
-You can use [`sendInquiry()`](/api-reference/email/README.md#sendinquiry) to let your visitors send inquiries to your e-mail.
+You can use [`sendInquiry()`](https://docs.skapi.com/api-reference/email/README.html#sendinquiry) to let your visitors send inquiries to your e-mail.
 
 ## Sending Inquiry
 
@@ -5884,15 +7233,491 @@ skapi.sendInquiry(params).then(inquiry => {
     console.log(inquiry); // 'SUCCESS: Inquiry has been sent.'
 });
 ```
-
 :::
 
 :::warning
-Inquires do not require the user to be logged in.
-
-If you are not planning to use the [`sendInquiry()`](/api-reference/email/README.md#sendinquiry) method,
-Be sure to turn on the `Prevent Inquiry` option in the [Service Settings](/service-settings/service-settings.md) page to prevent spam.
+Be sure to turn on the `Allow Inquiries` option in the [Service Settings](https://docs.skapi.com/introduction/what-is-skapi.md#service-settings).
 :::
+
+<br>
+
+# Admin Features
+
+Skapi provides a set of methods for managing your service.
+
+These methods are available only to users with the `admin` role.
+
+Service owners can grant the `admin` role to other users.
+
+:::danger NOTE
+Before using admin methods, create an admin user from your Skapi service Users page. Then use that account to access admin methods, or grant admin access to other users.
+:::
+
+## What Admins Can Do
+
+Admins use high access groups (`90` ~ `99`) and can perform the following actions:
+
+- Read database data in any access group.
+- Delete user accounts.
+- Update user account profiles.
+- Invite users to the service.
+- Create users in the service.
+- Assign higher access groups to users.
+- Remove private record access from users.
+- Block or unblock users.
+- Delete any record, including private and read-only records.
+- Send newsletters to newsletter subscribers.
+- Send notifications to users.
+
+## What Admins Cannot Do
+
+Admins cannot perform the following actions:
+
+- View private data of other users.
+- Edit database records uploaded by other users.
+- Change service settings.
+
+These actions are available only to the service owner through the Skapi service pages.
+
+Admin methods are useful when building services that require admin access to manage users and data.
+
+:::danger
+Admin methods are powerful and should be used with caution.
+Admins can delete user accounts and data, which can cause irreversible damage to your application.
+:::
+
+## What Both Admins and Service Owners Cannot Do
+
+- Change or view user account passwords.
+- View private database data of other users.
+- Upload private records to the database.
+- Upload subscription records to the database.
+
+## What Service Owners Cannot Do
+
+- Upload read-only records to the database.
+
+::: tip
+Service owners can do everything that admins can do.
+:::
+
+<br>
+
+# Inviting Users
+
+Admins can invite users to the service by using the [`inviteUser()`](https://docs.skapi.com/api-reference/admin/README.html#inviteuser) method.
+
+When a user is invited, an invitation email is sent to the user with a link to accept the invitation.
+
+In the invitation email, the user will see the login email and randomly generated password, and a link to accept the invitation.
+
+User should click on the link to accept the invitation within 7 days and they will be able to login to the service using the email and password provided in the invitation email.
+
+This example demonstrates using the [`inviteUser()`](https://docs.skapi.com/api-reference/admin/README.html#inviteuser) method to invite a user to the service.
+When the request is successful, the string "SUCCESS: Invitation has been sent." is returned.
+
+:::code-group
+
+```html [Form]
+<form onsubmit="skapi.inviteUser(event).then(user => console.log(user))">
+    <input name="email" placeholder="Email" required/>
+    <input type="submit" value="Invite" />
+</form>
+```
+
+```js [JS]
+skapi.inviteUser(
+    { 
+        email: 'user@email'
+    },
+).then(user => {
+    console.log(user);
+    /*
+    Returns:
+    "SUCCESS: Invitation has been sent. (User ID: xxx...)"
+    */
+});
+```
+:::
+
+:::tip
+The user will be able to login to the service using the email and password provided in the invitation email.
+It is recommended to change the password after the first login.
+:::
+
+For more detailed information on all the parameters and options available with the [`inviteUser()`](https://docs.skapi.com/api-reference/admin/README.html#inviteuser) method,
+
+## Send Invitations with Custom Templates
+
+Invitation emails are sent using the default template configured in your Skapi service.
+
+You can use your own custom HTML email template by providing a template URL and custom subject line.
+
+:::code-group
+
+```html [Form]
+<form onsubmit="skapi.inviteUser(event, {
+        template: {
+            url: 'https\:\/\/your.custom.template/file.html',
+            subject: 'Exclusive Invitation'
+        }
+    }).then(user => console.log(user))">
+    <input name="email" placeholder="Email" required/>
+    <input type="submit" value="Invite" />
+</form>
+```
+
+```js [JS]
+skapi.inviteUser(
+    { 
+        email: 'user@email'
+    },
+    {
+        template: {
+            url: 'https://your.custom.template/file.html',
+            subject: 'Exclusive Invitation'
+        }
+    }
+).then(user => {
+    console.log(user);
+    /*
+    Returns:
+    "SUCCESS: Invitation has been sent. (User ID: xxx...)"
+    */
+});
+```
+:::
+
+:::danger
+The template must include required placeholders in the HTML content.
+For more information, see [Required Placeholders for Invitation Email](https://docs.skapi.com/email/email-templates.html#required-placeholders-for-invitation-email).
+:::
+
+## Resending Invitations
+
+Admins can resend invitations to users who have not accepted the invitation by using the [`resendInvitation()`](https://docs.skapi.com/api-reference/admin/README.html#resendinvitation) method.
+
+This example demonstrates using the [`resendInvitation()`](https://docs.skapi.com/api-reference/admin/README.html#resendinvitation) method to resend an invitation to a user.
+When the request is successful, the string "SUCCESS: Invitation has been re-sent." is returned.
+
+:::code-group
+
+```html [Form]
+<form onsubmit="skapi.resendInvitation(event).then(user => console.log(user))">
+    <input name="email" placeholder="Email" required/>
+    <input type="submit" value="Resend Invitation" />
+</form>
+```
+
+```js [JS]
+skapi.resendInvitation(
+    { 
+        email: 'user@email'
+    },
+).then(user => {
+    console.log(user);
+    /*
+    Returns:
+    "SUCCESS: Invitation has been re-sent. (User ID: xxx...)"
+    */
+});
+```
+:::
+
+## Getting Sent Invitations
+
+Admins can get a list of invitations that have been sent by using the [`getInvitations()`](https://docs.skapi.com/api-reference/admin/README.html#getinvitations) method.
+
+This example demonstrates using the [`getInvitations()`](https://docs.skapi.com/api-reference/admin/README.html#getinvitations) method to get a list of invitations that have been sent.
+When the request is successful, the [DatabaseResponse](https://docs.skapi.com/api-reference/data-types/README.html#databaseresponse) containing the list of invitations is returned.
+
+The `email` parameter can be used to filter the invitations by email.
+When the `email` parameter is set, only invitations with the email starting with the given string will be returned.
+
+:::code-group
+
+```html [Form]
+<form onsubmit="skapi.getInvitations(event).then(invitations => console.log(invitations))">
+    <input name="email" placeholder="Search for email"/>
+    <input type="submit" value="Get Invitations" />
+</form>
+```
+
+```js [JS]
+skapi.getInvitations(
+    { 
+        email: 'user@email'
+    },
+).then(invitations => {
+    console.log(invitations);
+    /*
+    Returns:
+    {
+        list: [
+            {
+                email: 'user@email',
+                ...
+            },
+            ...
+        ],
+        ...
+    }
+    */
+});
+```
+:::
+
+For more detailed information on all the parameters and options available with the [`getInvitations()`](https://docs.skapi.com/api-reference/admin/README.html#getinvitations) method,
+
+
+## Cancelling Invitations
+
+Admins can cancel invitations that have been sent by using the [`cancelInvitation()`](https://docs.skapi.com/api-reference/admin/README.html#cancelinvitation) method.
+
+This example demonstrates using the [`cancelInvitation()`](https://docs.skapi.com/api-reference/admin/README.html#cancelinvitation) method to cancel an invitation that has been sent.
+When the request is successful, the string "SUCCESS: Invitation has been cancelled." is returned.
+
+:::code-group
+
+```html [Form]
+<form onsubmit="skapi.cancelInvitation(event).then(response => console.log(response))">
+    <input name="email" placeholder="Email" required/>
+    <input type="submit" value="Cancel Invitation" />
+</form>
+```
+
+```js [JS]
+skapi.cancelInvitation(
+    { 
+        email: 'user@email'
+    },
+).then(response => {
+    console.log(response);
+    /*
+    Returns:
+    "SUCCESS: Invitation has been cancelled."
+    */
+});
+```
+:::
+
+
+<br>
+
+# Managing Users
+
+Admins can manage user accounts by creating, deleting, blocking, and unblocking accounts. Admins can also grant access to users and cancel invitations.
+
+## Assigning Access Group to Users
+
+Users that have admin access can grant access to other users by using the [`grantAccess()`](https://docs.skapi.com/api-reference/admin/README.html#grantaccess) method.
+
+This example demonstrates using the [`grantAccess()`](https://docs.skapi.com/api-reference/admin/README.html#grantaccess) method to grant access to a user.
+
+When the request is successful, the string "SUCCESS: Access has been granted to the user." is returned.
+
+You can grant user access group levels from 1 to 99.
+
+99 is the admin group.
+
+:::code-group
+```html [Form]
+<form onsubmit="skapi.grantAccess(event).then(response => console.log(response))">
+    <input name="user_id" placeholder="User ID" required/>
+    <input name="access_group" placeholder="Access Group" required/>
+    <input type="submit" value="Grant Access" />
+</form>
+```
+
+```js [JS]
+skapi.grantAccess(
+    { 
+        user_id: 'user_id',
+        access_group: 1
+    },
+).then(response => {
+    console.log(response);
+    /*
+    Returns:
+    "SUCCESS: Access has been granted to the user."
+    */
+});
+```
+:::
+
+
+## Creating User Accounts
+
+Admins can create user accounts by using the [`createAccount()`](https://docs.skapi.com/api-reference/admin/README.html#createaccount) method.
+
+This example demonstrates using the [`createAccount()`](https://docs.skapi.com/api-reference/admin/README.html#createaccount) method to create a user account.
+
+**You should provide the user's email and password.** Other user attributes are optional.
+
+:::code-group
+```html [Form]
+<form onsubmit="skapi.createAccount(event).then(response => console.log(response))">
+    <input name="email" placeholder="Email" required/>
+    <input name="password" placeholder="Password" required/>
+    <input name="name" placeholder="Name"/>
+    <input type="submit" value="Create Account" />
+</form>
+```
+
+```js [JS]
+skapi.createAccount(
+    { 
+        email: 'user@email',
+        password: 'password',
+        name: 'User Name'
+    },
+).then(response => {
+    console.log(response);
+    /*
+    Returns:
+    "SUCCESS: Account has been created."
+    */
+});
+```
+:::
+
+When the request is successful, the string "SUCCESS: Account has been created." is returned.
+
+And the user will be able to log in with the created email and password right away.
+
+[`createAccount()`](https://docs.skapi.com/api-reference/admin/README.html#createaccount) method does not require any confirmation from the user.
+
+For more detailed information on all the parameters and options available with the [`createAccount()`](https://docs.skapi.com/api-reference/admin/README.html#createaccount) method.
+
+
+## Deleting User Accounts
+
+Admins can delete user accounts by using the [`deleteAccount()`](https://docs.skapi.com/api-reference/admin/README.html#deleteaccount) method.
+
+This example demonstrates using the [`deleteAccount()`](https://docs.skapi.com/api-reference/admin/README.html#deleteaccount) method to delete a user account.
+
+When the request is successful, the string "SUCCESS: Account has been deleted." is returned.
+
+```js [JS]
+skapi.deleteAccount(
+    { 
+        user_id: 'xxx...' // User ID to delete.
+    },
+).then(response => {
+    console.log(response);
+    /*
+    Returns:
+    "SUCCESS: Account has been deleted."
+    */
+});
+```
+
+:::warning
+This action is irreversible. Once an account is deleted, it cannot be recovered.
+All the user's data will be deleted from the database.
+:::
+
+
+## Blocking User Accounts
+
+Admins can block user accounts by using the [`blockAccount()`](https://docs.skapi.com/api-reference/admin/README.html#blockaccount) method.
+
+This example demonstrates using the [`blockAccount()`](https://docs.skapi.com/api-reference/admin/README.html#blockaccount) method to block a user account.
+
+When the request is successful, the string "SUCCESS: Account has been blocked." is returned.
+
+```js [JS]
+skapi.blockAccount(
+    { 
+        user_id: 'xxx...' // User ID to block.
+    },
+).then(response => {
+    console.log(response);
+    /*
+    Returns:
+    "SUCCESS: Account has been blocked."
+    */
+});
+```
+
+Once an account is blocked, the user will not be able to log in to the service.
+
+## Unblocking User Accounts
+
+Admins can unblock user accounts by using the [`unblockAccount()`](https://docs.skapi.com/api-reference/admin/README.html#unblockaccount) method.
+
+This example demonstrates using the [`unblockAccount()`](https://docs.skapi.com/api-reference/admin/README.html#unblockaccount) method to unblock a user account.
+
+When the request is successful, the string "SUCCESS: Account has been unblocked." is returned.
+
+```js [JS]
+
+skapi.unblockAccount(
+    { 
+        user_id: 'xxx...' // User ID to unblock.
+    },
+).then(response => {
+    console.log(response);
+    /*
+    Returns:
+    "SUCCESS: Account has been unblocked."
+    */
+});
+```
+
+
+
+<br>
+
+# Hosting your website
+
+Skapi provides a straight forward hosting service for your website.
+You can host your website with Skapi by simply uploading your website files in your `Web Hosting` page.
+
+## Registering Your Subdomain
+
+Before you upload your website files, you must register a subdomain for your website.
+Go to `Web Hosting` page. If the service does not have a subdomain, it will ask you to make one.
+
+<!-- 
+![subdomain register](https://docs.skapi.com/hosting.png)
+ -->
+
+## Uploading Your Website Files
+
+Once you have registered your subdomain, you can upload your website files by drag and dropping your files in the file section which is at the bottom section of your `Web Hosting` page.
+
+When the files are uploaded, all the files will be hosted in your subdomain.
+For example, if you registered `mywebsite` as your subdomain, and have uploaded a file named `yourfile.ext`, the file will be hosted publicly in `https://mywebsite.skapi.com/yourfile.ext`.
+
+:::info
+- When you overwrite a file with the same name, the file will be replaced with the new file.
+- When overwriting or deleting a file, please allow couple of minutes (15 minutes max) for CDN to update it's cache.
+:::
+
+:::danger
+Since the files are hosted publicly, **DO NOT** upload any sensitive files in your hosting page.
+:::
+## index.html
+
+If you have an `index.html` file in your root level, it will be hosted in your subdomain's root directory.
+<!-- 
+![hosting uploaded](https://docs.skapi.com/hostuploaded.png) -->
+
+For example, if `index.html` file is hosted in the root directory of the subdomain.
+The `index.html` will also be served when the user visits `https://mywebsite.skapi.com/`.
+
+
+## Setting the 404 Page
+
+You can set the 404 page for your website from the `404 Page` section, which is in the upper section form on your `Web Hosting` page.
+This HTML file will be served when the user visits a page that does not exist in your website.
+
+:::danger
+If you are using **SPA framework** such as Vue, React, or Angular, **YOU MUST** set the 404 page to your **`index.html`** file.
+:::
+
+
 
 <br>
 

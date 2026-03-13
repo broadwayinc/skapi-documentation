@@ -88,7 +88,7 @@ getUsers(
             'subscribers' |
             'timestamp' |
             'approved';
-        value: string | number | boolean | { by: 'admin' | 'skapi' | 'master'; approved?: boolean }; // Appropriate value type for searchFor, Object for 'approved'
+        value: string | number | boolean; // Appropriate value type for searchFor
         
         /**
          * Cannot be used with range. Default = '='.

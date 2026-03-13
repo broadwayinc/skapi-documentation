@@ -8,7 +8,7 @@ Below are the parameters and return data type references for the methods in Type
 getConnectionInfo(): Promise<ConnectionInfo>
 ```
 
-See [ConnectionInfo](/api-reference/data-types/README.md#connectioninfo)
+See [ConnectionInfo](https://docs.skapi.com/api-reference/data-types/README.html#connectioninfo)
 
 #### Errors
 
@@ -34,7 +34,7 @@ mock(
 ): Promise<{[key:string]: any}>
 ```
 
-See [ProgressCallback](/api-reference/data-types/README.md#progresscallback)
+See [ProgressCallback](https://docs.skapi.com/api-reference/data-types/README.html#progresscallback)
 
 ## getFormResponse
 
@@ -93,7 +93,7 @@ signup(
     "SUCCESS: The account has been created.">
 ```
 
-See [UserProfile](/api-reference/data-types/README.md#userprofile)
+See [UserProfile](https://docs.skapi.com/api-reference/data-types/README.html#userprofile)
 
 #### Errors
 ```ts
@@ -148,7 +148,7 @@ login(
 ): Promise<UserProfile>
 ```
 
-See [UserProfile](/api-reference/data-types/README.md#userprofile)
+See [UserProfile](https://docs.skapi.com/api-reference/data-types/README.html#userprofile)
 
 #### Errors
 ```ts
@@ -184,7 +184,7 @@ getProfile(
 ): Promise<null | UserProfile>
 ```
 
-See [UserProfile](/api-reference/data-types/README.md#userprofile)
+See [UserProfile](https://docs.skapi.com/api-reference/data-types/README.html#userprofile)
 
 ## logout
 
@@ -296,7 +296,7 @@ updateProfile(
 ): Promise<UserProfile>
 ```
 
-See [UserProfile](/api-reference/data-types/README.md#userprofile)
+See [UserProfile](https://docs.skapi.com/api-reference/data-types/README.html#userprofile)
 
 ## changePassword
 
@@ -357,7 +357,7 @@ getUsers(
             'subscribers' |
             'timestamp' |
             'approved';
-        value: string | number | boolean | { by: 'admin' | 'skapi' | 'master'; approved?: boolean }; // Appropriate value type for searchFor, Object for 'approved'
+        value: string | number | boolean; // Appropriate value type for searchFor
         
         /**
          * Cannot be used with range. Default = '='.
@@ -372,11 +372,11 @@ getUsers(
 
 ```
 
-See [FetchOptions](/api-reference/data-types/README.md#fetchoptions)
+See [FetchOptions](https://docs.skapi.com/api-reference/data-types/README.html#fetchoptions)
 
-See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
+See [DatabaseResponse](https://docs.skapi.com/api-reference/data-types/README.html#databaseresponse)
 
-See [UserPublic](/api-reference/data-types/README.md#userpublic)
+See [UserPublic](https://docs.skapi.com/api-reference/data-types/README.html#userpublic)
 
 
 ## recoverAccount
@@ -403,7 +403,7 @@ postRecord(
         /** When the table is given as a string value, the value is the table name. */
         /** 'table' is optional when 'record_id' or 'unique_id' is used. */
         /** When the table is given as a string value, the given value will be set as table.name and table.access_group will be 'public' **/
-        table: string | {
+        table: {
             name: string; // Other than space and period, special characters are not allowed.
             access_group?: number | 'private' | 'public' | 'authorized' | 'admin';  // Default: 'public', otherwise not available to anonymous users.
             /** Subscription settings; not available to anonymous users. */
@@ -443,11 +443,11 @@ postRecord(
 ): Promise<RecordData>
 ```
 
-See [RecordData](/api-reference/data-types/README.md#recorddata)
+See [RecordData](https://docs.skapi.com/api-reference/data-types/README.html#recorddata)
 
-See [ProgressCallback](/api-reference/data-types/README.md#progresscallback)
+See [ProgressCallback](https://docs.skapi.com/api-reference/data-types/README.html#progresscallback)
 
-See [BinaryFile](/api-reference/data-types/README.md#binaryfile)
+See [BinaryFile](https://docs.skapi.com/api-reference/data-types/README.html#binaryfile)
 
 ## getRecords
 
@@ -458,10 +458,10 @@ getRecords(
         unique_id?: string; // Unique ID of the record. When unique ID is given, it will fetch the record with the given unique ID. All other parameters are bypassed.
         /** When the table is given as a string value, the given value will be set as table.name and table.access_group will be 'public' **/
         /** 'table' is optional when 'record_id' or 'unique_id' is used. */
-        table: string | {
+        table: {
             name: string,
             access_group?: number | 'private' | 'public' | 'authorized' | 'admin'; // 0 to 99 if using number. Default: 'public'
-            subscription?: string; // User ID that requester is subscribed to.
+            subscription?: string; // User ID that requester is subscribed to. (eg. "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")
         };
 
         /**
@@ -485,11 +485,11 @@ getRecords(
 ): Promise<DatabaseResponse<RecordData>>
 ```
 
-See [RecordData](/api-reference/data-types/README.md#recorddata)
+See [RecordData](https://docs.skapi.com/api-reference/data-types/README.html#recorddata)
 
-See [FetchOptions](/api-reference/data-types/README.md#fetchoptions)
+See [FetchOptions](https://docs.skapi.com/api-reference/data-types/README.html#fetchoptions)
 
-See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
+See [DatabaseResponse](https://docs.skapi.com/api-reference/data-types/README.html#databaseresponse)
 
 ## grantPrivateAccess
 ```ts
@@ -574,9 +574,9 @@ listPrivateRecordAccess(
 }>>
 ```
 
-See [FetchOptions](/api-reference/data-types/README.md#fetchoptions)
+See [FetchOptions](https://docs.skapi.com/api-reference/data-types/README.html#fetchoptions)
 
-See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
+See [DatabaseResponse](https://docs.skapi.com/api-reference/data-types/README.html#databaseresponse)
 
 
 ## deleteRecords
@@ -631,9 +631,9 @@ getTables(
     fetchOptions?: FetchOptions;
 ): Promise<DatabaseResponse<Table>>
 ```
-See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
+See [DatabaseResponse](https://docs.skapi.com/api-reference/data-types/README.html#databaseresponse)
 
-See [Table](/api-reference/data-types/README.md#table)
+See [Table](https://docs.skapi.com/api-reference/data-types/README.html#table)
 
 
 ## getIndex
@@ -652,9 +652,9 @@ getIndexes(
     fetchOptions?: FetchOptions;
 ): Promise<DatabaseResponse<Index>>
 ```
-See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
+See [DatabaseResponse](https://docs.skapi.com/api-reference/data-types/README.html#databaseresponse)
 
-See [Index](/api-reference/data-types/README.md#index)
+See [Index](https://docs.skapi.com/api-reference/data-types/README.html#index)
 
 
 ## getTags
@@ -669,9 +669,9 @@ getTags(
     fetchOptions?: FetchOptions;
 ): Promise<DatabaseResponse<Tag>>
 ```
-See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
+See [DatabaseResponse](https://docs.skapi.com/api-reference/data-types/README.html#databaseresponse)
 
-See [Tag](/api-reference/data-types/README.md#tag)
+See [Tag](https://docs.skapi.com/api-reference/data-types/README.html#tag)
 
 
 ## getUniqueId
@@ -685,9 +685,9 @@ getUniqueId(
     fetchOptions?: FetchOptions;
 ): Promise<DatabaseResponse<UniqueId>>
 ```
-See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
+See [DatabaseResponse](https://docs.skapi.com/api-reference/data-types/README.html#databaseresponse)
 
-See [UniqueId](/api-reference/data-types/README.md#uniqueid)
+See [UniqueId](https://docs.skapi.com/api-reference/data-types/README.html#uniqueid)
 
 
 ## subscribe
@@ -697,7 +697,7 @@ subscribe(
 ): Promise<Subscription>
 ```
 
-See [Subscription](/api-reference/data-types/README.md#subscription)
+See [Subscription](https://docs.skapi.com/api-reference/data-types/README.html#subscription)
 
 
 ## unsubscribe
@@ -744,9 +744,9 @@ getSubscriptions(
     fetchOptions?: FetchOptions;
 ): Promise<DatabaseResponse<Subscription>>
 ```
-See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
+See [DatabaseResponse](https://docs.skapi.com/api-reference/data-types/README.html#databaseresponse)
 
-See [Subscription](/api-reference/data-types/README.md#subscription)
+See [Subscription](https://docs.skapi.com/api-reference/data-types/README.html#subscription)
 
 
 ## getFeed
@@ -767,9 +767,9 @@ getFile(
 ): Promise<Blob | string | FileInfo | void>
 ```
 
-See [FileInfo](/api-reference/data-types/README.md#fileinfo)
+See [FileInfo](https://docs.skapi.com/api-reference/data-types/README.html#fileinfo)
 
-See [ProgressCallback](/api-reference/data-types/README.md#progresscallback)
+See [ProgressCallback](https://docs.skapi.com/api-reference/data-types/README.html#progresscallback)
 
 <br>
 
@@ -842,11 +842,11 @@ getNewsletters(
 ): Promise<DatabaseResponse<Newsletter>>
 ```
 
-See [FetchOptions](/api-reference/data-types/README.md#fetchoptions)
+See [FetchOptions](https://docs.skapi.com/api-reference/data-types/README.html#fetchoptions)
 
-See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
+See [DatabaseResponse](https://docs.skapi.com/api-reference/data-types/README.html#databaseresponse)
 
-See [Newsletter](/api-reference/data-types/README.md#newsletter)
+See [Newsletter](https://docs.skapi.com/api-reference/data-types/README.html#newsletter)
 
 
 ## sendInquiry
@@ -874,7 +874,7 @@ Below are the parameters and return data type references for the methods in Type
 connectRealtime(cb: RealtimeCallback): Promise<WebSocket>
 ```
 
-See [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback)
+See [RealtimeCallback](https://docs.skapi.com/api-reference/data-types/README.html#realtimecallback)
 
 #### Errors
 ```ts
@@ -964,9 +964,9 @@ getRealtimeUsers(SubmitEvent | params?: {
 ): Promise<DatabaseResponse<{ user_id:string; cid:string; }[]>>
 ```
 
-See [FetchOptions](/api-reference/data-types/README.md#fetchoptions)
+See [FetchOptions](https://docs.skapi.com/api-reference/data-types/README.html#fetchoptions)
 
-See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
+See [DatabaseResponse](https://docs.skapi.com/api-reference/data-types/README.html#databaseresponse)
 
 
 ## closeRealtime
@@ -978,23 +978,28 @@ closeRealtime(): Promise<void>
 ## connectRTC
 
 ```ts
-connectRTC({
-    cid: string; // Client id of the opponent
-    ice?: string; // stun:your.stun.server:3468 (optional)
-    media?: {
-        video: boolean; // When true, video will be streamed
-        audio: boolean; // When true, audio will be streamed
-    } | MediaStream; // MediaStream object can be used
-    channels?: Array<{
-        ordered: 'boolean',
-        maxPacketLifeTime: 'number',
-        maxRetransmits: 'number',
-        protocol: 'string'
-    } | "text-chat" | "file-transfer" | "video-chat" | "voice-chat" | "gaming">; // Can create data channels with optimal setting for given task
-}): Promise<RTCConnector>
+connectRTC(
+    params: {
+        cid: string; // Client id of the opponent
+        ice?: string; // stun:your.stun.server:3468 (optional)
+        media?: {
+            video: boolean; // When true, video will be streamed
+            audio: boolean; // When true, audio will be streamed
+        } | MediaStream; // MediaStream object can be used
+        channels?: Array<{
+            ordered: 'boolean',
+            maxPacketLifeTime: 'number',
+            maxRetransmits: 'number',
+            protocol: 'string'
+        } | "text-chat" | "file-transfer" | "video-chat" | "voice-chat" | "gaming">; // Can create data channels with optimal setting for given task
+    }, 
+    callback: (e: RTCEvent) => void
+): Promise<RTCConnector>
 ```
 
-See [RTCConnector](/api-reference/data-types/README.md#rtcconnector)
+See [RTCConnector](https://docs.skapi.com/api-reference/data-types/README.html#rtcconnector)
+
+See [RTCEvent](https://docs.skapi.com/api-reference/data-types/README.html#rtcevent)
 
 #### Errors
 ```ts
@@ -1059,32 +1064,21 @@ pushNotification({
 
 <br>
 
-# API Reference: API Bridge
+# API Reference: Third-Party APIs
 
 Below are the parameters and return data type references for the methods in TypeScript format.
-
-## secureRequest
-
-```ts
-secureRequest(
-    params: {
-        url: string;
-        data?: any;
-    }
-): Promise<any>
-```
 
 ## clientSecretRequest
 
 ```ts
 clientSecretRequest(
     params: {
-        url: string;
-        clientSecretName: string;
-        method: 'get' | 'post' | 'GET' | 'POST';
-        headers?: { [key: string]: string };
-        data?: { [key: string]: any };
-        params?: { [key: string]: string };
+        clientSecretName: string; // The name of the client secret key registered in your Skapi service.
+        url: string; // The third-party API endpoint URL.
+        method: 'GET' | 'POST'; // The HTTP method, either `GET` or `POST`.
+        headers?: { [key: string]: string }; // Request headers as a key-value object.
+        data?: { [key: string]: any }; // Request body as a key-value object (used when `method` is `POST`).
+        params?: { [key: string]: string }; // Query parameters as a key-value object (used when `method` is `GET`).
     }
 ): Promise<any>
 ```
@@ -1143,11 +1137,11 @@ getInvitations(params: {
 }, fetchOptions: FetchOptions): Promise<DatabaseResponse<UserProfile>>
 ```
 
-See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse).
+See [DatabaseResponse](https://docs.skapi.com/api-reference/data-types/README.html#databaseresponse).
 
-See [UserProfile](/api-reference/data-types/README.md#userprofile).
+See [UserProfile](https://docs.skapi.com/api-reference/data-types/README.html#userprofile).
 
-See [FetchOptions](/api-reference/data-types/README.md#fetchoptions).
+See [FetchOptions](https://docs.skapi.com/api-reference/data-types/README.html#fetchoptions).
 
 
 ## cancelInvitation
@@ -1193,7 +1187,7 @@ createAccount(
 ): Promise<UserProfile>
 ```
 
-See [UserProfile](/api-reference/data-types/README.md#userprofile).
+See [UserProfile](https://docs.skapi.com/api-reference/data-types/README.html#userprofile).
 
 ## deleteAccount
 
@@ -1414,6 +1408,7 @@ type RecordData = {
         name: string; // Table name
         access_group: number | 'private' | 'public' | 'authorized' | 'admin'; // Allowed access level of this record.
         subscription?: {
+            is_subscription_record: boolean;
             upload_to_feed: boolean; // When true, record will be shown in the subscribers feeds that is retrieved via getFeed() method.
             notify_subscribers: boolean; // When true, subscribers will receive notification when the record is uploaded.
             feed_referencing_records: boolean; // When true, records referencing this record will be included to the subscribers feed.
@@ -1584,7 +1579,7 @@ type Newsletter = {
 type RealtimeCallback = (rt: {
     type: 'message' | 'error' | 'success' | 'close' | 'notice' | 'private' | 'reconnect' | 'rtc:incoming' | 'rtc:closed';
     message?: any;
-    connectRTC?: (params: RTCReceiverParams, callback: RTCEvent) => Promise<RTCResolved>; // Incoming RTC
+    connectRTC?: (params: RTCReceiverParams, callback: (e: RTCEvent) => void) => Promise<RTCResolved>; // Incoming RTC
     hangup?: () => void; // Reject incoming RTC connection.
     sender?: string; // user_id of the sender
     sender_cid?: string; // scid of the sender
@@ -1618,10 +1613,10 @@ type RTCResolved = {
 ## RTCEvent
 
 ```ts
-type RTCEvent = (e: {
+type RTCEvent = {
     type: 'track' | 'connectionstatechange' | 'close' | 'message' | 'open' | 'bufferedamountlow' | 'error' | 'icecandidate' | 'icecandidateend' | 'icegatheringstatechange' | 'negotiationneeded' | 'signalingstatechange';
     [key: string]: any;
-}) => void
+}
 ```
 
 <br>

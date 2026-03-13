@@ -65,9 +65,9 @@ You can get your own service ID from [Skapi](https://www.skapi.com)
 
 ## Example
 
-Below is part of the repository code. You can see how it handles complex database examples.
+Below is part of the repository code, showing how it handles complex database scenarios.
 
-Since this is a portion of the complete repository code and doesn't include supporting files like `service.js`, direct copy and paste will not work.
+Because this is only a portion of the full repository and does not include supporting files such as `service.js` and `main.css`, direct copy-and-paste will not work.
 
 **welcome.html**
 

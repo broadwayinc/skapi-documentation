@@ -1,23 +1,19 @@
+
 # Getting Started
 
-Welcome to Skapi! This guide will walk you through the essential steps to get started: creating a service, importing the Skapi library into your project, and establishing a connection between your application and the Skapi server.
+After creating your service in Skapi, connect it to your frontend.
 
+Your frontend is the part users see, such as pages, buttons, and forms. It can be plain HTML or a JavaScript framework like Vue or React.
 
-## 1. Create a Service
+Skapi works with vanilla HTML and modern JavaScript frameworks (for example Vue, React, and Angular).
 
-1. Sign up for an account at [skapi.com](https://www.skapi.com/signup).
-2. Log in and navigate to the [My Services](https://www.skapi.com/my-services) page.
-3. Click on **Create** on Create a new service, create a name for your service and proceed.
-
-## 2. Initialize the Skapi Library
-
-Skapi is compatible with both vanilla HTML and webpack-based projects (e.g., Vue, React, Angular, etc.).
-You can import the library using a `<script>` tag or install it via npm.
+To use Skapi, import the library and initialize it with your service ID.
 
 ### For HTML Projects
 
-For vanilla HTML projects, import Skapi using a script tag and initialize the library.
-For static HTML projects, ensure that the Skapi class is initialized in the HTML header on all pages. 
+For vanilla HTML projects, import Skapi using a script tag and initialize the library as shown below.
+Initialize the Skapi class in the HTML `<head>` of each page that uses Skapi.
+When you initialize the class, use the exact service ID from your Skapi dashboard.
 
 ```html
 <!-- index.html -->
@@ -28,15 +24,21 @@ For static HTML projects, ensure that the Skapi class is initialized in the HTML
 </script>
 ```
 
+::: tip NOTE
+Replace `'service_id'` with your actual service ID from your Skapi dashboard after you create a service.
+
+Example format: `'s1_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-xxxx'`
+:::
+
 ### For SPA Projects
 
-To use Skapi in Single Page Application (SPA) projects such as Vue, React, or Angular, install skapi-js via npm.
+To use Skapi in a Single Page Application (SPA) such as Vue, React, or Angular, install `skapi-js` with npm.
 
 ```sh
 $ npm i skapi-js
 ```
 
-Then, import the library into your main JavaScript file:
+Then import the library in your main JavaScript file:
 
 ```javascript
 // main.js
@@ -48,16 +50,41 @@ export { skapi }
 // You can now import skapi from anywhere in your project.
 ```
 
-::: warning
-Replace `'service_id'` in `new Skapi()` with your actual service ID.
-Format: `xxxxxxxxxxxx-xxxxx-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
+### For TypeScript Projects
 
-You can get your service ID from your service dashboard.
-:::
+Skapi includes TypeScript support, so you can import both the class and related types.
 
-## 3. Get Connection Information
+```typescript
+import { Skapi } from 'skapi-js';
+import type { RecordData, DatabaseResponse } from 'skapi-js';
 
-When your client has successfully connected to the Skapi server, you can use the [`getConnectionInfo()`](/api-reference/connection/README.md#getconnectioninfo) method to retrieve connection information.
+const skapi = new Skapi('service_id');
+let databaseRecords: DatabaseResponse<RecordData>;
+```
+
+### Node.js (CommonJS)
+
+To use Skapi in Node.js (CommonJS), import the library as shown below:
+
+```javascript
+const { Skapi } = require('skapi-js');
+const skapi = new Skapi('service_id');
+```
+
+### Node.js (ESM)
+
+```javascript
+import { Skapi } from 'skapi-js';
+const skapi = new Skapi('service_id');
+```
+
+> **Note:** When running Skapi in Node.js, browser-specific features such as WebSocket, WebRTC, and Notifications are not available.
+
+
+
+## Get Connection Information
+
+After your client connects to Skapi, call [`getConnectionInfo()`](/api-reference/connection/README.md#getconnectioninfo) to retrieve connection details.
 
 ::: code-group
 ```html [HTML]
@@ -105,10 +132,9 @@ skapi.getConnectionInfo().then(info => {
 :::
 
 
+## Advanced Settings
 
-## 4. Advanced Settings
-
-You can configure additional options when initializing the Skapi class.
+You can pass additional options when initializing the Skapi class.
 
 ### new Skapi(...)
 
@@ -116,13 +142,12 @@ You can configure additional options when initializing the Skapi class.
 class Skapi {
   constructor(
     service: string, // Skapi service ID
-    owner: string,   // Skapi owner ID
     options?: {
         autoLogin?: boolean;        // Default: true
         requestBatchSize?: number;  // Default: 30. Maximum number of requests processed per batch.
         eventListener?: {
-            onLogin?: (user: UserProfile | null) => void;
-            onUserUpdate?: (user: UserProfile | null) => void;
+            onLogin?: (user: UserProfile | null) => void; // Fires on initial page load (after Skapi initializes), on login/logout, and when a session expires. The callback receives a UserProfile object if the user is logged in; otherwise, it receives null.
+            onUserUpdate?: (user: UserProfile | null) => void; // Fires on initial page load (after Skapi initializes), on login/logout, when a session expires, and when the user's profile is updated. The callback receives a UserProfile object if the user is logged in; otherwise, it receives null.
             onBatchProcess?: (process: {
                 batchToProcess: number; // Number of batches left to process
                 itemsToProcess: number; // Number of items left to process
@@ -147,14 +172,14 @@ Options overview:
 
 - `eventListener` (callbacks for key events)
     - `onLogin(user: UserProfile | null)`
-        - Fires on initial page load (after Skapi initializes), on login/logout, and when a session expires.
+        - Fires on initial page load (after Skapi initializes), on login/logout, and when a session expires. The callback receives a `UserProfile` object if the user is logged in; otherwise, it receives `null`.
         - See: [Listening to Login/Logout Status](/authentication/login-logout.html#listening-to-login-logout-status)
 
     - `onUserUpdate(user: UserProfile | null)`
-        - Fires when the user's profile is updated.
+        - Fires on initial page load (after Skapi initializes), on login/logout, when a session expires, and when the user's profile is updated. The callback receives a `UserProfile` object if the user is logged in; otherwise, it receives `null`.
         - See: [Listening to User Profile Updates](/authentication/user-info.html#listening-to-user-s-profile-updates)
 
     - `onBatchProcess(process)`
-        - Fires everytime after Skapi completes processing a request batch.
+        - Fires each time Skapi completes processing a request batch.
 
 Type reference: See [UserProfile](/api-reference/data-types/README.md#userprofile).

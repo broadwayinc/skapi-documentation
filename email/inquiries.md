@@ -35,12 +35,8 @@ skapi.sendInquiry(params).then(inquiry => {
     console.log(inquiry); // 'SUCCESS: Inquiry has been sent.'
 });
 ```
-
 :::
 
 :::warning
-Inquires do not require the user to be logged in.
-
-If you are not planning to use the [`sendInquiry()`](/api-reference/email/README.md#sendinquiry) method,
-Be sure to turn on the `Prevent Inquiry` option in the [Service Settings](/service-settings/service-settings.md) page to prevent spam.
+Be sure to turn on the `Allow Inquiries` option in the [Service Settings](/introduction/what-is-skapi.md#service-settings).
 :::

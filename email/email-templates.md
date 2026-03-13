@@ -1,4 +1,4 @@
-# Service E-Mails
+# Automated E-Mails
 
 When the user signup, reset password, or change email, subscribes to public newsletters, get invited to your service,
 the system will send an automated email to the user.

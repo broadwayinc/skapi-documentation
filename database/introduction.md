@@ -1,15 +1,15 @@
-# Database
+# What is a database?
 
-Skapi provides fast, simple, secure, yet flexible way to store, retrieve data from your database.
+A database is storage for your web application's data.
 
-You can start storing any data from small json data to large binary files up to 5tb per file while Skapi handles the security, indexing, and file storage for you.
+That data can be simple values (such as comments, likes, or ratings) or files (such as images, documents, and videos). It should be stored securely, read efficiently, and indexed in a way that makes searching and organizing easy.
 
-Files will be served through the CDN, and will have restricted access based on the access group the uploader has set.
+With Skapi, you can store anything from small JSON objects to large binary files up to 5 TB per file. Skapi handles security, indexing, and file storage for you.
 
-Mind you, Skapi database has completely different approach to database management compared to traditional databases.
+Files are served through a CDN, and access is controlled by the access group set by the uploader.
 
-We designed the database to be User-Centric, meaning that the end-users(frontend) are the one configuring the database schema and security for you.
+Skapi's database is user-centric, which means frontend developers can configure schema behavior and security rules directly.
 
-By this approach, the database does not require any complex setup, or schema definition that cost time and money just to get things started.
+With this approach, you can get started quickly without complex setup or rigid schema definitions.
 
-In this section, you will learn how to store and retrieve data from your database, and learn how Skapi's powerful indexing system can help you search your data.
+In this section, you will learn how to store and retrieve data, and how Skapi's indexing system helps you search it efficiently.
