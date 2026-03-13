@@ -1,43 +1,66 @@
 import jsoncrawler from 'jsoncrawler';
 console.log('jsonCrawler', jsoncrawler);
 
-let all_files = [
+
+let api_reference = [
+    {
+        text: 'API Reference',
+        items: [
+            { text: 'Connection', link: '/api-reference/connection/README.md' },
+            { text: 'Authentication', link: '/api-reference/authentication/README.md' },
+            { text: 'User Account', link: '/api-reference/user/README.md' },
+            { text: 'Database', link: '/api-reference/database/README.md' },
+            { text: 'Email', link: '/api-reference/email/README.md' },
+            { text: 'Realtime', link: '/api-reference/realtime/README.md' },
+            { text: 'API Bridge', link: '/api-reference/api-bridge/README.md' },
+            { text: 'Admin', link: '/api-reference/admin/README.md' },
+            { text: 'Data Types', link: '/api-reference/data-types/README.md' }
+        ]
+    }
+]
+
+let method_ref = [
     {
         text: 'Introduction',
         items: [
+            { text: 'What is Skapi?', link: '/introduction/what-is-skapi.md' },
             { text: 'Getting Started', link: '/introduction/getting-started.md' },
             { text: 'Working with HTML forms', link: '/introduction/working-with-forms.md' },
-            // { text: 'AI-Driven Development', link: '/introduction/ai-driven.md' },
+            { text: 'Working with AI Assistants', link: '/introduction/ai-driven.md' },
         ]
     },
     {
         text: 'Authentication',
         items: [
-            // { text: 'Introduction', link: '/authentication/introduction.md' },
+            { text: 'What is Authentication?', link: '/authentication/introduction.md' },
             { text: 'Creating an account', link: '/authentication/create-account.md' },
             { text: 'Signup Confirmation', link: '/authentication/signup-confirmation.md' },
             { text: 'Login / Logout', link: '/authentication/login-logout.md' },
             { text: 'User Profile', link: '/authentication/user-info.md' },
             { text: 'Forgot Password', link: '/authentication/forgot-password.md' },
             { text: 'OpenID Login', link: '/authentication/openid-login.md' },
-            // { text: 'Full Example', link: '/authentication/full-example.md' },
         ]
     },
     {
         text: 'User Account',
         items: [
-            // { text: 'Introduction', link: '/user-account/introduction.md' },
-            { text: 'E-Mail verification', link: '/user-account/email-verification.md' },
             { text: 'Updating User Profile', link: '/user-account/update-account.md' },
+            { text: 'E-Mail verification', link: '/user-account/email-verification.md' },
             { text: 'Changing Password', link: '/user-account/change-password.md' },
             { text: 'Disable / Recover Account', link: '/user-account/disable-recover-account.md' },
-            { text: 'Search Users', link: '/user-account/get-users.md' }
+            { text: 'Searching Users', link: '/user-account/get-users.md' },
+        ]
+    },
+    {
+        text: 'Templates: Authentication',
+        items: [
+            { text: 'HTML', link: '/authentication/full-example.md' },
         ]
     },
     {
         text: 'Database',
         items: [
-            // { text: 'Introduction', link: '/database/introduction.md' },
+            { text: 'What is a database?', link: '/database/introduction.md' },
             { text: 'Creating a Record', link: '/database/create.md' },
             { text: 'Fetching Records', link: '/database/fetch.md' },
             { text: 'Unique ID', link: '/database/unique-id.md' },
@@ -59,9 +82,15 @@ let all_files = [
         ]
     },
     {
+        text: 'Using Third-Party APIs',
+        items: [
+            { text: 'Client Secret Keys', link: '/api-bridge/client-secret-request.md' },
+        ]
+    },
+    {
         text: 'Realtime Connection',
         items: [
-            // { text: 'Introduction', link: '/realtime/introduction.md' },
+            { text: 'What is Realtime Connection?', link: '/realtime/introduction.md' },
             { text: 'Connecting to Realtime', link: '/realtime/connecting.md' },
             { text: 'Sending Realtime Data', link: '/realtime/post.md' },
             { text: 'Realtime Groups', link: '/realtime/group.md' },
@@ -70,33 +99,63 @@ let all_files = [
         ]
     },
     {
-        text: 'API Bridge',
+        text: 'Full Example: Websocket Chat',
         items: [
-            // { text: 'Introduction', link: '/api-bridge/introduction.md' },
-            { text: 'Secure Post Request', link: '/api-bridge/secure-post-request.md' },
-            { text: 'Client Secret Request', link: '/api-bridge/client-secret-request.md' },
+            { text: 'HTML', link: '/realtime/chat-example.md' },
+        ]
+    },
+    {
+        text: 'Full Example: Video Call',
+        items: [
+            { text: 'HTML', link: '/realtime/rtc-example.md' },
         ]
     },
     {
         text: 'E-Mail Service',
         items: [
-            // { text: 'Introduction', link: '/email/introduction.md' },
-            // { text: 'Automated E-Mail', link: '/email/email-templates.md' },
-            { text: 'Bulk Email', link: '/email/newsletters.md' },
+            { text: 'Introduction', link: '/email/introduction.md' },
+            { text: 'Automated E-Mails', link: '/email/email-templates.md' },
+            { text: 'Sending Newsletters', link: '/email/newsletters.md' },
             { text: 'Receiving Inquiries', link: '/email/inquiries.md' }
         ]
+    },
+    {
+        text: 'Admin Features',
+        items: [
+            { text: 'Introduction', link: '/admin/intro.md' },
+            { text: 'Inviting Users', link: '/admin/invite.md' },
+            { text: 'Managing Users', link: '/admin/account.md' },
+        ]
+    },
+    {
+        text: 'Website Hosting',
+        link: '/hosting/hosting.md'
+    }
+];
+
+let all_files = [
+    ...method_ref,
+    api_reference[0],
+    {
+        text: 'Version History',
+        link: '/versionlog/versions.md'
     }
 ]
 
 let files = [];
-jsoncrawler(all_files).forEach((item) => {
+jsoncrawler(method_ref).forEach((item) => {
     if (item.key === 'link') {
         files.push('.' + item.value);
     }
 });
 
 console.log('files', files);
-
+function replaceURL(finalSysContent) {
+    // replace all "](/" to "](https://docs.skapi.com/" in SYS.md and replace README.md with README.html in that link urls
+    finalSysContent = finalSysContent.replaceAll('](/', '](https://docs.skapi.com/');
+    finalSysContent = finalSysContent.replaceAll('README.md#', 'README.html#');
+    return finalSysContent;
+}
 import fs from 'fs';
 // concatenate all files into a single string
 let concatenatedContent = '';
@@ -108,31 +167,16 @@ for (const file of files) {
         console.error(`Error reading file ${file}:`, err);
     }
 }
+concatenatedContent = replaceURL(concatenatedContent);
+
 fs.writeFileSync('skapi-docs.md', concatenatedContent);
 
-
-let ref = [
-    {
-        text: 'API Reference',
-        items: [
-            { text: 'Connection', link: '/api-reference/connection/README.md' },
-            { text: 'Authentication', link: '/api-reference/authentication/README.md' },
-            { text: 'User Account', link: '/api-reference/user/README.md' },
-            { text: 'Database', link: '/api-reference/database/README.md' },
-            { text: 'Email', link: '/api-reference/email/README.md' },
-            { text: 'Realtime', link: '/api-reference/realtime/README.md' },
-            { text: 'API Bridge', link: '/api-reference/api-bridge/README.md' },
-            { text: 'Admin', link: '/api-reference/admin/README.md' },
-            { text: 'Data Types', link: '/api-reference/data-types/README.md' }
-        ]
-    }
-]
 
 // concatenate all files into a single string
 concatenatedContent = '';
 
 let reffiles = [];
-jsoncrawler(ref).forEach((item) => {
+jsoncrawler(api_reference).forEach((item) => {
     if (item.key === 'link') {
         reffiles.push('.' + item.value);
     }
@@ -147,6 +191,8 @@ for (const file of reffiles) {
     }
 }
 
+concatenatedContent = replaceURL(concatenatedContent);
+
 fs.writeFileSync('skapi-types.md', concatenatedContent);
 
 // concatincate SYSTEM.md and skapi.md and put #SKAPI_DOCS between them
@@ -158,8 +204,7 @@ let finalSysContent = systemContent + `\n\n# SKAPI_DOCS\n\n` + skapiContent;
 const skapiTypesContent = fs.readFileSync('./skapi-types.md', 'utf-8');
 finalSysContent = finalSysContent + `\n\n# SKAPI_TYPES\n\n` + skapiTypesContent;
 
-// replace all "](/" to "](https://docs.skapi.com/" in SYS.md
-finalSysContent = finalSysContent.replaceAll('](/', '](https://docs.skapi.com/');
+finalSysContent = replaceURL(finalSysContent);
 
 // remove all blank lines in SYS.md
 finalSysContent = finalSysContent.replace(/^\s*[\r\n]/gm, '');
@@ -169,3 +214,5 @@ finalSysContent = finalSysContent.replace(/<br>/gm, '');
 
 fs.writeFileSync('SKAPI.md', finalSysContent);
 console.log('Generated SKAPI.md with all documentation.');
+
+export default all_files;

@@ -3,18 +3,18 @@
 
 You can require users to confirm their signup via email.
 This is useful for preventing malicious users from creating fake accounts.
-User data will not be created unless the user confirms their account.
+The account is not fully activated until the user confirms it.
 
 ## E-Mail Confirmation on Signup
 
-When an account is created with `options.signup_confirmation` set to `true` or URL string,
-users will receive an email with the signup confirmation link.
+When an account is created with `options.signup_confirmation` set to `true` or a URL string,
+the user receives a signup confirmation email.
 
 The user must click on the confirmation link before logging into your service.
 If the `options.signup_confirmation` value is a valid URL string,
-the user will be redirected to that url after successful signup confirmation.
+the user is redirected to that URL after successful confirmation.
 
-The URL string will work either with a full URL or relative path of your website.
+You can use either a full URL or a relative path on your website.
 
 Once the user has confirmed their signup, their profile will automatically be marked as email verified.
 
@@ -55,23 +55,23 @@ skapi.signup(parameters, options).then(res => {
 ```
 :::
 
-The example above shows how you can create a user account with the signup confirmation.
+The example above shows how to create an account with signup confirmation enabled.
 
-When the signup is successful, the user will get an email containing the confirmation link.
-Once clicked, the user will be confirmed by your service and be redirected to the given URL.
+After signup succeeds, the user receives an email with a confirmation link.
+After they click the link, the account is confirmed and the user is redirected to the URL you provided.
 
 If the `signup_confirmation` value was `true`,
-the user will see 'Your signup has been successfully confirmed.' message in their blank web browser tab.
+the user sees a blank browser tab with the message: 'Your signup has been successfully confirmed.'
 
 :::danger
 When setting the `signup_confirmation` value to a relative URL path (e.g. `/relative/path.html`), it will not work if the website is not hosted.
 
-It's because on local file systems your actual file url would be something like: `file:///C:/Users/username/Desktop/website/index.html`. And skapi does not collect folder informations of the user's local computer.
+This happens because local files use paths like `file:///C:/Users/username/Desktop/website/index.html`, and Skapi cannot resolve folder paths on a user's local computer.
 
 Set your redirect URL of `signup_confirmation` to be the full URL (e.g. `https://your.website.com/path/to/your/success/page`).
 :::
 
-You can also customize the email template for the signup confirmation email.
+You can also customize the signup confirmation email template.
 
 For more info on email templates, see [Automated E-Mail](/email/email-templates.md).
 
@@ -129,17 +129,17 @@ skapi.login({email: 'user@email.com', password: 'password'})
 ```
 :::
 
-In this example, the user tries to login and receives a `SIGNUP_CONFIRMATION_NEEDED` error.
+In this example, the user tries to log in and receives a `SIGNUP_CONFIRMATION_NEEDED` error.
 
-Then, if the user chooses to, you can use the [`resendSignupConfirmation()`](/api-reference/authentication/README.md#resendsignupconfirmation) method to resend the confirmation email to the user's email address.
+If needed, you can then call [`resendSignupConfirmation()`](/api-reference/authentication/README.md#resendsignupconfirmation) to resend the confirmation email.
 
-For more detailed information on all the parameters and options available with the [`resendSignupConfirmation()`](/api-reference/authentication/README.md#resendsignupconfirmation) method, 
-please refer to the API Reference below:
+For detailed information about all parameters and options of [`resendSignupConfirmation()`](/api-reference/authentication/README.md#resendsignupconfirmation),
+see the API reference below:
 
 ### [`resendSignupConfirmation(): Promise<string>`](/api-reference/authentication/README.md#resendsignupconfirmation)
 
 ::: warning
 - To resend signup confirmation emails, the user must have at least one login attempt to your service.
-- If the user fails to confirm within 7 days, their signup will be invalidated, and they will need to sign up again. 
+- If the user does not confirm within 7 days, the signup is invalidated and they must sign up again.
 :::
 

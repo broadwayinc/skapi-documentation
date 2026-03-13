@@ -1,20 +1,19 @@
 # Updating User Profile
 
 :::warning
-User must be logged in to call this method
+You must be logged in to call this method.
 :::
 
-User's profile can be updated using [`updateProfile()`](/api-reference/user/README.md#updateprofile).
-If the update is successful, the updated [UserProfile](/api-reference/data-types/README.md#userprofile) object is returned if the request was successful.
+You can update a user's profile using [`updateProfile()`](/api-reference/user/README.md#updateprofile).
+If successful, the method returns the updated [UserProfile](/api-reference/data-types/README.md#userprofile) object.
 
 :::danger
+-   If a user changes their email, their login email changes as well.
+-   When the email is changed, it becomes unverified.
+:::
 
--   When the user change their email, they will be also changing their login email as well.
--   When user's email is changed, the email will be unverified.
-    :::
-
-In this example, the user's name is updated by providing a new `name` value.
-If the update is successful, the updated user profile is returned.
+In this example, the user's name is updated by passing a new `name` value.
+If successful, the updated user profile is returned.
 
 :::code-group
 
@@ -43,7 +42,7 @@ let params = {
     // profile, // URL of the profile page.
     // website, // URL of the website.
     // nickname, // Nickname of the user.
-    // misc, // Additional string value that can be used freely. This value is only visible from skapi.getProfile(). Not to others.
+    // misc, // Additional string value for custom use. This value is visible only through skapi.getProfile().
 };
 
 skapi.updateProfile(params).then((user) => {
@@ -53,22 +52,19 @@ skapi.updateProfile(params).then((user) => {
 
 :::
 
-For more detailed information on all the parameters and options available with the [`updateProfile()`](/api-reference/user/README.md#updateprofile) method,
-please refer to the API Reference below:
+For full details on parameters and options, see the API reference below:
 
 ### [`updateProfile(params): Promise<UserProfile>`](/api-reference/user/README.md#updateprofile)
 
-:::danger
-Be aware that user profile attributes only take `string` as a value.
-
-If you need to upload an image files to the user's profile, use [`postRecord()`](/api-reference/database/README.md#postrecord) method to upload a public image file first and use the uploaded file's URL as a value in the user profile attributes.
+:::tip
+If you need to upload an image to a user's profile, first upload a public image file with [`postRecord()`](/api-reference/database/README.md#postrecord), then use the uploaded file URL in the profile attributes.
 :::
 
 ## Public Attributes
 
-Certain user profile attributes can be configured as public or private.
-When the profile is public, the user's profile information can be searched by other users.
-When the profile is private, the user's profile information cannot be searched by other users.
+Certain user profile attributes can be set as public or private.
+When an attribute is public, other users can find it.
+When an attribute is private, other users cannot find it.
 
 The following attributes can be set to public or private:
 
@@ -80,7 +76,7 @@ The following attributes can be set to public or private:
 
 By default, these attributes are set to private.
 
-Here is an example of setting the user's email to public:
+Here is an example that makes the user's email public:
 
 :::code-group
 
@@ -104,7 +100,6 @@ skapi.updateProfile(params).then((user) => {
 
 :::
 
-For more detailed information on all the parameters and options available with the [`updateProfile()`](/api-reference/user/README.md#updateprofile) method,
-please refer to the API Reference below:
+For full details on parameters and options, see the API reference below:
 
 ### [`updateProfile(params): Promise<UserProfile>`](/api-reference/user/README.md#updateprofile)

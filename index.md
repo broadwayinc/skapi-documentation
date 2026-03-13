@@ -3,28 +3,29 @@ layout: home
 
 hero:
   name: "Skapi"
-  text: Serverless<br>Backend API
-  tagline: "Skapi is a Serverless Backend API for web application development. Implement no-code backend from the frontend."
+  text: Serverless Backend Infrastructure
+  tagline: "For AI agents, web developers, and anyone who needs a secure, scalable backend without managing servers."
   
   actions:
     - theme: brand
-      text: Getting Started
-      link: /introduction/getting-started
+      text: Start
+      link: /introduction/what-is-skapi
   image:
     src: logo.png
     alt: Skapi logo
 
 features:
-  - icon: 💎
-    title: 100% Serverless
-    details: No servers, no stress. No idle servers running 24/7. Use your backend in a cost-efficient, fully scalable way.
-  - title: Compatible with Any Framework
-    icon: 💯
-    details: Works with plain HTML or any JavaScript framework.
-  - title: Everything You Need in One API
-    icon: ⚡
-    details: Essential services bundled into a single JavaScript library for instant use.
   - title: Works with Any AI Assistant
     icon: 🤖
-    details: Design your web application with any AI tool, and let Skapi's client-centric backend handle your data securely.
+    details: Let your AI assistant design the entire backend. Skapi's client-centric security model keeps your data safe without any server-side code.
+  - icon: 💎
+    title: 100% Serverless
+    details: No idle servers, no wasted costs. Your backend scales automatically and efficiently.
+  - title: Works with Any Framework
+    icon: 💯
+    details: Works with plain HTML, any JavaScript framework, or Node.js.
+  - title: Everything You Need in One API
+    icon: ⚡
+    details: Authentication, database, file storage, email, and more. All bundled into a single JavaScript library.
+
 ---

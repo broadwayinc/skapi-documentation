@@ -112,23 +112,28 @@ closeRealtime(): Promise<void>
 ## connectRTC
 
 ```ts
-connectRTC({
-    cid: string; // Client id of the opponent
-    ice?: string; // stun:your.stun.server:3468 (optional)
-    media?: {
-        video: boolean; // When true, video will be streamed
-        audio: boolean; // When true, audio will be streamed
-    } | MediaStream; // MediaStream object can be used
-    channels?: Array<{
-        ordered: 'boolean',
-        maxPacketLifeTime: 'number',
-        maxRetransmits: 'number',
-        protocol: 'string'
-    } | "text-chat" | "file-transfer" | "video-chat" | "voice-chat" | "gaming">; // Can create data channels with optimal setting for given task
-}): Promise<RTCConnector>
+connectRTC(
+    params: {
+        cid: string; // Client id of the opponent
+        ice?: string; // stun:your.stun.server:3468 (optional)
+        media?: {
+            video: boolean; // When true, video will be streamed
+            audio: boolean; // When true, audio will be streamed
+        } | MediaStream; // MediaStream object can be used
+        channels?: Array<{
+            ordered: 'boolean',
+            maxPacketLifeTime: 'number',
+            maxRetransmits: 'number',
+            protocol: 'string'
+        } | "text-chat" | "file-transfer" | "video-chat" | "voice-chat" | "gaming">; // Can create data channels with optimal setting for given task
+    }, 
+    callback: (e: RTCEvent) => void
+): Promise<RTCConnector>
 ```
 
 See [RTCConnector](/api-reference/data-types/README.md#rtcconnector)
+
+See [RTCEvent](/api-reference/data-types/README.md#rtcevent)
 
 #### Errors
 ```ts

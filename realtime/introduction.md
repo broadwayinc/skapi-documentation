@@ -1,9 +1,11 @@
-# Realtime Connection
+# What is Realtime Connection?
 
-Skapi's realtime features include WebSocket data exchange, WebRTC, and notifications.
+Skapi's realtime connection features include WebSocket data exchange, WebRTC, and notifications.
 
-Realtime data allows you to transfer JSON data between users via WebSocket connections.
+These technologies enable real-time chat, data transfer, and audio/video communication between users.
 
-Skapi WebRTC provides peer-to-peer connections between users and can be used to send large amounts of data quickly, such as for video chats.
+Realtime messaging lets you transfer JSON data between users through either WebSocket connections or WebRTC.
 
-The notification feature enables your web apps and PWAs to receive notifications in realtime.
+Skapi WebRTC provides peer-to-peer connections that can transfer large amounts of data quickly, making it suitable for use cases such as video chat.
+
+The notification feature allows your web apps and PWAs to receive real-time notifications.

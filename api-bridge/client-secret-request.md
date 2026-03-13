@@ -1,89 +1,109 @@
-# Using 3rd Party APIs
+# Using Third-Party APIs
 
-If you are using 3rd party API's that requires a client secret, you can use [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) to make a secure `POST` or `GET` request to your 3rd party API's.
+You can connect Skapi to third-party APIs (services outside your app), such as AI services, map services, payment services, or your own external APIs.
 
-First you need to save your client secret key in your **3rd Party API Keys** page.
+If the API requires a client secret, use [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) to send secure `POST` or `GET` requests.
 
-1. Navigate to the **3rd Party API Keys** page from your service page.
-  <!-- ![Client Secret Key](/menucli.png) -->
+Because client secrets must never be exposed in frontend code, register each secret key securely in Skapi.
 
-2. Click on the **+** button to add a new client secret key of your 3rd party API.
-  <!-- ![Register Client Secret Key](/addbutt.png) -->
+## Registering Client Secret Keys
 
-<!-- ![Client Secret Key Dialog](/clientsecdialog.png)
-You can add a new client secret key by providing a **name** for the key and the **client secret** value. -->
+1. In your Skapi service dashboard, click **Client Secret Key**.
+2. Click **+** at the top-right of the table.
+3. In the form, enter:
+  - **Name:** A label for this key. You will use this value as `clientSecretName` in [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest).
+  - **Client Secret Key:** The actual secret value. Use `$CLIENT_SECRET` in your `data`, `params`, `headers`, or `url` fields where the real secret should be inserted.
+  - **Locked:** Controls access to this key. If **Locked** is enabled, only logged-in users can use it. If disabled, any user can use it.
 
-- The `Name` field is the name of the key that you will use when defining the `clientSecretName` parameter in the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method.
+4. Click **Save**.
 
-- The `Client Secret Key` is the actual secret key value that you will use as a placeholder in the `data`, `params`, or `headers` or `url` parameter of the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method.
 
-- The toggle for **Locked** indicates whether the key is public or private. When set to **Locked**, it means that only the users that are logged in can have access to your 3rd party api, while by default anybody can have access to your 3rd party api.
+## Sending Requests to Third-Party APIs
 
-Once the client secret key is saved, you can use the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method below to make secure requests to your 3rd party API's.
+After you save your client secret key, use [`clientSecretRequest(params)`](/api-reference/api-bridge/README.md#clientsecretrequest) to send secure requests to third-party APIs.
 
-The list parameters of `params` of the method is shown as below:
+The example below sends a `POST` request to a third-party API using a key saved as `YourSecretKeyName`. It places `$CLIENT_SECRET` in the `Authorization` header.
 
-  - `url`: A string representing the URL of your 3rd party API.
-  - `clientSecretName`: A string representing the key name of the client secret key you may have saved in your service dashboard.
-  - `method`: A string representing the method of the request. It can be either "GET" or "POST".
-  - `headers`: An object representing the headers of the request.
-  - `data`: An object representing the data to be sent to your 3rd party API. It is only used when `method` is "POST".
-  - `params`: An object representing the query string parameters of the request. It is only used when `method` is "GET".
+```js [JS]
+skapi.clientSecretRequest({
+    clientSecretName: 'YourSecretKeyName',
+    url: 'https://third.party.com/api',
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer $CLIENT_SECRET'
+    }
+})
+```
 
-For more detailed information on all the parameters and options available with the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method, 
-please refer to the API Reference below:
+The `params` object supports these fields:
+
+- `clientSecretName`: Name of the client secret key saved in your Skapi service.
+- `url`: Third-party API endpoint URL.
+- `method`: HTTP method (`GET` or `POST`).
+- `headers`: Request headers as key-value pairs.
+- `data`: Request body as key-value pairs (used when `method` is `POST`).
+- `params`: Query parameters as key-value pairs (used when `method` is `GET`).
+
+
+:::warning
+When using `clientSecretRequest()`, include the `$CLIENT_SECRET` placeholder in at least one of these values: `data`, `params`, `headers`, or `url`.
+:::
+
+For full parameter details, see the API reference below:
 
 ### [`clientSecretRequest(params): Promise<any>`](/api-reference/api-bridge/README.md#clientsecretrequest)
 
-:::warning
-When using `clientSecretRequest()`, you must include the `$CLIENT_SECRET` placeholder string in the `data` or `params` or `headers` or `url` parameter value.
-:::
 
-## Example: Making a secure request to OpenAI API image generator.
+## OpenAI Images API
 
-As an example, we will be using the [OpenAI API](https://platform.openai.com/docs/api-reference/images/create?lang=curl) image generator from Skapi.
+In this example, you will use Skapi to call the [OpenAI Images API](https://developers.openai.com/api/reference/resources/images/methods/generate) securely.
 
-We will referencing the OpenAI API documentation to understand how to make secure requests to the API.
+First, we review the OpenAI API request format. Then we build the same request with `clientSecretRequest()`.
 
 #### Prerequisites
 
-1. Create an OpenAI account and get your API secret key from [here](https://beta.openai.com/account/api-keys).
-2. Save your OpenAI API secret key in **3rd Party API Keys** page.
+1. Create an OpenAI account and get your API secret key from [platform.openai.com](https://platform.openai.com/).
+2. Save your OpenAI API secret key on the **Client Secret Key** page in Skapi.
 
-   For this example, save your OpenAI API's secret key name as `openai`.
-   
-   We will use this key name when making the client secret request to the OpenAI API.
+  For this example, save the key with the name `openai`.
+
+  You will use this name as `clientSecretName` in the request.
 
 #### Understanding the API call
 
-In the API documentation, we can see that the API call is made as follows:
+According to the API documentation, the endpoint is:
 
 ```
 POST https://api.openai.com/v1/images/generations
 ```
 
-This means the API call should be made using the `POST` method to the `https://api.openai.com/v1/images/generations` URL.
+This means the request uses `POST` to `https://api.openai.com/v1/images/generations`.
 
-Next, you will see curl example of the API call:
+The curl example looks like this:
 
 ``` bash
 curl https://api.openai.com/v1/images/generations \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
   -d '{
-    "model": "dall-e-3",
+    "model": "gpt-image-1.5",
     "prompt": "A cute baby sea otter",
     "n": 1,
     "size": "1024x1024"
   }'
 ```
 
-This means the API call to `https://api.openai.com/v1/images/generations` should be made with a `header` with `Content-Type` to `application/json` and `Authorization` to `Bearer $OPENAI_API_KEY`.
-And the post data should contain properties like `model`, `prompt`, `n`, and `size`.
+From this example, the request needs these headers:
 
-The `$OPENAI_API_KEY` is the API secret key that you have obtained from the OpenAI website. And it is meant to be replaced with your API secret key.
+- `Content-Type: application/json`
+- `Authorization: Bearer $OPENAI_API_KEY`
 
-Since we cannot expose the API secret key in the frontend, we will be using the [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) method to make a secure request to the OpenAI API:
+The request body should include fields such as `model`, `prompt`, `n`, and `size`.
+
+`$OPENAI_API_KEY` is a placeholder for your OpenAI secret key.
+
+Because secrets must not be exposed in frontend code, use [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) and pass `Bearer $CLIENT_SECRET` instead:
 ::: code-group
 
 ```html [Form]
@@ -93,10 +113,10 @@ Since we cannot expose the API secret key in the frontend, we will be using the 
   <input name="method" hidden value="POST">
   <input name="headers[Content-Type]" hidden value='application/json'>
   <input name="headers[Authorization]" hidden value="Bearer $CLIENT_SECRET">
-  <input name="data[model]" hidden value="dall-e-3">
+  <input name="data[model]" hidden value="gpt-image-1.5">
   <input name="data[n]" hidden type='number' value="1">
   <input name="data[size]" hidden value="1024x1024">
-  <textarea name='data[prompt]' placeholder="Describe an image" required></textarea>
+  <textarea name='data[prompt]' required>A cute baby sea otter</textarea>
   <input type="submit" value="Generate">
 </form>
 ```
@@ -111,16 +131,15 @@ skapi.clientSecretRequest({
         Authorization: 'Bearer $CLIENT_SECRET'
     },
     data: {
-        model: "dall-e-3",
+        model: "gpt-image-1.5",
         "prompt": "A cute baby sea otter",
         n: 1,
         size: "1024x1024"
     }
 })
 ```
+:::
+The example above shows how to build request headers and body data for a secure OpenAI API call.
+Use `$CLIENT_SECRET` in the `Authorization` header and set `clientSecretName` to `openai`, which is the key name saved in your Skapi dashboard.
 
-The example above shows how we can compose the request headers and data to make a secure request to the OpenAI API.
-Note that we have used the `$CLIENT_SECRET` placeholder string in the `Authorization` header value,
-and we have set `clientSecretName` to `openai` which is the key name that you may have saved your OpenAI API key in the service dashboard.
-
-When the request is made, Skapi will replace the placeholder string with the client secret key that you have saved in your service dashboard, and return the response from the OpenAI API.
+When the request runs, Skapi replaces `$CLIENT_SECRET` with your stored secret key and returns the response from the OpenAI API.

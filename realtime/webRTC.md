@@ -1,38 +1,57 @@
 # WebRTC
 
-Skapi provides easy integration of WebRTC, allowing developers to quickly set up real-time communication features in their applications.
+Skapi makes WebRTC integration easy, allowing developers to quickly add real-time communication features to their applications.
 
 WebRTC (Web Real-Time Communication) is a technology that enables peer-to-peer media and data streaming between two parties.
 This can be used for video calls, voice calls, and data exchange, making it a versatile tool for various real-time communication needs.
 
 :::danger HTTPS REQUIRED.
-WebRTC only works on HTTPS environment.
-You need to setup a HTTPS environment when developing a WebRTC feature for your web application.
+WebRTC only works in an HTTPS environment.
+You need to set up an HTTPS environment when developing WebRTC features for your web application.
 
-You can host your application in skapi.com or host from your personal servers.
+You can host your application on skapi.com or on your own servers.
 :::
 
 ## Creating RTC Connection
 
-To create RTC connection, both party needs to be online and need to utilize realtime connection.
+To create an RTC connection, both parties must be online and connected to Realtime.
 
-1. Both party should create realtime connection by using [`connectRealtime()`](/api-reference/realtime/README.md#connectrealtime) method.
+One user initiates the call with the other user's `cid` via [`connectRTC()`](/api-reference/realtime/README.md#connectrtc), and the other user receives an `rtc:incoming` event.
 
-2. Once both parties are connected to realtime, both parties should join same realtime group by using [`joinRealtime()`](/api-reference/realtime/README.md#joinrealtime)
+If media streaming is enabled, users must grant camera/microphone permission.
 
-3. Now both parties can see each other's `connection ID(cid)` either by calling [`getRealtimeUsers()`](/api-reference/realtime/README.md#getrealtimeusers) method or from the [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback).
-   
-   One of the party can request RTC connection by using the opponent's `cid` with [`connectRTC()`](/api-reference/realtime/README.md#connectrtc) method.
+## Overall Flow
 
-4. If media streaming is used, users should give permission to allow their device to be used.
+Before reading the full code, here is the call flow in plain language:
 
+1. **Both users connect to Realtime**  
+    Each browser starts a Realtime connection with [`connectRealtime()`](/api-reference/realtime/README.md#connectrealtime) and joins the same room with [`joinRealtime()`](/api-reference/realtime/README.md#joinrealtime).
 
-Below is an example code of the process:
+2. **Users discover each other in the room**  
+    When someone joins, Realtime sends a `USER_JOINED` notice via [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback), which includes the user's connection info (`cid`).
+    Both parties can also see each other's `connection ID (cid)` by calling [`getRealtimeUsers()`](/api-reference/realtime/README.md#getrealtimeusers).
+
+3. **One user starts a call**  
+    The caller uses the other user's `cid` with `connectRTC(...)` to begin WebRTC negotiation.
+
+4. **The other user receives an incoming call**  
+    The receiver gets an `rtc:incoming` event and can accept or reject.
+    - If accepted, `connectRTC(...)` completes on the receiver side.
+    - Both browsers request camera/microphone access if media is enabled.
+
+5. **Media streams and connection events are handled**  
+    - Local stream is shown in the local video element.
+    - Remote stream arrives in the `track` event and is shown in the remote video element.
+    - Connection lifecycle events (`connecting`, `connected`, `disconnected`, `failed`, `closed`) update UI and cleanup state.
+    - Optional RTC data channel events (`open`, `message`, `close`, etc.) are handled in the same callback.
+
+In short: **Realtime is used for signaling (who is online, incoming call events), and WebRTC is used for the actual peer-to-peer media/data connection.**
 
 
 ### 1. Basic UI Interface
 
-Here we will add video element to display users and simple dialog to display incomming calls.
+Here we add video elements to display local and remote streams, and a simple dialog for incoming/outgoing calls.
+The `call_dialog` &lt;dialog&gt; content is generated dynamically when an RTC call event occurs.
 
 ```html
 <!-- skapi should be previously initialized... -->
@@ -45,40 +64,86 @@ Here we will add video element to display users and simple dialog to display inc
     }
 </style>
 
-<!-- Below are the video elements which it will display incoming / outgoing media streams -->
+<!-- Video elements for displaying local and remote media streams -->
 <video id="localVideo" autoplay muted></video>
-<video id="remoteVideo" autoplay></video>
+<video id="remoteVideo" autoplay hidden></video>
 
-<!-- This will be a dialog for outgoing, incomming calls -->
+<!-- Dialog used for outgoing and incoming calls -->
 <dialog id="call_dialog"></dialog>
 ```
 
 ### 2. Setting Up Realtime and RTC
 
-Below is an simple example of setting up RTC video call.
+Below is a simple example of setting up an RTC video call.
 
 ```js
-let call = null; // This will later be defined to resolved RTC connection object.
+let call = null; // This will later be set to the resolved RTC connection object.
 
-// RTC event listener
-// This callback is used on connectRTC() on both calling and receiving side.
-function RTCEvent(e) {
-    if (e.type === 'track') {
-        // Incoming Media Stream...
-        document.getElementById('remoteVideo').srcObject = e.streams[0];
-        call_dialog.close();
+// This RTCCallback is used in connectRTC() on both the calling and receiving sides.
+
+function RTCCallback(e) {
+    console.log("RTC Callback:", e);
+
+    switch (e.type) {
+        // RTC Events
+        case "negotiationneeded":
+            // RTC negotiation is needed. Send an offer.
+            break;
+
+        case "track":
+            // Attach the incoming media stream to the remote video element.
+            document.getElementById('remoteVideo').srcObject = e.streams[0];
+            document.getElementById("remoteVideo").play();
+            break;
+
+        case "connectionstatechange":
+            // RTC connection state
+
+            if (
+                e.state === "disconnected" ||
+                e.state === "failed" ||
+                e.state === "closed"
+            ) {
+                // RTC has disconnected. Hide the opponent video element.
+                document.getElementById('remoteVideo').hidden = true;
+                
+            } else if (state === "connecting") {
+                // Callback executed when the user is connected to RTC.
+                // Show the opponent video element.
+                document.getElementById('remoteVideo').hidden = false;
+            }
+            break;
+
+        // Data Channel Events
+        case "close":
+            // Data channel is closed
+            break;
+        case "message":
+            // Data channel message received from remote peer.
+            console.log(`Message received from RTC data channel:`, e.data);
+            break;
+        case "open":
+            // Data channel opened
+            break;
+        case "bufferedamountlow":
+            // Data channel low buffer
+            break;
+        case "error":
+            // Data channel error
+            break;
     }
 }
+
 // Realtime event listener
-// This callback will listen to user joining the room.
+// This callback listens for users joining the room.
 function RealtimeCallback(rt) {
     if(rt.type === 'notice') {
         if(rt.code === 'USER_JOINED') {
             if(call) return;
 
-            // When opponent joins a room, and it's not the user itself, user can make a RTC call
+            // When another user joins the room, start an RTC call.
             if(skapi.user.user_id !== rt.sender) {
-                call = await skapi.connectRTC({cid: rt.sender_cid, media: { audio: true, video: true}}, RTCEvent);
+                call = await skapi.connectRTC({cid: rt.sender_cid, media: { audio: true, video: true}}, RTCCallback);
 
                 call_dialog.innerHTML = /*html*/`
                     <p>Outgoing call</p>
@@ -94,13 +159,13 @@ function RealtimeCallback(rt) {
     }
 
     if (rt.type === 'rtc:incoming') {
-        // incomming rtc call
+        // incoming RTC call
         call = rt;
 
         call_dialog.innerHTML = /*html*/`
             <p>Incoming call</p>
             <button onclick='
-                call.connectRTC({ media: {audio: true, video: true} }, RTCEvent)
+                call.connectRTC({ media: {audio: true, video: true} }, RTCCallback)
                     .then(rtc => {
                         rtcConnection = rtc; // Save resolved RTC connection object
                         document.getElementById("localVideo").srcObject = rtcConnection.media; // Show outgoing local media stream
@@ -114,11 +179,11 @@ function RealtimeCallback(rt) {
     }
 
     else if (rt.type === 'rtc:closed') {
-        // rtc connection is closed
+        // RTC connection is completely closed
         call = null;
     }
 }
 
-skapi.connectRealtime(RealtimeCallback); // Connect to realtime
-skapi.joinRealtime({ group: 'RTCCall' }); // Join a realtime group
+skapi.connectRealtime(RealtimeCallback); // Connect to Realtime
+skapi.joinRealtime({ group: 'RTCCall' }); // Join a Realtime group
 ```

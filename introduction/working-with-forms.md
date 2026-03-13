@@ -3,9 +3,9 @@
 
 Skapi can handle HTML `onsubmit` events directly by passing the `SubmitEvent` as the first argument to Skapi methods.
 
-Skapi's form handling simplifies the process of managing form submissions in web applications, allowing developers to easily process and send form data without manual handling.
+This makes form handling much simpler. You can process and send form data without manually reading each field.
 
-In this example, we'll use the [`skapi.mock()`](/api-reference/connection/README.md#mock) method to send a request to the Skapi service and receive a response.
+In this example, we use [`skapi.mock()`](/api-reference/connection/README.md#mock) to send a request and receive a response.
 
 Here is an example of using a `<form>` with Skapi:
 
@@ -16,7 +16,7 @@ Here is an example of using a `<form>` with Skapi:
 </form>
 ```
 
-The above example is equivalent to the following code:
+This is equivalent to writing the following code manually:
 
 ```html
 <input id="hello" placeholder="Say Hi">
@@ -36,14 +36,14 @@ The above example is equivalent to the following code:
 </script>
 ```
 
-As you can see, when a form submit event is passed as the first argument to a Skapi method, Skapi automatically converts your form input values into key-value JavaScript data. The input `name` becomes the key, and depending on the input type, the value corresponds to what the user has entered. 
+When a form submit event is passed as the first argument to a Skapi method, Skapi automatically converts form input values into JavaScript key-value data. The input `name` becomes the key, and the value is resolved based on the input type.
 
 ## Nested Values and Arrays
 
 You can create nested values and arrays by using the `[]` syntax in the `name` attribute.
 The resolved data structure will depend on the input type.
 
-When the key name inside the `[]` is a number, Skapi will resolve the value as an array.
+If the key inside `[]` is a number, Skapi resolves the value as an array.
 
 ```html
 <form onsubmit="skapi.mock(event).then(r => console.log(r))">
@@ -77,39 +77,37 @@ The above example will resolve to the following structure:
 }
 ```
 
-As you can see, Skapi provides convenient form data handling by automatically structuring user input data based on the input type and the `name` attribute.
+Skapi automatically structures user input based on input type and the `name` attribute.
 
 Number inputs are resolved as numbers, radio inputs are resolved as the selected value, and checkbox inputs are resolved as boolean values or strings if a value is specified.
 
-When multiple inputs share the same name without using `[]` syntax, Skapi will attempt to convert the values into an array.
+When multiple inputs share the same name without `[]`, Skapi attempts to convert the values into an array.
 
 
 ## Using Input Elements, Textarea, and Select Elements
 
-Skapi can handle various input elements, including text, number, radio, checkbox, textarea, and select elements.
+Skapi also works with individual input elements, including text, number, radio, checkbox, textarea, and select elements.
 
 ```html
 <input name="my_message" id="message_input">
 <button onclick="skapi.mock(document.getElementById('message_input'))
-  .then(r => {
-    alert(r.my_message);
-  })">Mock</button>
+  .then(r => alert(r.my_message))">Mock</button>
 ```
 
-In the example above, we use the `id` attribute to reference the input element and pass it directly to the Skapi method.
+In this example, we use the `id` attribute to reference the input element and pass it directly to a Skapi method.
 
-This approach is useful when you want to handle individual user input from a specific input element.
+This approach is useful when you want to handle a single field instead of a full form.
 
 
 ## Using the `action` Attribute in the `<form>` Element
 
-When you specify a URL in the `action` attribute of a `<form>` element, the user will be redirected to that page upon a successful request.
+When you set a URL in a form's `action` attribute, the user is redirected to that page after a successful request.
 
-On the destination page, you can use the [`skapi.getFormResponse()`](/api-reference/connection/README.md#getformresponse) method to retrieve the resolved data from the previous page.
+On the destination page, use [`skapi.getFormResponse()`](/api-reference/connection/README.md#getformresponse) to retrieve the resolved data from the previous page.
 
-The example below demonstrates how users can submit a form in `index.html` and then fetch the resolved data from the redirected page `welcome.html`.
+The example below shows how to submit a form in `index.html` and read the resolved data in `welcome.html`.
 
-For this example, create two HTML files in the same directory.
+For this example, create these two HTML files in the same directory.
 
 ```
 .
@@ -160,5 +158,5 @@ When building a static website, you can use the `action` attribute to redirect u
 
 Each page should have the Skapi library imported and initialized.
 
-In contrast, in a single-page application, it may not be necessary to redirect users to a new page.
+In a single-page application, redirecting to another page is often unnecessary.
 :::
