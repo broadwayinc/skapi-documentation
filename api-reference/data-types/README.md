@@ -187,7 +187,7 @@ type RecordData = {
     referenced_count: number;
     
     table: {
-        name: string; // Table name
+        name: string; // 1..128 chars. Blocks / ! * #, control chars, and sentinel U+10FFFF.
         access_group: number | 'private' | 'public' | 'authorized' | 'admin'; // Allowed access level of this record.
         subscription?: {
             is_subscription_record: boolean;
@@ -203,21 +203,19 @@ type RecordData = {
         can_remove_referencing_records: false, // Is true if the owner of the record can remove the referenced records.
         only_granted_can_reference: false, // Is true if only the users who have been granted access to the record can reference this record.
         referencing_index_restrictions?: {
-            /** Not allowed: White space, special characters. Allowed: Alphanumeric, Periods. */
-            name: string; // Allowed index name
-            /** Not allowed: Periods, special characters. Allowed: Alphanumeric, White space. */
-            value?: string | number | boolean; // Allowed index value
-            range?: string | number | boolean; // Allowed index range
+            name: string; // 1..128 chars. Blocks / ! * #, control chars, sentinel U+10FFFF, and cannot start with '$'.
+            value?: string | number | boolean; // String value: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
+            range?: string | number | boolean; // String range: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
             condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // Allowed index value condition
         }[],
         allow_granted_to_grant_others?: boolean; // When true, the user who has granted private access to the record can grant access to other users.
     },
     reference?: string; // Reference ID of this record.
     index?: {
-        name: string; // Index name.
-        value: string | number | boolean; // Value of the index.
+        name: string; // Custom index name: 1..128 chars. Blocks / ! * #, control chars, sentinel U+10FFFF, and cannot start with '$'.
+        value: string | number | boolean; // String value: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
     };
-    tags?: string[]; // List of tags attached to the record.
+    tags?: string[]; // Each tag: 1..64 chars. Blocks / ! * #, control chars, and sentinel U+10FFFF.
     data?: { [key: string]: any }; // Uploaded key value data.
 };
 ```

@@ -62,7 +62,14 @@ The data is a Javascript object that has string value in the key 'something'.
 The given data will be stord under the key name `data` of the returned [RecordData](/api-reference/data-types/README.md#recorddata).
 
 And in the second argument we have set table name to be `my_collection` and access group to be `public`.
-`config.table` is a required parameter in the configuration object and the `config.table.name` should not contain any special characters.
+`config.table` is a required parameter in the configuration object.
+
+`config.table.name` validation rules:
+
+- Maximum length: 128 characters
+- Must not be empty
+- Must not include `/`, `!`, `*`, `#`
+- Must not include control characters or sentinel `􏿿`
 
 ::: tip
 If `config.table` is given as a **string**, the given value will be set as `config.table.name` and the record will be uploaded with `config.table.access_group` set to `"public"`.

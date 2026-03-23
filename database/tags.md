@@ -30,7 +30,12 @@ skapi.postRecord(record, config);
 ```
 
 :::danger
-Tags should NOT have special characters. Only allowed special characters are: [ ] ^ _ ` : ; < = > ? @ and white space.
+Tag validation rules:
+
+- Maximum length: 64 characters per tag
+- Must not be empty
+- Must not include `/`, `!`, `*`, `#`
+- Must not include control characters or sentinel `􏿿`
 :::
 
 ## Querying Records by Tag

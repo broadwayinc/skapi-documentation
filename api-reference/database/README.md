@@ -14,7 +14,7 @@ postRecord(
         /** 'table' is optional when 'record_id' or 'unique_id' is used. */
         /** When the table is given as a string value, the given value will be set as table.name and table.access_group will be 'public' **/
         table: {
-            name: string; // Other than space and period, special characters are not allowed.
+            name: string; // 1..128 chars. Blocks reserved delimiters: / ! * #, all control chars, and sentinel U+10FFFF.
             access_group?: number | 'private' | 'public' | 'authorized' | 'admin';  // Default: 'public', otherwise not available to anonymous users.
             /** Subscription settings; not available to anonymous users. */
             subscription?: {
@@ -27,21 +27,19 @@ postRecord(
         };
         readonly?: boolean; // Default: false. When true, the record cannot be updated. (Not available to anonymous users)
         index?: {
-            name: string; // Only alphanumeric and period allowed.
-            value: string | number | boolean; // Only alphanumeric and spaces allowed.
+            name: string; // Custom index name: 1..128 chars. Blocks / ! * #, control chars, sentinel U+10FFFF, and cannot start with '$'.
+            value: string | number | boolean; // String value: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
         };
-        tags?: string | string[]; // Only alphanumeric and spaces allowed. It can also be an array of strings or a string with comma separated values.
+        tags?: string | string[]; // Each tag item: 1..64 chars. Blocks / ! * #, control chars, and sentinel U+10FFFF.
         source?: {
             referencing_limit?: number; // Default: null (Infinite)
             prevent_multiple_referencing?: boolean; // If true, a single user can reference this record only once.
             only_granted_can_reference?: boolean; // When true, only the user who has granted private access to the record can reference this record.
             can_remove_referencing_records?: boolean; // When true, owner of the record can remove any record that are referencing this record. Also when this record is deleted, all the record referencing this record will be deleted.
             referencing_index_restrictions?: {
-                /** Not allowed: White space, special characters. Allowed: Alphanumeric, Periods. */
-                name: string; // Allowed index name
-                /** Not allowed: Periods, special characters. Allowed: Alphanumeric, White space. */
-                value?: string | number | boolean; // Allowed index value
-                range?: string | number | boolean; // Allowed index range
+                name: string; // 1..128 chars. Blocks / ! * #, control chars, sentinel U+10FFFF, and cannot start with '$'.
+                value?: string | number | boolean; // String value: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
+                range?: string | number | boolean; // String range: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
                 condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // Allowed index value condition
             }[];
             allow_granted_to_grant_others?: boolean; // When true, the user who has granted private access to the record can grant access to other users.
@@ -82,14 +80,15 @@ getRecords(
         reference?: string;
 
         index?: {
-            /** '$updated' | '$uploaded' | '$referenced_count' | '$user_id' are the reserved index names. */
+            /** Reserved names: '$updated' | '$uploaded' | '$referenced_count' | '$user_id'. */
+            /** Custom names: 1..128 chars, block / ! * #, control chars, sentinel U+10FFFF, and cannot start with '$'. */
             name: string | '$updated' | '$uploaded' | '$referenced_count' | '$user_id';
-            value: string | number | boolean;
+            value: string | number | boolean; // String value: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
             condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '='; // cannot be used with range. Default: '='
-            range?: string | number | boolean; // cannot be used with condition
+            range?: string | number | boolean; // String range: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
         };
 
-        tag?: string; // Queries records with the given tag.
+        tag?: string; // 1..64 chars. Blocks / ! * #, control chars, sentinel U+10FFFF.
     },
     fetchOptions?: FetchOptions;
 ): Promise<DatabaseResponse<RecordData>>
@@ -219,14 +218,15 @@ deleteRecords({
     reference?: string;
 
     index?: {
-        /** '$updated' | '$uploaded' | '$referenced_count' | '$user_id' are the reserved index names. */
+        /** Reserved names: '$updated' | '$uploaded' | '$referenced_count' | '$user_id'. */
+        /** Custom names: 1..128 chars, block / ! * #, control chars, sentinel U+10FFFF, and cannot start with '$'. */
         name: string | '$updated' | '$uploaded' | '$referenced_count' | '$user_id';
-        value: string | number | boolean;
+        value: string | number | boolean; // String value: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
         condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // cannot be used with range. Default: '='
-        range?: string | number | boolean; // cannot be used with condition
+        range?: string | number | boolean; // String range: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
     };
 
-    tag?: string; // Queries records with the given tag.
+    tag?: string; // 1..64 chars. Blocks / ! * #, control chars, sentinel U+10FFFF.
 }): Promise<string | DatabaseResponse<string>>
 ```
 
@@ -252,7 +252,7 @@ See [Table](/api-reference/data-types/README.md#table)
 getIndexes(
     query: {
         table: string;
-        index?: string;
+        index?: string; // 1..128 chars for custom names; blocks / ! * #, control chars, sentinel U+10FFFF, cannot start with '$'.
         order?: {
             by: 'average_number' | 'total_number' | 'number_count' | 'average_bool' | 'total_bool' | 'bool_count' | 'string_count' | 'index_name';
             value?: number | boolean | string;
