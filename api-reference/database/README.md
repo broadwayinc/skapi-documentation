@@ -67,7 +67,7 @@ getRecords(
         /** When the table is given as a string value, the given value will be set as table.name and table.access_group will be 'public' **/
         /** 'table' is optional when 'record_id' or 'unique_id' is used. */
         table: {
-            name: string,
+            name: string, // 1..128 chars. Blocks / ! * #, control chars, and sentinel U+10FFFF.
             access_group?: number | 'private' | 'public' | 'authorized' | 'admin'; // 0 to 99 if using number. Default: 'public'
             subscription?: string; // User ID that requester is subscribed to. (eg. "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")
         };
@@ -272,8 +272,8 @@ See [Index](/api-reference/data-types/README.md#index)
 ```ts
 getTags(
     query: {
-        table: string;
-        tag?: string;
+        table: string; // 1..128 chars. Blocks / ! * #, control chars, and sentinel U+10FFFF.
+        tag?: string; // 1..64 chars. Blocks / ! * #, control chars, sentinel U+10FFFF.
         condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '=';
     },
     fetchOptions?: FetchOptions;

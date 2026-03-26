@@ -192,6 +192,12 @@ As shown in the example above, the `referencing_index_restrictions` parameter is
 - `range`: The range of the index value. (optional)
 - `condition`: The condition of the index value. (optional)
 
+Validation rules for `source.referencing_index_restrictions` fields:
+
+- `name`: 1..128 characters, cannot be empty, cannot start with `$`, and must not include `/`, `!`, `*`, `#`, control characters, or sentinel `􏿿`.
+- `value` (string): 0..256 characters (empty string allowed), blocks only control characters and sentinel `􏿿`.
+- `range` (string): 0..256 characters (empty string allowed), blocks only control characters and sentinel `􏿿`.
+
 You can set many index restrictions by adding more objects to the array.
 
 When the index restriction is set, the referencing record must have the same index name with same typed value and within the specified range.
