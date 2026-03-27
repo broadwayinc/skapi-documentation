@@ -36,4 +36,4 @@ For more detailed information on all the parameters and options available with t
 please refer to the API Reference below:
 
 
-### [`changePassword(params): Promise<string>`](/api-reference/user/README.md#changepassword)
+### [`changePassword(params): Promise<'SUCCESS: Password has been changed.'>`](/api-reference/user/README.md#changepassword)

@@ -2,53 +2,518 @@
 
 Below are the data type references in TypeScript format.
 
-You can import types in typescript project as below:
+You can import types in a TypeScript project as below:
 
 ```ts
 import type {
-    ConnectionInfo,
-    Condition,
-    RTCReceiverParams,
-    RTCConnectorParams,
-    RTCConnector,
-    RTCResolved,
-    RTCEvent,
-    WebSocketMessage,
-    RealtimeCallback,
-    DelRecordQuery,
-    GetRecordQuery,
-    PostRecordConfig,
     BinaryFile,
-    RecordData,
+    Condition,
     Connection,
+    ConnectionInfo,
+    DatabaseResponse,
+    DelRecordQuery,
+    FetchOptions,
+    FileInfo,
     Form,
+    GetRecordQuery,
+    Index,
     Newsletter,
-    Newsletters,
-    UserProfilePublicSettings,
+    PostRecordConfig,
+    ProgressCallback,
+    RealtimeCallback,
+    RecordData,
+    RTCConnector,
+    RTCConnectorParams,
+    RTCEvent,
+    RTCReceiverParams,
+    RTCResolved,
+    Subscription,
+    Table,
+    Tag,
+    UniqueId,
     UserAttributes,
     UserProfile,
     UserPublic,
-    ProgressCallback,
-    FetchOptions,
-    DatabaseResponse,
-    FileInfo,
-    Table,
-    Index,
-    Tag,
-    UniqueId,
-    Subscription
+    WebSocketMessage,
 } from "skapi-js";
+```
+
+## BinaryFile
+
+```ts
+type BinaryFile = {
+    access_group: number | 'private' | 'public' | 'authorized' | 'admin';
+    filename: string;
+    url: string;
+    path: string;
+    size: number;
+    uploaded: number;
+    getFile: (dataType?: 'base64' | 'download' | 'endpoint' | 'blob' | 'text' | 'info', progress?: ProgressCallback) => Promise<Blob | string | void | FileInfo>;
+}
+```
+
+## Condition
+
+```ts
+type Condition = 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '=';
+```
+
+## Connection
+
+```ts
+type Connection = {
+    /** User's locale */
+    locale: string;
+    user_agent: string;
+    /** Connected user's IP address */
+    ip: string;
+    /** Service group */
+    group: number;
+    /** Service name */
+    service_name: string;
+    /** Service options */
+    opt: {
+        freeze_database: boolean;
+        prevent_inquiry: boolean;
+        prevent_signup: boolean;
+    }
+}
 ```
 
 ## ConnectionInfo
 
 ```ts
 type ConnectionInfo = {
-    service_name: string; // Connected Service Name
-    user_ip: string; // Connected user's IP address: "xxx.xxx.xxx.xxx"
-    user_agent: string; // Connected user agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (..."
-    user_location: string; // Connected user's 2 letter country code
-    version: string; // Skapi library version: 'xxx.xxx.xxx' (major.minor.patch)
+    user_ip: string;
+    user_agent: string;
+    user_location: string;
+    service_name: string;
+    version: string;
+};
+```
+
+## DatabaseResponse
+
+```ts
+type DatabaseResponse<T> = {
+    list: T[];
+    startKey: { [key: string]: any; } | 'end';
+    endOfList: boolean;
+    startKeyHistory: string[];
+}
+```
+
+## DelRecordQuery
+
+```ts
+type DelRecordQuery = GetRecordQuery & {
+    unique_id?: string | string[];
+    record_id?: string | string[];
+};
+```
+
+## FetchOptions
+
+```ts
+type FetchOptions = {
+    limit?: number;
+    fetchMore?: boolean;
+    ascending?: boolean;
+    startKey?: { [key: string]: any; };
+    progress?: ProgressCallback;
+}
+```
+
+## FileInfo
+
+```ts
+type FileInfo = {
+    url: string;
+    filename: string;
+    access_group: number | 'private' | 'public' | 'authorized';
+    filesize: number;
+    record_id: string;
+    uploader: string;
+    uploaded: number;
+    fileKey: string;
+}
+```
+
+## Form
+
+```ts
+type Form<T> = HTMLFormElement | FormData | SubmitEvent | T;
+```
+
+## GetRecordQuery
+
+```ts
+type GetRecordQuery = {
+    unique_id?: string; // When unique_id is given, it will fetch the record with the given unique_id.
+    record_id?: string; // When record_id is given, it will fetch the record with the given record_id. This overrides all other parameters.
+
+    /** Table name not required when "record_id" is given.*/
+    table?: {
+        /** Max 128 chars. Blocks: / ! * #, control chars, and sentinel 􏿿. */
+        name: string;
+        /** Number range: 0 ~ 99. Default: 'public' */
+        access_group?: number | 'private' | 'public' | 'authorized' | 'admin';
+        /** User ID of subscription */
+        subscription?: string;
+    };
+
+    reference?: string // Referenced record ID or unique ID. If user ID is given, it will fetch records that are uploaded by the user.
+
+    /** Index condition and range cannot be used simultaneously.*/
+    index?: {
+        /** Custom names: max 128 chars, cannot start with "$", blocks / ! * #, control chars, and sentinel 􏿿. Reserved names: $uploaded, $updated, $referenced_count, $user_id. */
+        name: string | '$updated' | '$uploaded' | '$referenced_count' | '$user_id';
+        /** String value max 256 chars. Allows punctuation (including / ! * #). Blocks control chars and sentinel 􏿿. */
+        value: string | number | boolean;
+        condition?: Condition;
+        range?: string | number | boolean;
+    };
+    tag?: string;
+}
+```
+
+## Index
+
+```ts
+type Index = {
+    table: string;
+    index: string;
+    number_of_records: number;
+    string_count: number;
+    number_count: number;
+    boolean_count: number;
+    total_number: number;
+    total_bool: number;
+    average_number: number;
+    average_bool: number;
+}
+```
+
+## Newsletter
+
+```ts
+type Newsletter = {
+    /** Newsletter id */
+    message_id: string;
+    /** Time sent out */
+    timestamp: number;
+    /** Number of complaints */
+    complaint: number;
+    /** Number of read */
+    read: number;
+    /** Subject */
+    subject: string;
+    /**
+     * Number of bounced.<br>
+     * When e-mail address is bounced, skapi no longer sends e-mail to the bounced address.
+     */
+    bounced: string;
+    /**
+     * Url of the message html.
+     */
+    url: string;
+    /** Number users delivered */
+    delivered: number;
+}
+```
+
+## PostRecordConfig
+
+```ts
+type PostRecordConfig = {
+    record_id?: string; // when record_id is given, it will update the record with the given record_id. If record_id is not given, it will create a new record.
+    unique_id?: string; // You can set unique_id to the record with the given unique_id.
+    readonly?: boolean; // When true, record cannot be updated or deleted.
+
+    /** Table name not required when "record_id" is given.*/
+    table?: {
+        /** Max 128 chars. Blocks: / ! * #, control chars, and sentinel 􏿿. */
+        name: string;
+        /** Number range: 0 ~ 99. Default: 'public' */
+        access_group?: number | 'private' | 'public' | 'authorized' | 'admin';
+
+        /** When true, Record will be only accessible for subscribed users. */
+        subscription?: {
+            is_subscription_record?: boolean; // When true, this record is a subscription record.
+            upload_to_feed?: boolean; // When true, record will be uploaded to the feed of the subscribers.
+            notify_subscribers?: boolean; // When true, subscribers will receive notification when the record is uploaded.
+            feed_referencing_records?: boolean; // When true, records referencing this record will be included to the subscribers feed.
+            notify_referencing_records?: boolean; // When true, records referencing this record will be notified to subscribers.
+        };
+    };
+
+    source?: {
+        referencing_limit?: number; // Default: null (Infinite)
+        prevent_multiple_referencing?: boolean; // If true, a single user can reference this record only once.
+        can_remove_referencing_records?: boolean; // When true, owner of the record can remove any record that are referencing this record. Also when this record is deleted, all the record referencing this record will be deleted.
+        only_granted_can_reference?: boolean; // When true, only the user who has granted private access to the record can reference this record.
+        /** Index restrictions for referencing records. null removes all restrictions. */
+        referencing_index_restrictions?: {
+            /** Not allowed: White space, special characters. Allowed: Alphanumeric, Periods. */
+            name: string; // Allowed index name
+            /** Not allowed: Periods, special characters. Allowed: Alphanumeric, White space. */
+            value?: string | number | boolean; // Allowed index value
+            range?: string | number | boolean; // Allowed index range
+            condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // Allowed index value condition
+        }[] | null;
+        allow_granted_to_grant_others?: boolean; // When true, the user who has granted private access to the record can grant access to other users.
+    };
+
+    /** Can be record ID or unique ID */
+    reference?: string;
+
+    /** null removes index */
+    index?: {
+        /** Max 128 chars, cannot start with "$", blocks / ! * #, control chars, and sentinel 􏿿. */
+        name: string;
+        /** String value max 256 chars. Allows punctuation (including / ! * #). Blocks control chars and sentinel 􏿿. */
+        value: string | number | boolean;
+    } | null;
+
+    tags?: string[] | null; // null removes all tags. each tag max 64 chars, blocks / ! * #, control chars, and sentinel 􏿿.
+    remove_bin?: BinaryFile[] | string[] | null; // Removes bin data from the record. When null, it will remove all bin data.
+    progress?: ProgressCallback; // Callback for database request progress. Useful when building progress bar.
+    reference_private_key?: string; // When referencing a record that has private access, you can provide the private key of the referenced record to pass the access check. This is only required when the referenced record has private access and the user does not have access to the record through subscription or granted access.
+}
+```
+
+## ProgressCallback
+
+```ts
+type ProgressCallback = (e: {
+    status: 'upload' | 'download';
+    progress: number; // 0 ~ 100, number of percent completed.
+    loaded: number; // Number of bytes loaded.
+    total: number; // Total number of bytes to be loaded.
+    currentFile?: File, // Only for uploadFiles()
+    completed?: File[]; // Only for uploadFiles()
+    failed?: File[]; // Only for uploadFiles()
+    abort: () => void;
+}) => void;
+```
+
+## RealtimeCallback
+
+```ts
+type RealtimeCallback = (rt: WebSocketMessage) => void;
+```
+
+## RecordData
+
+```ts
+type RecordData = {
+    record_id: string;
+    unique_id?: string;
+    user_id: string;
+    updated: number;
+    uploaded: number;
+    referenced_count: number;
+
+    table: {
+        name: string;
+        /** Number range: 0 ~ 99 */
+        access_group: number | 'private' | 'public' | 'authorized' | 'admin';
+        /** User ID of subscription */
+        subscription?: {
+            upload_to_feed: boolean; // When true, record will be uploaded to the feed of the subscribers.
+            notify_subscribers: boolean; // When true, subscribers will receive notification when the record is uploaded.
+            feed_referencing_records: boolean; // When true, records referencing this record will be included to the subscribers feed.
+            notify_referencing_records: boolean; // When true, records referencing this record will be notified to subscribers.
+        };
+    };
+    source: {
+        referencing_limit: number; // Default: null (Infinite)
+        prevent_multiple_referencing: boolean; // If true, a single user can reference this record only once.
+        can_remove_referencing_records: boolean; // When true, owner of the record can remove any record that are referencing this record. Also when this record is deleted, all the record referencing this record will be deleted.
+        only_granted_can_reference: boolean; // When true, only the user who has granted private access to the record can reference this record.
+        referencing_index_restrictions?: {
+            name: string; // Allowed index name
+            value?: string | number | boolean; // Allowed index value
+            range?: string | number | boolean; // Allowed index range
+            condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // Allowed index value condition
+        }[];
+    };
+    reference?: string; // record id of the referenced record.
+    index?: {
+        name: string;
+        value: string | number | boolean;
+    };
+    data?: Record<string, any>;
+    tags?: string[];
+    bin: { [key: string]: BinaryFile[] };
+    ip: string;
+    readonly: boolean;
+}
+```
+
+## RTCConnector
+
+```ts
+type RTCConnector = {
+    hangup: () => void;
+    connection: Promise<RTCResolved>;
+}
+```
+
+## RTCConnectorParams
+
+```ts
+type RTCConnectorParams = {
+    cid: string;
+    ice?: string;
+    media?: {
+        video: boolean;
+        audio: boolean;
+    } | MediaStream | MediaStreamConstraints;
+    channels?: Array<RTCDataChannelInit | 'text-chat' | 'file-transfer' | 'video-chat' | 'voice-chat' | 'gaming'>;
+}
+```
+
+## RTCEvent
+
+```ts
+type RTCEvent = {
+    type: 'track' | 'connectionstatechange' | 'close' | 'message' | 'open' | 'bufferedamountlow' | 'error' | 'icecandidate' | 'icecandidateend' | 'icegatheringstatechange' | 'negotiationneeded' | 'signalingstatechange';
+    [key: string]: any;
+}
+```
+
+## RTCReceiverParams
+
+```ts
+type RTCReceiverParams = {
+    ice?: string;
+    media?: {
+        video: boolean;
+        audio: boolean;
+    } | MediaStream | MediaStreamConstraints;
+}
+```
+
+## RTCResolved
+
+```ts
+type RTCResolved = {
+    target: RTCPeerConnection;
+    channels: {
+        [protocol: string]: RTCDataChannel
+    };
+    hangup: () => void;
+    media: MediaStream;
+}
+```
+
+## Subscription
+
+```ts
+type Subscription = {
+    subscriber: string;
+    subscription: string;
+    timestamp: number;
+    blocked: boolean;
+    get_feed: boolean;
+    get_notified: boolean;
+    get_email: boolean;
+}
+```
+
+## Table
+
+```ts
+type Table = {
+    table: string;
+    number_of_records: string;
+    size: number;
+}
+```
+
+## Tag
+
+```ts
+type Tag = {
+    table: string;
+    tag: string;
+    number_of_records: number;
+}
+```
+
+## UniqueId
+
+```ts
+type UniqueId = {
+    unique_id: string;
+    record_id: string;
+}
+```
+
+## UserAttributes
+
+```ts
+type UserAttributes = {
+    /** User's name */
+    name?: string;
+    /**
+     * User's E-Mail for signin.<br>
+     * 64 character max.<br>
+     * When E-Mail is changed, E-Mail verified state will be changed to false.
+     * E-Mail is only visible to others when set to public.
+     * E-Mail should be verified to set to public.
+     * */
+    email?: string;
+    /**
+     * User's phone number. Format: "+0012341234"<br>
+     * When phone number is changed, phone number verified state will be changed to false.
+     * Phone number is only visible to others when set to public.
+     * Phone number should be verified to set to public.
+     */
+    phone_number?: string;
+    /** User's address, only visible to others when set to public. */
+    address?: string | {
+        /**
+         * Full mailing address, formatted for display or use on a mailing label. This field MAY contain multiple lines, separated by newlines. Newlines can be represented either as a carriage return/line feed pair ("\r\n") or as a single line feed character ("\n").
+         * street_address
+         * Full street address component, which MAY include house number, street name, Post Office Box, and multi-line extended street address information. This field MAY contain multiple lines, separated by newlines. Newlines can be represented either as a carriage return/line feed pair ("\r\n") or as a single line feed character ("\n").
+        */
+        formatted: string;
+        // City or locality component.
+        locality: string;
+        // State, province, prefecture, or region component.
+        region: string;
+        // Zip code or postal code component.
+        postal_code: string;
+        // Country name component.
+        country: string;
+    };
+    /**
+     * User's gender. Can be "female" and "male".
+     * Other values may be used when neither of the defined values are applicable.
+     * Only visible to others when set to public.
+     */
+    gender?: string;
+    /** User's birthdate. String format: "1969-07-16", only visible to others when set to public.*/
+    birthdate?: string;
+
+    /** Additional string value that can be used freely. This is only accessible to the owner of the account and the admins. */
+    misc?: string;
+    picture?: string;
+    profile?: string;
+    website?: string;
+    nickname?: string;
+    /** User's E-Mail is public when true. E-Mail should be verified. */
+    email_public?: boolean;
+    /** User's phone number is public when true. Phone number should be verified. */
+    phone_number_public?: boolean;
+    /** User's address is public when true. */
+    address_public?: boolean;
+    /** User's gender is public when true. */
+    gender_public?: boolean;
+    /** User's birthdate is public when true. */
+    birthdate_public?: boolean;
 }
 ```
 
@@ -56,12 +521,16 @@ type ConnectionInfo = {
 
 ```ts
 type UserProfile = {
-    service:string; // The service ID of the user's account.
-    owner:string; // The user ID of the service owner.
-    access_group:number; // The access level of the user's account.
-    user_id:string; // The user's ID.
-    locale:string; // The country code of the user's location when they signed up.
-
+    /** Service id of the user account. */
+    service: string;
+    /** User ID of the service owner. */
+    owner: string;
+    /** Access level of the user's account. */
+    access_group: number;
+    /** User's ID. */
+    user_id: string;
+    /** Country code of where user first signed up from. */
+    locale: string;
     /**
     Account approval info and timestamp.
     Comes with string with the following format: "{approver}:{approved | suspended}:{approved_timestamp}"
@@ -81,320 +550,176 @@ type UserProfile = {
 
      */
     approved: string;
-    log:number; // Last login timestamp(Seconds).
+    /** Last login timestamp(Seconds). */
+    log: number;
+    /** Shows true when user has verified their E-Mail. */
+    email_verified?: boolean;
+    /** Shows true when user has verified their phone number. */
+    phone_number_verified?: boolean;
+    /** User's E-Mail is public when true. E-Mail should be verified. */
+    email_public?: boolean;
+    /** User's phone number is public when true. Phone number should be verified. */
+    phone_number_public?: boolean;
+    /** User's address is public when true. */
+    address_public?: boolean;
+    /** User's gender is public when true. */
+    gender_public?: boolean;
+    /** User's birthdate is public when true. */
+    birthdate_public?: boolean;
 
+    /** User's name */
+    name?: string;
     /**
-     The user's email address.
-     This should be a maximum of 64 characters and is only visible to others if the email_public option is set to true.
-     The email will be unverified if it is changed.
-     */
-    email?:string;
-    email_verified?:boolean; // Set to true if the user has verified their email.
-    
+     * User's E-Mail for signin.<br>
+     * 64 character max.<br>
+     * When E-Mail is changed, E-Mail verified state will be changed to false.
+     * E-Mail is only visible to others when set to public.
+     * E-Mail should be verified to set to public.
+     * */
+    email?: string;
     /**
-     The user's phone number.
-     This should be in the format "+0012341234" and is only visible to others if the phone_number_public option is set to true.
-     The phone number will be unverified if it is changed.
+     * User's phone number. Format: "+0012341234"<br>
+     * When phone number is changed, phone number verified state will be changed to false.
+     * Phone number is only visible to others when set to public.
+     * Phone number should be verified to set to public.
      */
-    phone_number?:string;
-    phone_number_verified?:boolean;// Set to true if the user has verified their phone number.
-    name?:string; // The user's name.
-    address?:string // The user's address.
-    gender?:string // The user's gender. Can be "female" or "male"; or other values if neither of these are applicable.
-    birthdate?:string; // The user's birthdate in the format "YYYY-MM-DD".
-    email_public?:boolean; // The user's email is public if this is set to true.
-    phone_number_public?:boolean; // The user's phone number is public if this is set to true.
-    address_public?:boolean; // The user's address is public if this is set to true.
-    gender_public?:boolean; // The user's gender is public if this is set to true.
-    birthdate_public?:boolean; // The user's birthdate is public if this is set to true.
-    picture?: string; // URL of the profile picture.
-    profile?: string; // URL of the profile page.
-    website?: string; // URL of the website.
-    nickname?: string; // Nickname of the user.
-    misc?: string; // Additional string value that can be used freely. This value is only visible from skapi.getProfile(). Not to others.
-}
+    phone_number?: string;
+    /** User's address, only visible to others when set to public. */
+    address?: string | {
+        /**
+         * Full mailing address, formatted for display or use on a mailing label. This field MAY contain multiple lines, separated by newlines. Newlines can be represented either as a carriage return/line feed pair ("\r\n") or as a single line feed character ("\n").
+         * street_address
+         * Full street address component, which MAY include house number, street name, Post Office Box, and multi-line extended street address information. This field MAY contain multiple lines, separated by newlines. Newlines can be represented either as a carriage return/line feed pair ("\r\n") or as a single line feed character ("\n").
+        */
+        formatted: string;
+        // City or locality component.
+        locality: string;
+        // State, province, prefecture, or region component.
+        region: string;
+        // Zip code or postal code component.
+        postal_code: string;
+        // Country name component.
+        country: string;
+    };
+    /**
+     * User's gender. Can be "female" and "male".
+     * Other values may be used when neither of the defined values are applicable.
+     * Only visible to others when set to public.
+     */
+    gender?: string;
+    /** User's birthdate. String format: "1969-07-16", only visible to others when set to public.*/
+    birthdate?: string;
+
+    /** Additional string value that can be used freely. This is only accessible to the owner of the account and the admins. */
+    misc?: string;
+    picture?: string;
+    profile?: string;
+    website?: string;
+    nickname?: string;
+};
 ```
 
 ## UserPublic
 
 ```ts
 type UserPublic = {
-    access_group:number; // The access level of the user's account.
-    user_id:string; // The user's ID.
-    locale:string; // The country code of the user's location when they signed up.
-
+    /** Access level of the user's account. */
+    access_group: number;
+    /** User's ID. */
+    user_id: string;
+    /** Country code of where user first signed up from. */
+    locale: string;
     /**
-     Account approval timestamp.
-     This timestamp is generated when the user confirms their signup, or recovers their disabled account.
-     [by_skapi | by_admin | by_master] : [approved | suspended] : [timestamp]
-     [by_master | by_admin]: When the account is created by either master or admin.
-     [by_skapi]: When the user account is created by either signup confirmation or invitation.
-     [other]: When logged in by openidLogger, the approval indicating string will be the OpenID Logger's ID that the master has setup in the service.
+    Account approval info and timestamp.
+    Comes with string with the following format: "{approver}:{approved | suspended}:{approved_timestamp}"
+    
+    {approver} is who approved the account:
+        [by_master] is when account approval is done manually from skapi admin panel,
+        [by_admin] is when approval is done by the admin account with api call within your service.
+        [by_skapi] is when account approval is automatically done.
+        Open ID logger ID will be the value if the user is logged with openIdLogin()
+        This timestamp is generated when the user confirms their signup, or recovers their disabled account.
+    
+    {approved | suspended}
+        [approved] is when the account is approved.
+        [suspended] is when the account is blocked by the admin or the master.
+    
+    {approved_timestamp} is the timestamp when the account is approved or suspended.
+
      */
     approved: string;
-    timestamp:number; // Account created timestamp(13 digit milliseconds).
-    log:number; // Last login timestamp(13 digit milliseconds).
-    subscribers: number; // The number of accounts subscribed to the user.  
-    subscribed: number; // The number of accounts the user is subscribed to.  
-    records: number; // Total number of records user has produced in the database.
-    /**
-     The user's email address.
-     This should be a maximum of 64 characters and is only visible to others if the email_public option is set to true.
-     The email will be unverified if it is changed.
-     */
-    email?:string;
-    
-    /**
-     The user's phone number.
-     This should be in the format "+0012341234" and is only visible to others if the phone_number_public option is set to true.
-     The phone number will be unverified if it is changed.
-     */
-    phone_number?:string;
-    name?:string; // The user's name.
-    address?:string // The user's address.
-    gender?:string // The user's gender. Can be "female" or "male"; or other values if neither of these are applicable.
-    birthdate?:string; // The user's birthdate in the format "YYYY-MM-DD".
-    picture?: string; // URL of the profile picture.
-    profile?: string; // URL of the profile page.
-    website?: string; // URL of the website.
-    nickname?: string; // Nickname of the user.
-}
-```
+    /** Account created timestamp(13 digit milliseconds). */
+    timestamp: number;
+    /** Last login timestamp(Seconds). */
+    log: number;
+    /** Number of the user's subscribers. */
+    subscribers: number;
+    /** Number of subscription the user has made */
+    subscribed: number;
+    /** Number of the records the user have created. */
+    records: number;
 
-## DatabaseResponse
+    /** User's name */
+    name?: string;
+    /**
+     * User's E-Mail for signin.<br>
+     * 64 character max.<br>
+     * When E-Mail is changed, E-Mail verified state will be changed to false.
+     * E-Mail is only visible to others when set to public.
+     * E-Mail should be verified to set to public.
+     * */
+    email?: string;
+    /**
+     * User's phone number. Format: "+0012341234"<br>
+     * When phone number is changed, phone number verified state will be changed to false.
+     * Phone number is only visible to others when set to public.
+     * Phone number should be verified to set to public.
+     */
+    phone_number?: string;
+    /** User's address, only visible to others when set to public. */
+    address?: string | {
+        /**
+         * Full mailing address, formatted for display or use on a mailing label. This field MAY contain multiple lines, separated by newlines. Newlines can be represented either as a carriage return/line feed pair ("\r\n") or as a single line feed character ("\n").
+         * street_address
+         * Full street address component, which MAY include house number, street name, Post Office Box, and multi-line extended street address information. This field MAY contain multiple lines, separated by newlines. Newlines can be represented either as a carriage return/line feed pair ("\r\n") or as a single line feed character ("\n").
+        */
+        formatted: string;
+        // City or locality component.
+        locality: string;
+        // State, province, prefecture, or region component.
+        region: string;
+        // Zip code or postal code component.
+        postal_code: string;
+        // Country name component.
+        country: string;
+    };
+    /**
+     * User's gender. Can be "female" and "male".
+     * Other values may be used when neither of the defined values are applicable.
+     * Only visible to others when set to public.
+     */
+    gender?: string;
+    /** User's birthdate. String format: "1969-07-16", only visible to others when set to public.*/
+    birthdate?: string;
 
-```ts
-type DatabaseResponse<T> = {
-    list: T[]; // List of data from the database.
-    startKey: { [key: string]: any; } | 'end'; // Use this start key to fetch more data on the next api call.
-    endOfList: boolean; // true, when the query has reached the end of data.
-    startKeyHistory: string[]; // List of stringified start keys.
+    picture?: string;
+    profile?: string;
+    website?: string;
+    nickname?: string;
 };
 ```
 
-## RecordData
+## WebSocketMessage
 
 ```ts
-type RecordData = {
-    record_id: string; // Record ID of this record
-    unique_id?: string; // Unique ID of this record
-    user_id: string; // Uploaders user ID.
-    updated: number; // Timestamp in milliseconds.
-    uploaded: number; // Timestamp in milliseconds.
-    ip: string; // IP address of uploader.
-    readonly: boolean; // Is true if this record is readonly.
-    bin: { [fileKeyName: string]: BinaryFile[] }; // List of file info the record is holding in each fileKeyName.
-    referenced_count: number;
-    
-    table: {
-        name: string; // 1..128 chars. Blocks / ! * #, control chars, and sentinel U+10FFFF.
-        access_group: number | 'private' | 'public' | 'authorized' | 'admin'; // Allowed access level of this record.
-        subscription?: {
-            is_subscription_record: boolean;
-            upload_to_feed: boolean; // When true, record will be shown in the subscribers feeds that is retrieved via getFeed() method.
-            notify_subscribers: boolean; // When true, subscribers will receive notification when the record is uploaded.
-            feed_referencing_records: boolean; // When true, records referencing this record will be included to the subscribers feed.
-            notify_referencing_records: boolean; // When true, records referencing this record will be notified to subscribers.
-        }
-    };
-    source: {
-        referencing_limit: null, // Number of reference this record is allowing. Infinite if null.
-        prevent_multiple_referencing: false, // Is true if this record prevents a single user to upload a record referencing this record multiple times.
-        can_remove_referencing_records: false, // Is true if the owner of the record can remove the referenced records.
-        only_granted_can_reference: false, // Is true if only the users who have been granted access to the record can reference this record.
-        referencing_index_restrictions?: {
-            name: string; // 1..128 chars. Blocks / ! * #, control chars, sentinel U+10FFFF, and cannot start with '$'.
-            value?: string | number | boolean; // String value: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
-            range?: string | number | boolean; // String range: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
-            condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // Allowed index value condition
-        }[],
-        allow_granted_to_grant_others?: boolean; // When true, the user who has granted private access to the record can grant access to other users.
-    },
-    reference?: string; // Reference ID of this record.
-    index?: {
-        name: string; // Custom index name: 1..128 chars. Blocks / ! * #, control chars, sentinel U+10FFFF, and cannot start with '$'.
-        value: string | number | boolean; // String value: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
-    };
-    tags?: string[]; // Each tag: 1..64 chars. Blocks / ! * #, control chars, and sentinel U+10FFFF.
-    data?: { [key: string]: any }; // Uploaded key value data.
-};
-```
-
-## BinaryFile
-
-```ts
-type BinaryFile = {
-    access_group: number | 'private' | 'public' | 'authorized' | 'admin'; // Allowed access level of this file.
-    filename: string; // Filename of the file.
-    url: string; // Full URL endpoint of the file including the token. Token can be expired and will require to be updated by calling getFile('endpoint')
-    path: string; // Path of the file.
-    size: number; // Size of the file in bytes.
-    uploaded: number; // Timestamp in milliseconds.
-    getFile: (dataType?: 'base64' | 'download' | 'endpoint' | 'blob' | 'text' | 'info'; progress?: ProgressCallback) => Promise<Blob | string | void | FileInfo>;
-}
-```
-
-## ProgressCallback
-
-```ts
-type ProgressCallback = (p: {
-    status: 'download' | 'upload'; // Current status
-    progress: number; // Progress in percentage
-    loaded: number; // Loaded bytes of the data
-    total: number; // Total bytes of the data
-    currentFile?: File, // Current loading file.
-    completed?: File[]; // Current files that completed loading.
-    failed?: File[]; // Failed files.
-    abort: () => void; // Aborts current data transfer. When abort is triggered during fileUpload(), it will continue to next file.
-}) => void;
-```
-
-## FileInfo
-
-```ts
-type FileInfo = {
-    url: string;
-    filename: string;
-    access_group: number | 'private' | 'public' | 'authorized';
-    filesize: number;
-    record_id: string;
-    uploader: string;
-    uploaded: number;
-    fileKey: string;
-}
-```
-
-## FetchOptions
-
-```ts
-type FetchOptions = {
-    limit?: number; // Max number of data to fetch per call. Max 1000. Default = 50.
-    fetchMore?: boolean; // Fetches next batch of data if true. Default = false.
-    ascending?: boolean; // Results in ascending order if true
-    startKey?: { [key: string]: any; }; // When start key is given, database query starts from the given key.
-    progress?: ProgressCallback // Callback executed when there is data transfer between the server. Can be useful when building progress bar.
-}
-```
-
-## Table
-
-```ts
-type Table = {
-    table: string; // Table name in the database.
-    number_of_records: string; // Number of records in the table.
-    size: number; // Size in bytes currently consumed in the table. (This does not include cloud storage size which is consumed by binary files)
-}
-```
-
-
-## Index
-
-```ts
-type Index = {
-    table: string; // Table name of the index
-    index: string; // Index name
-    number_of_records: number; // Number of records in the index
-    string_count: number; // Number of string type value in the index
-    number_count: number; // Number of number type value in the index
-    boolean_count: number; // Number of boolean type value in the index
-    total_number: number; // Sum of all number values in the index
-    total_bool: number; // Number of true(boolean) values in the index
-    average_number: number; // Average of all numbers in the index
-    average_bool: number; // Percentage of true(boolean) values in the index
-}
-```
-
-
-## Tag
-
-```ts
-type Tag = {
-    table: string; // Table name of the tag
-    tag: string; // Tag name
-    number_of_records: number; // Number records tagged
-}
-```
-
-## UniqueId
-
-```ts
-type UniqueId = {
-    unique_id: string; // Unique ID of the record
-    record_id: string; // Record ID of the unique ID
-}
-```
-
-## Subscription
-
-```ts
-type Subscription = {
-    subscriber: string; // Subscriber ID
-    subscription: string; // Subscription ID
-    timestamp: number; // Subscribed UNIX timestamp
-    blocked: boolean; // True when subscriber is blocked by subscription
-    get_feed: boolean; // True when subscriber gets feed
-    get_notified: boolean; // True when subscriber gets notified
-    get_email: boolean; // True when subscriber gets email
-}
-```
-
-## Newsletter
-
-```ts
-type Newsletter = {
-    message_id: string; // Message ID of the newsletter
-    timestamp: number; // Timestamp of the newsletter
-    complaint: number; // Number of complaints
-    read: number; // Number of reads
-    subject: string; // Subject of the newsletter
-    bounced: string; // Number of bounces
-    url: string; // URL of the html file of the newsletter
-    delivered: number; // Number users delivered 
-}
-```
-
-## RealtimeCallback
-
-```ts
-type RealtimeCallback = (rt: {
+type WebSocketMessage = {
     type: 'message' | 'error' | 'success' | 'close' | 'notice' | 'private' | 'reconnect' | 'rtc:incoming' | 'rtc:closed';
     message?: any;
-    connectRTC?: (params: RTCReceiverParams, callback: (e: RTCEvent) => void) => Promise<RTCResolved>; // Incoming RTC
+    connectRTC?: (params: RTCReceiverParams, callback: (e: RTCEvent) => void) => Promise<RTCResolved>;
     hangup?: () => void; // Reject incoming RTC connection.
     sender?: string; // user_id of the sender
     sender_cid?: string; // scid of the sender
     sender_rid?: string; // group of the sender
     code?: 'USER_LEFT' | 'USER_DISCONNECTED' | 'USER_JOINED' | null; // code for notice messeges
-}) => void;
-```
-
-## RTCConnector
-
-```ts
-type RTCConnector = {
-    hangup: () => void; // When executed, user can hangup before the opponent accepts the call.
-    connection: Promise<RTCResolved>; // Resolves RTC object.
-}
-```
-
-## RTCResolved
-
-```ts
-type RTCResolved = {
-    target: RTCPeerConnection;
-    channels: {
-        [protocol: string]: RTCDataChannel
-    };
-    hangup: () => void;
-    media: MediaStream;
-}
-```
-
-## RTCEvent
-
-```ts
-type RTCEvent = {
-    type: 'track' | 'connectionstatechange' | 'close' | 'message' | 'open' | 'bufferedamountlow' | 'error' | 'icecandidate' | 'icecandidateend' | 'icegatheringstatechange' | 'negotiationneeded' | 'signalingstatechange';
-    [key: string]: any;
 }
 ```

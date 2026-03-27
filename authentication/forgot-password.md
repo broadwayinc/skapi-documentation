@@ -42,7 +42,7 @@ skapi.forgotPassword({email: 'someone@gmail.com'}).then(res=>{
 For more detailed information on all the parameters and options available with the [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword) method, 
 please refer to the API Reference below:
 
-### [`forgotPassword(params): Promise<string>`](/api-reference/authentication/README.md#forgotpassword)
+### [`forgotPassword(params): Promise<'SUCCESS: Verification code has been sent.'>`](/api-reference/authentication/README.md#forgotpassword)
 
 ::: info
 Due to security reasons, [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword) will not tell the user whether the email exists.
@@ -88,4 +88,4 @@ skapi.resetPassword({
 For more detailed information on all the parameters and options available with the [`resetPassword()`](/api-reference/authentication/README.md#resetpassword) method, 
 please refer to the API Reference below:
 
-### [`resetPassword(params): Promise<string>`](/api-reference/authentication/README.md#resetpassword)
+### [`resetPassword(params): Promise<'SUCCESS: New password has been set.'>`](/api-reference/authentication/README.md#resetpassword)

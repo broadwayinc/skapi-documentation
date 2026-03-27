@@ -6,14 +6,10 @@ Below are the parameters and return data type references for the methods in Type
 
 ```ts
 subscribeNewsletter({
-    params: SubmitEvent | <{
-        group: 'public' | 'authorized';
+    params: SubmitEvent | {
+        group: number | 'public' | 'authorized' | 'admin';
         email?: string; // only for public newsletters
         redirect?: string; // only for public newsletters. User will be redirected to this URL when confirmation link is clicked.
-    }>,
-    callbacks: {
-        response?(response: any): any;
-        onerror?(error: Error): any;
     }
 }): Promise<string>
 ```
@@ -23,15 +19,9 @@ subscribeNewsletter({
 ```ts
 unsubscribeNewsletter(
     params: { 
-        group: 'authorized';
+        group: number | 'public' | 'authorized' | null;
     }
 ): Promise<string>
-```
-
-## adminNewsletterRequest
-
-```ts
-adminNewsletterRequest(): Promise<string>
 ```
 
 ## getNewsletterSubscription
@@ -39,9 +29,14 @@ adminNewsletterRequest(): Promise<string>
 ```ts
 getNewsletterSubscription(
     params: { 
-        group: 'authorized';
+        group?: number | 'public' | 'authorized';
     }
-): Promise<any[]>
+): Promise<{
+    active: boolean;
+    timestamp: number;
+    group: number;
+    subscribed_email: string;
+}[]>
 ```
 
 ## getNewsletters
@@ -54,10 +49,10 @@ getNewsletters(
          * 'message_id' and 'subject' value should be string.
          * Others in numbers.
          */
-        searchFor: 'message_id' | 'timestamp' | 'read' | 'complaint' | 'subject' | 'bounced';
+        searchFor: 'message_id' | 'timestamp' | 'read' | 'complaint' | 'subject';
         value: string | number;
         group: 'public' | 'authorized' | number;
-        range?: string | number;
+        range: string | number;
         /**
          * Defaults to '='
          */

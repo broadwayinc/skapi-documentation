@@ -8,22 +8,29 @@ Below are the parameters and return data type references for the methods in Type
 signup(
     params: SubmitEvent | { 
         email: string; // Must be in email format. ex) user@email.com
+        username?: string; // Optional username alias.
         password: string; // At least 6 characters and a maximum of 60 characters.
         name?: string;
         phone_number?: string; // Must be in "+0012341234" format.
-        address?: string; // or you can use OpenID Standard Claims https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
+        address?: string | {
+            formatted: string;
+            locality: string;
+            region: string;
+            postal_code: string;
+            country: string;
+        }; // OpenID Standard Claims object is also supported.
         gender?: string;
         birthdate?: string; // Must be in YYYY-MM-DD format
-        email_public?: boolean; // Default = false
-        phone_number_public?: boolean; // Default = false
-        address_public?: boolean; // Default = false
-        gender_public?: boolean; // Default = false
-        birthdate_public?: boolean; // Default = false
         picture?: string; // URL of the profile picture.
         profile?: string; // URL of the profile page.
         website?: string; // URL of the website.
         nickname?: string; // Nickname of the user.
         misc?: string; // Additional string value that can be used freely. This value is only visible to the account owner.
+        email_public?: boolean; // Default = false
+        phone_number_public?: boolean; // Default = false
+        address_public?: boolean; // Default = false
+        gender_public?: boolean; // Default = false
+        birthdate_public?: boolean; // Default = false
     },
     options?: {
         /**
@@ -96,7 +103,8 @@ resendSignupConfirmation(): Promise<'SUCCESS: Signup confirmation e-mail has bee
 ```ts
 login(
     params: SubmitEvent | {
-        email: string; 
+        username?: string; // Optional username alias.
+        email: string;
         password: string;
     }
 ): Promise<UserProfile>
@@ -191,18 +199,18 @@ resetPassword(
 ): Promise<'SUCCESS: New password has been set.'>
 ```
 
-## openidLogin
+## openIdLogin
 
 ```ts
-openidLogin(
+openIdLogin(
     params: SubmitEvent | {
         token: string; // ID/Access token fetched from OpenID API service
         id: string; // OpenID Logger ID registered in the service page.
-        merge: boolean | string[] // When true, merges with previous account. When string[] is given, account is merged with the specified OpenID attribute values.
+        merge?: boolean | string[] // When true, merges with previous account. When string[] is given, account is merged with the specified OpenID attribute values.
     }
 ): Promise<{
     userProfile: UserProfile;
-    openid: { [attribute:string]: any };
+    openid: { [attribute:string]: string };
 }>
 ```
 

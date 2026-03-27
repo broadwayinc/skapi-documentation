@@ -16,7 +16,7 @@ Although providers differ in details, the overall process is:
 2. The provider authenticates the user.
 3. The user is redirected back to your app.
 4. Exchange the returned authorization code for an access token using a secure client secret request.
-5. Call [`openidLogin()`](/api-reference/authentication/README.md#openidlogin) with that token.
+5. Call [`openIdLogin()`](/api-reference/authentication/README.md#openidlogin) with that token.
 
 ## Google OAuth Example
 
@@ -37,7 +37,7 @@ Follow Google's [setup instructions](https://support.google.com/cloud/answer/155
 5. Fill in the logger form:
 
     - **Logger ID:**
-        This value is used when calling [`openidLogin()`](/api-reference/authentication/README.md#openidlogin). You can use any name. For this guide, use **google**.
+        This value is used when calling [`openIdLogin()`](/api-reference/authentication/README.md#openidlogin). You can use any name. For this guide, use **google**.
 
     - **Username Key:** An OpenID attribute that uniquely identifies the user. For this example, use **email**.
     - **Request URL:** The profile API URL. For this example, use `https://www.googleapis.com/oauth2/v3/userinfo`.
@@ -114,7 +114,7 @@ Create a button that redirects users to Google's OAuth login page.
 
 After the user signs in with Google and is redirected back to your app, use [`clientSecretRequest()`](/api-bridge/client-secret-request) to exchange the authorization code for an access token.
 
-Then call [`openidLogin(event?: SubmitEvent | params): Promise<string>`](/api-reference/authentication/README.md#openidlogin) to sign the user in to your Skapi service.
+Then call [`openIdLogin(event?: SubmitEvent | params): Promise<{ userProfile: UserProfile; openid: { [attribute: string]: string } }>`](/api-reference/authentication/README.md#openidlogin) to sign the user in to your Skapi service.
 
 ```html
 <button onclick="googleLogin()">Google Login</button>
@@ -182,12 +182,12 @@ Then call [`openidLogin(event?: SubmitEvent | params): Promise<string>`](/api-re
 ```
 
 :::warning
-In this Google OAuth example, [`clientSecretRequest()`](/api-bridge/client-secret-request) securely exchanges the authorization code for an access token, and [`openidLogin()`](/api-reference/authentication/README.md#openidlogin) signs in the user with that token.
+In this Google OAuth example, [`clientSecretRequest()`](/api-bridge/client-secret-request) securely exchanges the authorization code for an access token, and [`openIdLogin()`](/api-reference/authentication/README.md#openidlogin) signs in the user with that token.
 
 Make sure both your client secret key and OpenID logger are configured, and use the correct `clientSecretName` and logger ID.
 :::
 
-### [`openidLogin(event?:SubmitEvent | params): Promise<string>`](/api-reference/authentication/README.md#openidlogin)
+### [`openIdLogin(event?: SubmitEvent | params): Promise<{ userProfile: UserProfile; openid: { [attribute: string]: string } }>`](/api-reference/authentication/README.md#openidlogin)
 
 ## Merging an OpenID Account with a Previous Account
 

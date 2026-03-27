@@ -27,7 +27,7 @@ skapi.disableAccount().then(()=>{
 For more detailed information on all the parameters and options available with the [`disableAccount()`](/api-reference/user/README.md#disableaccount) method, 
 please refer to the API Reference below:
 
-### [`disableAccount(): Promise(string)`](/api-reference/user/README.md#disableaccount)
+### [`disableAccount(): Promise<'SUCCESS: account has been disabled.'>`](/api-reference/user/README.md#disableaccount)
 
 ## Recovering a Disabled Account
 
@@ -97,7 +97,7 @@ The recovery email contains a link, and when the user clicks on the link, they w
 For more detailed information on all the parameters and options available with the [`recoverAccount()`](/api-reference/user/README.md#recoveraccount) method, 
 please refer to the API Reference below:
 
-### [`recoverAccount(redirect: boolean | string): Promise<string>`](/api-reference/user/README.md#recoveraccount)
+### [`recoverAccount(redirect: boolean | string): Promise<'SUCCESS: Recovery e-mail has been sent.'>`](/api-reference/user/README.md#recoveraccount)
  
 :::danger
 User should know their password, and have their account email verified.

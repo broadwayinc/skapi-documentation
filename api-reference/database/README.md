@@ -6,20 +6,20 @@ Below are the parameters and return data type references for the methods in Type
 
 ```ts
 postRecord(
-    data: SubmitEvent | { [key: string] : any } | null,
+    data: SubmitEvent | { [key: string] : any } | null | undefined,
     config: {
         record_id?: string; // Used only when updating an existing record; not available to anonymous users.
         unique_id?: string; // Unique ID to set to the record; not available to anonymous users. If null is given, it will remove the previous unique ID when updating.
         /** When the table is given as a string value, the value is the table name. */
-        /** 'table' is optional when 'record_id' or 'unique_id' is used. */
+        /** 'table.name' is optional when 'record_id' or 'unique_id' is used. */
         /** When the table is given as a string value, the given value will be set as table.name and table.access_group will be 'public' **/
-        table: {
-            name: string; // 1..128 chars. Blocks reserved delimiters: / ! * #, all control chars, and sentinel U+10FFFF.
+        table?: {
+            name?: string; // 1..128 chars. Blocks reserved delimiters: / ! * #, all control chars, and sentinel U+10FFFF.
             access_group?: number | 'private' | 'public' | 'authorized' | 'admin';  // Default: 'public', otherwise not available to anonymous users.
             /** Subscription settings; not available to anonymous users. */
             subscription?: {
                 is_subscription_record?: boolean; // When true, record will be uploaded to subscription table.
-                upload_to_feed: boolean?; // When true, record will be shown in the subscribers feeds that is retrieved via getFeed() method.
+                upload_to_feed?: boolean; // When true, record will be shown in the subscribers feeds that is retrieved via getFeed() method.
                 notify_subscribers?: boolean; // When true, subscribers will receive notification when the record is uploaded.
                 feed_referencing_records?: boolean; // When true, records referencing this record will be included to the subscribers feed.
                 notify_referencing_records?: boolean; // When true, records referencing this record will be notified to subscribers.
@@ -30,7 +30,7 @@ postRecord(
             name: string; // Custom index name: 1..128 chars. Blocks / ! * #, control chars, sentinel U+10FFFF, and cannot start with '$'.
             value: string | number | boolean; // String value: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
         };
-        tags?: string | string[]; // Each tag item: 1..64 chars. Blocks / ! * #, control chars, and sentinel U+10FFFF.
+        tags?: string[] | null; // null removes all tags.
         source?: {
             referencing_limit?: number; // Default: null (Infinite)
             prevent_multiple_referencing?: boolean; // If true, a single user can reference this record only once.
@@ -41,12 +41,12 @@ postRecord(
                 value?: string | number | boolean; // String value: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
                 range?: string | number | boolean; // String range: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
                 condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // Allowed index value condition
-            }[];
+            }[] | null;
             allow_granted_to_grant_others?: boolean; // When true, the user who has granted private access to the record can grant access to other users.
         };
         reference?: string; // Reference to another record. When value is given, it will reference the record with the given value. Can be record ID or unique ID.
         remove_bin?: BinaryFile[] | string[] | null; // If the BinaryFile object or the url of the file is given, it will remove the bin data(files) from the record. The file should be uploaded to this record. If null is given, it will remove all the bin data(files) from the record. (not available to anonymous users)
-        progress: ProgressCallback; // Progress callback function. Usefull when uploading files.
+        progress?: ProgressCallback; // Progress callback function. Useful when uploading files.
     };
 ): Promise<RecordData>
 ```
@@ -174,9 +174,8 @@ removePrivateRecordAccess(
 listPrivateRecordAccess(
     params: {
         record_id?: string;
-        user_id?: string;
-    },
-    fetchOptions?: FetchOptions;
+        user_id?: string | string[];
+    }
 ): Promise<DatabaseResponse<{
     user_id: string;
     record_id: string;
@@ -227,7 +226,7 @@ deleteRecords({
     };
 
     tag?: string; // 1..64 chars. Blocks / ! * #, control chars, sentinel U+10FFFF.
-}): Promise<string | DatabaseResponse<string>>
+}): Promise<string | DatabaseResponse<RecordData>>
 ```
 
 ## getTables
@@ -327,7 +326,7 @@ blockSubscriber(
     {
         user_id: string;
     }
-): Promise<'SUCCESS: Blocked user id "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".'>
+): Promise<'SUCCESS: Blocked user ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".'>
 ```
 
 ## unblockSubscriber
@@ -337,7 +336,7 @@ unblockSubscriber(
     {
         user_id: string;
     }
-): Promise<'SUCCESS: Unblocked user id "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".'>
+): Promise<'SUCCESS: Unblocked user ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".'>
 ```
 
 
@@ -371,9 +370,10 @@ getFeed(params?: { access_group?: number; }, fetchOptions?: FetchOptions): Promi
 getFile(
     url: string,
     config?: {
-        dataType: 'base64' | 'download' | 'endpoint' | 'blob' | 'text' | 'info';
+        dataType?: 'base64' | 'download' | 'endpoint' | 'blob' | 'text' | 'info';
+        expires?: number;
+        progress?: ProgressCallback;
     },
-    progressCallback?: ProgressCallback
 ): Promise<Blob | string | FileInfo | void>
 ```
 

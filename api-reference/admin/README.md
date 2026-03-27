@@ -6,28 +6,39 @@ Below are the parameters and return data type references for the methods in Type
 
 ```ts
 inviteUser(
-    userAttributes: {
-        email: string; // Required. Max 64 characters.
-        name?: string; // Name of the user.
-        access_group: number; // Access group level of the user. (1~99) 99 is admin level.
-        phone_number?: string; // Must be in "+0012341234" format.
-        address?: string; // or you can use OpenID Standard Claims https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
-        gender?: string; // Can be any string
-        birthdate?: string; // Must be in YYYY-MM-DD format
+    params: {
+        name?: string;
+        email?: string;
+        phone_number?: string;
+        address?: string | {
+            formatted: string;
+            locality: string;
+            region: string;
+            postal_code: string;
+            country: string;
+        };
+        gender?: string;
+        birthdate?: string;
+        misc?: string;
+        picture?: string;
+        profile?: string;
+        website?: string;
+        nickname?: string;
         email_public?: boolean; // When set to true, email attribute is visible to others.
         phone_number_public?: boolean; // When set to true, phone_number attribute is visible to others.
         address_public?: boolean; // When set to true, address attribute is visible to others.
         gender_public?: boolean; // When set to true, gender attribute is visible to others.
         birthdate_public?: boolean; // When set to true, birthdate attribute is visible to others.
-        picture?: string; // URL of the profile picture.
-        profile?: string; // URL of the profile page.
-        website?: string; // URL of the website.
-        nickname?: string; // Nickname of the user.
-        misc?: string; // Additional string value that can be used freely. This value is only visible from skapi.getProfile()
+        openid_id: string;
+        access_group: number;
     },
     options?: {
-        confirmation_url?: string; // URL to redirect the user after the invitation is accepted.
-        email_subscription: boolean; // When true, the user will receive service newsletters.
+        confirmation_url?: string;
+        email_subscription?: boolean;
+        template?: {
+            url: string;
+            subject: string;
+        }
     }
 ): Promise<'SUCCESS: Invitation has been sent. (User ID: xxx...)'>
 ```
@@ -36,8 +47,9 @@ inviteUser(
 
 ```ts
 resendInvitation(
-    userAttributes: {
+    params: {
         email: string; // Required. Max 64 characters.
+        confirmation_url?: string;
     }
 ): Promise<'SUCCESS: Invitation has been re-sent. (User ID: xxx...)'>
 ```
@@ -78,26 +90,33 @@ grantAccess(params: {
 
 ```ts
 createAccount(
-    userAttributes: {
-        email: string; // Required. Max 64 characters.
-        password: string; // Required. At least 6 characters and a maximum of 60 characters.
-        name?: string; // Name of the user.
-        phone_number?: string; // Must be in "+0012341234" format.
-        address?: string; // or you can use OpenID Standard Claims https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
-        gender?: string; // Can be any string
-        birthdate?: string; // Must be in YYYY-MM-DD format
-        email_public?: boolean; // When set to true, email attribute is visible to others when the user confirms the email later.
-        phone_number_public?: boolean; // When set to true, phone_number attribute is visible to others when the user confirms the phone umber later.
+    params: {
+        name?: string;
+        email?: string;
+        phone_number?: string;
+        address?: string | {
+            formatted: string;
+            locality: string;
+            region: string;
+            postal_code: string;
+            country: string;
+        };
+        gender?: string;
+        birthdate?: string;
+        misc?: string;
+        picture?: string;
+        profile?: string;
+        website?: string;
+        nickname?: string;
+        email_public?: boolean; // When set to true, email attribute is visible to others.
+        phone_number_public?: boolean; // When set to true, phone_number attribute is visible to others.
         address_public?: boolean; // When set to true, address attribute is visible to others.
         gender_public?: boolean; // When set to true, gender attribute is visible to others.
         birthdate_public?: boolean; // When set to true, birthdate attribute is visible to others.
-        picture?: string; // URL of the profile picture.
-        profile?: string; // URL of the profile page.
-        website?: string; // URL of the website.
-        nickname?: string; // Nickname of the user.
-        misc?: string; // Additional string value that can be used freely. This value is only visible from skapi.getProfile(). Not to others.
+        password: string; // Required. At least 6 characters and a maximum of 60 characters.
+        access_group: number;
     }
-): Promise<UserProfile>
+): Promise<UserProfile & { email_admin: string; username: string; }>
 ```
 
 See [UserProfile](/api-reference/data-types/README.md#userprofile).

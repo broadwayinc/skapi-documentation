@@ -232,7 +232,7 @@ let pollPost = skapi.postRecord({
 })
 ```
 
-`condition` can be one of the following: `=`, `!=`, `>`, `<`, `>=`, `<=`.
+`condition` can be one of the following: `=`, `!=`, `>`, `<`, `>=`, `<=`, `eq`, `ne`, `gt`, `gte`, `lt`, `lte`.
 
 `condition` cannot be used with `range`.
 

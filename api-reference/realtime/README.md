@@ -60,8 +60,8 @@ postRealtime(
 ## joinRealtime
 
 ```ts
-joinRealtime(SubmitEvent | params: {
-    group: string, // Group name
+joinRealtime(params: {
+  group: string | null, // Group name, or null to leave group
 }
 ): Promise<{ type: 'success', message: string }>
 ```
@@ -77,11 +77,11 @@ joinRealtime(SubmitEvent | params: {
 ## getRealtimeGroups
 
 ```ts
-getRealtimeGroups(SubmitEvent | params?: {
+getRealtimeGroups(params?: {
         searchFor: 'group' | 'number_of_users';
-        value?: string | number; // Group name or number of users
+  value: string | number; // Group name or number of users
         condition?: '>' | '>=' | '=' | '<' | '<=' | '!=' | 'gt' | 'gte' | 'eq' | 'lt' | 'lte' | 'ne';
-        range?: string | number | boolean; // Cannot be used with condition.
+  range?: string | number; // Cannot be used with condition.
     } | null,
     fetchOptions?: FetchOptions
 ): Promise<DatabaseResponse<{ group: string; number_of_users: number; }>>
@@ -90,7 +90,7 @@ getRealtimeGroups(SubmitEvent | params?: {
 ## getRealtimeUsers
 
 ```ts
-getRealtimeUsers(SubmitEvent | params?: {
+getRealtimeUsers(params: {
         group: string; // Group name
         user_id?: string; // User ID in the group
     },
@@ -113,21 +113,16 @@ closeRealtime(): Promise<void>
 
 ```ts
 connectRTC(
-    params: {
-        cid: string; // Client id of the opponent
-        ice?: string; // stun:your.stun.server:3468 (optional)
-        media?: {
-            video: boolean; // When true, video will be streamed
-            audio: boolean; // When true, audio will be streamed
-        } | MediaStream; // MediaStream object can be used
-        channels?: Array<{
-            ordered: 'boolean',
-            maxPacketLifeTime: 'number',
-            maxRetransmits: 'number',
-            protocol: 'string'
-        } | "text-chat" | "file-transfer" | "video-chat" | "voice-chat" | "gaming">; // Can create data channels with optimal setting for given task
-    }, 
-    callback: (e: RTCEvent) => void
+  params: {
+    cid: string;
+    ice?: string;
+    media?: {
+      video: boolean;
+      audio: boolean;
+    } | MediaStream | MediaStreamConstraints;
+    channels?: Array<RTCDataChannelInit | 'text-chat' | 'file-transfer' | 'video-chat' | 'voice-chat' | 'gaming'>;
+  },
+  callback?: (e: RTCEvent) => void
 ): Promise<RTCConnector>
 ```
 
@@ -158,13 +153,11 @@ vapidPublicKey(): Promise<{ VAPIDPublicKey: string }>
 
 ```ts
 subscribeNotification({
-    params: {
-        endpoint: string; // The endpoint URL for the device to subscribe to notifications.
-        keys: {
-            p256dh: string; // The encryption key to secure the communication channel.
-            auth: string; // The authentication key to authenticate the subscription.
-        };
-    }
+  endpoint: string;
+  keys: {
+    p256dh: string;
+    auth: string;
+  }
 }): Promise<'SUCCESS: Subscribed to receive notifications.'>
 ```
 
@@ -172,13 +165,11 @@ subscribeNotification({
 
 ```ts
 unsubscribeNotification({
-    params: {
-        endpoint: string; // The endpoint URL for the device to unsubscribe from notifications.
-        keys: {
-            p256dh: string; // The encryption key to secure the communication channel.
-            auth: string; // The authentication key to authenticate the unsubscription.
-        };
-    }
+  endpoint: string;
+  keys: {
+    p256dh: string;
+    auth: string;
+  }
 }): Promise<'SUCCESS: Unsubscribed from notifications.'>
 ```
 
@@ -186,12 +177,10 @@ unsubscribeNotification({
 
 ```ts
 pushNotification({
-    params: {
-        {
-            title: string; // The title of the notification.
-            body: string; // The body content of the notification.
-        },
-        user_ids?: string | string[]; // Optional parameter to specify the user(s) for whom to send the notification.
-    }
+  params: {
+    title: string;
+    body: string;
+  },
+  user_ids?: string | string[]
 }): Promise<"SUCCESS: Notification sent.">
 ```

@@ -134,7 +134,7 @@ skapi.logout({ global: true }).then((res) => {
 For more detailed information on all the parameters and options available with the [`logout()`](/api-reference/authentication/README.md#logout) method,
 please refer to the API Reference below:
 
-### [`logout(params?): Promise<string>`](/api-reference/authentication/README.md#logout)
+### [`logout(params?): Promise<'SUCCESS: The user has been logged out.'>`](/api-reference/authentication/README.md#logout)
 
 ## Listening to Login / Logout Status
 

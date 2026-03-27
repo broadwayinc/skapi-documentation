@@ -136,7 +136,7 @@ If needed, you can then call [`resendSignupConfirmation()`](/api-reference/authe
 For detailed information about all parameters and options of [`resendSignupConfirmation()`](/api-reference/authentication/README.md#resendsignupconfirmation),
 see the API reference below:
 
-### [`resendSignupConfirmation(): Promise<string>`](/api-reference/authentication/README.md#resendsignupconfirmation)
+### [`resendSignupConfirmation(): Promise<'SUCCESS: Signup confirmation e-mail has been sent.'>`](/api-reference/authentication/README.md#resendsignupconfirmation)
 
 ::: warning
 - To resend signup confirmation emails, the user must have at least one login attempt to your service.

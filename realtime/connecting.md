@@ -26,13 +26,12 @@ let RealtimeCallback = (rt) => {
     rt = {
       type: 'message' | 'error' | 'success' | 'close' | 'notice' | 'private' | 'reconnect' | 'rtc:incoming' | 'rtc:closed';
       message?: any;
-      connectRTC?: (params: RTCReceiverParams, callback: RTCEvent) => Promise<RTCResolved>; // Incoming RTC
+      connectRTC?: (params: RTCReceiverParams, callback: (e: RTCEvent) => void) => Promise<RTCResolved>; // Accept incoming RTC calls.
+      hangup?: () => void; // Reject incoming RTC connection.
       sender?: string; // user_id of the sender
       sender_cid?: string; // scid of the sender
       sender_rid?: string; // group of the sender
       code?: 'USER_LEFT' | 'USER_DISCONNECTED' | 'USER_JOINED' | null; // code for notice messages
-      connectRTC?: (params: RTCReceiverParams, callback: RTCEvent) => Promise<RTCResolved>; // Incoming RTC calls.
-      hangup?: () => void; Function to reject incoming RTC commection.
     }
     */
     console.log(rt);
@@ -69,7 +68,7 @@ When the callback runs, it receives a message object with the following properti
 -   `sender_cid` is the connection ID of the message sender. It can be used to track the sender's connected device.
 -   `sender_rid` is the group name of the received message.
 -   `code` is a string identifier for notice messages.
--   `connectRTC`: Incoming RTC calls. Can answer by executing the callback.
+-   `connectRTC`: Function to accept an incoming RTC call. Pass a callback to receive `RTCEvent` updates.
 -   `hangup`: Function to reject incoming RTC connection.
 
 ## Closing Connection
