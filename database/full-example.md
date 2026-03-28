@@ -85,8 +85,8 @@ Because this is only a portion of the full repository and does not include suppo
     <a href="logout.html">Logout</a>
 
     <script>
-        /*
-            Get user profile and display it on the page,
+        /* 
+            Get user profile and display it on the page, 
             Set user variable to use it later.
         */
         let user = skapi.getProfile().then(u => {
@@ -139,6 +139,7 @@ Because this is only a portion of the full repository and does not include suppo
                         name: 'posts',
                         access_group: input_private.checked ? 'private' : 'authorized', // Depending on the checkbox, we will set the access_group to private or authorized.
                         subscription: {
+                            is_subscription_record: false, // We will set is_subscription_record to false so the posts can be queried alongside with all other peoples posts in the table.
                             upload_to_feed: true // We will upload the post to the feed so subscribed users can also fetch all the posts from all the users they subscribed at once.
                         }
                     },
@@ -222,8 +223,8 @@ Because this is only a portion of the full repository and does not include suppo
             <input name="description" placeholder="Describe the picture." required></input>
 
             <small>Tags (optional)</small><br>
-            <input id='input_tags' pattern="[a-zA-Z0-9 ,]+"
-                title="Only alphanumeric characters, spaces, and commas are allowed"
+            <input id='input_tags' maxlength="64" pattern="[^\/\!\*\#]*"
+                title="Maximum 64 characters. Must not include /, !, *, or #"
                 placeholder="tag1, tag2, ..."></input>
 
             <br>
@@ -513,8 +514,6 @@ Because this is only a portion of the full repository and does not include suppo
         Following function will create the html elements for the post.
     */
     async function createArticleContent(p) {
-        // p is the post object.
-
         /*
             Following code will get the user id of the logged in user.
             The user variable is declared on the <script> tag above where we check if the user is logged in.
@@ -536,11 +535,11 @@ Because this is only a portion of the full repository and does not include suppo
         let html = /*html*/`
 
             <span style='font-weight:bold'>${uploader.name}</span>
-
+            
             <!--
                 Following <strong> tag will allow the user to subscribe to the uploader.
                 When the user clicks the <strong> element, it will call the subscribe() function.
-                We will declare the subscribe() function later.
+                We will declare the subscribe() function later.    
             -->
             <strong
                 class='clickable subscribe strong_subs-${p.user_id}'
@@ -569,7 +568,7 @@ Because this is only a portion of the full repository and does not include suppo
             </button>
 
             <br>
-
+            
             <small>Posted: ${new Date(p.updated).toLocaleString()}</small>
 
             <br>
@@ -582,9 +581,9 @@ Because this is only a portion of the full repository and does not include suppo
             <img src='${p.bin.pic[0].url}'>
 
             <br>
-
+            
             <small>Liked: <span id="span_likedCount-${p.record_id}">${p.referenced_count}</span></small>
-
+            
             <!--
                 Following <strong> tag will allow the user to like the post.
                 When the user clicks the <strong> element, it will call the like() function.
@@ -609,7 +608,7 @@ Because this is only a portion of the full repository and does not include suppo
                 Following <small> will show the tags of the post.
                 When the user clicks the tag, it will redirect the user to the welcome.html page with the tag in the hash.
             -->
-            <small>${p.tags ? 'Tags: ' + p.tags.map(t => `<a href='welcome.html#tag=${t}'>${t}</a>`).join(', ') : ''}</small>
+            <small>${p.tags ? 'Tags: ' + p.tags.map(t => `<a href='welcome.html#tag=${encodeURIComponent(t)}'>${t}</a>`).join(', ') : ''}</small>
 
             <!--
                 Following <small> will show the comment count of the post.
@@ -628,7 +627,7 @@ Because this is only a portion of the full repository and does not include suppo
                 <input name='comment' placeholder='Write Comment' style="width: 0; flex-grow:9;">
                 <input type='submit' style="width: unset; flex-grow:1;">
             </form>
-
+            
             <!--
                 Following <div> will show the comments of the post.
                 We will later fetch the comments and append the <div> to the <div> tag.
@@ -728,7 +727,7 @@ Because this is only a portion of the full repository and does not include suppo
             We will use the skapi.getRecords() method to get the like status.
         */
         skapi.getRecords({
-            table: { name: 'likes', access_group: 'public' },
+            table: 'likes',
             index: {
                 name: '$user_id',
                 value: logged_user_id
@@ -825,7 +824,7 @@ Because this is only a portion of the full repository and does not include suppo
         let commentHtml = /*html*/ `
         <small>
             <strong>${userInfo.name}</strong>
-            <span>(${new Date(postComment.updated).toLocaleString()})</span>
+            <span>(${new Date(postComment.updated).toLocaleString()})</span>    
             <br>
             <span>${postComment.data.comment}</span>
         </small>`;
@@ -849,7 +848,7 @@ Because this is only a portion of the full repository and does not include suppo
 
         if (likedStatus === '🩶') {
             likeId[record_id] = (await skapi.postRecord(null, {
-                table: { name: 'likes', access_group: 'public' },
+                table: 'likes',
                 reference: record_id
             })).record_id;
             likeButton.setAttribute('data-like', '❤️');
@@ -1007,7 +1006,13 @@ Because this is only a portion of the full repository and does not include suppo
                     And we will set the fetchQuery.tag to the tag value.
                 */
                 if (hash.startsWith('tag=')) {
-                    fetchQuery.tag = hash.slice(4);
+                    let rawTag = hash.slice(4);
+                    try {
+                        fetchQuery.tag = decodeURIComponent(rawTag); // decodeURIComponent is used to decode the tag value that is encoded in the url.
+                    } catch (e) {
+                        // Fallback for malformed encodings.
+                        fetchQuery.tag = rawTag;
+                    }
                 }
 
                 getPosts(false);
