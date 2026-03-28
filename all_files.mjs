@@ -19,14 +19,15 @@ let api_reference = [
     }
 ]
 
+let working_with_ai = { text: 'Working with AI Assistants', link: '/introduction/ai-driven.md' };
+
 let method_ref = [
     {
         text: 'Introduction',
         items: [
             { text: 'What is Skapi?', link: '/introduction/what-is-skapi.md' },
             { text: 'Getting Started', link: '/introduction/getting-started.md' },
-            { text: 'Working with HTML forms', link: '/introduction/working-with-forms.md' },
-            { text: 'Working with AI Assistants', link: '/introduction/ai-driven.md' },
+            { text: 'Working with HTML forms', link: '/introduction/working-with-forms.md' }
         ]
     },
     {
@@ -214,5 +215,7 @@ finalSysContent = finalSysContent.replace(/<br>/gm, '');
 
 fs.writeFileSync('SKAPI.md', finalSysContent);
 console.log('Generated SKAPI.md with all documentation.');
+
+all_files[0].items.push(working_with_ai);
 
 export default all_files;
