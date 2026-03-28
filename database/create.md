@@ -1,14 +1,14 @@
 # Creating a Record
 
-Users can use the [`postRecord()`](/api-reference/database/README.md#postrecord) method to create a new record or update existing records in the database.
+Use [`postRecord()`](/api-reference/database/README.md#postrecord) to create a new record or update an existing record in the database.
 
-It takes two arguments:
+This method takes two arguments:
 
-- `data` The data to be saved in key-value pairs. It can be an object literal, `null`, `undefined`, or a form `SubmitEvent`. Once the record is uploaded, the given data will be stored as a value under the key name `data` in the returned [RecordData](/api-reference/data-types/README.md#recorddata).
+- `data`: The content to save as key-value pairs. This can be an object literal, `null`, `undefined`, or a form `SubmitEvent`. After upload, the value is stored under the `data` key in the returned [RecordData](/api-reference/data-types/README.md#recorddata).
 
-- `config` (required): Configuration for the record to be uploaded. This is where you specify the table name, access group, index values, etc.
+- `config` (required): Upload configuration, including table name, access group, index values, and more.
 
-Refer to the example below:
+See the example below:
 
 :::code-group
 
@@ -55,14 +55,15 @@ skapi.postRecord(data, config).then(rec=>{
 :::
 
 This example demonstrates using the [`postRecord()`](/api-reference/database/README.md#postrecord) method to create a record in the database.
-When the request is successful, the [RecordData](/api-reference/data-types/README.md#recorddata) is returned.
+When successful, the method returns [RecordData](/api-reference/data-types/README.md#recorddata).
 
-In this example, the first argument takes the actual data to be uploaded to the database.
-The data is a Javascript object that has string value in the key 'something'.
-The given data will be stord under the key name `data` of the returned [RecordData](/api-reference/data-types/README.md#recorddata).
+In this example, the first argument is the data to upload.
+The value of `something` is saved as part of the record and appears under the `data` key in the returned [RecordData](/api-reference/data-types/README.md#recorddata).
 
-And in the second argument we have set table name to be `my_collection` and access group to be `public`.
-`config.table` is a required parameter in the configuration object.
+In the second argument, the table name is set to `my_collection` and the access group is set to `public`.
+`config.table` is required.
+
+Every record must include a table name. You can think of the table name as the top-level category for your data. Later, you can fetch records by table.
 
 `config.table.name` validation rules:
 
@@ -71,24 +72,23 @@ And in the second argument we have set table name to be `my_collection` and acce
 - Must not include `/`, `!`, `*`, `#`
 - Must not include control characters or sentinel `􏿿`
 
-::: tip
-If `config.table` is given as a **string**, the given value will be set as `config.table.name` and the record will be uploaded with `config.table.access_group` set to `"public"`.
-:::
-
-When uploading the record with access restrictions, see [`Access Restrictions`](/database/access-restrictions.md).
+If the access group is `public`, anyone can access the uploaded data.
+To use different access restrictions, see [`Access Restrictions`](/database/access-restrictions.md).
 
 ::: danger
-Both authenticated and anonymous users can upload data to your service using the [`postRecord()`](/api-reference/database/README.md#postrecord) method.
+Both authenticated and anonymous users can upload data to your service with [`postRecord()`](/api-reference/database/README.md#postrecord).
 
 Limitations for anonymous (unsigned) users:
 1. They can only create records in the `public` access group (see [`Access Restrictions`](/database/access-restrictions.md)).
 2. They cannot edit or delete any records they create.
 3. They cannot create records that use [`Subscription`](/database/subscription.md) features.
 4. They cannot create records with [`Unique ID`](/database/unique-id.md) features.
+
+You can prevent anonymous uploads by changing your service settings in the Skapi dashboard.
 :::
 
-::: danger
-When an anonymous user uploads a record, the `user_id` in the returned [`RecordData`](/api-reference/data-types/README.md#recorddata) is temporary and should NOT be used for user queries.
+::: warning
+When an anonymous user uploads a record, the `user_id` value in the returned [`RecordData`](/api-reference/data-types/README.md#recorddata) is temporary and should not be used for user queries.
 :::
 
 For more detailed information on all the parameters and options available with the [`postRecord()`](/api-reference/database/README.md#postrecord) method, 
@@ -97,7 +97,7 @@ please refer to the API Reference below:
 ### [`postRecord(data, config):Promise<RecordData>`](/api-reference/database/README.md#postrecord)
 
 :::tip Note
-Skapi database does not require you to pre-setup your database schema.
+Skapi does not require you to predefine a database schema.
 
 If the specified table does not exist, it will be automatically created when you create the record.
 Conversely, if a table has no records, it will be automatically deleted.
