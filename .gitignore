@@ -5,3 +5,5 @@ package-lock.json
 .vitepress/cache/
 skapi.md
 SKAPI.md
+skapi-docs.md
+skapi-types.md
