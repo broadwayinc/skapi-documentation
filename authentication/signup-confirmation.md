@@ -75,7 +75,7 @@ You can also customize the signup confirmation email template.
 
 For more info on email templates, see [Automated E-Mail](/email/email-templates.md).
 
-## Resending Signup Confirmation Email
+## Resending Signup Confirmation E-Mail
 
 
 If you need to resend the confirmation email, use the [`resendSignupConfirmation()`](/api-reference/authentication/README.md#resendsignupconfirmation) method. 

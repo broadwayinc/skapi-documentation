@@ -51,7 +51,7 @@ This example demonstrates using the [`createAccount()`](/api-reference/admin/REA
 :::code-group
 ```html [Form]
 <form onsubmit="skapi.createAccount(event).then(response => console.log(response))">
-    <input name="email" placeholder="Email" required/>
+    <input name="email" placeholder="E-Mail" required/>
     <input name="password" placeholder="Password" required/>
     <input name="name" placeholder="Name"/>
     <input type="submit" value="Create Account" />

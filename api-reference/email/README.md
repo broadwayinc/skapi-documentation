@@ -1,4 +1,4 @@
-# API Reference: Email
+# API Reference: E-Mail
 
 Below are the parameters and return data type references for the methods in TypeScript format.
 

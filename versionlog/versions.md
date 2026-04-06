@@ -1,6 +1,14 @@
 # Version History
 
-### Current version: 1.2.11
+
+### Current version: 1.5.0
+
+- Works with any JavaScript build setup: Node.js, HTML, ESM, CJS, UMD, and TypeScript-based projects.
+- New service ID format: "xxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxx" (backward compatible).
+- Refactored and separated internal dependencies: [cocochex](https://github.com/broadwayinc/cocochex), [qpass](https://github.com/broadwayinc/qpass).
+- Optimized and reduced build size.
+
+**1.2.11**
 
 - HOT FIX: Fixed bug for fetchMore parameter for all requests.
 

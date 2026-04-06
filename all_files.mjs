@@ -10,7 +10,7 @@ let api_reference = [
             { text: 'Authentication', link: '/api-reference/authentication/README.md' },
             { text: 'User Account', link: '/api-reference/user/README.md' },
             { text: 'Database', link: '/api-reference/database/README.md' },
-            { text: 'Email', link: '/api-reference/email/README.md' },
+            { text: 'E-Mail', link: '/api-reference/email/README.md' },
             { text: 'Realtime', link: '/api-reference/realtime/README.md' },
             { text: 'API Bridge', link: '/api-reference/api-bridge/README.md' },
             { text: 'Admin', link: '/api-reference/admin/README.md' },
@@ -46,7 +46,7 @@ let method_ref = [
         text: 'User Account',
         items: [
             { text: 'Updating User Profile', link: '/user-account/update-account.md' },
-            { text: 'E-Mail verification', link: '/user-account/email-verification.md' },
+            { text: 'Email verification', link: '/user-account/email-verification.md' },
             { text: 'Changing Password', link: '/user-account/change-password.md' },
             { text: 'Disable / Recover Account', link: '/user-account/disable-recover-account.md' },
             { text: 'Searching Users', link: '/user-account/get-users.md' },
@@ -112,10 +112,10 @@ let method_ref = [
         ]
     },
     {
-        text: 'E-Mail Service',
+        text: 'Email Service',
         items: [
             { text: 'Introduction', link: '/email/introduction.md' },
-            { text: 'Automated E-Mails', link: '/email/email-templates.md' },
+            { text: 'Automated Emails', link: '/email/email-templates.md' },
             { text: 'Sending Newsletters', link: '/email/newsletters.md' },
             { text: 'Receiving Inquiries', link: '/email/inquiries.md' }
         ]

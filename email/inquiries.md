@@ -14,7 +14,7 @@ You can use [`sendInquiry()`](/api-reference/email/README.md#sendinquiry) to let
 })">
     <label for="name">Name:</label>
     <input type="text" id="name" name="name" required>
-    <label for="email">Email:</label>
+    <label for="email">E-Mail:</label>
     <input type="email" id="email" name="email" required>
     <label for="subject">Subject:</label>
     <input type="text" id="subject" name="subject" required>

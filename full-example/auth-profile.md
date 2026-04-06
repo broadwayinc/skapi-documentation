@@ -154,7 +154,7 @@ function disableForm(form, disabled) {
         -->
         <table>
             <tr>
-                <td>Email</td>
+                <td>E-Mail</td>
                 <td>
                     <input type='email' name="email" placeholder='your@email.com' required autocomplete="email">
                 </td>
@@ -317,7 +317,7 @@ function disableForm(form, disabled) {
         <hr>
         <table>
             <tr>
-                <td>Login Email</td>
+                <td>Login E-Mail</td>
                 <td>
                     <input name="email" placeholder='your@email.com' required>
                 </td>
@@ -441,7 +441,7 @@ function disableForm(form, disabled) {
                 We can get the hash using location.hash.
                 We can get the email address by removing the # sign from the hash.
                 Then, we can set the value of the email input field for the user.
-                Email input field is hidden but it is required for the reset password method.
+                E-Mail input field is hidden but it is required for the reset password method.
             */
             let email = location.hash.slice(1);
             document.querySelector('input[name=email]').value = email;
@@ -594,7 +594,7 @@ function disableForm(form, disabled) {
             <tr>
                 <td>
                     <span>
-                        Login Email
+                        Login E-Mail
                     </span>
                 </td>
                 <td>
@@ -625,16 +625,16 @@ function disableForm(form, disabled) {
             <tr>
                 <td>
                     <span>
-                        Email to Public
+                        E-Mail to Public
                     </span>
                 </td>
                 <td>
                     <input id='input_emailPublic' name="email_public" type="checkbox">
-                    <small class="inlineBlock">(Email verification required)</small>
+                    <small class="inlineBlock">(E-Mail verification required)</small>
                     <style>
                         /*
                             We will disable the checkbox if the user's email is not verified.
-                            We will hide the preceding small tag noting 'Email verification required' if the checkbox is enabled.
+                            We will hide the preceding small tag noting 'E-Mail verification required' if the checkbox is enabled.
                         */
                         #input_emailPublic:not([disabled])+small {
                             display: none;
@@ -645,7 +645,7 @@ function disableForm(form, disabled) {
             <tr>
                 <td>
                     <span>
-                        Email Verified
+                        E-Mail Verified
                     </span>
                 </td>
                 <td>
@@ -755,7 +755,7 @@ function disableForm(form, disabled) {
 </script>
 ```
 
-## Email Verification
+## E-Mail Verification
 
 ### authentication/email-verification.html
 
@@ -802,7 +802,7 @@ function disableForm(form, disabled) {
         skapi.verifyEmail(event).then(r=>alert('Your email is verified.')).catch(err=>alert(err.message)).finally(()=>disableForm(this, false));
     ">
         <div class="spaceBetween">
-            <h2>Email Verification</h2>
+            <h2>E-Mail Verification</h2>
             <a href="update-profile.html">Back</a>
         </div>
         <hr>

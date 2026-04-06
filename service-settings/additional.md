@@ -8,7 +8,7 @@ On this page, you can configure the basic settings for your service.
 
 You can set the service name in your service settings.
 
-The service name can be used to identify your service in the **My Services** page, and also can be used to replace [`Automated Email's placeholders`](/email/email-templates.md#template-placeholders).
+The service name can be used to identify your service in the **My Services** page, and also can be used to replace [`Automated E-Mail's placeholders`](/email/email-templates.md#template-placeholders).
 
 
 ## CORS

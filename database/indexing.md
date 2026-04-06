@@ -1,8 +1,9 @@
 
 # Indexing
 
-When uploading records, you can set additional configurations in the `index` property.
-Indexing allows you to categorize and search for records based on specific criteria.
+When uploading records, you can set additional indexing options in the `index` property.
+Indexing lets you categorize records and search for specific values using conditions or value ranges.
+Indexed values are also tracked by their sum, average, and the number of records for each index name.
 The `index` object consists of the index's `name`, used for indexing, and its corresponding `value`, which is searchable.
 
 ## Configuring Indexing for Records

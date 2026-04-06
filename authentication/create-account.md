@@ -12,7 +12,7 @@ To let users create a new account in your service, you can use the [`signup()`](
     <h2>Sign-Up</h2>
     <hr>
     <label>
-        Email<br>
+        E-Mail<br>
         <input type="email" name="email" placeholder="user@email.com" required>
     </label><br><br>
     <label>

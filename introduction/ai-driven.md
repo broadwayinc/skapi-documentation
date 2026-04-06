@@ -23,7 +23,7 @@ Examples:
 When you run your coding assistant, start with a prompt like this:
 
 ```
-My Skapi service ID is: "s1_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-xxxx".
+My Skapi service ID is: "xxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxx".
 Build me a [describe what you want].
 ```
 

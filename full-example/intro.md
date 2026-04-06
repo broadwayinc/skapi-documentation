@@ -98,7 +98,7 @@ This tutorial encompasses all aspects of heavy lifting in production-level appli
   - Password reset and recovery options
   - Profile updates
   - Account recovery
-  - Email verification
+  - E-Mail verification
   - Profile picture uploads
 
 - Instaclone (Instagram Clone) Features

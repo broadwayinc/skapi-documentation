@@ -63,7 +63,7 @@ You must exchange this `code` for an access token. Because this step requires a 
 
 To register a client secret key in Skapi:
 
-1. In the service page, click on the **Client Secret Key** menu.
+1. In the service page, click on the **Client Secret Keys** menu.
 2. Click **+** at the top-right of the table.
 3. In the form, enter:
     - **Name:** A key identifier. For this guide, use **ggltoken**.

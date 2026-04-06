@@ -1,27 +1,27 @@
-# Automated E-Mails
+# Automated Emails
 
 When the user signup, reset password, or change email, subscribes to public newsletters, get invited to your service,
 the system will send an automated email to the user.
-You can customize the email template of these service emails by sending your templates to the email endpoints.
+You can customize the email template of these automated emails by sending your templates to the email endpoints.
 
-E-Mail endpoints can be found in your `Service Emails` page in your Skapi admin page.
+E-Mail endpoints can be found in your `Automated Emails` page in your Skapi admin page.
 
-In the `Service Emails` page, select an email type you want to set the template.
+In the `Automated Emails` page, select an email type you want to set the template.
 
 - **Signup Confirmation**
   
   Endpoint for signup confirmation email template. The user receives this email when they are requested for confirmation on signup.
 
-- **Welcome Email**
+- **Welcome E-Mail**
   
   Endpoint for welcome email template. The user receives this email when they signup, and have successfully verified their email, and logged in for the first time.
 
-- **Verification Email**
+- **Verification E-Mail**
   
   Endpoint for verification email template. The user receives this email when verifes their email or when they request the [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword).
   
 
-- **Invitation Email**
+- **Invitation E-Mail**
   
   Endpoint for invitation email template. The user receives this email when they are invited to the service.
   You can send invitation to users from the `Users` page in your admin page in Skapi website.
@@ -30,7 +30,7 @@ In the `Service Emails` page, select an email type you want to set the template.
   
   Endpoint for public newsletter subscription confirmation email template. The user receives this email when they subscribe to the public newsletter.
 
-Once you select the email type, the page will show the email endpoint address to set the template in the `Email Template` section.
+Once you select the email type, the page will show the email endpoint address to set the template in the `E-Mail Template` section.
 
 Following example shows the format for email endpoints:
 

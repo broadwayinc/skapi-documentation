@@ -27,7 +27,7 @@ When you initialize the class, use the exact service ID from your Skapi dashboar
 ::: tip NOTE
 Replace `'service_id'` with your actual service ID from your Skapi dashboard after you create a service.
 
-Example format: `'s1_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-xxxx'`
+Example format: `'xxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxx'`
 :::
 
 ### For SPA Projects

@@ -15,7 +15,7 @@ When the request is successful, the string "SUCCESS: Invitation has been sent." 
 
 ```html [Form]
 <form onsubmit="skapi.inviteUser(event).then(user => console.log(user))">
-    <input name="email" placeholder="Email" required/>
+    <input name="email" placeholder="E-Mail" required/>
     <input type="submit" value="Invite" />
 </form>
 ```
@@ -57,7 +57,7 @@ You can use your own custom HTML email template by providing a template URL and 
             subject: 'Exclusive Invitation'
         }
     }).then(user => console.log(user))">
-    <input name="email" placeholder="Email" required/>
+    <input name="email" placeholder="E-Mail" required/>
     <input type="submit" value="Invite" />
 </form>
 ```
@@ -85,7 +85,7 @@ skapi.inviteUser(
 
 :::danger
 The template must include required placeholders in the HTML content.
-For more information, see [Required Placeholders for Invitation Email](/email/email-templates.html#required-placeholders-for-invitation-email).
+For more information, see [Required Placeholders for Invitation E-Mail](/email/email-templates.html#required-placeholders-for-invitation-email).
 :::
 
 ## Resending Invitations
@@ -99,7 +99,7 @@ When the request is successful, the string "SUCCESS: Invitation has been re-sent
 
 ```html [Form]
 <form onsubmit="skapi.resendInvitation(event).then(user => console.log(user))">
-    <input name="email" placeholder="Email" required/>
+    <input name="email" placeholder="E-Mail" required/>
     <input type="submit" value="Resend Invitation" />
 </form>
 ```
@@ -176,7 +176,7 @@ When the request is successful, the string "SUCCESS: Invitation has been cancell
 
 ```html [Form]
 <form onsubmit="skapi.cancelInvitation(event).then(response => console.log(response))">
-    <input name="email" placeholder="Email" required/>
+    <input name="email" placeholder="E-Mail" required/>
     <input type="submit" value="Cancel Invitation" />
 </form>
 ```

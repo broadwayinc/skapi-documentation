@@ -35,7 +35,7 @@ When the user successfully logs in, they will be redirected to the `welcome.html
     <h2>Login</h2>
     <hr />
     <label>
-        Email<br />
+        E-Mail<br />
         <input
             type="email"
             name="email"
