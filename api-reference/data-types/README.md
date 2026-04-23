@@ -429,6 +429,11 @@ type Table = {
     table: string;
     number_of_records: string;
     size: number;
+    number_of_records_in_access_group_public?: number;
+    number_of_records_in_access_group_private?: number;
+    number_of_records_in_access_group_authorized?: number;
+    number_of_records_in_access_group_admin?: number;
+    [number_of_records_in_access_group_xx: string]: number | string | undefined; // for other access groups
 }
 ```
 
