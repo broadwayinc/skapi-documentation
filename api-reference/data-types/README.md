@@ -80,6 +80,8 @@ type Connection = {
         prevent_signup: boolean;
         prevent_anonymous: boolean;
     }
+    /* AI agent info */
+    ai_agent: string;
 }
 ```
 
@@ -93,6 +95,7 @@ type ConnectionInfo = {
     service_name: string;
     service_description: string;
     version: string;
+    ai_agent: string;
 };
 ```
 
