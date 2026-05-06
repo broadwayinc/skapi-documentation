@@ -71,11 +71,14 @@ type Connection = {
     group: number;
     /** Service name */
     service_name: string;
+    /** Service description */
+    service_description: string;
     /** Service options */
     opt: {
         freeze_database: boolean;
         prevent_inquiry: boolean;
         prevent_signup: boolean;
+        prevent_anonymous: boolean;
     }
 }
 ```
@@ -88,6 +91,7 @@ type ConnectionInfo = {
     user_agent: string;
     user_location: string;
     service_name: string;
+    service_description: string;
     version: string;
 };
 ```
