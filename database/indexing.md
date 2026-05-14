@@ -93,7 +93,6 @@ ex) '2' and 2 are different values.
 - Maximum length: 128 characters
 - Must not be empty
 - Must not start with `$` (reserved namespace)
-- Must not include `/`, `!`, `*`, `#`
 - Must not include control characters or sentinel `􏿿`
 
 Reserved names are limited to: `$uploaded`, `$updated`, `$referenced_count`, `$user_id`.
@@ -102,7 +101,6 @@ Reserved names are limited to: `$uploaded`, `$updated`, `$referenced_count`, `$u
 
 - Maximum length: 256 characters
 - Empty string is allowed
-- Punctuation such as `%`, `/`, `!`, `*`, `#` is allowed
 - Control characters and sentinel `􏿿` are not allowed
 :::
 

@@ -40,10 +40,13 @@ The `params` object supports these fields:
 
 - `clientSecretName`: Name of the client secret key saved in your Skapi service.
 - `url`: Third-party API endpoint URL.
-- `method`: HTTP method (`GET` or `POST`).
+- `method`: HTTP method (`GET`, `POST`, `PUT`, or `DELETE`).
 - `headers`: Request headers as key-value pairs.
-- `data`: Request body as key-value pairs (used when `method` is `POST`).
-- `params`: Query parameters as key-value pairs (used when `method` is `GET`).
+- `data`: Request body as key-value pairs (used when `method` is `POST` or `PUT`).
+- `params`: Query parameters as key-value pairs (used when `method` is `GET` or `DELETE`).
+- `poll`: Polling interval in milliseconds. When set to a positive number, Skapi polls the result at the given interval and the promise resolves with the final response. When omitted or `0`, the call returns immediately with `{ id, status: 'pending' }` and the result can be retrieved later with [`clientSecretRequestHistory()`](#fetching-request-history). Must be a non-negative number.
+- `expires`: Expiration time in milliseconds for the request record. Defaults to 15 minutes. After this period the request is invalidated and any pending poll returns an error.
+- `queue`: Optional queue name. Requests sharing the same `url`, `method`, and `queue` value are processed sequentially in the order they are received. Useful for rate-limited APIs or operations that must not run in parallel. When omitted, requests are processed immediately in parallel.
 
 
 :::warning
@@ -53,6 +56,58 @@ When using `clientSecretRequest()`, include the `$CLIENT_SECRET` placeholder in 
 For full parameter details, see the API reference below:
 
 ### [`clientSecretRequest(params): Promise<any>`](/api-reference/api-bridge/README.md#clientsecretrequest)
+
+
+## Fetching Request History
+
+Every call made through `clientSecretRequest()` is stored in your service so the result can be retrieved later — even if the original call returned before the third-party API responded, or if the page was reloaded mid-request.
+
+Use [`clientSecretRequestHistory(params, fetchOptions)`](/api-reference/api-bridge/README.md#clientsecretrequesthistory) to list past requests for a given `url` and `method`:
+
+```js
+const history = await skapi.clientSecretRequestHistory({
+    url: 'https://api.openai.com/v1/images/generations',
+    method: 'POST'
+});
+
+console.log(history.list); // PollingResult[]
+```
+
+Each item in `history.list` is a `PollingResult` with `id`, `status` (`'resolved' | 'failed' | 'pending'`), `status_code`, `response_body`, `request_body`, `error`, `updated`, and `expires`.
+
+### Polling Pending Requests
+
+If some items in the history are still in `pending` status (for example, a long-running request that has not finished yet), pass a `poll` interval (in milliseconds). Skapi will start polling each pending item and expose a `pending` array of promises on the response — one per pending request — that each resolve with the final `PollingResult`:
+
+```js
+const history = await skapi.clientSecretRequestHistory({
+    url: 'https://api.openai.com/v1/images/generations',
+    method: 'POST',
+    poll: 2000 // poll every 2 seconds
+});
+
+// Wait for all still-pending requests to resolve
+const finalized = await Promise.all(history.pending);
+console.log(finalized);
+```
+
+When `poll` is omitted or `0`, the history is returned as-is without any polling. Negative values are rejected with an `INVALID_PARAMETER` error.
+
+### Filtering by Queue
+
+If the original request used a `queue` name, pass the same `queue` to `clientSecretRequestHistory()` to return only the requests in that queue:
+
+```js
+skapi.clientSecretRequestHistory({
+    url: 'https://api.openai.com/v1/images/generations',
+    method: 'POST',
+    queue: 'image-jobs'
+});
+```
+
+For full parameter details, see the API reference below:
+
+### [`clientSecretRequestHistory(params, fetchOptions): Promise<DatabaseResponse<PollingResult[]> & { pending: Promise<PollingResult>[] }>`](/api-reference/api-bridge/README.md#clientsecretrequesthistory)
 
 
 ## OpenAI Images API

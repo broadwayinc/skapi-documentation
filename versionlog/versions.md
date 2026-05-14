@@ -1,7 +1,45 @@
 # Version History
 
+### Current version: 1.5.8
 
-### Current version: 1.5.0
+**1.5.8**
+
+- `clientSecretRequest()` and `clientSecretRequestHistory()` now reject negative `poll` values with an `INVALID_PARAMETER` error.
+
+**1.5.7**
+
+- `signup()` and `openidLogin()` accept `template` options for welcome and signup-confirmation emails.
+- Email and phone-number verification methods accept optional `template` parameters.
+
+**1.5.6**
+
+- `getConnectionInfo()` now supports a `refresh` parameter to force-refresh the cached connection info.
+
+**1.5.5**
+
+- Added `ai_agent`, `service_description`, and `prevent_anonymous` fields to the service connection type.
+
+- Table names, index names/values, and tag strings are no longer restricted from using delimiter characters.
+
+**1.5.4**
+
+- Added `queue` parameter to `clientSecretRequest()` and `clientSecretRequestHistory()`. Requests sharing the same `url`, `method`, and `queue` are processed sequentially in the order they are received. See [Client Secret Keys](/api-bridge/client-secret-request.html).
+
+**1.5.3**
+
+- Fixed access-group condition handling in `getTables()`.
+
+**1.5.2**
+
+- Added `clientSecretRequestHistory()` to retrieve past client-secret request results, with optional polling for items still in `pending` status. See [Client Secret Keys](/api-bridge/client-secret-request.html#fetching-request-history).
+- Added `poll` parameter to `clientSecretRequest()` — polling interval in milliseconds for long-running third-party API calls.
+- `getTables()` now returns dynamic record counts per access group.
+
+**1.5.1**
+
+- Improved internal logging.
+
+**1.5.0**
 
 - Works with any JavaScript build setup: Node.js, HTML, ESM, CJS, UMD, and TypeScript-based projects.
 - New service ID format: "xxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxx" (backward compatible).

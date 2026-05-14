@@ -5,7 +5,7 @@ Below are the parameters and return data type references for the methods in Type
 ## getConnectionInfo
 
 ```ts
-getConnectionInfo(): Promise<ConnectionInfo>
+getConnectionInfo(params?: { refresh: Boolean }): Promise<ConnectionInfo>
 ```
 
 See [ConnectionInfo](/api-reference/data-types/README.md#connectioninfo)

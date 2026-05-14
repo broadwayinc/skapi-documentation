@@ -35,7 +35,6 @@ Tag validation rules:
 
 - Maximum length: 64 characters per tag
 - Must not be empty
-- Must not include `/`, `!`, `*`, `#`
 - Must not include control characters or sentinel `􏿿`
 :::
 

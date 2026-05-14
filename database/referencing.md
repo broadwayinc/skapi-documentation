@@ -194,7 +194,7 @@ As shown in the example above, the `referencing_index_restrictions` parameter is
 
 Validation rules for `source.referencing_index_restrictions` fields:
 
-- `name`: 1..128 characters, cannot be empty, cannot start with `$`, and must not include `/`, `!`, `*`, `#`, control characters, or sentinel `􏿿`.
+- `name`: 1..128 characters, cannot be empty, cannot start with `$`, and must not include control characters or sentinel `􏿿`.
 - `value` (string): 0..256 characters (empty string allowed), blocks only control characters and sentinel `􏿿`.
 - `range` (string): 0..256 characters (empty string allowed), blocks only control characters and sentinel `􏿿`.
 

@@ -69,7 +69,6 @@ Every record must include a table name. You can think of the table name as the t
 
 - Maximum length: 128 characters
 - Must not be empty
-- Must not include `/`, `!`, `*`, `#`
 - Must not include control characters or sentinel `􏿿`
 
 If the access group is `public`, anyone can access the uploaded data.
