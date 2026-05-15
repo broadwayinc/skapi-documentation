@@ -33,7 +33,7 @@ let method_ref = [
     {
         text: 'Authentication',
         items: [
-            { text: 'What is Authentication?', link: '/authentication/introduction.md' },
+            // { text: 'What is Authentication?', link: '/authentication/introduction.md' },
             { text: 'Creating an account', link: '/authentication/create-account.md' },
             { text: 'Signup Confirmation', link: '/authentication/signup-confirmation.md' },
             { text: 'Login / Logout', link: '/authentication/login-logout.md' },
@@ -61,7 +61,7 @@ let method_ref = [
     {
         text: 'Database',
         items: [
-            { text: 'What is a database?', link: '/database/introduction.md' },
+            // { text: 'What is a database?', link: '/database/introduction.md' },
             { text: 'Creating a Record', link: '/database/create.md' },
             { text: 'Fetching Records', link: '/database/fetch.md' },
             { text: 'Table Information', link: '/database/table-info.md' },
@@ -91,7 +91,7 @@ let method_ref = [
     {
         text: 'Realtime Connection',
         items: [
-            { text: 'What is Realtime Connection?', link: '/realtime/introduction.md' },
+            // { text: 'What is Realtime Connection?', link: '/realtime/introduction.md' },
             { text: 'Connecting to Realtime', link: '/realtime/connecting.md' },
             { text: 'Sending Realtime Data', link: '/realtime/post.md' },
             { text: 'Realtime Groups', link: '/realtime/group.md' },

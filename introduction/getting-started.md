@@ -20,14 +20,17 @@ When you initialize the class, use the exact service ID from your Skapi dashboar
 <!DOCTYPE html>
 <script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
 <script>
+     // Replace 'service_id' with your actual service ID
     const skapi = new Skapi('service_id');
 </script>
 ```
 
-::: tip NOTE
 Replace `'service_id'` with your actual service ID from your Skapi dashboard after you create a service.
 
 Example format: `'xxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxx'`
+
+:::tip For BunnyQuery users
+BunnyQuery project IDs can be used as Skapi service ID.
 :::
 
 ### For SPA Projects
@@ -104,7 +107,8 @@ skapi.getConnectionInfo().then(info => {
         user_ip: "Connected user's IP address",
         user_agent: "Connected user agent",
         user_location: "Connected user's country code",
-        version: 'x.x.x' // Skapi library version
+        version: 'x.x.x', // Skapi library version
+        ...
     }
     */
    window.alert(`Connected to ${info.service_name}`);

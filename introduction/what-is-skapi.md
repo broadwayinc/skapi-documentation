@@ -19,6 +19,10 @@ With Skapi, you create one service per project. That service becomes the complet
 1. Sign up for an account at [skapi.com](https://www.skapi.com/signup).
 2. Log in, go to your services page, enter a service name, and click **Create**.
 
+:::tip For BunnyQuery users
+BunnyQuery projects are fully compatible with Skapi. Each project shows up in both your BunnyQuery and Skapi service lists.
+:::
+
 ## Service Settings
 
 You can set additional settings for your service.

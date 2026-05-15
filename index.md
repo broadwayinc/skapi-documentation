@@ -18,14 +18,14 @@ features:
   - title: Works with Any Framework
     icon: 💯
     details: Works with plain HTML, any JavaScript framework, or Node.js.
-  - title: Everything You Need in One API
+  - title: Everything in One API
     icon: ⚡
-    details: Authentication, database, file storage, email, and more. All bundled into a single JavaScript library.
+    details: Authentication, database, file storage, email, and more in a single JavaScript library.
   - title: Works with Any AI Assistant
     icon: 🤖
-    details: Skapi's client-centric security model lets your AI assistant design the entire backend safely, without exposing your application to security risks.
-  - icon: 💎
-    title: 100% Serverless
-    details: No idle servers, no wasted costs. Your backend scales automatically and efficiently.
+    details: Skapi's client-centric security model lets AI assistants design your backend safely.
+  - icon: 🐰
+    title: BunnyQuery Compatible
+    details: Expand your BunnyQuery project into a full-stack web app.
 
 ---
