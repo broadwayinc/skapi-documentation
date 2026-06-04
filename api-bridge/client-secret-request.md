@@ -24,7 +24,7 @@ After you save your client secret key, use [`clientSecretRequest(params)`](/api-
 
 The example below sends a `POST` request to a third-party API using a key saved as `YourSecretKeyName`. It places `$CLIENT_SECRET` in the `Authorization` header.
 
-```js [JS]
+```js
 skapi.clientSecretRequest({
     clientSecretName: 'YourSecretKeyName',
     url: 'https://third.party.com/api',
@@ -44,10 +44,11 @@ The `params` object supports these fields:
 - `headers`: Request headers as key-value pairs.
 - `data`: Request body as key-value pairs (used when `method` is `POST` or `PUT`).
 - `params`: Query parameters as key-value pairs (used when `method` is `GET` or `DELETE`).
-- `poll`: Polling interval in milliseconds. When set to a positive number, Skapi polls the result at the given interval and the promise resolves with the final response. When omitted or `0`, the call returns immediately with `{ id, status: 'pending' }` and the result can be retrieved later with [`clientSecretRequestHistory()`](#fetching-request-history). Must be a non-negative number.
-- `expires`: Expiration time in milliseconds for the request record. Defaults to 15 minutes. After this period the request is invalidated and any pending poll returns an error.
-- `queue`: Optional queue name. Requests sharing the same `url`, `method`, and `queue` value are processed sequentially in the order they are received. Useful for rate-limited APIs or operations that must not run in parallel. When omitted, requests are processed immediately in parallel.
-
+- `poll`: Polling interval in milliseconds. See [Polling for the Result](#polling-for-the-result) below. Must be a non-negative number.
+- `expires`: Expiration time in seconds for the request record. After this period the record is removed and any poll returns an error.
+- `queue`: Optional queue name. Requests sharing the same `url`, `method`, and `queue` value are processed sequentially on the server side. Useful for rate-limited APIs or operations that must not run in parallel. When omitted, requests are processed in parallel.
+- `onResponse`: Callback called with the final API response. For non-queued requests it is called immediately alongside the returned promise. For queued requests it is called when polling resolves.
+- `onError`: Callback called when the request or polling fails.
 
 :::warning
 When using `clientSecretRequest()`, include the `$CLIENT_SECRET` placeholder in at least one of these values: `data`, `params`, `headers`, or `url`.
@@ -56,6 +57,61 @@ When using `clientSecretRequest()`, include the `$CLIENT_SECRET` placeholder in 
 For full parameter details, see the API reference below:
 
 ### [`clientSecretRequest(params): Promise<any>`](/api-reference/api-bridge/README.md#clientsecretrequest)
+
+
+## Polling for the Result
+
+Because third-party APIs can take time to respond, `clientSecretRequest()` uses a queue-and-poll model. Every call is queued on the server and you can poll for the result.
+
+### Automatic polling with `poll`
+
+Pass a `poll` interval (in milliseconds) together with `onResponse` and `onError` callbacks. Skapi starts polling automatically. The promise resolves immediately with the initial status object (`{ id, status, ... }`); the final result is delivered via `onResponse`.
+
+```js
+skapi.clientSecretRequest({
+    clientSecretName: 'openai',
+    url: 'https://api.openai.com/v1/images/generations',
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer $CLIENT_SECRET'
+    },
+    data: { model: 'gpt-image-1.5', prompt: 'A cute baby sea otter', n: 1, size: '1024x1024' },
+    poll: 2000,              // poll every 2 seconds
+    onResponse(result) {
+        console.log('Done:', result);
+    },
+    onError(err) {
+        console.error('Failed:', err);
+    }
+});
+```
+
+### Manual polling with `poll()`
+
+When `poll` is omitted or `0`, the promise resolves with the status object plus a `poll()` method. Call it whenever you are ready to start polling:
+
+```js
+const res = await skapi.clientSecretRequest({
+    clientSecretName: 'openai',
+    url: 'https://api.openai.com/v1/images/generations',
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer $CLIENT_SECRET'
+    },
+    data: { model: 'gpt-image-1.5', prompt: 'A cute baby sea otter', n: 1, size: '1024x1024' },
+    onResponse(result) {
+        console.log('Done:', result);
+    },
+    onError(err) {
+        console.error('Failed:', err);
+    }
+});
+
+// res = { id, status: 'running', queue_name, in_queue, poll }
+res.poll({ latency: 2000 }); // start polling at 2-second intervals
+```
 
 
 ## Fetching Request History
@@ -73,29 +129,44 @@ const history = await skapi.clientSecretRequestHistory({
 console.log(history.list); // PollingResult[]
 ```
 
-Each item in `history.list` is a `PollingResult` with `id`, `status` (`'resolved' | 'failed' | 'pending'`), `status_code`, `response_body`, `request_body`, `error`, `updated`, and `expires`.
+Each item in `history.list` is a `PollingResult` with fields: `id`, `status` (`'resolved' | 'failed' | 'pending' | 'running'`), `status_code`, `response_body`, `request_body`, `error`, `updated`, `expires`, and optionally `queue_name`.
 
-### Polling Pending Requests
+### Polling History Items
 
-If some items in the history are still in `pending` status (for example, a long-running request that has not finished yet), pass a `poll` interval (in milliseconds). Skapi will start polling each pending item and expose a `pending` array of promises on the response — one per pending request — that each resolve with the final `PollingResult`:
+Items with `status: 'running'` or `status: 'pending'` include a `poll()` method. Call it to start polling that specific item:
 
 ```js
 const history = await skapi.clientSecretRequestHistory({
     url: 'https://api.openai.com/v1/images/generations',
-    method: 'POST',
-    poll: 2000 // poll every 2 seconds
+    method: 'POST'
 });
 
-// Wait for all still-pending requests to resolve
-const finalized = await Promise.all(history.pending);
-console.log(finalized);
+for (const item of history.list) {
+    if (item.status === 'running' || item.status === 'pending') {
+        item.poll({
+            latency: 2000,
+            onResponse(result) { console.log('Resolved:', result); },
+            onError(err) { console.error('Failed:', err); }
+        });
+    }
+}
 ```
 
-When `poll` is omitted or `0`, the history is returned as-is without any polling. Negative values are rejected with an `INVALID_PARAMETER` error.
+### Filtering by Status
+
+Pass a `status` filter to return only requests in a specific state:
+
+```js
+skapi.clientSecretRequestHistory({
+    url: 'https://api.openai.com/v1/images/generations',
+    method: 'POST',
+    status: 'pending'
+});
+```
 
 ### Filtering by Queue
 
-If the original request used a `queue` name, pass the same `queue` to `clientSecretRequestHistory()` to return only the requests in that queue:
+If the original request used a `queue` name, pass the same `queue` to return only requests in that queue:
 
 ```js
 skapi.clientSecretRequestHistory({
@@ -105,9 +176,41 @@ skapi.clientSecretRequestHistory({
 });
 ```
 
-For full parameter details, see the API reference below:
+For full parameter details, see the API reference:
 
-### [`clientSecretRequestHistory(params, fetchOptions): Promise<DatabaseResponse<PollingResult[]> & { pending: Promise<PollingResult>[] }>`](/api-reference/api-bridge/README.md#clientsecretrequesthistory)
+### [`clientSecretRequestHistory(params, fetchOptions): Promise<DatabaseResponse<PollingResult[]>>`](/api-reference/api-bridge/README.md#clientsecretrequesthistory)
+
+
+## Cancelling a Request
+
+To cancel a pending request before it is processed, call [`cancelClientSecretRequest()`](/api-reference/api-bridge/README.md#cancelclientsecretrequest):
+
+```js
+const result = await skapi.cancelClientSecretRequest({
+    url: 'https://api.openai.com/v1/images/generations',
+    method: 'POST',
+    id: 'stamp:entropy',  // the id from the clientSecretRequest response
+    queue: 'image-jobs'   // required if the request was submitted with a queue name
+});
+
+console.log(result.removed); // true if successfully removed
+```
+
+Provide `queue` when the original request was submitted with a queue name. This removes the pending job from the client-side queue in addition to cancelling it on the server.
+
+### [`cancelClientSecretRequest(params): Promise<{ removed: boolean; message: string }>`](/api-reference/api-bridge/README.md#cancelclientsecretrequest)
+
+
+## Checking Queue Size
+
+To check how many requests are currently waiting in a named queue, use [`getClientSecretRequestQueueCount()`](/api-reference/api-bridge/README.md#getclientsecretrequestqueuecount):
+
+```js
+const info = await skapi.getClientSecretRequestQueueCount({ queue: 'image-jobs' });
+console.log(info.in_queue); // number of requests waiting
+```
+
+### [`getClientSecretRequestQueueCount(params): Promise<{ queue_name: string; in_queue: number }>`](/api-reference/api-bridge/README.md#getclientsecretrequestqueuecount)
 
 
 ## OpenAI Images API
@@ -190,6 +293,9 @@ skapi.clientSecretRequest({
         "prompt": "A cute baby sea otter",
         n: 1,
         size: "1024x1024"
+    },
+    onResponse(result) {
+        console.log(result);
     }
 })
 ```
@@ -197,4 +303,4 @@ skapi.clientSecretRequest({
 The example above shows how to build request headers and body data for a secure OpenAI API call.
 Use `$CLIENT_SECRET` in the `Authorization` header and set `clientSecretName` to `openai`, which is the key name saved in your Skapi dashboard.
 
-When the request runs, Skapi replaces `$CLIENT_SECRET` with your stored secret key and returns the response from the OpenAI API.
+When the request runs, Skapi replaces `$CLIENT_SECRET` with your stored secret key and returns the response from the OpenAI API via the `onResponse` callback.
