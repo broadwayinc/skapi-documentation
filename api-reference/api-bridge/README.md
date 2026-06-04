@@ -44,18 +44,13 @@ clientSecretRequestHistory(
         status?: 'pending' | 'running' | 'resolved' | 'failed'; // Optional status filter.
     },
     fetchOptions?: FetchOptions // Pagination and fetch behavior options.
-): Promise<DatabaseResponse<PollingResult[]>>
+): Promise<DatabaseResponse<RequestHistory[]>>
 ```
 
-Items in the returned list that have `status: 'running'` or `status: 'pending'` include a `poll()` method:
+See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
 
-```ts
-poll(arg?: {
-    latency?: number;           // Polling interval in milliseconds. Defaults to 1000.
-    onResponse?: (res: any) => void; // Called with the final result when polling resolves.
-    onError?: (err: any) => void;    // Called on polling error.
-}): void
-```
+See [RequestHistory](/api-reference/data-types/README.md#requesthistory)
+
 
 ## cancelClientSecretRequest
 
@@ -83,21 +78,4 @@ getClientSecretRequestQueueCount(
     queue_name: string; // The queue name.
     in_queue: number;   // Number of requests currently waiting in the queue.
 }>
-```
-
-## PollingResult
-
-```ts
-type PollingResult = {
-    id: string;               // Request ID in "stamp:entropy" format.
-    status: 'resolved' | 'failed' | 'pending' | 'running';
-    status_code: number | null; // HTTP status code returned by the third-party API.
-    response_body: any;         // Response body returned by the third-party API.
-    request_body: any;          // The request body that was sent.
-    error: any;                 // Error details, if the request failed.
-    updated: number;            // Timestamp of the last status update.
-    expires: number | null;     // Expiration timestamp; null while still pending.
-    queue_name?: string;        // Queue name, if the request was queued.
-    poll?: (arg?: { latency?: number; onResponse?: (res: any) => void; onError?: (err: any) => void }) => void; // Present on running/pending items from clientSecretRequestHistory().
-};
 ```

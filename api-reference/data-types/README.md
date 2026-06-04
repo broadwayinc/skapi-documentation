@@ -22,6 +22,7 @@ import type {
     ProgressCallback,
     RealtimeCallback,
     RecordData,
+    requestHistory,
     RTCConnector,
     RTCConnectorParams,
     RTCEvent,
@@ -353,6 +354,26 @@ type RecordData = {
     bin: { [key: string]: BinaryFile[] };
     ip: string;
     readonly: boolean;
+}
+```
+## RequestHistory
+
+```ts
+type RequestHistory = { 
+    id: string; // request id. Format: {stamp}:{entropy}
+    status_code: number; // http status code of the request
+    response_body: any;
+    error?: any;
+    updated: number; // timestamp of the last update of the request status in milliseconds
+    request_body: any;
+    expires?: number; // timestamp of when the request history will be deleted in epoch time (seconds).
+    status: 'pending' | 'running' | 'resolved' | 'failed';
+    queue_name?: string; // queue name if the request is in queue, empty string if the request is not in queue.
+    poll?: (arg?: {
+        latency?: number;
+        onResponse?: (res:any)=>void;
+        onError?: (err:any)=>void;
+    }) => Promise<any>; // function to poll the request status. When called, it will return a promise that resolves to the updated request history. Optional argument "latency" can be used to set the latency of the polling in milliseconds. Default latency is 1000ms.
 }
 ```
 
