@@ -1,6 +1,15 @@
 # Version History
 
-### Current version: 1.5.8
+### Current version: 1.6.0
+
+**1.6.0**
+
+- Added `clientSecretRequest()` support for secure third-party API calls using saved client secrets.
+- Added automatic polling with `poll` and manual polling via returned `poll()` when status is `running` or `pending`.
+- Added optional `queue` support so requests with the same queue name are processed sequentially.
+- Added `clientSecretRequestHistory()` to list and filter past request results by `url`, `method`, `status`, or `queue`.
+- Added `cancelClientSecretRequest()` to cancel pending queued client-secret requests.
+- Added `getClientSecretRequestQueueCount()` to check how many requests are waiting in a named queue.
 
 **1.5.8**
 
