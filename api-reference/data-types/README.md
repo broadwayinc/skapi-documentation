@@ -22,7 +22,7 @@ import type {
     ProgressCallback,
     RealtimeCallback,
     RecordData,
-    requestHistory,
+    RequestHistory,
     RTCConnector,
     RTCConnectorParams,
     RTCEvent,
