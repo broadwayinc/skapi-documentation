@@ -82,11 +82,11 @@ Provide `queue` when the original request was submitted with a queue name. This 
 
 ## Checking Queue Size
 
-To check how many requests are currently waiting in a named queue, use [`getClientSecretRequestQueueCount()`](/api-reference/api-bridge/README.md#getclientsecretrequestqueuecount):
+To check how many requests are currently waiting in a named queue, use [`clientSecretRequestQueueCount()`](/api-reference/api-bridge/README.md#getclientsecretrequestqueuecount):
 
 ```js
-const info = await skapi.getClientSecretRequestQueueCount({ queue: 'image-jobs' });
+const info = await skapi.clientSecretRequestQueueCount({ queue: 'image-jobs' });
 console.log(info.in_queue); // number of requests waiting
 ```
 
-### [`getClientSecretRequestQueueCount(params): Promise<{ queue_name: string; in_queue: number }>`](/api-reference/api-bridge/README.md#getclientsecretrequestqueuecount)
+### [`clientSecretRequestQueueCount(params): Promise<{ queue_name: string; in_queue: number }>`](/api-reference/api-bridge/README.md#getclientsecretrequestqueuecount)

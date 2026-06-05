@@ -65,10 +65,10 @@ cancelClientSecretRequest(
 ): Promise<{ removed: boolean; message: string }>
 ```
 
-## getClientSecretRequestQueueCount
+## clientSecretRequestQueueCount
 
 ```ts
-getClientSecretRequestQueueCount(
+clientSecretRequestQueueCount(
     params: {
         queue: string; // The queue name to check.
         service?: string; // Optional service ID override.

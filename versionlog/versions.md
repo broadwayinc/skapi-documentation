@@ -9,7 +9,7 @@
 - Added optional `queue` support so requests with the same queue name are processed sequentially.
 - Added `clientSecretRequestHistory()` to list and filter past request results by `url`, `method`, `status`, or `queue`.
 - Added `cancelClientSecretRequest()` to cancel pending queued client-secret requests.
-- Added `getClientSecretRequestQueueCount()` to check how many requests are waiting in a named queue.
+- Added `clientSecretRequestQueueCount()` to check how many requests are waiting in a named queue.
 
 **1.5.8**
 
