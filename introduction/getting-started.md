@@ -108,7 +108,12 @@ skapi.getConnectionInfo().then(info => {
         user_agent: "Connected user agent",
         user_location: "Connected user's country code",
         version: 'x.x.x', // Skapi library version
-        ...
+        conf: {
+            freeze_database: boolean; // Database is read only
+            prevent_signup: boolean; // Signup is blocked
+            prevent_inquiry: boolean; // Inquiry is blocked
+            prevent_anonymous: boolean; // Annoymous users cannot write to the database.
+        }
     }
     */
    window.alert(`Connected to ${info.service_name}`);

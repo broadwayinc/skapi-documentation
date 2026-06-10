@@ -97,6 +97,12 @@ type ConnectionInfo = {
     service_description: string;
     version: string;
     ai_agent: string;
+    conf: {
+        freeze_database: boolean;
+        prevent_signup: boolean;
+        prevent_inquiry: boolean;
+        prevent_anonymous: boolean;
+    }
 };
 ```
 
