@@ -24,7 +24,7 @@ clientSecretRequest(
     status: 'running' | 'pending'; // Current queue status.
     queue_name: string;   // The queue this request belongs to.
     in_queue: number;     // Number of requests ahead in the queue (1 = processing, >1 = waiting).
-    poll?: (arg?: { latency?: number }) => void; // Only present when poll is omitted or 0. Call to start manual polling.
+    poll?: (arg?: { latency?: number }) => Promise<any>; // Only present when poll is omitted or 0. Call to start manual polling.
 }>
 ```
 

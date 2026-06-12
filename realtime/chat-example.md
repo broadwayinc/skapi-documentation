@@ -326,7 +326,7 @@ Because this is only a portion of the full repository and does not include suppo
             <script>
                 skapi
                     .getRealtimeGroups({
-                        searchFor: "groups",
+                        searchFor: "group",
                         condition: ">",
                         value: " ",
                     })

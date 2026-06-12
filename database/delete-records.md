@@ -11,13 +11,13 @@ The `params` object accepts similar parameters as the [`getRecords()`](/api-refe
 
 If the `record_id` is provided, it will delete the record with the given `record_id`.
 
-## Deleting Records by Record IDs
+## Deleting a Record by Record ID
 
-Here's an example that demonstrates how to delete multiple records using an array of record IDs:
+Here's an example that demonstrates how to delete a record using its record ID:
 
 ```js
 let query = {
-    record_id: ["record_a_record_id", "record_b_record_id"],
+    record_id: "record_a_record_id",
 };
 
 skapi.deleteRecords(query).then((response) => {
@@ -26,17 +26,13 @@ skapi.deleteRecords(query).then((response) => {
 });
 ```
 
-:::warning
-You can only delete up to 100 record ID at a time.
-:::
+## Deleting a Record by Unique ID
 
-## Deleteing Records by Unique IDs
-
-Here's an example that demonstrates how to delete multiple records using an array of unique IDs:
+Here's an example that demonstrates how to delete a record using its unique ID:
 
 ```js
 let query = {
-    unique_id: ["unique id of the record 1", "unique id of the record 2"],
+    unique_id: "unique id of the record",
 };
 
 skapi.deleteRecords(query).then((response) => {
@@ -44,10 +40,6 @@ skapi.deleteRecords(query).then((response) => {
     console.log(response);
 });
 ```
-
-:::warning
-You can only delete up to 100 unique ID at a time.
-:::
 
 ## Deleting User's Records with Database Query
 
@@ -84,4 +76,4 @@ Read more about admin access [here](/admin/intro.md).
 For more detailed information on all the parameters and options available with the [`deleteRecords()`](/api-reference/database/README.md#deleterecords) method,
 please refer to the API Reference below:
 
-### [`deleteRecords(params): Promise<string | DatabaseResponse<string>>`](/api-reference/database/README.md#deleterecords)
+### [`deleteRecords(params): Promise<string | DatabaseResponse<RecordData>>`](/api-reference/database/README.md#deleterecords)

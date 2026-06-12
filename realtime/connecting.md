@@ -15,9 +15,11 @@ You can create a realtime connection by calling [`connectRealtime()`](/api-refer
 For more detailed information on all the parameters and options available with the [`connectRealtime()`](/api-reference/realtime/README.md#connectrealtime) method,
 please refer to the API Reference below:
 
-### [`connectRealtime(RealtimeCallback): Promise<WebSocket>`](/api-reference/realtime/README.md#connectrealtime)
+### [`connectRealtime(RealtimeCallback): Promise<WebSocket | void>`](/api-reference/realtime/README.md#connectrealtime)
 
 Once the connection is established, you can start receiving realtime data from the [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback).
+
+On the initial connection, the returned promise resolves to `undefined` rather than the socket. The `WebSocket` is delivered through the [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback).
 
 ```js
 let RealtimeCallback = (rt) => {
@@ -64,7 +66,7 @@ When the callback runs, it receives a message object with the following properti
     -   "rtc:closed": When the WebRTC connection is closed.
 
 -   `message` is the data passed from the server. It can be any JSON data.
--   `sender` is the user ID of the message sender. It is only available when `type` is "message" or "private".
+-   `sender` is the user ID of the message sender. It is available when `type` is "message", "private", or "notice". For "notice" events it carries the user ID of the user who joined, left, or was disconnected.
 -   `sender_cid` is the connection ID of the message sender. It can be used to track the sender's connected device.
 -   `sender_rid` is the group name of the received message.
 -   `code` is a string identifier for notice messages.

@@ -35,7 +35,7 @@ let parameters = {
 };
 
 skapi.signup(parameters)
-  .then(res => window.href = 'login.html')
+  .then(res => window.location.href = 'login.html')
   .catch(err => window.alert(err.message));
 ```
 
@@ -81,7 +81,7 @@ let options = {
 };
 
 skapi.signup(parameters, options)
-  .then(res => u=>alert('Hello ' + u.name));
+  .then(u => alert('Hello ' + u.name));
 ```
 
 :::

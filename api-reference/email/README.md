@@ -5,13 +5,13 @@ Below are the parameters and return data type references for the methods in Type
 ## subscribeNewsletter
 
 ```ts
-subscribeNewsletter({
+subscribeNewsletter(
     params: SubmitEvent | {
-        group: number | 'public' | 'authorized' | 'admin';
-        email?: string; // only for public newsletters
+        group: number | 'public' | 'authorized' | 'admin' | string; // Custom group is an alphanumeric string (<=20 chars).
+        email?: string | string[]; // only for public newsletters
         redirect?: string; // only for public newsletters. User will be redirected to this URL when confirmation link is clicked.
     }
-}): Promise<string>
+): Promise<string>
 ```
 
 ## unsubscribeNewsletter
@@ -19,7 +19,7 @@ subscribeNewsletter({
 ```ts
 unsubscribeNewsletter(
     params: { 
-        group: number | 'public' | 'authorized' | null;
+        group: number | 'public' | 'authorized' | 'admin';
     }
 ): Promise<string>
 ```
@@ -30,13 +30,20 @@ unsubscribeNewsletter(
 getNewsletterSubscription(
     params: { 
         group?: number | 'public' | 'authorized';
-    }
+        user_id?: string; // Admin can fetch another user's subscriptions.
+    },
+    fetchOptions?: FetchOptions
 ): Promise<{
     active: boolean;
     timestamp: number;
     group: number;
     subscribed_email: string;
-}[]>
+}[] | DatabaseResponse<{
+    active: boolean;
+    timestamp: number;
+    group: number;
+    subscribed_email: string;
+}>>
 ```
 
 ## getNewsletters
@@ -49,10 +56,10 @@ getNewsletters(
          * 'message_id' and 'subject' value should be string.
          * Others in numbers.
          */
-        searchFor: 'message_id' | 'timestamp' | 'read' | 'complaint' | 'subject';
+        searchFor: 'message_id' | 'timestamp' | 'read' | 'complaint' | 'bounced' | 'subject';
         value: string | number;
         group: 'public' | 'authorized' | number;
-        range: string | number;
+        range?: string | number;
         /**
          * Defaults to '='
          */

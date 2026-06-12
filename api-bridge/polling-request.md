@@ -5,7 +5,7 @@ Because third-party APIs can take time to respond, `clientSecretRequest()` uses 
 
 ## Automatic polling with `poll`
 
-Pass a `poll` interval (in milliseconds) together with `onResponse` and `onError` callbacks. Skapi starts polling automatically. The promise resolves immediately with the initial status object (`{ id, status, ... }`); the final result is delivered via `onResponse`.
+Pass a `poll` interval (in milliseconds) together with `onResponse` and `onError` callbacks. With `poll` greater than `0`, Skapi auto-generates a queue and starts polling automatically; the final result is delivered to `onResponse` (and errors to `onError`). Note that when `onResponse` is provided, the awaited return value of `clientSecretRequest()` is the callback's return value, so don't rely on the returned promise for the status object in the auto-poll case. The immediate status object with a `poll()` method (`{ id, status, ... }`) is only returned when `poll` is omitted or `0` and `onResponse` is not supplied.
 
 ```js
 skapi.clientSecretRequest({
@@ -41,7 +41,12 @@ const res = await skapi.clientSecretRequest({
         Authorization: 'Bearer $CLIENT_SECRET'
     },
     queue: 'image-queue',
-    data: { model: 'gpt-image-1.5', prompt: 'A cute baby sea otter', n: 1, size: '1024x1024' },
+    data: { model: 'gpt-image-1.5', prompt: 'A cute baby sea otter', n: 1, size: '1024x1024' }
+});
+
+// res = { id, status: 'running', queue_name, in_queue, poll }
+res.poll({
+    latency: 2000, // start polling at 2-second intervals
     onResponse(result) {
         console.log('Done:', result);
     },
@@ -49,9 +54,6 @@ const res = await skapi.clientSecretRequest({
         console.error('Failed:', err);
     }
 });
-
-// res = { id, status: 'running', queue_name, in_queue, poll }
-res.poll({ latency: 2000 }); // start polling at 2-second intervals
 ```
 
 :::warning

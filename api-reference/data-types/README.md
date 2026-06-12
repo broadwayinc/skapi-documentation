@@ -82,7 +82,7 @@ type Connection = {
         prevent_anonymous: boolean;
     }
     /* AI agent info */
-    ai_agent: string;
+    ai_agent?: string;
 }
 ```
 
@@ -121,8 +121,8 @@ type DatabaseResponse<T> = {
 
 ```ts
 type DelRecordQuery = GetRecordQuery & {
-    unique_id?: string | string[];
-    record_id?: string | string[];
+    unique_id?: string;
+    record_id?: string;
 };
 ```
 
@@ -166,8 +166,8 @@ type GetRecordQuery = {
     unique_id?: string; // When unique_id is given, it will fetch the record with the given unique_id.
     record_id?: string; // When record_id is given, it will fetch the record with the given record_id. This overrides all other parameters.
 
-    /** Table name not required when "record_id" is given.*/
-    table?: {
+    /** Table name not required when "record_id" is given. A bare string is shorthand for { name: <string> }. */
+    table?: string | {
         /** Max 128 chars. Blocks control chars and sentinel 􏿿. */
         name: string;
         /** Number range: 0 ~ 99. Default: 'public' */
@@ -176,7 +176,7 @@ type GetRecordQuery = {
         subscription?: string;
     };
 
-    reference?: string // Referenced record ID or unique ID. If user ID is given, it will fetch records that are uploaded by the user.
+    reference?: string | { record_id?: string; unique_id?: string; user_id?: string }; // Referenced record ID or unique ID. If user_id is given (object form), it will fetch records that are uploaded by the user.
 
     /** Index condition and range cannot be used simultaneously.*/
     index?: {
@@ -241,24 +241,24 @@ type Newsletter = {
 ```ts
 type PostRecordConfig = {
     record_id?: string; // when record_id is given, it will update the record with the given record_id. If record_id is not given, it will create a new record.
-    unique_id?: string; // You can set unique_id to the record with the given unique_id.
+    unique_id?: string | null; // You can set unique_id to the record with the given unique_id. null removes unique_id from the record.
     readonly?: boolean; // When true, record cannot be updated or deleted.
 
     /** Table name not required when "record_id" is given.*/
     table?: {
         /** Max 128 chars. Blocks control chars and sentinel 􏿿. */
-        name: string;
+        name?: string;
         /** Number range: 0 ~ 99. Default: 'public' */
         access_group?: number | 'private' | 'public' | 'authorized' | 'admin';
 
-        /** When true, Record will be only accessible for subscribed users. */
+        /** When true, Record will be only accessible for subscribed users. null removes all subscription settings from the record. */
         subscription?: {
             is_subscription_record?: boolean; // When true, this record is a subscription record.
             upload_to_feed?: boolean; // When true, record will be uploaded to the feed of the subscribers.
             notify_subscribers?: boolean; // When true, subscribers will receive notification when the record is uploaded.
             feed_referencing_records?: boolean; // When true, records referencing this record will be included to the subscribers feed.
             notify_referencing_records?: boolean; // When true, records referencing this record will be notified to subscribers.
-        };
+        } | null;
     };
 
     source?: {
@@ -277,7 +277,7 @@ type PostRecordConfig = {
     };
 
     /** Can be record ID or unique ID */
-    reference?: string;
+    reference?: string | null; // null removes reference from the record.
 
     /** null removes index */
     index?: {

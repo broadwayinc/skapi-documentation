@@ -8,7 +8,7 @@ Below are the parameters and return data type references for the methods in Type
 inviteUser(
     params: {
         name?: string;
-        email?: string;
+        email: string; // Required. The only required attribute.
         phone_number?: string;
         address?: string | {
             formatted: string;
@@ -29,8 +29,8 @@ inviteUser(
         address_public?: boolean; // When set to true, address attribute is visible to others.
         gender_public?: boolean; // When set to true, gender attribute is visible to others.
         birthdate_public?: boolean; // When set to true, birthdate attribute is visible to others.
-        openid_id: string;
-        access_group: number;
+        openid_id?: string;
+        access_group?: number;
     },
     options?: {
         confirmation_url?: string;
@@ -49,7 +49,6 @@ inviteUser(
 resendInvitation(
     params: {
         email: string; // Required. Max 64 characters.
-        confirmation_url?: string;
     }
 ): Promise<'SUCCESS: Invitation has been re-sent. (User ID: xxx...)'>
 ```
@@ -57,9 +56,9 @@ resendInvitation(
 ## getInvitations
 
 ```ts
-getInvitations(params: {
+getInvitations(params?: {
     email?: string; // When set, only invitations with the email starting with the given string will be returned.
-}, fetchOptions: FetchOptions): Promise<DatabaseResponse<UserProfile>>
+}, fetchOptions?: FetchOptions): Promise<DatabaseResponse<UserProfile>>
 ```
 
 See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse).
@@ -92,7 +91,7 @@ grantAccess(params: {
 createAccount(
     params: {
         name?: string;
-        email?: string;
+        email: string; // Required.
         phone_number?: string;
         address?: string | {
             formatted: string;
@@ -114,7 +113,7 @@ createAccount(
         gender_public?: boolean; // When set to true, gender attribute is visible to others.
         birthdate_public?: boolean; // When set to true, birthdate attribute is visible to others.
         password: string; // Required. At least 6 characters and a maximum of 60 characters.
-        access_group: number;
+        access_group?: number;
     }
 ): Promise<UserProfile & { email_admin: string; username: string; }>
 ```

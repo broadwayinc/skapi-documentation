@@ -69,13 +69,13 @@ skapi.createAccount(
     console.log(response);
     /*
     Returns:
-    "SUCCESS: Account has been created."
+    The created user's profile object (UserProfile & { email_admin: string; username: string }).
     */
 });
 ```
 :::
 
-When the request is successful, the string "SUCCESS: Account has been created." is returned.
+When the request is successful, the created user's profile object (UserProfile & { email_admin: string; username: string }) is returned.
 
 And the user will be able to log in with the created email and password right away.
 
@@ -118,7 +118,7 @@ Admins can block user accounts by using the [`blockAccount()`](/api-reference/ad
 
 This example demonstrates using the [`blockAccount()`](/api-reference/admin/README.md#blockaccount) method to block a user account.
 
-When the request is successful, the string "SUCCESS: Account has been blocked." is returned.
+When the request is successful, the string "SUCCESS: The user has been blocked." is returned.
 
 ```js [JS]
 skapi.blockAccount(
@@ -129,7 +129,7 @@ skapi.blockAccount(
     console.log(response);
     /*
     Returns:
-    "SUCCESS: Account has been blocked."
+    "SUCCESS: The user has been blocked."
     */
 });
 ```
@@ -142,7 +142,7 @@ Admins can unblock user accounts by using the [`unblockAccount()`](/api-referenc
 
 This example demonstrates using the [`unblockAccount()`](/api-reference/admin/README.md#unblockaccount) method to unblock a user account.
 
-When the request is successful, the string "SUCCESS: Account has been unblocked." is returned.
+When the request is successful, the string "SUCCESS: The user has been unblocked." is returned.
 
 ```js [JS]
 
@@ -154,7 +154,7 @@ skapi.unblockAccount(
     console.log(response);
     /*
     Returns:
-    "SUCCESS: Account has been unblocked."
+    "SUCCESS: The user has been unblocked."
     */
 });
 ```

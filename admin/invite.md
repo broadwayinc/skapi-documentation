@@ -9,7 +9,7 @@ In the invitation email, the user will see the login email and randomly generate
 User should click on the link to accept the invitation within 7 days and they will be able to login to the service using the email and password provided in the invitation email.
 
 This example demonstrates using the [`inviteUser()`](/api-reference/admin/README.md#inviteuser) method to invite a user to the service.
-When the request is successful, the string "SUCCESS: Invitation has been sent." is returned.
+When the request is successful, the string "SUCCESS: Invitation has been sent. (User ID: xxx...)" is returned.
 
 :::code-group
 
@@ -93,7 +93,7 @@ For more information, see [Required Placeholders for Invitation E-Mail](/email/e
 Admins can resend invitations to users who have not accepted the invitation by using the [`resendInvitation()`](/api-reference/admin/README.md#resendinvitation) method.
 
 This example demonstrates using the [`resendInvitation()`](/api-reference/admin/README.md#resendinvitation) method to resend an invitation to a user.
-When the request is successful, the string "SUCCESS: Invitation has been re-sent." is returned.
+When the request is successful, the string "SUCCESS: Invitation has been re-sent. (User ID: xxx...)" is returned.
 
 :::code-group
 
@@ -170,7 +170,7 @@ For more detailed information on all the parameters and options available with t
 Admins can cancel invitations that have been sent by using the [`cancelInvitation()`](/api-reference/admin/README.md#cancelinvitation) method.
 
 This example demonstrates using the [`cancelInvitation()`](/api-reference/admin/README.md#cancelinvitation) method to cancel an invitation that has been sent.
-When the request is successful, the string "SUCCESS: Invitation has been cancelled." is returned.
+When the request is successful, the string "SUCCESS: Invitation has been canceled." is returned.
 
 :::code-group
 
@@ -190,7 +190,7 @@ skapi.cancelInvitation(
     console.log(response);
     /*
     Returns:
-    "SUCCESS: Invitation has been cancelled."
+    "SUCCESS: Invitation has been canceled."
     */
 });
 ```

@@ -93,8 +93,9 @@ getUsers(
             'locale' |
             'subscribers' |
             'timestamp' |
+            'access_group' |
             'approved';
-        value: string | number | boolean | string[]; // Appropriate value type for searchFor
+        value: string | number | string[]; // Appropriate value type for searchFor
         
         /**
          * Cannot be used with range. Default = '='.
@@ -102,7 +103,7 @@ getUsers(
          * For strings, '>=' means 'starts with'.
          */
         condition?: '>' | '>=' | '=' | '<' | '<=' | 'gt' | 'gte' | 'eq' | 'lt' | 'lte';
-        range?: string | number | boolean; // Cannot be used with condition.
+        range?: string | number; // Cannot be used with condition.
     },
     fetchOptions?: FetchOptions
 ): Promise<DatabaseResponse<UserPublic>>;

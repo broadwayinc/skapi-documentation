@@ -107,7 +107,7 @@ function RTCCallback(e) {
                 // RTC has disconnected. Hide the opponent video element.
                 document.getElementById('remoteVideo').hidden = true;
                 
-            } else if (state === "connecting") {
+            } else if (e.state === "connecting") {
                 // Callback executed when the user is connected to RTC.
                 // Show the opponent video element.
                 document.getElementById('remoteVideo').hidden = false;
@@ -136,7 +136,7 @@ function RTCCallback(e) {
 
 // Realtime event listener
 // This callback listens for users joining the room.
-function RealtimeCallback(rt) {
+async function RealtimeCallback(rt) {
     if(rt.type === 'notice') {
         if(rt.code === 'USER_JOINED') {
             if(call) return;

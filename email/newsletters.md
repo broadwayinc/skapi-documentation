@@ -83,30 +83,18 @@ skapi.subscribeNewsletter({
 
 The example above shows how to let your visitors subscribe to the service newsletters by calling [`subscribeNewsletter()`](/api-reference/email/README.md#subscribenewsletter).
 
-## Requesting Newsletter Endpoint for Admins
-
-The [`adminNewsletterRequest()`](/api-reference/email/README.html#adminnewsletterrequest) method allows administrators to request a personalized email endpoint for sending newsletters. Only users with administrator privileges (access group 99) can request this endpoint.
-
-To send newsletters, an admin must first request a personalized endpoint using [`adminNewsletterRequest()`](/api-reference/email/README.html#adminnewsletterrequest). This method verifies admin privileges and returns a unique URL for sending emails.
-
-```js [JS]
-skapi.adminNewsletterRequest().then(response => {
-    console.log("Your newsletter endpoint:", response)});
-```
-
-:::warning
-This endpoint is specific to the requesting admin and can only receive emails from the admin’s registered email address.
-:::
-
 ## Checking if the user is subscribed to the service newsletters
 
 You can let the user check if they have subscribed to the service newsletters by calling [`getNewsletterSubscription()`](/api-reference/email/README.md#getnewslettersubscription).
+
+[`getNewsletterSubscription()`](/api-reference/email/README.md#getnewslettersubscription) may resolve either to a bare array of subscriptions or to a `DatabaseResponse` object (with a `.list` property) when the response is paginated. Normalize the result before checking its length:
 
 ```js
 skapi.getNewsletterSubscription({
     group: 'authorized'
 }).then(subs => {
-    if (subs.length) {
+    const list = Array.isArray(subs) ? subs : subs.list;
+    if (list.length) {
         // user is subscribed to the service newsletter
     }
     else {

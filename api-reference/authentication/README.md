@@ -141,7 +141,7 @@ See [UserProfile](/api-reference/data-types/README.md#userprofile)
 getProfile(
     options?: {
         /** When true, JWT token is refreshed before fetching the user attributes. (Default = false) */
-        refreshToken: boolean;
+        refreshToken?: boolean;
     }
 ): Promise<null | UserProfile>
 ```

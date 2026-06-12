@@ -5,8 +5,10 @@ Below are the parameters and return data type references for the methods in Type
 ## connectRealtime
 
 ```ts
-connectRealtime(cb: RealtimeCallback): Promise<WebSocket>
+connectRealtime(cb: RealtimeCallback): Promise<WebSocket | void>
 ```
+
+On the initial connection the returned promise resolves to `undefined` (the WebSocket is delivered through the callback `cb`). On subsequent calls it resolves to the already-established `WebSocket`.
 
 See [RealtimeCallback](/api-reference/data-types/README.md#realtimecallback)
 
@@ -78,8 +80,8 @@ joinRealtime(params: {
 
 ```ts
 getRealtimeGroups(params?: {
-        searchFor: 'group' | 'number_of_users';
-  value: string | number; // Group name or number of users
+        searchFor?: 'group' | 'number_of_users';
+  value?: string | number; // Group name or number of users
         condition?: '>' | '>=' | '=' | '<' | '<=' | '!=' | 'gt' | 'gte' | 'eq' | 'lt' | 'lte' | 'ne';
   range?: string | number; // Cannot be used with condition.
     } | null,
@@ -90,8 +92,8 @@ getRealtimeGroups(params?: {
 ## getRealtimeUsers
 
 ```ts
-getRealtimeUsers(params: {
-        group: string; // Group name
+getRealtimeUsers(params?: {
+        group?: string; // Group name. Defaults to the currently joined realtime group.
         user_id?: string; // User ID in the group
     },
     fetchOptions?: FetchOptions
@@ -122,7 +124,7 @@ connectRTC(
     } | MediaStream | MediaStreamConstraints;
     channels?: Array<RTCDataChannelInit | 'text-chat' | 'file-transfer' | 'video-chat' | 'voice-chat' | 'gaming'>;
   },
-  callback?: (e: RTCEvent) => void
+  callback: (e: RTCEvent) => void
 ): Promise<RTCConnector>
 ```
 
@@ -152,35 +154,35 @@ vapidPublicKey(): Promise<{ VAPIDPublicKey: string }>
 ## subscribeNotification
 
 ```ts
-subscribeNotification({
-  endpoint: string;
+subscribeNotification(
+  endpoint: string,
   keys: {
     p256dh: string;
     auth: string;
   }
-}): Promise<'SUCCESS: Subscribed to receive notifications.'>
+): Promise<'SUCCESS: Subscribed to receive notifications.'>
 ```
 
 ## unsubscribeNotification
 
 ```ts
-unsubscribeNotification({
-  endpoint: string;
+unsubscribeNotification(
+  endpoint: string,
   keys: {
     p256dh: string;
     auth: string;
   }
-}): Promise<'SUCCESS: Unsubscribed from notifications.'>
+): Promise<'SUCCESS: Unsubscribed from notifications.'>
 ```
 
 ## pushNotification
 
 ```ts
-pushNotification({
+pushNotification(
   params: {
     title: string;
     body: string;
   },
   user_ids?: string | string[]
-}): Promise<"SUCCESS: Notification sent.">
+): Promise<"SUCCESS: Notification sent.">
 ```

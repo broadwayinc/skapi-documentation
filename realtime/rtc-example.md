@@ -272,6 +272,7 @@ Because this is only a portion of the full repository and does not include suppo
                     state === "failed" ||
                     state === "closed"
                 ) {
+                    // This also fires when the callee rejects the call.
                     videoCallSection.hidden = true;
                     callList.hidden = false;
                 } else if (state === "connecting") {
@@ -329,11 +330,11 @@ Because this is only a portion of the full repository and does not include suppo
             `;
 
         document.getElementById("el_dl_calling").showModal();
+        // NOTE: On rejection, call.connection never resolves to a falsy value (it stays pending),
+        // so rejection is detected in RTCCallback via the connectionstatechange event
+        // ('disconnected' / 'failed' / 'closed') instead of awaiting a falsy result here.
         rtcConnection = await call.connection;
 
-        if (!rtcConnection) {
-            alert("Call rejected.");
-        }
         if (rtcConnection.media) {
             document.getElementById("local").srcObject = rtcConnection.media;
             document.getElementById("local").play();

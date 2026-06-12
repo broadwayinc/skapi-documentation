@@ -144,7 +144,7 @@ Because this is only a portion of the full repository and does not include suppo
                         }
                     },
                     source: {
-                        allow_multiple_reference: false // For each posts, we will allow posting only one reference per user. This will allow us to restrict users to like only once per post.
+                        prevent_multiple_referencing: true // Restricts each user to one reference (one like) per post.
                     },
                     progress: p => {
                         // When the file is uploading, we will set the value of the postButton to the progress percentage.

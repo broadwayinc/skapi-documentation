@@ -47,7 +47,8 @@ postRecord(
         reference?: string; // Reference to another record. When value is given, it will reference the record with the given value. Can be record ID or unique ID.
         remove_bin?: BinaryFile[] | string[] | null; // If the BinaryFile object or the url of the file is given, it will remove the bin data(files) from the record. The file should be uploaded to this record. If null is given, it will remove all the bin data(files) from the record. (not available to anonymous users)
         progress?: ProgressCallback; // Progress callback function. Useful when uploading files.
-    };
+    },
+    files?: { name: string; file: File }[] // Files to attach to the record.
 ): Promise<RecordData>
 ```
 
@@ -66,7 +67,7 @@ getRecords(
         unique_id?: string; // Unique ID of the record. When unique ID is given, it will fetch the record with the given unique ID. All other parameters are bypassed.
         /** When the table is given as a string value, the given value will be set as table.name and table.access_group will be 'public' **/
         /** 'table' is optional when 'record_id' or 'unique_id' is used. */
-        table: {
+        table?: string | {
             name: string, // 1..128 chars. Blocks control chars and sentinel U+10FFFF.
             access_group?: number | 'private' | 'public' | 'authorized' | 'admin'; // 0 to 99 if using number. Default: 'public'
             subscription?: string; // User ID that requester is subscribed to. (eg. "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")
@@ -77,7 +78,7 @@ getRecords(
          * When record ID is given, it will fetch the records referencing the given record ID.
          * When user ID is given, it will fetch the records uploaded by the given user ID.
          */
-        reference?: string;
+        reference?: string | { record_id?: string; unique_id?: string; user_id?: string };
 
         index?: {
             /** Reserved names: '$updated' | '$uploaded' | '$referenced_count' | '$user_id'. */
@@ -142,7 +143,7 @@ removePrivateRecordAccess(
         record_id: string;
         user_id: string | string[];
     }
-): Promise<'SUCCESS: granted x users private access to record: xxxx...'>
+): Promise<string>
   
 ```
 
@@ -191,8 +192,8 @@ See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
 
 ```ts
 deleteRecords({
-    record_id?: string | string[]; // Record ID or an array of record IDs to delete. When record ID is given, it will delete the record with the given record ID. It will bypass all other parameters and will override unique ID.
-    unique_id?: string | string[]; // Unique ID or an array of unique IDs to delete. When unique ID is given, it will delete the record with the given unique ID. It will bypass all other parameters except record_id.
+    record_id?: string; // Record ID to delete. When record ID is given, it will delete the record with the given record ID. It will bypass all other parameters and will override unique ID.
+    unique_id?: string; // Unique ID to delete. When unique ID is given, it will delete the record with the given unique ID. It will bypass all other parameters except record_id.
 
     /** Delete bulk records by query. Query will be bypassed when "record_id" is given. */
     /** When deleteing records by query, It will only delete the record that user owns. */
@@ -201,11 +202,7 @@ deleteRecords({
     table: string | {
         name: string,
         access_group?: number | 'private' | 'public' | 'authorized' | 'admin'; // 0 to 99 if using number. Default: 'public'
-        subscription?: {
-            user_id: string;
-            /** Number range: 0 ~ 99 */
-            group: number;
-        };
+        subscription?: string; // User ID that requester is subscribed to. (eg. "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")
     };
 
     /**
@@ -221,7 +218,7 @@ deleteRecords({
         /** Custom names: 1..128 chars, block control chars and sentinel U+10FFFF, and cannot start with '$'. */
         name: string | '$updated' | '$uploaded' | '$referenced_count' | '$user_id';
         value: string | number | boolean; // String value: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
-        condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // cannot be used with range. Default: '='
+        condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '='; // cannot be used with range. Default: '='
         range?: string | number | boolean; // String range: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
     };
 
@@ -233,8 +230,8 @@ deleteRecords({
 
 ```ts
 getTables(
-    query: {
-        table: string;
+    query?: {
+        table?: string; // If omitted, fetches the full list of tables.
         condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '=';
     },
     fetchOptions?: FetchOptions;
@@ -253,7 +250,7 @@ getIndexes(
         table: string;
         index?: string; // 1..128 chars for custom names; blocks control chars and sentinel U+10FFFF, cannot start with '$'.
         order?: {
-            by: 'average_number' | 'total_number' | 'number_count' | 'average_bool' | 'total_bool' | 'bool_count' | 'string_count' | 'index_name';
+            by: 'average_number' | 'total_number' | 'number_count' | 'average_bool' | 'total_bool' | 'bool_count' | 'string_count' | 'index_name' | 'number_of_records';
             value?: number | boolean | string;
             condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '=';
         };
@@ -270,8 +267,8 @@ See [Index](/api-reference/data-types/README.md#index)
 
 ```ts
 getTags(
-    query: {
-        table: string; // 1..128 chars. Blocks control chars and sentinel U+10FFFF.
+    query?: {
+        table?: string; // 1..128 chars. Blocks control chars and sentinel U+10FFFF.
         tag?: string; // 1..64 chars. Blocks control chars and sentinel U+10FFFF.
         condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '=';
     },
@@ -289,7 +286,7 @@ See [Tag](/api-reference/data-types/README.md#tag)
 getUniqueId(
     query: {
         unique_id?: string;
-        condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '=';
+        condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!=';
     },
     fetchOptions?: FetchOptions;
 ): Promise<DatabaseResponse<UniqueId>>

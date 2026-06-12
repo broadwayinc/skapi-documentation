@@ -68,7 +68,7 @@ See the tutorial [Introduction](/full-example/intro.html) for more information.
                     name: 'posts',
                     access_group: input_private.checked ? 'private' : 'authorized' // Depending on the checkbox, we will set the access_group to private or authorized.
                 },
-                reference: {
+                source: {
                     prevent_multiple_referencing: true // We will allow only one reference per post. This will allow us to restrict users to like only once per post.
                 },
                 progress: p => {
@@ -406,7 +406,7 @@ See the tutorial [Introduction](/full-example/intro.html) for more information.
             <img src='${p.bin.pic[0].url}'>
 
             <div class='spaceBetween'>
-                <small>Liked: <span id="span_likedCount-${p.record_id}">${p.reference.referenced_count}</span></small>
+                <small>Liked: <span id="span_likedCount-${p.record_id}">${p.referenced_count}</span></small>
                 
                 <!--
                     Following <strong> tag will allow the user to like the post.

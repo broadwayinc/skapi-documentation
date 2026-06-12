@@ -136,12 +136,12 @@ User must have access to the record in order to download the file.
 -   `text`: Downloads the file as text string.
 -   `info`: Returns file information.
 
-The method has three arguments:
+The `getFile()` method on the [BinaryFile](/api-reference/data-types/README.md#binaryfile) object takes two arguments:
 
--   `url`: The URL or file reference to download.
--   `config`: Optional configuration object with:
-    -   `dataType`: Type of download - `blob`, `base64`, `endpoint`, `text`, `info` or `download`. Defaults to `download`
--   `progressCallback`: Optional progress callback function. Useful when downloading large files as blob to show progress bar. (Will not work with `endpoint` or `download` types.)
+-   `dataType`: Type of download - `blob`, `base64`, `endpoint`, `text`, `info` or `download`. Defaults to `download`.
+-   `progress`: Optional progress callback function. Useful when downloading large files as blob to show progress bar. (Will not work with `endpoint` or `download` types.)
+
+Alternatively, you can call the standalone [`skapi.getFile()`](/api-reference/database/README.md#getfile) method with the file's endpoint URL: `skapi.getFile(url, config?)`. Here `url` is the file's endpoint URL and `config` is an optional object that holds `dataType` (same values as above), `progress` (the progress callback), and `expires` (use a URL that expires in the given number of seconds; useful for private files).
 
 If the file has private access restriction, you must use the `endpoint` type to get the file endpoint URL.
 The endpoint URL will be a signed URL that can expire after a certain amount of time.

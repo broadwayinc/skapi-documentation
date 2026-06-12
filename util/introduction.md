@@ -156,7 +156,7 @@ Computes the MD5 hash of a string.
 
 Example:
 ```js
-let md5String = skapi.util.md5.hash("string to hash"); // outputs string
+let md5String = skapi.util.MD5.hash("string to hash"); // outputs string
 ```
 
 ## Random String Generator

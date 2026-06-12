@@ -114,7 +114,7 @@ skapi.getRecords(query, fetchOptions).then(res=>{
 
     fetchOptions.fetchMore = true;
     if(confirm('Fetch more records?')) {
-        skapi.getUsers(query, fetchOptions)
+        skapi.getRecords(query, fetchOptions)
             .then(res=>{
                 console.log(res.list); // List of the next 100 data from the database.
             }

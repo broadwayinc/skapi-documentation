@@ -63,7 +63,7 @@ let parameters = {
     password: "password",
 };
 
-skapi.login(parameters).then((user) => (window.href = "welcome.html"));
+skapi.login(parameters).then((user) => (window.location.href = "welcome.html"));
 ```
 
 :::
@@ -81,7 +81,7 @@ To ensure that users' sessions are destroyed when they leave your website, you c
 
 ```javascript
 const options = {
-    autoLogin: false, // set to true to maintain the user's session
+    autoLogin: false, // session is destroyed when the user leaves; omit or set true (the default) to keep the session.
 };
 
 //Set the third argument as options

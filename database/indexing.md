@@ -274,9 +274,9 @@ The index information includes:
 - `number_count`: The total number of records with number as the index value.
 - `average_bool`: The rate of true values for booleans.
 - `total_bool`: The total number of true values for booleans.
-- `bool_count`: The total number of records with boolean as the index value.
+- `boolean_count`: The total number of records with boolean as the index value.
 - `string_count`: The total number of records with string as the index value.
-- `index_name`: The name of the index.
+- `index`: The name of the index. (`index_name` is only valid as an `order.by` key.)
 
 
 For example, let say we have a table called "VoteBoard" that lets user upload records with a compound index name such as "Vote.Beer".
