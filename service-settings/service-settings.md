@@ -64,7 +64,8 @@ This is useful when you are not planning to use the [`sendInquiry()`](/api-refer
 
 ## Freeze Database
 
-You can freeze your database to prevent any write operations.
+You can freeze your database to prevent write operations by non-admin users.
 
-When you freeze your database, all your user's write operations will be blocked, and only the read operations will be allowed.
-When this in enabled only the service owner can write to the database.
+When the database is frozen, all users with an access level below 99 will be blocked from performing write operations. Only read operations will be allowed.
+
+When this is enabled, only the service owner can write to the database.
