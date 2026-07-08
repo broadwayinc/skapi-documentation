@@ -8,7 +8,7 @@ Below are the parameters and return data type references for the methods in Type
 postRecord(
     data: SubmitEvent | { [key: string] : any } | null | undefined,
     config: {
-        record_id?: string; // Used only when updating an existing record; not available to anonymous users.
+        record_id?: string; // Used only when updating an existing record; not available to anonymous users. This can also be a unique ID if the record was created with one.
         unique_id?: string; // Unique ID to set to the record; not available to anonymous users. If null is given, it will remove the previous unique ID when updating.
         /** When the table is given as a string value, the value is the table name. */
         /** 'table.name' is optional when 'record_id' or 'unique_id' is used. */
