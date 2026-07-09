@@ -153,6 +153,7 @@ class Skapi {
     service: string, // Skapi service ID
     options?: {
         autoLogin?: boolean;        // Default: true
+        refetchServiceInfo?: boolean;// Default: false. Bypasses cached service info and always fetch new service info on load.
         requestBatchSize?: number;  // Default: 30. Maximum number of requests processed per batch.
         eventListener?: {
             onLogin?: (user: UserProfile | null) => void; // Fires on initial page load (after Skapi initializes), on login/logout, and when a session expires. The callback receives a UserProfile object if the user is logged in; otherwise, it receives null.
