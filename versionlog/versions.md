@@ -1,6 +1,33 @@
 # Version History
 
-### Current version: 1.6.0
+### Current version: 1.7.1
+
+**1.7.1**
+
+- `postRecord()` and `bulkPostRecords()` now accept a unique ID in place of `record_id` when updating a record. A locally known unique ID is resolved to its record ID on the client; otherwise the value is passed through for the server to resolve.
+
+**1.7.0**
+
+- Added the `refetchServiceInfo` class initialization option. When `true`, cached service info is bypassed and fresh service info is fetched on load.
+- Fixed a bug where large bulk uploads could fail while persisting the local unique-ID map. Writes to session storage are now debounced and guarded, so a full or unavailable session storage no longer interrupts an upload.
+
+**1.6.3**
+
+- Added routing for the file text-extraction endpoint, enabling server-side text extraction from uploaded files.
+
+**1.6.2**
+
+- `getRecords()` `table` parameter now accepts a plain string as shorthand for `{ name: <table> }`.
+- `getRecords()` `reference` parameter now accepts an object form `{ record_id?, unique_id?, user_id? }` in addition to a string.
+- `getUniqueId()` `condition` now supports `'ne'` / `'!='` for negated matching, and its parameters are now optional.
+- `subscribeNewsletter()` `email` now accepts an array to subscribe multiple addresses at once.
+- New searchable index values: `access_group` in `getUsers()`, `bounced` in newsletter queries, and `number_of_records` in `getTables()`.
+- `getRealtimeUsers()` `group` is now optional and defaults to the realtime group the user is currently joined to.
+- Corrected many type declarations to match runtime behavior, making previously required parameters optional across `getTables()`, `getTags()`, `getProfile()`, `getInvitations()`, `getRealtimeGroups()`, `inviteUser()`, `createAccount()`, and others.
+
+**1.6.1**
+
+- `getConnectionInfo()` now returns a `conf` object exposing service flags: `freeze_database`, `prevent_signup`, `prevent_inquiry`, and `prevent_anonymous`.
 
 **1.6.0**
 
