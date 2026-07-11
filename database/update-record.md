@@ -8,6 +8,20 @@ The [`postRecord()`](/api-reference/database/README.md#postrecord) method can al
 For record config parameters, you only need to include the parameters you want to update along with the `record_id` parameter.
 All other fields in the record will remain unchanged unless explicitly included in the method call.
 
+:::tip
+The `record_id` parameter also accepts a [Unique ID](/database/unique-id.md). If a record was created with a unique ID, you can pass that value as `record_id` to update the same record, without having to look up its system generated `record_id` first.
+
+```js
+let config = {
+  record_id: 'my_unique_id' // a Unique ID previously assigned to the record
+};
+
+skapi.postRecord({ newData: "Updated by Unique ID." }, config).then(record => {
+  console.log(record);
+});
+```
+:::
+
 :::warning
 Users must be logged in to update a record.
 :::
