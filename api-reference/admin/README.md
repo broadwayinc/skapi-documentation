@@ -120,6 +120,40 @@ createAccount(
 
 See [UserProfile](/api-reference/data-types/README.md#userprofile).
 
+## updateUserAttributes
+
+```ts
+updateUserAttributes(
+    params: {
+        user_id: string; // Required. The ID of the user whose attributes will be updated.
+        name?: string;
+        email?: string; // The email the user signs in with. Also updates the alternative sign-in lookup.
+        phone_number?: string;
+        address?: string | {
+            formatted: string;
+            locality: string;
+            region: string;
+            postal_code: string;
+            country: string;
+        };
+        gender?: string;
+        birthdate?: string;
+        misc?: string;
+        picture?: string;
+        profile?: string;
+        website?: string;
+        nickname?: string;
+        email_public?: boolean; // When set to true, email attribute is visible to others.
+        phone_number_public?: boolean; // When set to true, phone_number attribute is visible to others.
+        address_public?: boolean; // When set to true, address attribute is visible to others.
+        gender_public?: boolean; // When set to true, gender attribute is visible to others.
+        birthdate_public?: boolean; // When set to true, birthdate attribute is visible to others.
+    }
+): Promise<'SUCCESS: User attributes updated.'>
+```
+
+At least one attribute must be provided in addition to the required `user_id`.
+
 ## deleteAccount
 
 ```ts

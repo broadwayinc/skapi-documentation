@@ -84,6 +84,48 @@ And the user will be able to log in with the created email and password right aw
 For more detailed information on all the parameters and options available with the [`createAccount()`](/api-reference/admin/README.md#createaccount) method.
 
 
+## Updating User Attributes
+
+Admins can update any user's profile attributes by using the [`updateUserAttributes()`](/api-reference/admin/README.md#updateuserattributes) method.
+
+You must provide the target user's `user_id`, along with at least one attribute to update. Any attribute you omit is left unchanged.
+
+When the request is successful, the string "SUCCESS: User attributes updated." is returned.
+
+:::code-group
+```html [Form]
+<form onsubmit="skapi.updateUserAttributes(event).then(response => console.log(response))">
+    <input name="user_id" placeholder="User ID" required/>
+    <input name="name" placeholder="Name"/>
+    <input name="misc" placeholder="Misc"/>
+    <input type="submit" value="Update Attributes" />
+</form>
+```
+
+```js [JS]
+skapi.updateUserAttributes(
+    {
+        user_id: 'xxx...', // User ID to update.
+        name: 'New Name',
+        misc: 'Updated by admin'
+    },
+).then(response => {
+    console.log(response);
+    /*
+    Returns:
+    "SUCCESS: User attributes updated."
+    */
+});
+```
+:::
+
+The updatable attributes are the same profile attributes used in [`createAccount()`](/api-reference/admin/README.md#createaccount): `name`, `email`, `phone_number`, `address`, `gender`, `birthdate`, `misc`, `picture`, `profile`, `website`, `nickname`, and the `*_public` visibility flags.
+
+:::warning
+Updating the `email` attribute changes the address the user signs in with. This admin method sets the value directly and does not change the user's `email_verified` or `phone_number_verified` state, so make sure the new value is correct before setting the matching `email_public` or `phone_number_public` flag.
+:::
+
+
 ## Deleting User Accounts
 
 Admins can delete user accounts by using the [`deleteAccount()`](/api-reference/admin/README.md#deleteaccount) method.
