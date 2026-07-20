@@ -62,6 +62,75 @@ A request enters `running` or `pending` only when either `params.queue` (queue n
 :::
 
 
+## Stopping Polling
+
+Polling and the request itself are separate things. `stopClientSecretPolling()` stops *watching* a
+request; the server keeps working on it, and you can pick the result up later.
+
+This matters because polling is real network traffic. A long-running request polled every second keeps
+issuing calls for as long as it takes, whether or not anyone is looking at the result. Stop polling when
+the user navigates away or the tab is hidden, and start again when they come back.
+
+```js
+// Stop watching one request. It keeps running on the server.
+skapi.stopClientSecretPolling({
+    url: 'https://api.openai.com/v1/images/generations',
+    method: 'POST',
+    id: 'stamp:entropy'   // the id from the clientSecretRequest response
+});
+
+// Stop every poll on a queue.
+skapi.stopClientSecretPolling({ queue: 'image-queue' });
+
+// Stop everything this client is polling.
+skapi.stopClientSecretPolling();
+```
+
+Each call returns how many polls it stopped.
+
+### Handling a stopped poll
+
+A stopped poll **resolves** with `{ id, status: 'stopped' }` rather than rejecting, so `await` sites do
+not need a `catch`. Its `onResponse` and `onError` callbacks are **not** called, because a stop is not a
+result. Use `isPollStopped()` to tell the two apart:
+
+```js
+const res = await skapi.clientSecretRequest({ /* ... */ });
+
+const result = await res.poll({ latency: 2000 });
+
+if (skapi.isPollStopped(result)) {
+    // We stopped watching. Nothing failed, and the request may still be running.
+    return;
+}
+
+console.log('Done:', result);
+```
+
+### Resuming
+
+There is nothing to resume, as such — just poll again. Fetch the request from
+[`clientSecretRequestHistory()`](/api-reference/api-bridge/README.md#clientsecretrequesthistory) and call
+`poll()` on it. If it finished while you were not watching, the history entry already carries the result.
+
+```js
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+        skapi.stopClientSecretPolling({ queue: 'image-queue' });
+    }
+});
+```
+
+### [`stopClientSecretPolling(params?): number`](/api-reference/api-bridge/README.md#stopclientsecretpolling)
+
+### [`isPollStopped(res): boolean`](/api-reference/api-bridge/README.md#ispollstopped)
+
+:::tip
+Requests sharing a queue are polled **one at a time**. A request that never settles therefore holds up
+every poll queued behind it, so stopping it also unblocks the rest. Stopping a request that has not
+started yet removes it from the queue entirely, freeing the slot immediately.
+:::
+
 ## Cancelling a Request
 
 To cancel a pending request before it is processed, call [`cancelClientSecretRequest()`](/api-reference/api-bridge/README.md#cancelclientsecretrequest):
@@ -78,6 +147,12 @@ console.log(result.removed); // true if successfully removed
 ```
 
 Provide `queue` when the original request was submitted with a queue name. This removes the pending job from the client-side queue in addition to cancelling it on the server.
+
+:::info
+`cancelClientSecretRequest()` cancels the **request**. [`stopClientSecretPolling()`](#stopping-polling)
+only stops **watching** it — the request carries on and its result stays available. Use cancel when the
+work is no longer wanted, and stop-polling when only the traffic is.
+:::
 
 ### [`cancelClientSecretRequest(params): Promise<{ removed: boolean; message: string }>`](/api-reference/api-bridge/README.md#cancelclientsecretrequest)
 
