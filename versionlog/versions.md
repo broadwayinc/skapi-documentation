@@ -1,6 +1,14 @@
 # Version History
 
-### Current version: 1.7.1
+### Current version: 1.7.7
+
+**1.7.7**
+
+- Added `stopClientSecretPolling()` to stop polling for client-secret requests without cancelling them. The request continues on the server; only the client stops asking. Stop a single request by `id`, a whole queue by `queue`, or every live poll by passing no arguments. Returns the number of polls stopped.
+- Added `isPollStopped()` to tell a stopped poll apart from a real API result.
+- The promise returned by `poll()` now carries a `stop()` method that stops that one poll.
+- A stopped poll resolves with `{ id, status: 'stopped' }` instead of rejecting, and its `onResponse` / `onError` callbacks are not called. Stopping a request that is still waiting in a queue also removes it from that queue, freeing the slot for the next request.
+- Backend (ships with the API, not the SDK): `queue_name` is now the plain queue name on every response that carries it. Polling a single request previously returned the internal queue id (`"<service>:<queue>|<sequence>"`) in that field, while history listings returned the plain name.
 
 **1.7.1**
 

@@ -34,12 +34,9 @@ clientSecretRequest(
 - When `poll` is `0` or omitted, the promise resolves with the status object plus a `poll()` method. Call `poll()` to start polling; results come via `onResponse`/`onError`.
 - The promise returned by `poll()` also carries a `stop()` method that stops that one poll. See [stopClientSecretPolling](#stopclientsecretpolling).
 
-:::warning
-`queue_name` is not formatted consistently across responses. This response and
-`clientSecretRequestHistory()` results both give the plain queue name (e.g. `"image-queue"`),
-but the object a `poll()` resolves with gives the **internal queue id** instead
-(`"<service>:<queue>|<sequence>"`). Parse the queue name out of it rather than comparing the
-whole string.
+:::info
+`queue_name` is the plain queue name (e.g. `"image-queue"`) on every response that carries it —
+this one, `clientSecretRequestHistory()` results, and the object a `poll()` resolves with.
 :::
 
 ## clientSecretRequestHistory
