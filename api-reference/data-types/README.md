@@ -370,7 +370,8 @@ type RequestHistory = {
     status_code: number; // http status code of the request
     response_body: any;
     error?: any;
-    updated: number; // timestamp of the last update of the request status in milliseconds
+    created: number; // timestamp of when the request was created, in milliseconds. Set once and never changes.
+    updated: number; // timestamp of the last update of the request status (e.g. when the response arrived), in milliseconds.
     request_body: any;
     expires?: number; // timestamp of when the request history will be deleted in epoch time (seconds).
     status: 'pending' | 'running' | 'resolved' | 'failed';

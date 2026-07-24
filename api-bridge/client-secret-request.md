@@ -57,3 +57,54 @@ When using `clientSecretRequest()`, include the `$CLIENT_SECRET` placeholder in 
 For full parameter details, see the API reference below:
 
 ### [`clientSecretRequest(params): Promise<any>`](/api-reference/api-bridge/README.md#clientsecretrequest)
+
+## Polling for the Result
+
+Some third-party APIs are slow, or must be rate-limited so requests do not run in parallel. For these, run the request through a **queue** and **poll** for the result instead of waiting on a single response.
+
+- Set `poll` to a polling interval in milliseconds (a non-negative number). When `poll > 0`, the request is queued, the promise resolves immediately with a status object (`id`, `status`, `queue_name`, `in_queue`), and the final result is delivered to your `onResponse` (or `onError`) callback once it is ready.
+- When `poll` is `0` or omitted, the returned status object also carries a `poll()` method you can call to start polling manually.
+- Add a `queue` name so requests sharing the same `url`, `method`, and `queue` are processed one at a time on the server.
+
+```js
+skapi.clientSecretRequest({
+    clientSecretName: 'YourSecretKeyName',
+    url: 'https://third.party.com/api',
+    method: 'POST',
+    queue: 'my-queue',
+    poll: 1000, // check every second
+    headers: { Authorization: 'Bearer $CLIENT_SECRET' },
+    onResponse: (res) => console.log('final result', res),
+    onError: (err) => console.error(err)
+});
+```
+
+To stop watching a poll without cancelling the running request, use [`stopClientSecretPolling()`](/api-reference/api-bridge/README.md#stopclientsecretpolling); pick the result back up later by polling again. A stopped poll resolves with `{ status: 'stopped' }`, which [`isPollStopped()`](/api-reference/api-bridge/README.md#ispollstopped) detects.
+
+## Request History
+
+[`clientSecretRequestHistory()`](/api-reference/api-bridge/README.md#clientsecretrequesthistory) returns the past requests for a given `url` and `method` as a paginated list of [`RequestHistory`](/api-reference/data-types/README.md#requesthistory) items. Each item includes the `request_body`, the `response_body`, the `status`, and two timestamps in milliseconds: `created` (when the request was made) and `updated` (the most recent status change, i.e. when the response arrived for a settled request).
+
+```js
+skapi.clientSecretRequest({
+    clientSecretName: 'YourSecretKeyName',
+    url: 'https://third.party.com/api',
+    method: 'POST',
+    headers: { Authorization: 'Bearer $CLIENT_SECRET' }
+}).then(() => skapi.clientSecretRequestHistory({
+    url: 'https://third.party.com/api',
+    method: 'POST'
+})).then((history) => {
+    for (const req of history.list) {
+        console.log(req.created, req.updated, req.status);
+    }
+});
+```
+
+## Related Methods
+
+- [`clientSecretRequestHistory(params, fetchOptions)`](/api-reference/api-bridge/README.md#clientsecretrequesthistory) — list past requests (see above).
+- [`cancelClientSecretRequest(params)`](/api-reference/api-bridge/README.md#cancelclientsecretrequest) — cancel a queued or running request and remove it from the client-side queue.
+- [`stopClientSecretPolling(params?)`](/api-reference/api-bridge/README.md#stopclientsecretpolling) — stop polling locally without cancelling the request.
+- [`isPollStopped(res)`](/api-reference/api-bridge/README.md#ispollstopped) — tell a stopped-poll result apart from a real API response.
+- [`clientSecretRequestQueueCount(params)`](/api-reference/api-bridge/README.md#clientsecretrequestqueuecount) — how many requests are waiting in a named queue.
