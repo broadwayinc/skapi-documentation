@@ -40,7 +40,7 @@ postRecord(
                 name: string; // 1..128 chars. Blocks control chars and sentinel U+10FFFF, and cannot start with '$'.
                 value?: string | number | boolean; // String value: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
                 range?: string | number | boolean; // String range: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
-                condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // Allowed index value condition
+                condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // Allowed index value condition. Checked when a referencing record is posted: on a string value '>=' is a 'starts with' check, while '<=' is a plain 'lesser or equal' comparison and is not 'ends with'.
             }[] | null;
             allow_granted_to_grant_others?: boolean; // When true, the user who has granted private access to the record can grant access to other users.
         };
@@ -85,6 +85,7 @@ getRecords(
             /** Custom names: 1..128 chars, block control chars and sentinel U+10FFFF, and cannot start with '$'. */
             name: string | '$updated' | '$uploaded' | '$referenced_count' | '$user_id';
             value: string | number | boolean; // String value: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
+            /** For a string value: '>=' = 'starts with', '<=' = 'ends with'. When the name is a compound name ending in '.', '>=' / '<=' match the child name segment (starts / ends with). '>' / '<' are lexicographic; numbers/booleans compare normally. */
             condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '='; // cannot be used with range. Default: '='
             range?: string | number | boolean; // String range: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
         };
@@ -218,6 +219,7 @@ deleteRecords({
         /** Custom names: 1..128 chars, block control chars and sentinel U+10FFFF, and cannot start with '$'. */
         name: string | '$updated' | '$uploaded' | '$referenced_count' | '$user_id';
         value: string | number | boolean; // String value: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
+        /** For a string value: '>=' = 'starts with', '<=' = 'ends with'. When the name is a compound name ending in '.', '>=' / '<=' match the child name segment (starts / ends with). '>' / '<' are lexicographic; numbers/booleans compare normally. */
         condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '='; // cannot be used with range. Default: '='
         range?: string | number | boolean; // String range: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
     };

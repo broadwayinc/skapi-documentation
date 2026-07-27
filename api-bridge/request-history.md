@@ -14,6 +14,24 @@ const history = await skapi.clientSecretRequestHistory({
 console.log(history.list); // RequestHistory[]
 ```
 
+## Timestamps
+
+Every [`RequestHistory`](/api-reference/data-types/README.md#requesthistory) item carries two timestamps, both in milliseconds:
+
+- `created`: when the request was made. It is set once and never changes, so it is the value to sort or display a request list by.
+- `updated`: when the request status last changed. For a request that has settled (`resolved` or `failed`) this is when its response arrived, so `updated - created` is how long the third-party API took.
+
+```js
+const history = await skapi.clientSecretRequestHistory({
+    url: 'https://api.openai.com/v1/images/generations',
+    method: 'POST'
+});
+
+for (const item of history.list) {
+    console.log(new Date(item.created), item.status, item.updated - item.created + 'ms');
+}
+```
+
 ## Polling History Items
 
 Items with `status: 'running'` or `status: 'pending'` include a `poll()` method. Call it to start polling that specific item:

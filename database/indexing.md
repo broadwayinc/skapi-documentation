@@ -71,6 +71,7 @@ When the index value type is `number` or `boolean`, conditions work as they do w
 
 When the index value type is `string`, `>` and `<` will search for strings that are higher or lower in the lexicographical order, respectively.
 `>=` (more than or equal to) acts as a 'starts with' operation when searching for string values.
+`<=` (less than or equal to) acts as an 'ends with' operation when searching for string values.
 
 The `condition` parameter takes the following string values:
 
@@ -78,7 +79,28 @@ The `condition` parameter takes the following string values:
 - `>=`: Greater or equal to the given value. When the value is `string`, it works as 'starts with' condition.
 - `=`: Equal to the given value. (default)
 - `<`: Lesser than the given value.
-- `<=`: Lesser or equal to the given value.
+- `<=`: Lesser or equal to the given value. When the value is `string`, it works as 'ends with' condition.
+
+### Ends with (string values)
+
+When the index value is a `string`, use `condition: '<='` to fetch every record whose index value **ends with** the given value:
+
+```js
+skapi.getRecords({
+    table: 'Fruits',
+    index: {
+        name: 'file',
+        value: '.pdf',
+        condition: '<=' // Ends with ".pdf"
+    }
+});
+```
+
+To end-with-match the leaf value of a compound (dot-delimited) index name, see [Ends with on the value of a compound index](#ends-with-on-the-value-of-a-compound-index).
+
+:::tip
+'ends with' only searches records that were saved (or last updated) after your service enabled the feature. Existing records become searchable once they are next posted/updated, or after a one-time backfill.
+:::
 
 
 :::warning
@@ -236,6 +258,27 @@ skapi.getRecords({
 In this example, the `value` of the index is set to "Asian" and the `condition` is set to "more than or equal".
 This allows you to query all artist names starting with "Asian" where the index `name` begins with "Band."
 
+Just as `>=` matches the child name from the **start**, `<=` matches it from the **end**. Use `condition: '<='` to query all albums whose band name **ends with** a value:
+
+```js
+skapi.getRecords({
+    table: {name: 'Albums', access_group: 'public'},
+    index: {
+        name: 'Band.',
+        value: 'House',
+        condition: '<=' // Ends with
+    }
+}).then(response=>{
+    console.log(response.list); // All albums by "Band" with band name ending with 'House'
+})
+```
+
+Here the index `name` begins with "Band." and the `value` is "House", so this returns every band whose name ends with "House" (for example, "AsianSpiceHouse" or "SpiceHouse").
+
+:::tip
+'ends with' only searches records that were saved (or last updated) after your service enabled the feature. Existing records become searchable once they are next posted/updated, or after a one-time backfill.
+:::
+
 
 ### Querying with full compound index name
 
@@ -260,6 +303,29 @@ When querying the child index names from the compound index, you need to specify
 From the example above, you cannot simply use **'Band.year'** as an index name to query by the year values.
 You must provide the full **'Band.AsianSpiceHouse.year'** as an index name if you want to query the actual value of the index.
 :::
+
+### Ends with on the value of a compound index
+
+The `Band.` query above ends-with-matches the child **name** segment. To instead end-with-match the leaf **value** under a compound index, pass the **full** compound name (no trailing period) together with a string value and `condition: '<='`:
+
+```js
+// posted with index { name: 'Band.AsianSpiceHouse.title', value: 'Dukkha (Live)' }
+skapi.getRecords({
+    table: {name: 'Albums', access_group: 'public'},
+    index: {
+        name: 'Band.AsianSpiceHouse.title', // full compound name (no trailing period)
+        value: '(Live)',                     // ends-with matches the leaf value
+        condition: '<=' // Ends with
+    }
+}).then(response=>{
+    console.log(response.list); // Albums whose title value ends with '(Live)'
+})
+```
+
+So with a compound index name, the position of the period decides what `<=` matches:
+
+- a **trailing** period (`Band.`) ends-with-matches the next **name** segment;
+- the **full** name (`Band.AsianSpiceHouse.title`) ends-with-matches the leaf **value**.
 
 ## Fetching Index Information
 

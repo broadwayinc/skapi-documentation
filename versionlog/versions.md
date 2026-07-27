@@ -1,6 +1,11 @@
 # Version History
 
-### Current version: 1.7.7
+### Current version: 1.8.0
+
+**1.8.0**
+
+- `getRecords()` and `deleteRecords()`: `condition: '<='` on a `string` index value is now an **'ends with'** search. It was a lexicographic 'lesser or equal' comparison before, so any query that relied on the old meaning has to be rewritten. `>=` is unchanged and still means 'starts with', `>` and `<` are still lexicographic, and `number` / `boolean` values compare as before. When the index `name` is a compound name ending in a period, `>=` and `<=` match the child name segment from its start and its end respectively. This behavior is served by the API, so it applies to every client version; the SDK type declarations were updated to describe it. See [Indexing](/database/indexing.html#ends-with-string-values).
+- `clientSecretRequestHistory()` items, and the object a `poll()` resolves with, now carry a `created` timestamp: the time the request was made, in milliseconds, set once and never changed. `updated` keeps its meaning as the time of the most recent status change, which for a settled request is when its response arrived. See [Fetching Request History](/api-bridge/request-history.html).
 
 **1.7.7**
 

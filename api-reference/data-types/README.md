@@ -59,6 +59,12 @@ type BinaryFile = {
 type Condition = 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '=';
 ```
 
+In a record index query ([`getRecords()`](/api-reference/database/README.md#getrecords) and [`deleteRecords()`](/api-reference/database/README.md#deleterecords)), a `string` index value gives `>=` and `<=` a search meaning: `>=` matches values that **start with** the given value, and `<=` matches values that **end with** it.
+`>` and `<` remain lexicographic, and `number` / `boolean` values compare normally.
+See [Indexing](/database/indexing.md#ends-with-string-values).
+
+The 'ends with' behavior is specific to the record index query. The other methods that accept a `Condition` ([`getTables()`](/api-reference/database/README.md#gettables), [`getTags()`](/api-reference/database/README.md#gettags), [`getIndexes()`](/api-reference/database/README.md#getindex), and [`getUniqueId()`](/api-reference/database/README.md#getuniqueid)) treat `<=` as a plain 'lesser or equal' comparison.
+
 ## Connection
 
 ```ts
@@ -184,6 +190,7 @@ type GetRecordQuery = {
         name: string | '$updated' | '$uploaded' | '$referenced_count' | '$user_id';
         /** String value max 256 chars. Blocks control chars and sentinel 􏿿. */
         value: string | number | boolean;
+        /** For a string value: '>=' = 'starts with', '<=' = 'ends with'. When the name is a compound name ending in '.', '>=' / '<=' match the child name segment (starts / ends with). '>' / '<' are lexicographic; numbers/booleans compare normally. */
         condition?: Condition;
         range?: string | number | boolean;
     };
@@ -271,7 +278,7 @@ type PostRecordConfig = {
             name: string; // Allowed index name
             value?: string | number | boolean; // Allowed index value
             range?: string | number | boolean; // Allowed index range
-            condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // Allowed index value condition
+            condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // Allowed index value condition. Checked when a referencing record is posted: on a string value '>=' is a 'starts with' check, while '<=' is a plain 'lesser or equal' comparison and is not 'ends with'.
         }[] | null;
         allow_granted_to_grant_others?: boolean; // When true, the user who has granted private access to the record can grant access to other users.
     };
@@ -347,7 +354,7 @@ type RecordData = {
             name: string; // Allowed index name
             value?: string | number | boolean; // Allowed index value
             range?: string | number | boolean; // Allowed index range
-            condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // Allowed index value condition
+            condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // Allowed index value condition. Checked when a referencing record is posted: on a string value '>=' is a 'starts with' check, while '<=' is a plain 'lesser or equal' comparison and is not 'ends with'.
         }[];
     };
     reference?: string; // record id of the referenced record.
