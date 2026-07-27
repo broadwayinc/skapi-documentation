@@ -67,7 +67,7 @@ skapi.getRecords({
 
 The index value can be of type `number`, `string`, or `boolean`.
 
-When the index value type is `number` or `boolean`, conditions work as they do with numbers.
+When the index value type is `number` or `boolean`, conditions work as they do with numbers. `<=` on a `number` or `boolean` value is still a plain 'lesser or equal' comparison; only `string` values get the 'ends with' behavior described below.
 
 When the index value type is `string`, `>` and `<` will search for strings that are higher or lower in the lexicographical order, respectively.
 `>=` (more than or equal to) acts as a 'starts with' operation when searching for string values.
@@ -86,20 +86,25 @@ The `condition` parameter takes the following string values:
 When the index value is a `string`, use `condition: '<='` to fetch every record whose index value **ends with** the given value:
 
 ```js
+// posted with index { name: 'title', value: 'Getz/Gilberto' }
 skapi.getRecords({
-    table: 'Fruits',
+    table: {name: 'Albums', access_group: 'public'},
     index: {
-        name: 'file',
-        value: '.pdf',
-        condition: '<=' // Ends with ".pdf"
+        name: 'title',
+        value: 'Gilberto',
+        condition: '<=' // Ends with "Gilberto"
     }
+}).then(response => {
+    console.log(response.list); // Albums whose "title" index value ends with 'Gilberto'
 });
 ```
 
 To end-with-match the leaf value of a compound (dot-delimited) index name, see [Ends with on the value of a compound index](#ends-with-on-the-value-of-a-compound-index).
 
+An 'ends with' search reads the index value from its last character backwards, and the results come back in that order. `fetchOptions.ascending` still applies, but it orders by that reversed reading rather than by the index value itself, so sort the returned list yourself if you need it ordered by value.
+
 :::tip
-'ends with' only searches records that were saved (or last updated) after your service enabled the feature. Existing records become searchable once they are next posted/updated, or after a one-time backfill.
+'ends with' is served by a separate suffix index, which is written whenever a record's index value is written. A record whose index value was written before that suffix index existed is matched once its index value, table, tags, or reference changes. The `=`, `>`, `>=`, and `<` conditions are not affected.
 :::
 
 
@@ -273,11 +278,9 @@ skapi.getRecords({
 })
 ```
 
-Here the index `name` begins with "Band." and the `value` is "House", so this returns every band whose name ends with "House" (for example, "AsianSpiceHouse" or "SpiceHouse").
+Here the index `name` begins with "Band." and the `value` is "House", so this returns every band whose name ends with "House" (for example, "AsianSpiceHouse" or "SpiceHouse"), but not "HouseOfPain". Only the name segment immediately after "Band." is matched.
 
-:::tip
-'ends with' only searches records that were saved (or last updated) after your service enabled the feature. Existing records become searchable once they are next posted/updated, or after a one-time backfill.
-:::
+The same availability note applies here as for a plain string index. See [Ends with (string values)](#ends-with-string-values).
 
 
 ### Querying with full compound index name
@@ -324,8 +327,8 @@ skapi.getRecords({
 
 So with a compound index name, the position of the period decides what `<=` matches:
 
-- a **trailing** period (`Band.`) ends-with-matches the next **name** segment;
-- the **full** name (`Band.AsianSpiceHouse.title`) ends-with-matches the leaf **value**.
+- a **trailing** period (`Band.`) ends-with-matches the next **name** segment, whatever the type of the leaf value;
+- the **full** name (`Band.AsianSpiceHouse.title`) ends-with-matches the leaf **value**, and only when that value is a `string`. A compound index whose leaf value is a `number` or `boolean` still compares with a plain 'lesser or equal'.
 
 ## Fetching Index Information
 

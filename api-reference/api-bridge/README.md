@@ -24,18 +24,18 @@ clientSecretRequest(
     status: 'pending';    // Queue status at the time of queueing. Newly queued requests are always 'pending'.
     queue_name: string;   // The queue this request belongs to (plain queue name).
     in_queue: number;     // Unresolved requests in this queue, INCLUDING this one. 1 means this request is at the head (processing next); 2 means one request is ahead of it.
-    poll?: (arg?: { latency?: number }) => Promise<any>; // Present when the request was queued. Call to start manual polling. In practice you only receive this object when poll is omitted or 0 — see Behavior below.
+    poll?: (arg?: { latency?: number }) => Promise<any>; // Present when the request was queued. Call to start manual polling. In practice you only receive this object when poll is omitted or 0. See Behavior below.
 }>
 ```
 
 **Behavior:**
 - For non-queued requests (no `queue`), the response is returned directly and `onResponse` is also called with the result.
-- When `poll > 0`, polling starts automatically and the promise resolves with the **final** result once polling finishes — not with the status object. (If `onResponse` is supplied, the promise resolves with that callback's return value.) Errors go to `onError`. A queue is auto-generated when `poll > 0` and no `queue` was given.
+- When `poll > 0`, polling starts automatically and the promise resolves with the **final** result once polling finishes, not with the status object. (If `onResponse` is supplied, the promise resolves with that callback's return value.) Errors go to `onError`. A queue is auto-generated when `poll > 0` and no `queue` was given.
 - When `poll` is `0` or omitted, the promise resolves with the status object plus a `poll()` method. Call `poll()` to start polling; results come via `onResponse`/`onError`.
 - The promise returned by `poll()` also carries a `stop()` method that stops that one poll. See [stopClientSecretPolling](#stopclientsecretpolling).
 
 :::info
-`queue_name` is the plain queue name (e.g. `"image-queue"`) on every response that carries it —
+`queue_name` is the plain queue name (e.g. `"image-queue"`) on every response that carries it:
 this one, `clientSecretRequestHistory()` results, and the object a `poll()` resolves with.
 :::
 
@@ -98,7 +98,7 @@ arguments at all to stop every live poll.
 **Behavior:**
 - A stopped poll **resolves** with `{ id, status: 'stopped' }`. It does not reject, so `await` sites do
   not need a `catch`.
-- `onResponse` and `onError` are **not** called for a stopped poll — a stop is not a result.
+- `onResponse` and `onError` are **not** called for a stopped poll; a stop is not a result.
 - Stopping a request that is still waiting in a queue also removes it from that queue, freeing the slot
   for the next request.
 - Stopping an unknown or already-finished request is a no-op and returns `0`.

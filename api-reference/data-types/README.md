@@ -61,9 +61,9 @@ type Condition = 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | 
 
 In a record index query ([`getRecords()`](/api-reference/database/README.md#getrecords) and [`deleteRecords()`](/api-reference/database/README.md#deleterecords)), a `string` index value gives `>=` and `<=` a search meaning: `>=` matches values that **start with** the given value, and `<=` matches values that **end with** it.
 `>` and `<` remain lexicographic, and `number` / `boolean` values compare normally.
-See [Indexing](/database/indexing.md#ends-with-string-values).
+See [Indexing](/database/indexing.html#ends-with-string-values).
 
-The 'ends with' behavior is specific to the record index query. The other methods that accept a `Condition` ([`getTables()`](/api-reference/database/README.md#gettables), [`getTags()`](/api-reference/database/README.md#gettags), [`getIndexes()`](/api-reference/database/README.md#getindex), and [`getUniqueId()`](/api-reference/database/README.md#getuniqueid)) treat `<=` as a plain 'lesser or equal' comparison.
+The 'ends with' behavior is specific to the record index query. On the other methods that accept a `Condition` ([`getTables()`](/api-reference/database/README.md#gettables), [`getTags()`](/api-reference/database/README.md#gettags), [`getIndexes()`](/api-reference/database/README.md#getindex), and [`getUniqueId()`](/api-reference/database/README.md#getuniqueid)), `<=` is never an 'ends with' search: on a `string` value it falls back to an exact match, and on a `number` value it is a plain 'lesser or equal' comparison.
 
 ## Connection
 
@@ -387,7 +387,7 @@ type RequestHistory = {
         latency?: number;
         onResponse?: (res:any)=>void;
         onError?: (err:any)=>void;
-    }) => Promise<any>; // function to poll the request status. When called, it will return a promise that resolves to the updated request history. Optional argument "latency" can be used to set the latency of the polling in milliseconds. Default latency is 1000ms.
+    }) => Promise<any>; // function to poll the request status until it settles. The promise resolves with the final result of the request: the third-party API response body when it resolves, or the error payload when it fails. It does not resolve with a RequestHistory item, so "created" and "updated" are not on the polled value. A poll stopped by stopClientSecretPolling() resolves with { id, status: 'stopped' }. Optional argument "latency" can be used to set the latency of the polling in milliseconds. Default latency is 1000ms.
 }
 ```
 

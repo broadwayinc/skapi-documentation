@@ -65,6 +65,10 @@ You can use the database query however you like to let users delete bulk of reco
 When deleting multiple records, the promise will return success immediately, but it may take some time for the deleted records to be reflected in the database.
 :::
 
+:::danger
+`deleteRecords()` builds the same index query as [`getRecords()`](/api-reference/database/README.md#getrecords), so `condition: '<='` on a `string` index value now deletes every record whose index value **ends with** that value. It used to delete records that were lesser or equal in lexicographical order. If you have a `deleteRecords()` call that uses `'<='` on a string index, run the same query through [`getRecords()`](/api-reference/database/README.md#getrecords) first and check the list before deleting. See [Indexing](/database/indexing.md#ends-with-string-values).
+:::
+
 :::warning
 When deleting records by database query, user will not delete records that they do not own, or records that are uploaded as read-only.
 
