@@ -367,6 +367,11 @@ type RecordData = {
     bin: { [key: string]: BinaryFile[] };
     ip: string;
     readonly: boolean;
+    /** Present ONLY on an element of a bulkPostRecords() result that the API refused.
+     *  Such an element is an empty record (record_id is ""), and this carries the reason,
+     *  e.g. { code: 'NOT_EXISTS', message: 'Record of "reference.unique_id": "src::report.xlsx" does not exists.' }.
+     *  A saved record never has it, so record_id stays the test for "did this save". */
+    error?: { code?: string; message?: string; [key: string]: any };
 }
 ```
 ## RequestHistory

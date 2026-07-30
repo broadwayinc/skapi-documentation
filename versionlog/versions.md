@@ -1,6 +1,11 @@
 # Version History
 
-### Current version: 1.8.0
+### Current version: 1.8.2
+
+**1.8.2**
+
+- Fixed: the local unique ID cache introduced in 1.7.1 was not scoped to a service, so one Skapi instance used across several services could resolve a unique ID to a record ID belonging to a **different** service. The symptom was a post whose `reference` was a unique ID being rejected with `NOT_EXISTS`, naming a record ID the caller never supplied. It only showed up when the same unique ID existed in more than one service, for example the same filename uploaded to two projects, and whichever service wrote to the cache last won. The cache is now keyed by service and owner, so a unique ID only ever resolves within the service the call targets.
+- `bulkPostRecords()` result items now carry the reason a record was refused. The API reports a per-record rejection as an element inside the returned list rather than by throwing, and that element used to arrive as an empty record with the reason stripped, so a caller could not tell a rejection from a save. A refused element still has an empty `record_id`, which remains the test for whether a record saved, and now also carries `error` with the API's `code` and `message`. See [RecordData](/api-reference/data-types/#recorddata).
 
 **1.8.0**
 
