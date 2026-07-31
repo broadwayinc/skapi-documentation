@@ -1,6 +1,17 @@
 # Version History
 
-### Current version: 1.8.2
+### Current version: 1.8.3
+
+**1.8.3**
+
+- Fixed: the client refused values the API accepts. Every key-segment length limit was checked against an SDK-only cap that was stricter than the platform's, so legal values were rejected before a request was ever sent: a tag was capped at **64** characters and a `table.name` / `index.name` at **128**, where the API allows **256** for each. All three now match the API. `index.value` was already correct at 256.
+- `table.name`, `index.name` and each tag are limited to 256 characters, and `/`, `!`, `*`, `#` and `%` count as **3 characters each** toward that limit. A value that only overflows because of them is now refused with a message saying so, instead of failing as an opaque server error. `index.value` has no such rule: every character counts as one.
+- Fixed: a `table.name`, `index.name` or tag containing a `%` came back changed. A tag written as `100%25off` was returned as `100%off`, and `a%2Fb` as `a/b`. Any string now reads back exactly as it was written.
+- Fixed: a string `index.value` containing a `%` came back changed the same way, so `a%2Fb` was returned as `a/b`. Index values now read back exactly as written, and still compare exactly as written for `>`, `<`, `range`, and the `>=` 'starts with' and `<=` 'ends with' forms.
+- Fixed: `getTables()`, `getTags()` and `getIndexes()` could not find a table or tag whose name contains `/`, `!`, `*` or `#`; the lookup returned nothing. They now match. An empty filter paired with a condition still means 'list everything'.
+- Fixed: a file whose name contains a `%` went missing from `record.bin` entirely, and one named `50%20off.pdf` came back renamed to `50 off.pdf`, which no longer matched the stored file. Filenames now come back exactly as uploaded, agreeing with `getFile(url, { dataType: 'info' })`. For the same reason `remove_bin` now removes such a file instead of silently doing nothing.
+- Fixed: `source.referencing_index_restrictions[].name` came back altered when it contained `/`, `!`, `*` or `#`, unlike `index.name` for the same string. Reading a record and re-saving it then broke referencing with 'Index value does not match the reference index restriction'.
+- Fixed: a nest query (an `index.name` ending in a period, which matches the children of a compound index) could not find a child whose name contains `/`, `!`, `*`, `#` or `%`. A compound index such as `Band.Rock/Pop.year` returned nothing from the query meant to find it. `index.value`, `index.range`, and `order.value` on `getIndexes()` when `order.by` is `index_name`, all match now.
 
 **1.8.2**
 

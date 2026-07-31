@@ -14,7 +14,7 @@ postRecord(
         /** 'table.name' is optional when 'record_id' or 'unique_id' is used. */
         /** When the table is given as a string value, the given value will be set as table.name and table.access_group will be 'public' **/
         table?: {
-            name?: string; // 1..128 chars. Blocks control chars and sentinel U+10FFFF.
+            name?: string; // 1..256 characters, where / ! * # % each count as 3. Blocks control chars and sentinel U+10FFFF.
             access_group?: number | 'private' | 'public' | 'authorized' | 'admin';  // Default: 'public', otherwise not available to anonymous users.
             /** Subscription settings; not available to anonymous users. */
             subscription?: {
@@ -27,7 +27,7 @@ postRecord(
         };
         readonly?: boolean; // Default: false. When true, the record cannot be updated. (Not available to anonymous users)
         index?: {
-            name: string; // Custom index name: 1..128 chars. Blocks control chars and sentinel U+10FFFF, and cannot start with '$'.
+            name: string; // Custom index name: 1..256 characters, where / ! * # % each count as 3. Blocks control chars and sentinel U+10FFFF, and cannot start with '$'.
             value: string | number | boolean; // String value: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
         };
         tags?: string[] | null; // null removes all tags.
@@ -37,7 +37,7 @@ postRecord(
             only_granted_can_reference?: boolean; // When true, only the user who has granted private access to the record can reference this record.
             can_remove_referencing_records?: boolean; // When true, owner of the record can remove any record that are referencing this record. Also when this record is deleted, all the record referencing this record will be deleted.
             referencing_index_restrictions?: {
-                name: string; // 1..128 chars. Blocks control chars and sentinel U+10FFFF, and cannot start with '$'.
+                name: string; // 1..256 characters, where / ! * # % each count as 3. Blocks control chars and sentinel U+10FFFF, and cannot start with '$'.
                 value?: string | number | boolean; // String value: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
                 range?: string | number | boolean; // String range: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
                 condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // Allowed index value condition. Checked when a referencing record is posted: on a string value '>=' is a 'starts with' check, while '<=' is a plain 'lesser or equal' comparison and is not 'ends with'.
@@ -68,7 +68,7 @@ getRecords(
         /** When the table is given as a string value, the given value will be set as table.name and table.access_group will be 'public' **/
         /** 'table' is optional when 'record_id' or 'unique_id' is used. */
         table?: string | {
-            name: string, // 1..128 chars. Blocks control chars and sentinel U+10FFFF.
+            name: string, // 1..256 characters, where / ! * # % each count as 3. Blocks control chars and sentinel U+10FFFF.
             access_group?: number | 'private' | 'public' | 'authorized' | 'admin'; // 0 to 99 if using number. Default: 'public'
             subscription?: string; // User ID that requester is subscribed to. (eg. "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")
         };
@@ -82,7 +82,7 @@ getRecords(
 
         index?: {
             /** Reserved names: '$updated' | '$uploaded' | '$referenced_count' | '$user_id'. */
-            /** Custom names: 1..128 chars, block control chars and sentinel U+10FFFF, and cannot start with '$'. */
+            /** Custom names: 1..256 characters, where / ! * # % each count as 3. Block control chars and sentinel U+10FFFF, and cannot start with '$'. */
             name: string | '$updated' | '$uploaded' | '$referenced_count' | '$user_id';
             value: string | number | boolean; // String value: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
             /** For a string value: '>=' = 'starts with', '<=' = 'ends with'. When the name is a compound name ending in '.', '>=' / '<=' match the child name segment (starts / ends with). '>' / '<' are lexicographic; numbers/booleans compare normally. */
@@ -90,7 +90,7 @@ getRecords(
             range?: string | number | boolean; // String range: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
         };
 
-        tag?: string; // 1..64 chars. Blocks control chars and sentinel U+10FFFF.
+        tag?: string; // 1..256 characters, where / ! * # % each count as 3. Blocks control chars and sentinel U+10FFFF.
     },
     fetchOptions?: FetchOptions;
 ): Promise<DatabaseResponse<RecordData>>
@@ -216,7 +216,7 @@ deleteRecords({
 
     index?: {
         /** Reserved names: '$updated' | '$uploaded' | '$referenced_count' | '$user_id'. */
-        /** Custom names: 1..128 chars, block control chars and sentinel U+10FFFF, and cannot start with '$'. */
+        /** Custom names: 1..256 characters, where / ! * # % each count as 3. Block control chars and sentinel U+10FFFF, and cannot start with '$'. */
         name: string | '$updated' | '$uploaded' | '$referenced_count' | '$user_id';
         value: string | number | boolean; // String value: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
         /** For a string value: '>=' = 'starts with', '<=' = 'ends with'. When the name is a compound name ending in '.', '>=' / '<=' match the child name segment (starts / ends with). '>' / '<' are lexicographic; numbers/booleans compare normally. */
@@ -224,7 +224,7 @@ deleteRecords({
         range?: string | number | boolean; // String range: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
     };
 
-    tag?: string; // 1..64 chars. Blocks control chars and sentinel U+10FFFF.
+    tag?: string; // 1..256 characters, where / ! * # % each count as 3. Blocks control chars and sentinel U+10FFFF.
 }): Promise<string | DatabaseResponse<RecordData>>
 ```
 
@@ -250,7 +250,7 @@ See [Table](/api-reference/data-types/README.md#table)
 getIndexes(
     query: {
         table: string;
-        index?: string; // 1..128 chars for custom names; blocks control chars and sentinel U+10FFFF, cannot start with '$'.
+        index?: string; // 1..256 characters for custom names, where / ! * # % each count as 3; blocks control chars and sentinel U+10FFFF, cannot start with '$'.
         order?: {
             by: 'average_number' | 'total_number' | 'number_count' | 'average_bool' | 'total_bool' | 'bool_count' | 'string_count' | 'index_name' | 'number_of_records';
             value?: number | boolean | string;
@@ -270,8 +270,8 @@ See [Index](/api-reference/data-types/README.md#index)
 ```ts
 getTags(
     query?: {
-        table?: string; // 1..128 chars. Blocks control chars and sentinel U+10FFFF.
-        tag?: string; // 1..64 chars. Blocks control chars and sentinel U+10FFFF.
+        table?: string; // 1..256 characters, where / ! * # % each count as 3. Blocks control chars and sentinel U+10FFFF.
+        tag?: string; // 1..256 characters, where / ! * # % each count as 3. Blocks control chars and sentinel U+10FFFF.
         condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '=';
     },
     fetchOptions?: FetchOptions;
