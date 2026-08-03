@@ -141,7 +141,7 @@ The `getFile()` method on the [BinaryFile](/api-reference/data-types/README.md#b
 -   `dataType`: Type of download - `blob`, `base64`, `endpoint`, `text`, `info` or `download`. Defaults to `download`.
 -   `progress`: Optional progress callback function. Useful when downloading large files as blob to show progress bar. (Will not work with `endpoint` or `download` types.)
 
-Alternatively, you can call the standalone [`skapi.getFile()`](/api-reference/database/README.md#getfile) method with the file's endpoint URL: `skapi.getFile(url, config?)`. Here `url` is the file's endpoint URL and `config` is an optional object that holds `dataType` (same values as above), `progress` (the progress callback), and `expires` (use a URL that expires in the given number of seconds; useful for private files).
+Alternatively, you can call the standalone [`skapi.getFile()`](/api-reference/database/README.md#getfile) method with the file's endpoint URL: `skapi.getFile(url, config?)`. Here `url` is the file's endpoint URL and `config` is an optional object that holds `dataType` (same values as above), `progress` (the progress callback), `expires` (use a URL that expires in the given number of seconds; useful for private files), and `browserCache` / `refresh` (see [Caching Expiring Files](#caching-expiring-files) below).
 
 If the file has private access restriction, you must use the `endpoint` type to get the file endpoint URL.
 The endpoint URL will be a signed URL that can expire after a certain amount of time.
@@ -171,6 +171,84 @@ fileToDownload.getFile("base64", progressInfo).then((b) => {
     console.log(b); // base64 string
 });
 ```
+
+## Caching Expiring Files
+
+Files in a record whose access group is not `public` are **cached for one week automatically**.
+Reading the same private file twice used to download it twice, because the URL a private file is served under changes on every read and browsers cache by URL.
+Now the first read downloads it and every read after that is served from the browser's own cache, with no network request at all, for a week.
+
+You do not have to do anything for this. It applies to every `getFile()` call on a `record.bin[...]` object:
+
+```js
+skapi.getRecords({ record_id: "record_id_with_file" }).then((rec) => {
+    let file = rec.list[0].bin.picture[0]; // a private file
+
+    file.getFile("blob"); // downloads it
+    file.getFile("blob"); // served from the browser cache, no network
+});
+```
+
+To display a private file, take the URL from `getFile("endpoint")` rather than reading the `url` property:
+
+```js
+let src = await file.getFile("endpoint"); // cached for a week
+imgElement.src = src;
+```
+
+::: info
+The `url` property on a bin object is deliberately **not** the cached URL.
+It stays the record's own file URL, because that is the string you pass back to `remove_bin` and `deleteFiles`, the string the dashboards render, and the one that is safe to store: a cached URL is signed for one user and stops working once it expires.
+Reading `file.url` directly still works exactly as before, it is just not the cached path.
+:::
+
+::: info
+Files reached through a **granted private access key** (someone else's restricted file that was shared with you) are not cached, because the URL for those cannot be minted in a cacheable form.
+They keep working exactly as before.
+:::
+
+The rest of this section is for files you fetch by URL yourself with `skapi.getFile()`.
+
+When you request a file with `expires`, Skapi mints a **signed URL**, and a signed URL is different every time you ask for one.
+Browsers cache by URL, so a new URL is always a cache miss: the same unchanged file is downloaded again on every page load.
+For a chat window or a gallery that shows the same private images repeatedly, that is the whole page's worth of traffic, every time.
+
+`browserCache` fixes it from the other end. It caches the **request that mints the URL**, so the same URL comes back and the copy the browser already downloaded stays usable.
+
+```js
+skapi.getFile(url, {
+    dataType: "endpoint",
+    expires: 1200, // the signed URL is valid for 20 minutes
+    browserCache: 86400, // reuse it, and the downloaded file, for a day
+});
+```
+
+The two numbers do different jobs, and it is normal for `browserCache` to be much larger than `expires`:
+
+-   `expires` is how long the **URL** works. Keep it short, so a URL that leaks is useless quickly.
+-   `browserCache` is how long the **file stays available locally**. The browser serves it from its own cache without checking the URL again.
+
+Once the browser drops the file from its cache, the next load uses a URL that has since expired and fails.
+Call `getFile()` again with `refresh: true` to mint a working URL:
+
+```js
+skapi.getFile(url, {
+    dataType: "endpoint",
+    expires: 1200,
+    browserCache: 86400,
+    refresh: true, // ignore the cached URL, mint a new one
+});
+```
+
+::: warning
+If you overwrite a file at the same path, the browser keeps serving the copy it already has until `browserCache` runs out.
+Use `refresh: true` after replacing a file so the new version is picked up.
+:::
+
+::: info
+`browserCache` only does something when `expires` is also set, and the server caps it at 1 week.
+It is ignored for public CDN URLs, which are already cacheable without it.
+:::
 
 ## Removing Files
 

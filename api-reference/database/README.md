@@ -371,10 +371,25 @@ getFile(
     config?: {
         dataType?: 'base64' | 'download' | 'endpoint' | 'blob' | 'text' | 'info';
         expires?: number;
+        browserCache?: number;
+        refresh?: boolean;
         progress?: ProgressCallback;
     },
 ): Promise<Blob | string | FileInfo | void>
 ```
+
+`browserCache` is the number of seconds the browser may reuse the URL minted for `expires`.
+Without it, every call mints a brand new signed URL, and since the browser cache is keyed by URL,
+the file is downloaded again every time even when nothing has changed.
+With it, the request that mints the URL is answered from the browser cache and the same URL comes back,
+so the copy already downloaded stays usable.
+The URL's own lifetime is still `expires`: what keeps the file available past that is the cached copy, not the URL.
+Only meaningful together with `expires`, and capped at 1 week.
+Private files in a record's `bin` already do this for you, see [Caching Expiring Files](/database/handling-files.md#caching-expiring-files).
+
+`refresh` bypasses that cached mint and forces a fresh signed URL.
+Use it when the file may have changed, or after a load failed because the cached URL had expired
+and the file was no longer in the browser cache.
 
 See [FileInfo](/api-reference/data-types/README.md#fileinfo)
 
