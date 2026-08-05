@@ -36,11 +36,11 @@ In `index.html`, load and initialize Skapi:
 ```html
 <script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
 <script>
-  const skapi = new Skapi("service_id");
+  const skapi = new Skapi("project_id");
 </script>
 ```
 
-- Replace `"service_id"` with the actual service ID provided by the user.
+- Replace `"project_id"` with the actual project ID provided by the user.
 - In SPA projects, expose the instance as `window.skapi`.
 - In SPA projects, if npm install is available, you may install Skapi and import it as a module instead of using the CDN script.
 

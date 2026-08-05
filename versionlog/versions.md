@@ -1,6 +1,12 @@
 # Version History
 
-### Current version: 1.8.3
+### Current version: 2.0.0
+
+**2.0.0**
+
+- The service ID is now called the **project ID**, and the single-token form (`'xxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxx'`) is the primary way to initialize: `new Skapi('project_id')`. The legacy service ID + owner ID pair is still accepted and is converted internally.
+- New `skapi.project_id` class property: the public project ID token, composed from the connected service and its owner. Empty string when the service has no user owner.
+- `getConnectionInfo()` now returns `project_id` alongside the existing fields.
 
 **1.8.3**
 

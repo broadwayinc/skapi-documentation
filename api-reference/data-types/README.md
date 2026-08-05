@@ -96,6 +96,7 @@ type Connection = {
 
 ```ts
 type ConnectionInfo = {
+    project_id: string; // Public project ID of the connected project (single token composed from the service and its owner). Also available directly as skapi.project_id.
     user_ip: string;
     user_agent: string;
     user_location: string;

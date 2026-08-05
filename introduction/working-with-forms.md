@@ -120,8 +120,8 @@ For this example, create these two HTML files in the same directory.
 <!DOCTYPE html>
 <script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
 <script>
-    // Replace 'service_id' with the appropriate values from your Skapi dashboard.
-    const skapi = new Skapi('service_id');
+    // Replace 'project_id' with your project ID from your Skapi dashboard.
+    const skapi = new Skapi('project_id');
 </script>
 
 <form onsubmit="skapi.mock(event)" action="welcome.html">
@@ -140,8 +140,8 @@ For this example, create these two HTML files in the same directory.
 <p id='message'></p>
 
 <script>
-    // Replace 'service_id' with the appropriate values from your Skapi dashboard.
-    const skapi = new Skapi('service_id');
+    // Replace 'project_id' with your project ID from your Skapi dashboard.
+    const skapi = new Skapi('project_id');
     
     skapi.getFormResponse()
       .then((r) => {

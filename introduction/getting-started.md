@@ -20,17 +20,17 @@ When you initialize the class, use the exact service ID from your Skapi dashboar
 <!DOCTYPE html>
 <script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
 <script>
-     // Replace 'service_id' with your actual service ID
-    const skapi = new Skapi('service_id');
+     // Replace 'project_id' with your actual project ID
+    const skapi = new Skapi('project_id');
 </script>
 ```
 
-Replace `'service_id'` with your actual service ID from your Skapi dashboard after you create a service.
+Replace `'project_id'` with your actual project ID from your Skapi dashboard after you create a project. The project ID is a single token that identifies your project and its owner.
 
 Example format: `'xxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxx'`
 
 :::tip For BunnyQuery users
-BunnyQuery project IDs can be used as Skapi service ID.
+A BunnyQuery project ID is a Skapi project ID; use it as-is.
 :::
 
 ### For SPA Projects
@@ -46,7 +46,7 @@ Then import the library in your main JavaScript file:
 ```javascript
 // main.js
 import { Skapi } from "skapi-js";
-const skapi = new Skapi('service_id');
+const skapi = new Skapi('project_id');
 
 export { skapi }
 
@@ -61,7 +61,7 @@ Skapi includes TypeScript support, so you can import both the class and related 
 import { Skapi } from 'skapi-js';
 import type { RecordData, DatabaseResponse } from 'skapi-js';
 
-const skapi = new Skapi('service_id');
+const skapi = new Skapi('project_id');
 let databaseRecords: DatabaseResponse<RecordData>;
 ```
 
@@ -71,14 +71,14 @@ To use Skapi in Node.js (CommonJS), import the library as shown below:
 
 ```javascript
 const { Skapi } = require('skapi-js');
-const skapi = new Skapi('service_id');
+const skapi = new Skapi('project_id');
 ```
 
 ### Node.js (ESM)
 
 ```javascript
 import { Skapi } from 'skapi-js';
-const skapi = new Skapi('service_id');
+const skapi = new Skapi('project_id');
 ```
 
 > **Note:** When running Skapi in Node.js, browser-specific features such as WebSocket, WebRTC, and Notifications are not available.
@@ -95,7 +95,7 @@ After your client connects to Skapi, call [`getConnectionInfo()`](/api-reference
 <!DOCTYPE html>
 <script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
 <script>
-    const skapi = new Skapi('service_id');
+    const skapi = new Skapi('project_id');
 </script>
 <script>
 skapi.getConnectionInfo().then(info => {

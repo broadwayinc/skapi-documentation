@@ -30,13 +30,14 @@ git clone https://github.com/broadwayinc/skapi-tutorial.git
 
 Create an account on [Skapi](https://skapi.com) and create a new service.
 
-The **service_id** and the **owner_id** values are set in `service.js` file.
+The **project ID** is set in the `service.js` file.
 
-Currently, the values are set to:
-  - Service ID: **"ap220wfRHl9Cw2QqeFEc"**
-  - Owner ID: **"f8e16604-69e4-451c-9d90-4410f801c006"**
+Currently, the example connects to the project:
+  - Project ID: **"5fRHl9Cw2Qq3eFEc0w-7Zd6TgdLUaFxseKMT1qveY"**
 
-Replace the values with your own service ID and owner ID.
+(The example's `service.js` passes it as the legacy service ID + owner ID pair, which the SDK accepts and converts to the same project ID.)
+
+Replace the value with your own project ID from your Skapi dashboard.
 
 You can retrieve your own service ID and owner ID from your Skapi service dashboard.
 
