@@ -48,6 +48,9 @@ clientSecretRequestHistory(
         method: 'GET' | 'POST' | 'DELETE' | 'PUT'; // The HTTP method used in the original request.
         queue?: string; // Optional queue name to filter history by. When omitted, all requests for the given url and method are returned.
         status?: 'pending' | 'running' | 'resolved' | 'failed'; // Optional status filter.
+        compact?: boolean; // Return lightweight label stubs instead of full request/response bodies. See below.
+        queue_exact?: boolean; // Match the named queue exactly instead of as a prefix. See below.
+        queue_exclude?: string; // Drop one queue's rows from the listing. See below.
     },
     fetchOptions?: FetchOptions // Pagination and fetch behavior options.
 ): Promise<DatabaseResponse<RequestHistory[]>>
@@ -60,6 +63,23 @@ See [RequestHistory](/api-reference/data-types/README.md#requesthistory)
 Each history item carries two timestamps, both in milliseconds: `created`, the time the
 request was made (set once, never changes), and `updated`, the time of the most recent
 status change (for a settled request, when its response arrived).
+
+Listing modifiers:
+
+- `compact: true` returns each item with label stubs (`request_text`, `response_text`,
+  `response_complete_marker`, and `compact: true`) **instead of** `request_body` and
+  `response_body`; the full bodies never leave the server. Use it to render long lists
+  cheaply, then re-fetch without `compact` (or `poll()` a live item) when a full body is
+  actually needed.
+- `queue_exact: true` restricts a `queue` listing to exactly the named queue. Without it
+  the queue lookup is a prefix range, so queue `"u1"` also matches `"u1-bg"` and every
+  other queue that starts with `"u1"`.
+- `queue_exclude: "<name>"` drops one queue's rows from the listing: the inverse filter,
+  for fetching everything except a background queue.
+
+Both queue filters are applied server-side after the range read, so a page can come back
+short (or even empty) while more matches remain. Rely on `endOfList`/`startKey` to keep
+paging, never on a page's length.
 
 ## cancelClientSecretRequest
 
