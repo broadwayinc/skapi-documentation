@@ -7,7 +7,7 @@ Below are the parameters and return data type references for the methods in Type
 ```ts
 clientSecretRequest(
     params: {
-        clientSecretName: string; // The name of the client secret key registered in your Skapi service.
+        clientSecretName: string; // The name of the client secret key registered in your Skapi project.
         url: string; // The third-party API endpoint URL.
         method: 'GET' | 'POST' | 'DELETE' | 'PUT'; // The HTTP method.
         headers?: { [key: string]: string }; // Request headers as a key-value object.
@@ -103,7 +103,7 @@ stopClientSecretPolling(
         method?: 'GET' | 'POST' | 'DELETE' | 'PUT'; // The HTTP method of the request. Required when identifying by id.
         id?: string; // The request ID whose poll should stop. Pair with url and method.
         queue?: string; // Stop every poll started with this queue name instead of a single request.
-        service?: string; // Optional service ID override.
+        service?: string; // Optional project ID override.
         owner?: string; // Optional owner ID override.
     }
 ): number // How many live polls were stopped.
@@ -143,7 +143,7 @@ Distinguishes a stopped poll from a real API result, so a handler can ignore it 
 clientSecretRequestQueueCount(
     params: {
         queue: string; // The queue name to check.
-        service?: string; // Optional service ID override.
+        service?: string; // Optional project ID override.
         owner?: string; // Optional owner ID override.
     }
 ): Promise<{
@@ -151,3 +151,27 @@ clientSecretRequestQueueCount(
     in_queue: number;   // Number of requests currently waiting in the queue.
 }>
 ```
+## secureRequest
+
+```ts
+secureRequest<
+    Params = {
+        url: string;   // The URL of your custom API.
+        data?: any;    // The data to send to your custom API.
+        sync?: boolean; // When true, the requests are processed synchronously.
+    },
+    Response = { response: any; statusCode: number; url: string }
+>(
+    params: Params[] | Form<Params>, // A single request, an array of requests, or a form.
+    url?: string
+): Promise<Response | Response[]>
+```
+
+Mirrors a `POST` request to your own API through Skapi, so your API receives the signed-in
+user's information alongside the request data. The user must be logged in, and this method
+does not accept HTML forms.
+
+When a secret key is set on the project's settings page, the mirrored request carries that
+key, which is how your API can verify the call really came from Skapi.
+
+See [Secure Post Request](/api-bridge/secure-post-request.md)

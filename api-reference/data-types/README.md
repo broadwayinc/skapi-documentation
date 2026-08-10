@@ -74,13 +74,13 @@ type Connection = {
     user_agent: string;
     /** Connected user's IP address */
     ip: string;
-    /** Service group */
+    /** Project group */
     group: number;
-    /** Service name */
+    /** Project name */
     service_name: string;
-    /** Service description */
+    /** Project description */
     service_description: string;
-    /** Service options */
+    /** Project options */
     opt: {
         freeze_database: boolean;
         prevent_inquiry: boolean;
@@ -96,7 +96,7 @@ type Connection = {
 
 ```ts
 type ConnectionInfo = {
-    project_id: string; // Public project ID of the connected project (single token composed from the service and its owner). Also available directly as skapi.project_id.
+    project_id: string; // Public project ID of the connected project (single token composed from the project and its owner). Also available directly as skapi.project_id.
     user_ip: string;
     user_agent: string;
     user_location: string;
@@ -579,9 +579,9 @@ type UserAttributes = {
 
 ```ts
 type UserProfile = {
-    /** Service id of the user account. */
+    /** Project id of the user account. */
     service: string;
-    /** User ID of the service owner. */
+    /** User ID of the project owner. */
     owner: string;
     /** Access level of the user's account. */
     access_group: number;
@@ -595,7 +595,7 @@ type UserProfile = {
     
     {approver} is who approved the account:
         [by_master] is when account approval is done manually from skapi admin panel,
-        [by_admin] is when approval is done by the admin account with api call within your service.
+        [by_admin] is when approval is done by the admin account with api call within your project.
         [by_skapi] is when account approval is automatically done.
         Open ID logger ID will be the value if the user is logged with openIdLogin()
         This timestamp is generated when the user confirms their signup, or recovers their disabled account.
@@ -693,7 +693,7 @@ type UserPublic = {
     
     {approver} is who approved the account:
         [by_master] is when account approval is done manually from skapi admin panel,
-        [by_admin] is when approval is done by the admin account with api call within your service.
+        [by_admin] is when approval is done by the admin account with api call within your project.
         [by_skapi] is when account approval is automatically done.
         Open ID logger ID will be the value if the user is logged with openIdLogin()
         This timestamp is generated when the user confirms their signup, or recovers their disabled account.

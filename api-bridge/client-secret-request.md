@@ -1,6 +1,6 @@
 # Using Third-Party APIs
 
-You can connect Skapi to third-party APIs (services outside your app), such as AI services, map services, payment services, or your own external APIs.
+You can connect Skapi to third-party APIs (projects outside your app), such as AI projects, map projects, payment projects, or your own external APIs.
 
 If the API requires a client secret, use [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) to send secure `POST` or `GET` requests.
 
@@ -8,7 +8,7 @@ Because client secrets must never be exposed in frontend code, register each sec
 
 ## Registering Client Secret Keys
 
-1. In your Skapi service dashboard, click **Client Secret Key**.
+1. In your Skapi project dashboard, click **Client Secret Key**.
 2. Click **+** at the top-right of the table.
 3. In the form, enter:
   - **Name:** A label for this key. You will use this value as `clientSecretName` in [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest).
@@ -38,7 +38,7 @@ skapi.clientSecretRequest({
 
 The `params` object supports these fields:
 
-- `clientSecretName`: Name of the client secret key saved in your Skapi service.
+- `clientSecretName`: Name of the client secret key saved in your Skapi project.
 - `url`: Third-party API endpoint URL.
 - `method`: HTTP method (`GET`, `POST`, `PUT`, or `DELETE`).
 - `headers`: Request headers as key-value pairs.

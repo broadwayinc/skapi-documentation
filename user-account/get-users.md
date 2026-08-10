@@ -5,7 +5,7 @@ User must be logged in to call this method
 :::
 
 
-Users can search, retrieve information of other users in your service using the [`getUsers()`](/api-reference/user/README.md#getusers) method. By default, [`getUsers()`](/api-reference/user/README.md#getusers) will return all users chronologically from the most recent sign-up.
+Users can search, retrieve information of other users in your project using the [`getUsers()`](/api-reference/user/README.md#getusers) method. By default, [`getUsers()`](/api-reference/user/README.md#getusers) will return all users chronologically from the most recent sign-up.
 
 User information retrieved from the database is returned as a list of [UserPublic](/api-reference/data-types/README.md#userpublic) objects.
 
@@ -16,12 +16,12 @@ Any attribute that is not set to public will not be retrieved.
 
 ```js
 skapi.getUsers().then(u=>{
-  console.log(u.list); // List of all users in your service, sorted by most recent sign-up date.
+  console.log(u.list); // List of all users in your project, sorted by most recent sign-up date.
 });
 ```
 
 In the example above, the [`getUsers()`](/api-reference/user/README.md#getusers) method is called without any parameters.
-This retrieves a list of all user profiles in your service.
+This retrieves a list of all user profiles in your project.
 
 For more detailed information on all the parameters and options available with the [`getUsers()`](/api-reference/user/README.md#getusers) method, 
 please refer to the API Reference below:

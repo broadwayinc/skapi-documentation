@@ -117,7 +117,7 @@ let method_ref = [
     {
         text: 'Email Service',
         items: [
-            { text: 'Introduction', link: '/email/introduction.md' },
+            // { text: 'Introduction', link: '/email/introduction.md' },
             { text: 'Automated Emails', link: '/email/email-templates.md' },
             { text: 'Sending Newsletters', link: '/email/newsletters.md' },
             { text: 'Receiving Inquiries', link: '/email/inquiries.md' }

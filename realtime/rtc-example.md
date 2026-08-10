@@ -56,13 +56,13 @@ You can host your application in skapi.com or host from your personal servers.
 
 :::danger Important!
 
-Replace the `SERVICE_ID` value to your own service in `service.js`
+Replace the project ID value with your own project ID in `service.js`
 
-<!-- Currently the service is running on **Trial Mode**. -->
+<!-- Currently the project is running on **Trial Mode**. -->
 
 <!-- **All the user data will be deleted every 14 days.** -->
 
-You can get your own service ID from [Skapi](https://www.skapi.com)
+You can get your own project ID from [Skapi](https://www.skapi.com)
 
 :::
 

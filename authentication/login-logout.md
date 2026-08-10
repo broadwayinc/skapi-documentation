@@ -1,10 +1,10 @@
 # Login / Logout
 
-Once a user has signed up, they can log in to your service using their email and password.
+Once a user has signed up, they can log in to your project using their email and password.
 
 ## Login
 
-Use the [`login()`](/api-reference/authentication/README.md#login) method to log a user into your service.
+Use the [`login()`](/api-reference/authentication/README.md#login) method to log a user into your project.
 
 If the login is not successful due to invalid password, or user may not have confirm their signup etc... the [`login()`](/api-reference/authentication/README.md#login) method will throw an error.
 
@@ -85,12 +85,12 @@ const options = {
 };
 
 //Set the third argument as options
-const skapi = new Skapi("project_id", options);
+const skapi = new Skapi("<Project ID>", options);
 ```
 
 ## Logout
 
-The [`logout()`](/api-reference/authentication/README.md#logout) method logs the user out from the service.
+The [`logout()`](/api-reference/authentication/README.md#logout) method logs the user out from the project.
 
 :::code-group
 
@@ -157,7 +157,7 @@ const options = {
     },
 };
 
-const skapi = new Skapi("project_id", options);
+const skapi = new Skapi("<Project ID>", options);
 ```
 
 You can also add multiple event listeners to the `onLogin` event after the Skapi object has been initialized.

@@ -117,7 +117,7 @@ grantPrivateRecordAccess(
 ```ts
 {
     code: "INVALID_REQUEST";
-    message: "Private access cannot be granted to service owners.";
+    message: "Private access cannot be granted to project owners.";
 }
 |
 {
@@ -152,7 +152,7 @@ removePrivateRecordAccess(
 ```ts
 {
     code: "INVALID_REQUEST";
-    message: "Private access cannot be granted to service owners.";
+    message: "Private access cannot be granted to project owners.";
 }
 |
 {

@@ -98,7 +98,7 @@ The user must be joined to the group to send data to the group.
 
 ## Leaving a Group
 
-Also, if you want to leave the group, you can call [`joinRealtime(params)`](/api-reference/realtime/README.md#leaverealtime) method with a `params.group` value as empty `string` or `null`.
+Also, if you want to leave the group, you can call [`joinRealtime(params)`](/api-reference/realtime/README.md#joinrealtime) method with a `params.group` value as empty `string` or `null`.
 
 ```js
 skapi.joinRealtime({ group: null });

@@ -75,7 +75,7 @@ If the access group is `public`, anyone can access the uploaded data.
 To use different access restrictions, see [`Access Restrictions`](/database/access-restrictions.md).
 
 ::: danger
-Both authenticated and anonymous users can upload data to your service with [`postRecord()`](/api-reference/database/README.md#postrecord).
+Both authenticated and anonymous users can upload data to your project with [`postRecord()`](/api-reference/database/README.md#postrecord).
 
 Limitations for anonymous (unsigned) users:
 1. They can only create records in the `public` access group (see [`Access Restrictions`](/database/access-restrictions.md)).
@@ -83,7 +83,7 @@ Limitations for anonymous (unsigned) users:
 3. They cannot create records that use [`Subscription`](/database/subscription.md) features.
 4. They cannot create records with [`Unique ID`](/database/unique-id.md) features.
 
-You can prevent anonymous uploads by changing your service settings in the Skapi dashboard.
+You can prevent anonymous uploads by changing your project settings in the Skapi dashboard.
 :::
 
 ::: warning

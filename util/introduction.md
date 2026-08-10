@@ -143,7 +143,7 @@ skapi.util.request(
 
 ## Terminating Pending Requests
 
-Skapi can terminate pending requests. By default, Skapi processes requests in batches. You can configure the batch size in [Advanced Settings](/introduction/getting-started.html#_4-advanced-settings).
+Skapi can terminate pending requests. By default, Skapi processes requests in batches. You can configure the batch size in [Advanced Settings](/introduction/getting-started.html#advanced-settings).
 
 Calling `skapi.util.terminatePendingRequests()` terminates all queued requests.
 

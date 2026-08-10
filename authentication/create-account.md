@@ -1,7 +1,7 @@
 
 # Creating an Account
 
-To let users create a new account in your service, you can use the [`signup()`](/api-reference/authentication/README.md#signup) method. 
+To let users create a new account in your project, you can use the [`signup()`](/api-reference/authentication/README.md#signup) method. 
 
 ### Example: Creating an Account
 
@@ -41,15 +41,15 @@ skapi.signup(parameters)
 
 :::
 
-The example above shows how to let users create their account in your service.
+The example above shows how to let users create their account in your project.
 Once the user signup is successful, the user will be redirected to the login page.
 The first argument takes the user's input (email, password, name) that will be used for signup.
 
 ::: warning
-- If the user have not logged in to your service after account creation,
+- If the user have not logged in to your project after account creation,
 they will **NOT** appear on your user list in Skapi's admin page.
 
-- If 7 days have passed since the account creation, and the user still have not logged in to your service,
+- If 7 days have passed since the account creation, and the user still have not logged in to your project,
 user's signup will be automatically invalidated.
 :::
 

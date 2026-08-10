@@ -1,26 +1,26 @@
-# Service Settings
+# Project Settings
 
-Go to your service page and click on the **Service Settings** menu.
+Go to your project page and click on the **Project Settings** menu.
 
-On this page, you can configure settings for your service.
+On this page, you can configure settings for your project.
 
-## Service Name
+## Project Name
 
-You can set the service name in your service settings.
+You can set the project name in your project settings.
 
-The service name can be used to identify your service in the **My Services** page, and also can be used to replace [`Automated E-Mail's placeholders`](/email/email-templates.md#template-placeholders).
+The project name can be used to identify your project in the **My Projects** page, and also can be used to replace [`Automated E-Mail's placeholders`](/email/email-templates.md#template-placeholders).
 
 
 ## CORS
 
-In your service settings, you can set the CORS setting to allow the request from the specific domain.
+In your project settings, you can set the CORS setting to allow the request from the specific domain.
 
 When left empty, the CORS setting will be set to `*` by default. Otherwise, you can set the CORS setting to the specific domain, for example, `https://example.com`.
 You can also set multiple domains by separating them with a comma, for example, `https://example.com,https://example2.com`.
 
 When the CORS setting is configured, requests from other domains will be blocked.
 
-In production, it is recommended to set the CORS setting to the specific domain to prevent unauthorized access to your service.
+In production, it is recommended to set the CORS setting to the specific domain to prevent unauthorized access to your project.
 
 
 ## Secret Key
@@ -36,28 +36,28 @@ For more information, refer [secure post request](/api-bridge/secure-post-reques
 
 ## Disable/Enable
 
-You can disable your service temporarily from the service dashboard.
+You can disable your project temporarily from the project dashboard.
 
-This is useful when you need to go under maintainance while temporarily blocking the access to your service without losing the data.
-When you disable your service, all the requests to your service will be blocked, and the service will be shown as disabled in the **My Services** page.
+This is useful when you need to go under maintainance while temporarily blocking the access to your project without losing the data.
+When you disable your project, all the requests to your project will be blocked, and the project will be shown as disabled in the **My Projects** page.
 
 :::warning
-Disabling your service will not pause your subscription. You will still be charged for the service even when it is disabled.
+Disabling your project will not pause your subscription. You will still be charged for the project even when it is disabled.
 :::
 
 
 ## Allow Signup
 
 You can prevent user signup by turning off this option.
-This setting will prevent anyone to signup or prevent anyone from removing their account in your service.
+This setting will prevent anyone to signup or prevent anyone from removing their account in your project.
 
 If this option is turned off, only the admin can create, disable user accounts from the **Users** page.
-This is useful when you want to create a private service for a specific group of users.
+This is useful when you want to create a private project for a specific group of users.
 
 
 ## Prevent Inquiry
 
-You can prevent users from sending inquiries to your service by turning off this option.
+You can prevent users from sending inquiries to your project by turning off this option.
 
 This is useful when you are not planning to use the [`sendInquiry()`](/api-reference/email/README.md#sendinquiry) method, and want to prevent spam.
 
@@ -68,4 +68,4 @@ You can freeze your database to prevent write operations by non-admin users.
 
 When the database is frozen, all users with an access level below 99 will be blocked from performing write operations. Only read operations will be allowed.
 
-When this is enabled, only the service owner can write to the database.
+When this is enabled, only the project owner can write to the database.

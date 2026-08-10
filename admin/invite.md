@@ -1,14 +1,14 @@
 # Inviting Users
 
-Admins can invite users to the service by using the [`inviteUser()`](/api-reference/admin/README.md#inviteuser) method.
+Admins can invite users to the project by using the [`inviteUser()`](/api-reference/admin/README.md#inviteuser) method.
 
 When a user is invited, an invitation email is sent to the user with a link to accept the invitation.
 
 In the invitation email, the user will see the login email and randomly generated password, and a link to accept the invitation.
 
-User should click on the link to accept the invitation within 7 days and they will be able to login to the service using the email and password provided in the invitation email.
+User should click on the link to accept the invitation within 7 days and they will be able to login to the project using the email and password provided in the invitation email.
 
-This example demonstrates using the [`inviteUser()`](/api-reference/admin/README.md#inviteuser) method to invite a user to the service.
+This example demonstrates using the [`inviteUser()`](/api-reference/admin/README.md#inviteuser) method to invite a user to the project.
 When the request is successful, the string "SUCCESS: Invitation has been sent. (User ID: xxx...)" is returned.
 
 :::code-group
@@ -36,7 +36,7 @@ skapi.inviteUser(
 :::
 
 :::tip
-The user will be able to login to the service using the email and password provided in the invitation email.
+The user will be able to login to the project using the email and password provided in the invitation email.
 It is recommended to change the password after the first login.
 :::
 
@@ -44,7 +44,7 @@ For more detailed information on all the parameters and options available with t
 
 ## Send Invitations with Custom Templates
 
-Invitation emails are sent using the default template configured in your Skapi service.
+Invitation emails are sent using the default template configured in your Skapi project.
 
 You can use your own custom HTML email template by providing a template URL and custom subject line.
 

@@ -38,5 +38,5 @@ skapi.sendInquiry(params).then(inquiry => {
 :::
 
 :::warning
-Be sure to turn on the `Allow Inquiries` option in the [Service Settings](/introduction/what-is-skapi.md#service-settings).
+Be sure to turn on the `Allow Inquiries` option in the [Project Settings](/introduction/what-is-skapi.md#project-settings).
 :::

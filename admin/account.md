@@ -176,7 +176,7 @@ skapi.blockAccount(
 });
 ```
 
-Once an account is blocked, the user will not be able to log in to the service.
+Once an account is blocked, the user will not be able to log in to the project.
 
 ## Unblocking User Accounts
 

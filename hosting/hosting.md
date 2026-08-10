@@ -1,12 +1,12 @@
 # Hosting your website
 
-Skapi provides a straight forward hosting service for your website.
+Skapi provides a straight forward hosting project for your website.
 You can host your website with Skapi by simply uploading your website files in your `Web Hosting` page.
 
 ## Registering Your Subdomain
 
 Before you upload your website files, you must register a subdomain for your website.
-Go to `Web Hosting` page. If the service does not have a subdomain, it will ask you to make one.
+Go to `Web Hosting` page. If the project does not have a subdomain, it will ask you to make one.
 
 <!-- 
 ![subdomain register](/hosting.png)

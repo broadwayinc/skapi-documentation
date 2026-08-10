@@ -8,12 +8,12 @@ User must be logged in to call this method
 :::
 
 :::warning
-If your service does not allow users to signup, the users will not be able to disable their account.
+If your project does not allow users to signup, the users will not be able to disable their account.
 
-For more information on how to allow/disallow users to signup from your service settings page, please refer to the [Service Settings](/service-settings/service-settings.md#allow-signup) page. 
+For more information on how to allow/disallow users to signup from your project settings page, please refer to the [Project Settings](/service-settings/service-settings.md#allow-signup) page. 
 :::
 
-If user choose to leave your service, they can disable their account.
+If user choose to leave your project, they can disable their account.
 User's can disable their account by calling the [`disableAccount()`](/api-reference/user/README.md#disableaccount) method.
 **All data related to the account will be deleted after 90 days**.
 User will be automatically logged out once their account has been disabled.

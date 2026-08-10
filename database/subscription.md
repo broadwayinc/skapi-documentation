@@ -119,7 +119,7 @@ skapi
 
 :::tip
 Subscriber counts are tracked in the [UserPublic](/api-reference/data-types/README.md#userpublic) object,
-which you can retrieve with [`getUsers()`](/api-reference/database/README.md#getusers).
+which you can retrieve with [`getUsers()`](/api-reference/user/README.md#getusers).
 :::
 
 

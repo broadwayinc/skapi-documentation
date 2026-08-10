@@ -1,6 +1,6 @@
 # Automated Emails
 
-When the user signup, reset password, or change email, subscribes to public newsletters, get invited to your service,
+When the user signup, reset password, or change email, subscribes to public newsletters, get invited to your project,
 the system will send an automated email to the user.
 You can customize the email template of these automated emails by sending your templates to the email endpoints.
 
@@ -23,7 +23,7 @@ In the `Automated Emails` page, select an email type you want to set the templat
 
 - **Invitation E-Mail**
   
-  Endpoint for invitation email template. The user receives this email when they are invited to the service.
+  Endpoint for invitation email template. The user receives this email when they are invited to the project.
   You can send invitation to users from the `Users` page in your admin page in Skapi website.
 
 - **Newsletter Subscription**
@@ -43,7 +43,7 @@ You may view already set templates, copy the end point.
 To customize the email template, just send your customized template via your e-mail to the endpoint address.
 
 :::danger
-- **DO NOT** share your email endpoint address with anyone. This endpoint is unique to your service and should be kept private.
+- **DO NOT** share your email endpoint address with anyone. This endpoint is unique to your project and should be kept private.
 - You must use the same email address that you used to signup to Skapi.
 :::
 
@@ -52,7 +52,7 @@ To customize the email template, just send your customized template via your e-m
 E-Mail templates takes custom placeholders that can be used to customize the email template.
 If there is a placeholder character in your email content, it will be replaced with the corresponding value.
 
-- **`${service_name}`**: Name of your service.
+- **`${service_name}`**: Name of your project.
 - **`${name}`**: User's name from the profile. If the user has not set their name, it will be replaced with empty string.
 - **`${email}`**: User's email address.
 
@@ -92,7 +92,7 @@ Below are the required placeholders for invitation email.
 
 When user clicks on the link, they will be able to login with the temporary password.
 
-You can invite users to your service from the user page in your service page in Skapi website.
+You can invite users to your project from the user page in your project page in Skapi website.
 
 :::tip
 To make the invitation email more personal, it would be good idea to include **`${name}`** placeholder in the template.

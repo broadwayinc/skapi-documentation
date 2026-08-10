@@ -15,7 +15,7 @@ See [ConnectionInfo](/api-reference/data-types/README.md#connectioninfo)
 ```ts
 {
     code: "NOT_EXISTS";
-    message: "Service does not exists. Register your service at skapi.com"
+    message: "Project does not exists. Register your project at skapi.com"
 }
 ```
 

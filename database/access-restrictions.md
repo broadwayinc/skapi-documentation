@@ -11,8 +11,8 @@ The following values can be set for `table.access_group`:
 - Number 0 to 99: Integer from 0 to 99 can be set to define the access level.
 - `private`: Only the uploader of the record will have access.
 - `public`: The record will be accessible to everyone. (Equivalent to number 0)
-- `authorized`: The record will only be accessible to users who are logged into your service. (Equivalent to number 1)
-- `admin`: Only admin can use this group. The record will only be accessible to the admin of your service. (Equivalent to number 99)
+- `authorized`: The record will only be accessible to users who are logged into your project. (Equivalent to number 1)
+- `admin`: Only admin can use this group. The record will only be accessible to the admin of your project. (Equivalent to number 99)
 
 
 If `access_group` is not set, the default value is `public`.
@@ -20,7 +20,7 @@ If `access_group` is not set, the default value is `public`.
 ::: tip
 Users can only access records that have an access group that is the same or a lower number than the access group defined in their user profile.
 
-The user profile's access group can only be changed by the service owners.
+The user profile's access group can only be changed by the project owners.
 :::
 
 ::: tip
@@ -89,7 +89,7 @@ skapi.getRecords(config)
 
 Private records are only accessible to the uploader of the record.
 
-**Even the admin of the service will not have access to view the user's private data.**
+**Even the admin of the project will not have access to view the user's private data.**
 
 The example below demonstrates uploading a private record:
 

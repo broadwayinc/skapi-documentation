@@ -1,12 +1,19 @@
 # Version History
 
-### Current version: 2.0.0-rc.0
+### Current version: 2.0.0
 
-**2.0.0-rc.0**
+**2.0.0**
 
-- The service ID is now called the **project ID**, and the single-token form (`'xxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxx'`) is the primary way to initialize: `new Skapi('project_id')`. The legacy service ID + owner ID pair is still accepted and is converted internally.
-- New `skapi.project_id` class property: the public project ID token, composed from the connected service and its owner. Empty string when the service has no user owner.
+- **A service is now called a project.** The documentation uses "project" throughout: project ID, project settings, project dashboard, project owner. The SDK keeps the older names in its API surface for backward compatibility, so `getConnectionInfo()` still returns `service_name` and `service_description`, and the `service` parameter and `refetchServiceInfo` option are unchanged.
+- The service ID is now called the **project ID**, and the single-token form (`"xxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxx"`) is the primary way to initialize: `new Skapi("<Project ID>")`. The legacy service ID + owner ID pair is still accepted and is converted internally.
+- New `skapi.project_id` class property: the public project ID token, composed from the connected project and its owner. Empty string when the project has no user owner.
 - `getConnectionInfo()` now returns `project_id` alongside the existing fields.
+- `clientSecretRequestHistory()` accepts `compact`. Request and response bodies can be far larger than the listing that shows them (file contents, long AI conversations), and a page of them was downloaded in full just to render a list. A compact listing returns label stubs instead, and the bodies never leave the server. See [Compact Listings](/api-bridge/request-history.html#compact-listings).
+- `RequestHistory` items from a compact listing carry `request_text`, `response_text`, `response_complete_marker` and `compact`, and omit `request_body` / `response_body`. `compact` is what tells a caller the bodies were deliberately left out rather than empty; re-fetch without `compact`, or `poll()` a live item, to get a full body. See [RequestHistory](/api-reference/data-types/README.md#requesthistory).
+- `clientSecretRequestHistory()` accepts `queue_exact`. A `queue` filter matches as a **prefix**, so a listing for queue `"jobs"` also returned `"jobs-retry"` and every other queue starting with those characters. `queue_exact: true` restricts it to exactly the named queue. The inverse, `queue_exclude`, drops one queue's rows from a listing. Both are applied after the range read, so a page can come back short while more matches remain: keep paging by `startKey` / `endOfList`, never by a page's length. See [Exact Queue Matching](/api-bridge/request-history.html#exact-queue-matching).
+- Fixed: `clientSecretRequestHistory()` ignored `url` and `method` whenever a `queue` was given, so the listing returned every request queued under that name regardless of which endpoint it was sent to. Two different APIs sharing a queue name reported each other's requests. The listing is now scoped to the `url` and `method` as it is without a queue.
+- Every example in the documentation now initializes with the placeholder `new Skapi("<Project ID>")`, angle brackets included, so it is obvious the value has to be replaced. The constructor's unreplaced-placeholder check accepts any of the forms the docs have used (`"<Project ID>"`, `project_id`, `service_id`), and still answers with `Replace "<value>" with your actual Project ID.` rather than a confusing owner ID error.
+- Fixed: an uncaught `QuotaExceededError` while saving the session cache. The cache is written on tab switch and page unload, and a large paged request history could exceed the session storage quota, which surfaced as an uncaught error on every tab switch. The write now retries without the paging state, and drops a stale snapshot rather than restoring one that disagrees with the current session. The cache is an optimization, so losing it costs a refetch and never correctness.
 
 **1.8.3**
 
@@ -104,7 +111,7 @@
 
 **1.5.2**
 
-- Added `clientSecretRequestHistory()` to retrieve past client-secret request results, with optional polling for items still in `pending` status. See [Client Secret Keys](/api-bridge/client-secret-request.html#fetching-request-history).
+- Added `clientSecretRequestHistory()` to retrieve past client-secret request results, with optional polling for items still in `pending` status. See [Client Secret Keys](/api-bridge/request-history.html).
 - Added `poll` parameter to `clientSecretRequest()` — polling interval in milliseconds for long-running third-party API calls.
 - `getTables()` now returns dynamic record counts per access group.
 
@@ -176,7 +183,7 @@
 
 - No breaking changes in this release.
 - Skapi now queues requests in batches for efficiency (Default: 30 requests per batch).
-- Skapi now provides more advanced class initialization options, including event listeners for login state, user profile updates, and batch processing. See [Advanced Settings](/introduction/getting-started.html#_4-advanced-settings).
+- Skapi now provides more advanced class initialization options, including event listeners for login state, user profile updates, and batch processing. See [Advanced Settings](/introduction/getting-started.html#advanced-settings).
 - `getNewsletters()` can now search for bounced emails and display delivery counts per email.
 
 **1.0.265**

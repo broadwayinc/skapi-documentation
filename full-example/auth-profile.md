@@ -27,7 +27,7 @@ This tutorial will show you how to implement full authentication and updating us
 All the files in this tutorial are located in the `authentication` folder.
 The `index.html` file is the main page of the application, and the `service.js` file will contain the initialized Skapi library.
 
-## Connecting to your Service
+## Connecting to your Project
 
 ### service.js
 
@@ -39,14 +39,11 @@ The `index.html` file is the main page of the application, and the `service.js` 
 
 /*
     Below, is the initializing code for Skapi.
-    Make sure you replace the first, and the second argument: "ap220wfRHl9Cw2QqeFEc", "f8e16604-69e4-451c-9d90-4410f801c006" to your own service ID and owner ID.
-    You can retrieve the service ID and the owner ID from www.skapi.com.
+    Make sure you replace "<Project ID>" with your own project ID.
+    You can retrieve the project ID from www.skapi.com.
     For more information, checkout the Getting Started: https://docs.skapi.com/introduction/getting-started.html
-
-    The third argument we are passing is an object with a property called autoLogin.
-    If autoLogin is set to true, then the user will always be automatically logged in when the page loads.
 */
-const skapi = new Skapi("ap220wfRHl9Cw2QqeFEc", "f8e16604-69e4-451c-9d90-4410f801c006");
+const skapi = new Skapi("<Project ID>");
 
 /*
     The following function disableForm() is for disabling the form while the user is submitting.

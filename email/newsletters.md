@@ -1,6 +1,6 @@
 # Sending Newsletters
 
-You can send newsletters or service newsletters to your users by sending your email to the endpoint email address.
+You can send newsletters or project newsletters to your users by sending your email to the endpoint email address.
 The following example shows the format for email endpoints for sending newsletters:
 
 ```
@@ -53,16 +53,16 @@ If the user is logged in, they will not be asked to confirm their email address.
 Instead, they must have their [`email verifed`](/user-account/email-verification).
 :::
 
-## Sending Service Newsletters
+## Sending Project Newsletters
   
-You can send service newsletters to your users with an account. To subscribe to service newsletters the user must be logged in.
-Service newsletters can be useful to send information, notifications, and other service-related emails.
+You can send project newsletters to your users with an account. To subscribe to project newsletters the user must be logged in.
+Project newsletters can be useful to send information, notifications, and other project-related emails.
 
-First, user must subscribe to the service newsletter to receive the email.
+First, user must subscribe to the project newsletter to receive the email.
 
 :::warning
-- User must be logged in to subscribe to your service newsletters.
-- User must have their email verified to subscribe to your service newsletters.
+- User must be logged in to subscribe to your project newsletters.
+- User must have their email verified to subscribe to your project newsletters.
 :::
 
 :::code-group
@@ -81,11 +81,11 @@ skapi.subscribeNewsletter({
 ```
 :::
 
-The example above shows how to let your visitors subscribe to the service newsletters by calling [`subscribeNewsletter()`](/api-reference/email/README.md#subscribenewsletter).
+The example above shows how to let your visitors subscribe to the project newsletters by calling [`subscribeNewsletter()`](/api-reference/email/README.md#subscribenewsletter).
 
-## Checking if the user is subscribed to the service newsletters
+## Checking if the user is subscribed to the project newsletters
 
-You can let the user check if they have subscribed to the service newsletters by calling [`getNewsletterSubscription()`](/api-reference/email/README.md#getnewslettersubscription).
+You can let the user check if they have subscribed to the project newsletters by calling [`getNewsletterSubscription()`](/api-reference/email/README.md#getnewslettersubscription).
 
 [`getNewsletterSubscription()`](/api-reference/email/README.md#getnewslettersubscription) may resolve either to a bare array of subscriptions or to a `DatabaseResponse` object (with a `.list` property) when the response is paginated. Normalize the result before checking its length:
 
@@ -95,7 +95,7 @@ skapi.getNewsletterSubscription({
 }).then(subs => {
     const list = Array.isArray(subs) ? subs : subs.list;
     if (list.length) {
-        // user is subscribed to the service newsletter
+        // user is subscribed to the project newsletter
     }
     else {
         // no subscription
@@ -103,15 +103,15 @@ skapi.getNewsletterSubscription({
 })
 ```
 
-## Unsubscribing from the service newsletters
+## Unsubscribing from the project newsletters
 
-You can let the user unsubscribe from the service newsletters by calling [`unsubscribeNewsletter()`](/api-reference/email/README.md#unsubscribenewsletter).
+You can let the user unsubscribe from the project newsletters by calling [`unsubscribeNewsletter()`](/api-reference/email/README.md#unsubscribenewsletter).
 
 ```js
 skapi.unsubscribeNewsletter({
     group: 'authorized'
 }).then(res => {
-    // user is unsubscribed from the service newsletter
+    // user is unsubscribed from the project newsletter
 })
 ```
 
@@ -148,7 +148,7 @@ please refer to the API Reference below:
 
 You can fetch sent emails from the database with conditions by calling [`getNewsletters()`](/api-reference/email/README.md#getnewsletters).
 
-Below is an example of fetching service newsletters that are sent to the service users before 24 hours ago in descending order.
+Below is an example of fetching project newsletters that are sent to the project users before 24 hours ago in descending order.
 
 For full parameters and options, see [`getNewsletters(params, options?)`](/api-reference/email/README.md#getnewsletters).
 

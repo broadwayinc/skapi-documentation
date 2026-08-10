@@ -21,9 +21,9 @@ See the tutorial [Introduction](/full-example/intro.html) for more information.
 
 - You need to have an OpenAI account to use the API.
 - You need to obtain the client secret key from OpenAI.
-- You need to save your client secret key in your service dashboard.
+- You need to save your client secret key in your project dashboard.
 
-  For more information, see [Client Secret Key](/service-settings/service-settings.html#client-secret-key).
+  For more information, see [Client Secret Key](/service-settings/service-settings.html#secret-key).
 
 ## AI Image Generator
 
@@ -72,10 +72,10 @@ See the tutorial [Introduction](/full-example/intro.html) for more information.
         /*
         We will use the clientSecretRequest() method to call the OpenAI's API.
         We will pass the url, method, headers and post data according to the OpenAI's API documentation.
-        The client secret name is the key name of the client secret you may have saved in the service dashboard.
+        The client secret name is the key name of the client secret you may have saved in the project dashboard.
         
         For more information about the setting your client secret keys,
-        visit: https://docs.skapi.com/service-settings/service-settings.html#client-secret-key
+        visit: https://docs.skapi.com/service-settings/service-settings.html#secret-key
         
         When successful, it will return the response data.
         When unsuccessful, it will return the error object.

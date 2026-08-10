@@ -23,8 +23,8 @@ Examples:
 When you run your coding assistant, start with a prompt like this:
 
 ```
-My Skapi service ID is: "xxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxx".
+My Skapi project ID is: "xxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxx".
 Build me a [describe what you want].
 ```
 
-Replace the placeholder service ID with your actual service ID before running your prompt.
+Replace the placeholder project ID with your actual project ID before running your prompt.

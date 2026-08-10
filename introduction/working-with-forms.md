@@ -121,7 +121,7 @@ For this example, create these two HTML files in the same directory.
 <script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
 <script>
     // Replace 'project_id' with your project ID from your Skapi dashboard.
-    const skapi = new Skapi('project_id');
+    const skapi = new Skapi("<Project ID>");
 </script>
 
 <form onsubmit="skapi.mock(event)" action="welcome.html">
@@ -141,7 +141,7 @@ For this example, create these two HTML files in the same directory.
 
 <script>
     // Replace 'project_id' with your project ID from your Skapi dashboard.
-    const skapi = new Skapi('project_id');
+    const skapi = new Skapi("<Project ID>");
     
     skapi.getFormResponse()
       .then((r) => {

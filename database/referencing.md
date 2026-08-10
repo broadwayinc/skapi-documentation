@@ -272,7 +272,7 @@ Note that the "Review.Album.GetzGilberto" `index` uses a `value` of type `number
    
    You can set restrictions on the number of times a record can be referenced, prevent multiple referencing for each users, and restrict the index values of the referencing record.
 
-   While Skapi database works as schema-less in nature, you can use this characteristic to have more control over how your users can post data to your service.
+   While Skapi database works as schema-less in nature, you can use this characteristic to have more control over how your users can post data to your project.
 
 3. Sharing private data between limited users
    

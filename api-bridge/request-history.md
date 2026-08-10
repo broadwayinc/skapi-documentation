@@ -1,7 +1,7 @@
 
 # Fetching Request History
 
-Every call made through `clientSecretRequest()` is stored in your service so the result can be retrieved later — even if the original call returned before the third-party API responded, or if the page was reloaded mid-request.
+Every call made through `clientSecretRequest()` is stored in your project so the result can be retrieved later — even if the original call returned before the third-party API responded, or if the page was reloaded mid-request.
 
 Use [`clientSecretRequestHistory(params, fetchOptions)`](/api-reference/api-bridge/README.md#clientsecretrequesthistory) to list past requests for a given `url` and `method`:
 

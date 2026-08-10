@@ -7,7 +7,7 @@ User must be logged in to call this method
 User with verified E-Mail can:
 
 - Reset their password if they've forgotten it.
-- Receive newsletter from the service owner if they choose to.
+- Receive newsletter from the project owner if they choose to.
 - Recover their disabled account.
 - Allow their email address to be public to other users if they choose.
 

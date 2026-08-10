@@ -28,15 +28,15 @@ Below, are the modified/added files for this example:
 - `user_account.html`: User account page.
 
 :::warning
-Be sure to replace the `SERVICE_ID` in `new Skapi()` on all example pages.
-You can get your `SERVICE_ID` from your service dashboard.
+Be sure to replace `"<Project ID>"` in `new Skapi()` on all example pages.
+You can get your project ID from your project dashboard.
 
 For more information see [Getting Started](/introduction/getting-started.md)
 :::
 
 ## index.html
 
-This is an extended version of `index.html` from the [previous tutorial](/authentication/full-example.md#index-html).
+This is an extended version of `index.html` from the [previous tutorial](/authentication/full-example.md).
 
 Link to the user account, change password is added.
 Verified badge is displayed if the user's email is verified.
@@ -59,7 +59,7 @@ Or else, button for verifing user's email will be displayed.
 </form>
 
 <script>
-    const skapi = new Skapi('project_id');
+    const skapi = new Skapi("<Project ID>");
     let user = null;
 
     skapi.getProfile().then(u => {
@@ -161,7 +161,7 @@ User will get redirected back to `index.html` once the update is successful.
 <a href="index.html">Back to main</a>
 
 <script>
-    const skapi = new Skapi('project_id');
+    const skapi = new Skapi("<Project ID>");
 
     skapi.getProfile().then(user => {
         if (user === null) {
@@ -241,7 +241,7 @@ User will get redirected back to `index.html` once change password is successful
 <a href="index.html">Cancel</a>
 
 <script>
-    const skapi = new Skapi('project_id');
+    const skapi = new Skapi("<Project ID>");
 
     skapi.getProfile().then(user => {
         if (user === null) {

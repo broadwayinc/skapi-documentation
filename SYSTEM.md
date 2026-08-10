@@ -23,7 +23,7 @@ If the project already uses a SPA framework (React, Vue, Svelte, etc.), follow t
 
 Before implementing features, confirm these values are available:
 
-1. Skapi service ID
+1. Skapi project ID
 2. Any required client secret key names
 3. Any required OpenID logger IDs
 
@@ -36,7 +36,7 @@ In `index.html`, load and initialize Skapi:
 ```html
 <script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
 <script>
-  const skapi = new Skapi("project_id");
+  const skapi = new Skapi("<Project ID>");
 </script>
 ```
 

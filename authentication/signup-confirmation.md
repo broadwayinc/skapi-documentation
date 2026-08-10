@@ -10,7 +10,7 @@ The account is not fully activated until the user confirms it.
 When an account is created with `options.signup_confirmation` set to `true` or a URL string,
 the user receives a signup confirmation email.
 
-The user must click on the confirmation link before logging into your service.
+The user must click on the confirmation link before logging into your project.
 If the `options.signup_confirmation` value is a valid URL string,
 the user is redirected to that URL after successful confirmation.
 
@@ -139,7 +139,7 @@ see the API reference below:
 ### [`resendSignupConfirmation(): Promise<'SUCCESS: Signup confirmation e-mail has been sent.'>`](/api-reference/authentication/README.md#resendsignupconfirmation)
 
 ::: warning
-- To resend signup confirmation emails, the user must have at least one login attempt to your service.
+- To resend signup confirmation emails, the user must have at least one login attempt to your project.
 - If the user does not confirm within 7 days, the signup is invalidated and they must sign up again.
 :::
 

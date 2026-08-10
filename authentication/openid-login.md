@@ -8,7 +8,7 @@ OpenID is an authentication standard that lets users sign in with an identity pr
 
 ## Login with OpenID Profile
 
-If you have access to an OpenID provider API, you can register an OpenID Logger in your Skapi service settings.
+If you have access to an OpenID provider API, you can register an OpenID Logger in your Skapi project settings.
 
 Although providers differ in details, the overall process is:
 
@@ -63,7 +63,7 @@ You must exchange this `code` for an access token. Because this step requires a 
 
 To register a client secret key in Skapi:
 
-1. In the service page, click on the **Client Secret Keys** menu.
+1. In the project page, click on the **Client Secret Keys** menu.
 2. Click **+** at the top-right of the table.
 3. In the form, enter:
     - **Name:** A key identifier. For this guide, use **ggltoken**.
@@ -103,12 +103,12 @@ const ACCESS_TOKEN = tokenResponse?.access_token;
 
 ### 4. Register Your OpenID Logger in Skapi
 
-To log users into your Skapi service with the token, you must register an OpenID Logger.
+To log users into your Skapi project with the token, you must register an OpenID Logger.
 
 The logger configuration tells Skapi how to request user profile attributes from the OAuth provider and which attribute to use as the unique account identifier.
 
 1. Log in to [skapi.com](https://www.skapi.com).
-2. Open the service where you want to register an OpenID logger.
+2. Open the project where you want to register an OpenID logger.
 3. From the side menu, click on **OpenID Logger**.
 4. Click **+** at the top-right of the table.
 5. Fill in the logger form:
@@ -159,7 +159,7 @@ skapi.openIdLogin({ id: 'google', token: ACCESS_TOKEN }).then(user => {
 
 This example shows the entire flow in one page. After the user signs in with Google and is redirected back to your app, use [`clientSecretRequest()`](/api-bridge/client-secret-request.md) to exchange the authorization code for an access token.
 
-Then call [`openIdLogin(event?: SubmitEvent | params): Promise<{ userProfile: UserProfile; openid: { [attribute: string]: string } }>`](/api-reference/authentication/README.md#openidlogin) to sign the user in to your Skapi service.
+Then call [`openIdLogin(event?: SubmitEvent | params): Promise<{ userProfile: UserProfile; openid: { [attribute: string]: string } }>`](/api-reference/authentication/README.md#openidlogin) to sign the user in to your Skapi project.
 
 ```html
 <button onclick="googleLogin()">Google Login</button>

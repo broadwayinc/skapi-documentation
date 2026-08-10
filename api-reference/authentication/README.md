@@ -205,7 +205,7 @@ resetPassword(
 openIdLogin(
     params: SubmitEvent | {
         token: string; // ID/Access token fetched from OpenID API service
-        id: string; // OpenID Logger ID registered in the service page.
+        id: string; // OpenID Logger ID registered in the project page.
         merge?: boolean | string[] // When true, merges with previous account. When string[] is given, account is merged with the specified OpenID attribute values.
     }
 ): Promise<{
