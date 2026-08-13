@@ -1,6 +1,6 @@
 # Using Third-Party APIs
 
-You can connect Skapi to third-party APIs (projects outside your app), such as AI projects, map projects, payment projects, or your own external APIs.
+You can connect Skapi to third-party APIs (projects outside your app), such as AI service, map service, payment service, or your own external APIs.
 
 If the API requires a client secret, use [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) to send secure `POST` or `GET` requests.
 

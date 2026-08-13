@@ -88,6 +88,7 @@ let method_ref = [
             { text: 'Client Secret Keys', link: '/api-bridge/client-secret-request.md' },
             { text: 'Polling Requests', link: '/api-bridge/polling-request.md' },
             { text: 'Request History', link: '/api-bridge/request-history.md' },
+            { text: 'Forward Request', link: '/api-bridge/forward-request.md' },
             { text: 'OpenAI API Example', link: '/api-bridge/example.md' },
         ]
     },

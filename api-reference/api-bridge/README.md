@@ -175,3 +175,49 @@ When a secret key is set on the project's settings page, the mirrored request ca
 key, which is how your API can verify the call really came from Skapi.
 
 See [Secure Post Request](/api-bridge/secure-post-request.md)
+
+## forwardRequest
+
+```ts
+forwardRequest(
+    form: SubmitEvent | HTMLFormElement | FormData | { [key: string]: any }, // Sent to the destination as-is.
+    options: {
+        url: string;            // The destination URL. Must be http(s) and resolve to a public address.
+        method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD'; // Defaults to 'POST'.
+        headers?: { [key: string]: string }; // Headers to send TO the destination.
+        apiKeyHeader?: string;  // Header name carrying your project's API key. Defaults to 'x-api-key'.
+        apiKeyScheme?: string;  // Prefix for the API key value, e.g. 'Bearer'.
+        onStream?: (chunk: string) => void; // Called with each chunk as it arrives. Supplying this enables streaming.
+        signal?: AbortSignal;   // Aborts the forward and the destination request.
+        responseType?: 'json' | 'text' | 'response'; // How the promise resolves. Defaults to json, falling back to text.
+    }
+): Promise<any>
+```
+
+Forwards a request to your own external backend from Skapi's servers instead of the
+browser, and streams the response back as it arrives. The user must be logged in.
+
+Accepts an HTML form directly, so `onsubmit="skapi.forwardRequest(event, { url })"` works
+with no `preventDefault()` of your own.
+
+Unlike [secureRequest](#securerequest), the body is relayed **verbatim**: a form arrives at
+your backend as the same multipart or urlencoded payload the browser would have sent, files
+included.
+
+Your backend authenticates the call by the `x-api-key` header, which Skapi adds server side
+from the API key string set on your [project settings](/service-settings/additional.md)
+page. The browser never sees it and a caller cannot replace it. Your backend also receives
+`x-skapi-user` and `x-skapi-service`, written from the verified session, so it can tell who
+is calling without trusting the client.
+
+Your backend's status code and response headers are passed through to the caller, except
+hop-by-hop headers, `set-cookie`, and `access-control-*` (Skapi writes those itself from the
+project's CORS setting; a duplicate would make the browser reject the response). Forwarded
+headers are named in `Access-Control-Expose-Headers` so the client can actually read them.
+
+**Return value:**
+- with `onStream`, the promise resolves with the whole body once the stream ends, after the callback has seen every chunk
+- otherwise your backend's response, parsed as JSON when it parses, else text
+- `responseType: 'response'` hands back the raw `Response` object for full control
+
+See [Forward Request](/api-bridge/forward-request.md)
