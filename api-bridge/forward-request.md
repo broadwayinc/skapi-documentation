@@ -134,6 +134,12 @@ Alongside your `headers`, the forwarded request carries:
 
 The identity headers are written by Skapi, not by the caller: any request that tries to set an `x-skapi-` header itself is rejected, so your backend can trust them to attribute the call.
 
+:::info Non-ASCII text in headers
+An HTTP header carries bytes, not text, so a profile with a Korean name or an emoji cannot be put into one as it stands. `x-skapi-user` is therefore JSON with every non-ASCII character escaped as `\uXXXX`. It stays valid JSON, so `JSON.parse` (or `json.loads`) hands you the original text with nothing to undo.
+
+Non-ASCII values in your own `headers` are sent as UTF-8 bytes instead, the same as any other HTTP client. Node and Python's `http.server` both decode incoming headers as Latin-1, so a backend reading such a header gets those bytes back with `Buffer.from(value, 'latin1').toString('utf8')` or `value.encode('latin1').decode('utf8')`. Values that cannot be sent at all, such as a line break, are refused with `INVALID_PARAMETER` rather than silently dropped.
+:::
+
 ::: code-group
 
 ```js [Node]
