@@ -137,30 +137,80 @@ The identity headers are written by Skapi, not by the caller: any request that t
 ::: code-group
 
 ```js [Node]
-app.post('/report', (req, res) => {
-    // compare the VALUE: an unset project key arrives as the string "none"
-    if (req.headers['x-api-key'] !== 'your api key string') {
-        return res.status(401).end('api key mismatch');
-    }
+const http = require('http');
 
-    let user = JSON.parse(req.headers['x-skapi-user']);
-    console.log(user.user_id, 'sent a report');
+http.createServer(function (request, response) {
+    // Consume the body even when you are about to refuse the request: an unread
+    // request stream keeps the connection from being reused, and a large upload
+    // can reach the client as a reset instead of your status code. This is the
+    // form payload, verbatim.
+    const chunks = [];
+    request.on('data', function (chunk) { chunks.push(chunk); });
+    request.on('end', function () {
+        const body = Buffer.concat(chunks);
 
-    res.json({ received: true });
-});
+        function reply(code, payload, contentType) {
+            response.writeHead(code, {
+                'content-type': contentType || 'text/plain',
+                'content-length': Buffer.byteLength(payload)
+            });
+            response.end(payload);
+        }
+
+        if (request.method !== 'POST' || request.url !== '/report') {
+            return reply(404, 'not found');
+        }
+
+        // compare the VALUE: an unset project key arrives as the string "none"
+        if (request.headers['x-api-key'] !== 'your api key string') {
+            return reply(401, 'api key mismatch');
+        }
+
+        const user = JSON.parse(request.headers['x-skapi-user']);
+        console.log(user.user_id, 'sent a report');
+
+        reply(200, JSON.stringify({ received: true }), 'application/json');
+    });
+}).listen(8000);
 ```
 
 ```py [Python]
-@app.post("/report")
-def report(request):
-    # compare the VALUE: an unset project key arrives as the string "none"
-    if request.headers.get("x-api-key") != "your api key string":
-        return Response("api key mismatch", status=401)
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+import json
 
-    user = json.loads(request.headers["x-skapi-user"])
-    print(user["user_id"], "sent a report")
+class Handler(BaseHTTPRequestHandler):
+    # HTTP/1.1, so a streaming reply can be chunked. The default is 1.0, which
+    # has no chunked encoding and closes the connection after every response.
+    protocol_version = "HTTP/1.1"
 
-    return {"received": True}
+    def do_POST(self):
+        # Read the body even when you are about to refuse the request: bytes
+        # left unread in the socket can reach the client as a reset connection
+        # instead of your status code. This is the form payload, verbatim.
+        body = self.rfile.read(int(self.headers.get("content-length") or 0))
+
+        if self.path != "/report":
+            return self.reply(404, b"not found")
+
+        # compare the VALUE: an unset project key arrives as the string "none"
+        if self.headers.get("x-api-key") != "your api key string":
+            return self.reply(401, b"api key mismatch")
+
+        user = json.loads(self.headers["x-skapi-user"])
+        print(user["user_id"], "sent a report")
+
+        self.reply(200, json.dumps({"received": True}).encode(), "application/json")
+
+    def reply(self, code, body, content_type="text/plain"):
+        self.send_response(code)
+        self.send_header("content-type", content_type)
+        self.send_header("content-length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+# Threaded: a forwarded request holds the connection open for as long as your
+# handler takes, and the single-threaded default would serialize them.
+ThreadingHTTPServer(("0.0.0.0", 8000), Handler).serve_forever()
 ```
 
 :::
