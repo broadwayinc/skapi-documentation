@@ -188,7 +188,7 @@ forwardRequest(
         apiKeyHeader?: string;  // Header name carrying your project's API key. Defaults to 'x-api-key'.
         apiKeyScheme?: string;  // Prefix for the API key value, e.g. 'Bearer'.
         onStream?: (chunk: string) => void; // Called with each chunk as it arrives. Supplying this enables streaming.
-        signal?: AbortSignal;   // Aborts the forward and the destination request.
+        signal?: AbortSignal;   // Stops the client receiving the response. Does NOT cancel the request already sent to your backend.
         responseType?: 'json' | 'text' | 'response'; // How the promise resolves. Defaults to json, falling back to text.
     }
 ): Promise<any>
@@ -201,8 +201,8 @@ Accepts an HTML form directly, so `onsubmit="skapi.forwardRequest(event, { url }
 with no `preventDefault()` of your own.
 
 Unlike [secureRequest](#securerequest), the body is relayed **verbatim**: a form arrives at
-your backend as the same multipart or urlencoded payload the browser would have sent, files
-included.
+your backend as `multipart/form-data`, files included. The form's own `enctype` and `method`
+attributes are not used.
 
 Your backend authenticates the call by the `x-api-key` header, which Skapi adds server side
 from the API key string set on your [project settings](/service-settings/additional.md)
@@ -211,9 +211,12 @@ page. The browser never sees it and a caller cannot replace it. Your backend als
 is calling without trusting the client.
 
 Your backend's status code and response headers are passed through to the caller, except
-hop-by-hop headers, `set-cookie`, and `access-control-*` (Skapi writes those itself from the
-project's CORS setting; a duplicate would make the browser reject the response). Forwarded
-headers are named in `Access-Control-Expose-Headers` so the client can actually read them.
+hop-by-hop headers, `content-length`, `set-cookie`, and `access-control-*` (Skapi writes those
+itself from the project's CORS setting; a duplicate would make the browser reject the response).
+Forwarded headers are named in `Access-Control-Expose-Headers` so the client can actually read
+them. Reading the status code or a response header from JavaScript requires
+`responseType: 'response'`; otherwise a non-2xx is thrown as a `SkapiError` and the promise
+value is the parsed body alone.
 
 **Return value:**
 - with `onStream`, the promise resolves with the whole body once the stream ends, after the callback has seen every chunk
