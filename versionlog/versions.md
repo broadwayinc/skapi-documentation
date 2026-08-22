@@ -10,6 +10,7 @@
 - `clientSecretRequestHistory()` accepts `compact`, `queue_exact` and `queue_exclude`. `compact` returns label stubs in place of request and response bodies, which can be far larger than the listing that shows them; `queue_exact` restricts a `queue` filter to exactly the named queue instead of matching it as a prefix, and `queue_exclude` drops one queue's rows. Queue filters apply after the range read, so a page can come back short while more matches remain: keep paging by `startKey` / `endOfList`, never by a page's length. See [Request History](/api-bridge/request-history.html) and [RequestHistory](/api-reference/data-types/README.md#requesthistory).
 - Fixed: `url` and `method` were ignored whenever a `queue` was given, so two different APIs sharing a queue name reported each other's requests.
 - Fixed: an uncaught `QuotaExceededError` while saving the session cache. A large paged request history could exceed the session storage quota, which surfaced as an uncaught error on every tab switch.
+- Fixed: a record whose `data` contained an empty key (`{ "": "value" }`) could not be saved at all, and failed with an opaque server error that named neither the field nor the key. Such data is valid JSON but cannot be stored as a database attribute, so it is now stored as text and parsed back on read: `postRecord()` and `getRecords()` return exactly what was posted. The same now applies to `data` nested more than 32 levels deep, and to a key longer than 65535 bytes. Records saved this way can only be read back by this version of the SDK or later.
 
 **1.8.3**
 
