@@ -66,6 +66,7 @@ let method_ref = [
             { text: 'Fetching Records', link: '/database/fetch.md' },
             { text: 'Table Information', link: '/database/table-info.md' },
             { text: 'Access Restrictions', link: '/database/access-restrictions.md' },
+            { text: 'Encrypting Private Data', link: '/database/encryption.md' },
             { text: 'Unique ID', link: '/database/unique-id.md' },
             { text: 'Updating a Record', link: '/database/update-record.md' },
             { text: 'Handling Files', link: '/database/handling-files.md' },

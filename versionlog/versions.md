@@ -2,7 +2,7 @@
 
 ### Current version: 2.0.0
 
-**2.0.0**
+**2.0.0 (Release Candidate)**
 
 - Added `forwardRequest()`. It relays a request to a destination of your choosing **from the server** and streams the response back as it arrives, with the project's API key attached server side where the browser cannot read it. See [Forward Request](/api-bridge/forward-request.html).
 - **A service is now called a project**, and the service ID is now the **project ID**. The single-token form is the primary way to initialize: `new Skapi("<Project ID>")`. The legacy service ID + owner ID pair is still accepted, and the SDK keeps the older names in its API surface, so `service_name`, `service_description`, the `service` parameter and `refetchServiceInfo` are unchanged. Documentation examples now use the `"<Project ID>"` placeholder, angle brackets included.
@@ -10,7 +10,10 @@
 - `clientSecretRequestHistory()` accepts `compact`, `queue_exact` and `queue_exclude`. `compact` returns label stubs in place of request and response bodies, which can be far larger than the listing that shows them; `queue_exact` restricts a `queue` filter to exactly the named queue instead of matching it as a prefix, and `queue_exclude` drops one queue's rows. Queue filters apply after the range read, so a page can come back short while more matches remain: keep paging by `startKey` / `endOfList`, never by a page's length. See [Request History](/api-bridge/request-history.html) and [RequestHistory](/api-reference/data-types/README.md#requesthistory).
 - Fixed: `url` and `method` were ignored whenever a `queue` was given, so two different APIs sharing a queue name reported each other's requests.
 - Fixed: an uncaught `QuotaExceededError` while saving the session cache. A large paged request history could exceed the session storage quota, which surfaced as an uncaught error on every tab switch.
-- Fixed: a record whose `data` contained an empty key (`{ "": "value" }`) could not be saved at all, and failed with an opaque server error that named neither the field nor the key. Such data is valid JSON but cannot be stored as a database attribute, so it is now stored as text and parsed back on read: `postRecord()` and `getRecords()` return exactly what was posted. The same now applies to `data` nested more than 32 levels deep, and to a key longer than 65535 bytes. Records saved this way can only be read back by this version of the SDK or later.
+- A record's `data` is now stored as JSON text and parsed back on read, so it returns exactly what was posted, whatever it is. Payloads that could not be saved at all before now round-trip: one containing an empty key (`{ "": "value" }`), one nested more than 32 levels deep, and one carrying a key longer than 65535 bytes. All three used to fail with an opaque server error naming neither the field nor the key. `data: null` now stores a null rather than removing the field, so it reads back as `null`; passing no `data` at all is still the metadata-only update that keeps what is stored. The only payload refused is one carrying `NaN` or `Infinity`, which is not JSON. **Records written this way can only be read back by this version of the SDK or later**, and `data` is roughly 10 to 30% larger in storage, so a record near the size limit is more likely to be offloaded to file storage.
+- Fixed: a list in a record's `data` lost its order and its duplicates. `[1, 1, 1]` was stored as a database set and came back as `[1]`; it now reads back as written. An empty list and an empty object are stored as themselves too.
+- Fixed: a string in `data` containing `*add` or `*sub` corrupted the record on update. The text was read as an internal counter instruction, which replaced `data` with a set of the remaining words.
+- `deleteRecords()` now returns the records it deleted in the same shape every other method returns, so `record_id`, `table.name` and `data` read normally. It was the one record-returning method that never normalized, so it handed back raw database items with short keys and encoded values.
 
 **1.8.3**
 

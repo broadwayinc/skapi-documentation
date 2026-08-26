@@ -45,10 +45,19 @@ import type {
 type BinaryFile = {
     access_group: number | 'private' | 'public' | 'authorized' | 'admin';
     filename: string;
+    /** For an ENCRYPTED file this url serves CIPHERTEXT. Use getFile() below, which decrypts;
+     *  an <img src> or a plain <a href> on it will not work. */
     url: string;
     path: string;
+    /** The PLAINTEXT byte length. For an encrypted file the object on storage is larger:
+     *  see stored_size. */
     size: number;
     uploaded: number;
+    /** Present and true only on an encrypted attachment. Set on the plain data, not just
+     *  on the getFile closure, so it survives being structured-cloned or JSON round-tripped. */
+    encrypted?: boolean;
+    /** Byte length of the encrypted object as stored. Present only when encrypted is true. */
+    stored_size?: number;
     getFile: (dataType?: 'base64' | 'download' | 'endpoint' | 'blob' | 'text' | 'info', progress?: ProgressCallback) => Promise<Blob | string | void | FileInfo>;
 }
 ```
@@ -363,7 +372,29 @@ type RecordData = {
         name: string;
         value: string | number | boolean;
     };
+    /** null (or the withheld placeholder) when this session could not decrypt it: see `encrypted`. */
     data?: Record<string, any>;
+    /** Present ONLY when the record's data passed through the client-side encryption layer.
+     *  Its ABSENCE means the record was stored in the clear, which is how existing plaintext
+     *  records keep working after the feature is enabled.
+     *
+     *  status 'encrypted' means `data` above is the decrypted value.
+     *  status 'failed' means `data` is null (or the sentinel) and `reason` says why:
+     *    NOT_A_RECIPIENT     this user has no key wrap on the record (a MASTER reading
+     *                        another user's private record lands here; unlocking cannot help)
+     *    NO_SESSION_KEY      this user IS a recipient but encryption is locked; unlock and retry
+     *    BAD_KEY             the key wrap did not open (usually a rolled key)
+     *    BINDING_MISMATCH    the stored envelope does not belong to this record
+     *    CORRUPT             the payload failed its authentication tag
+     *    DATA_UNAVAILABLE    the payload is offloaded to storage and could not be fetched
+     *    UNSUPPORTED_VERSION written by a newer SDK than this one
+     *    ENCRYPTION_DISABLED the record is encrypted but this instance has the flag off */
+    encrypted?: {
+        status: 'encrypted' | 'failed';
+        reason?: string;
+        /** user_ids that hold a key wrap on this record. Metadata, not content. */
+        recipients?: string[];
+    };
     tags?: string[];
     bin: { [key: string]: BinaryFile[] };
     ip: string;
