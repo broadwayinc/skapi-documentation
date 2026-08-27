@@ -141,10 +141,95 @@ await skapi.postRecord(
 
 The reverse also holds: moving a public record to `'private'` encrypts it on the way in.
 
-You must pass the data along with the group change. Flipping an encrypted record to a
-non-private group **without** restating its data would leave the stored ciphertext sitting
-in a record that nothing will ever try to decrypt, so that call is refused with
-`ENCRYPTION_DECLASSIFY_NEEDS_DATA` rather than silently stranding it.
+::: warning A group change alone publishes the plaintext
+You do not have to pass the data along with the group change, and that is worth knowing
+before you write the call. Moving an encrypted record to a non-private group **without**
+restating its data does not leave the ciphertext stranded: the SDK decrypts what is stored
+and writes it back in the clear, because a record nothing will ever try to decrypt is
+worse than one that is readable on purpose.
+
+The consequence is that a bare access-group change is a publish. If the intent was only to
+reorganize a table, move the record to another private group instead.
+
+The SDK can only do this while encryption is unlocked and the caller can actually read the
+record. A session that cannot decrypt it is refused rather than allowed to strand or
+destroy the payload.
+:::
+
+### Attachments move with the record
+
+Files are converted in whichever direction the record is going: sealed files come back to
+plaintext when a record leaves `'private'`, and plaintext files are sealed when it arrives.
+Without this, declassifying produced a public record holding files nobody could ever open
+again, because the payload was decrypted while the key went with the envelope.
+
+The order is what makes each direction safe to interrupt:
+
+| Direction | Order | If it dies halfway |
+| --- | --- | --- |
+| `private` to anything | files first, then the group flip | still private, some files already plaintext. Readable, and re-running finishes it |
+| anything to `private` | group flip first, then the files | private with its data sealed, some files still in the clear. Less protected than intended, nothing lost |
+
+Neither is atomic and neither can be: a group change is one write, and every file is a
+separate object. What they are is **monotonic**. No interruption destroys content, and
+re-running the same update completes the job.
+
+::: warning This costs requests
+A group change on a record with attachments downloads, re-encodes and re-uploads every one
+of them. An update that states a non-private group also costs one extra read, to find out
+whether there are any sealed files at all. Changing the access group of a record with many
+large files is not a cheap operation.
+:::
+
+### The service owner cannot change these settings for someone else
+
+A master account can update any record in its project, but **not** move someone else's
+record into or out of `'private'`. That is refused in both directions, and the SDK refuses
+it earlier with `ENCRYPTION_NOT_RECORD_OWNER` so the reason is clear before a round trip:
+
+- Making **someone else's record private** would seal it under the master's key, with the
+  envelope naming the master as owner while the record belongs to someone else. The binding
+  check then refuses it for everyone, the real owner included. The record would be destroyed
+  and the call would report success.
+- **Declassifying someone else's** encrypted record cannot work either, since the master has
+  no key to decrypt what it would have to write back in the clear.
+
+Encryption operates only on records you own, whatever access level you hold. A master who
+needs one of these changes has to have the owner make it.
+
+This is enforced in the **backend**, not only in the SDK, so an older client or a direct
+REST call is refused too:
+
+> Only the owner of a record can move it into or out of the private access group.
+
+A master may still move a record freely between any two **non-private** groups, and may do
+anything at all to its own records. The rule is specifically about the private boundary,
+because `'private'` is the only group whose contents may be encrypted, and no amount of
+privilege substitutes for a key that only the owner has.
+
+## Private grants are cleared at the boundary
+
+Crossing into or out of `'private'` **removes every private-access grant on the record**.
+
+`'private'` is the only access group where a grant means *"this named user may read this one
+record"*. In every other group a grant only widens what an already-qualifying user may do,
+such as referencing the record, so those grants stay meaningful and are left alone.
+
+| Change | Grants |
+| --- | --- |
+| `private` to anything | **cleared** |
+| anything to `private` | **cleared** |
+| between two non-private groups | untouched |
+| no group change | untouched |
+
+Leaving them in place on the way *out* would keep an access model the record no longer uses.
+Leaving them in place on the way *back in* would silently re-grant users the owner never
+re-approved, and with encryption enabled it would produce a record whose ACL says "shared"
+while its key wraps say otherwise: the ACL would let those users fetch it and the crypto
+would refuse them.
+
+This runs in the record stream, so it applies **whether or not encryption is enabled**. If
+the users should still have access after the change, grant them again.
 
 ::: tip State the table on updates
 When you update a record without a `table`, the SDK has to fetch the record to learn its
@@ -186,6 +271,11 @@ await skapi.removePrivateRecordAccess({
 Revocation is **forward-only**. It cannot un-read what they already read, and if they kept
 a copy of the old ciphertext and their old wrap, that copy stays readable to them forever.
 
+::: warning A group change clears grants
+Moving a record into or out of `'private'` removes every grant on it. See
+[Private grants are cleared at the boundary](#private-grants-are-cleared-at-the-boundary).
+:::
+
 ### Rules for sharing
 
 - Only the **owner** can share or revoke an encrypted record, because both mean writing to
@@ -194,8 +284,9 @@ a copy of the old ciphertext and their old wrap, that copy stays readable to the
 - The recipient must have logged in at least once with encryption enabled, so that they
   have a published key. Granting to a user with no key throws
   `ENCRYPTION_RECIPIENT_HAS_NO_KEY` and changes nothing.
-- Each recipient adds roughly 230 bytes to the record, carried on every read and write.
-  Adding a recipient re-uploads the whole record, so sharing a 1.9MB record uploads 1.9MB.
+- Each recipient adds roughly 230 bytes to the record, carried on every read and write of
+  the envelope. On a large record the payload itself is stored separately and is **not**
+  re-uploaded when you share it: see [Large payloads](#large-payloads).
 
 ### Key substitution: the residual risk in sharing
 
@@ -330,6 +421,42 @@ Everything `getFile()` returns is decrypted, including `'download'`, `'text'` an
 `'base64'`. `'endpoint'` returns the raw url, and is therefore ciphertext by definition.
 
 Files on non-private records are untouched, uploaded and served exactly as before.
+
+## Large payloads
+
+Past roughly 256KB of ciphertext the SDK stores the payload in a file of its own and keeps
+only the small part of the envelope in the database:
+
+```js
+data: {
+    __skapi_enc__: 1,
+    iv:     "…",
+    k:      { "alice": {...}, "bob": {...} },   // who can decrypt
+    ct_ref: "…/__skenc_ct__/payload.bin"        // where the ciphertext lives
+}
+```
+
+You do not do anything to opt into this and nothing about reading or writing changes. It
+matters for one reason: **sharing a large record no longer touches the payload.**
+
+Before, `k` and the ciphertext were one attribute, so adding a single recipient meant reading
+the whole record back and writing the whole thing out again to append about 230 bytes of key
+wrap. On a 1.9MB record that is a 1.9MB download and a 1.9MB upload, and a transient storage
+failure could block a sharing change that never needed the payload at all. Now
+`grantPrivateRecordAccess` and `removePrivateRecordAccess` rewrite a few hundred bytes and
+never open the file.
+
+Reading the record still fetches the ciphertext, of course. That is the data.
+
+Three details worth knowing:
+
+- **It happens on update, not on create.** A newly created record has no id yet, so there is
+  nowhere to put the file. A large create is handled by the server's own offload and splits
+  on its first update.
+- **The spilled file is not a user file.** It never appears in `record.bin`, exactly like the
+  server's offloaded `data` file.
+- **The previous file is retired on the next write**, so a record never accumulates stale
+  ciphertext.
 
 ## Reading a record you cannot decrypt
 

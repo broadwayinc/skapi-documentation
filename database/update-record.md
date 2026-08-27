@@ -46,6 +46,16 @@ skapi.postRecord(updatedData, config).then(record => {
 
 Example above overwrites record data to a new data and updated to a new table name.
 
+:::warning Moving a record into or out of `private` clears its private access grants
+The examples on this page change the access group to `private`. If the record had private
+access granted to other users, **those grants are removed** by the change, in either
+direction. See [Changing the Access Group Clears Private
+Access](/database/access-restrictions.md#changing-the-access-group-clears-private-access).
+
+Only the record's **owner** can move it into or out of `private`. A project owner or admin
+account can change any other setting on another user's record, but not this one.
+:::
+
 :::tip
 To update only the `config` of the record with `data` untouched, you can leave the first argument `data` to `undefined`.
 Then, only the `config` will be updated with the previous data untouched.

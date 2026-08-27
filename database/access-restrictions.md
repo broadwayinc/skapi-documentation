@@ -149,6 +149,69 @@ skapi.removePrivateRecordAccess({
 })
 ```
 
+## Changing the Access Group Clears Private Access
+
+Moving a record **into or out of** the `private` access group removes **every private access
+grant on it**.
+
+| Change | Grants |
+| --- | --- |
+| `private` to any other group | **cleared** |
+| any other group to `private` | **cleared** |
+| between two non-private groups | untouched |
+| no access group change | untouched |
+
+`private` is the only access group where a grant means *"this named user may read this one
+record"*. In every other group a grant only widens what an already-qualifying user may do,
+such as reading a record above their own access level or seeing the records referencing it,
+so those grants stay meaningful and are left alone.
+
+Leaving them in place on the way **out** of `private` would keep an access model the record
+no longer uses. Leaving them in place on the way **back in** would silently re-grant users
+the owner never re-approved.
+
+```js
+// shared with a colleague
+await skapi.grantPrivateRecordAccess({ record_id, user_id: 'colleague_user_id' });
+
+// this clears that grant, and so would moving it back to 'private' afterwards
+await skapi.postRecord(undefined, {
+    record_id,
+    table: { name: 'my_collection', access_group: 'authorized' }
+});
+```
+
+:::warning
+The grants are gone, not suspended. If those users should still have access after the
+change, grant them again.
+:::
+
+This is handled server side, so it applies to every project.
+
+## Only the Owner Can Cross the Private Boundary
+
+A record can only be moved **into or out of** `private` by **the user who owns it**.
+
+This is the one record setting that a project owner or admin account cannot change on
+someone else's behalf. Everything else about another user's record remains available to
+them, including moving it between any two non-private access groups.
+
+```ts
+{
+    code: "INVALID_REQUEST";
+    message: "Only the owner of a record can move it into or out of the private access group.";
+}
+```
+
+The reason is that `private` is the only access group whose contents may be
+[end-to-end encrypted](/database/encryption.md). Nobody but the owner holds the key, so a
+different account moving the record across that line would either seal it under a key the
+owner does not have, or publish bytes that nobody can decrypt. Both destroy the record while
+reporting success, and neither is recoverable.
+
+The rule is enforced whether or not encryption is enabled, so that a project cannot enable
+it later and discover its records were already stranded.
+
 ## Allowing Others to Grant Private Access to Others
 
 By default, The owner of the record has access to grant private access of the uploaded record to others.

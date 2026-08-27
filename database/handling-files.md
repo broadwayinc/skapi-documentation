@@ -148,6 +148,22 @@ The endpoint URL will be a signed URL that can expire after a certain amount of 
 
 If the file is an image or a video, you can use the url on img tag or video tag to display the file.
 
+:::warning Encrypted files are different
+None of the above applies to a file attached to a record whose data is
+[encrypted](/database/encryption.md). Its URL serves **ciphertext**, so `endpoint` returns
+something no `img` or `video` tag can display, and a plain link downloads unreadable bytes.
+
+Use `getFile()` with `blob`, `base64`, `text` or `download` instead: those decrypt. You can
+tell the two apart without fetching anything, because the bin entry says so:
+
+```js
+if (file.encrypted) {
+    const blob = await file.getFile('blob');   // decrypted
+    imgEl.src = URL.createObjectURL(blob);     // instead of file.url
+}
+```
+:::
+
 Below is an example of how you can get the endpoint URL of the access restricted private file (The user must have private access granted.):
 
 ```js
@@ -304,7 +320,7 @@ skapi.getFile(fileUrl, { dataType: "info" }).then((fileInfo) => {
         url: string,
         filename: string,
         access_group: number | 'private' | 'public' | 'authorized',
-        filesize: number,
+        filesize: number,   // for an encrypted file this is the PLAINTEXT length
         record_id: string,
         uploader: string,
         uploaded: number,

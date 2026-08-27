@@ -102,6 +102,18 @@ See [FetchOptions](/api-reference/data-types/README.md#fetchoptions)
 
 See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
 
+#### Errors
+```ts
+{
+    code: "INVALID_REQUEST";
+    // Moving a record into or out of the 'private' access group is restricted to the
+    // record's owner, even for a project owner or admin account. Every other setting on
+    // another user's record remains updatable, including moving it between any two
+    // non-private groups.
+    message: "Only the owner of a record can move it into or out of the private access group.";
+}
+```
+
 ## grantPrivateAccess
 ```ts
 grantPrivateRecordAccess(
@@ -112,6 +124,12 @@ grantPrivateRecordAccess(
 ): Promise<'SUCCESS: granted x users private access to record: xxxx...'>
   
 ```
+
+:::warning
+Moving the record into or out of the `private` access group **removes every grant on it**,
+in either direction. See [Changing the Access Group Clears Private
+Access](/database/access-restrictions.md#changing-the-access-group-clears-private-access).
+:::
 
 #### Errors
 ```ts
