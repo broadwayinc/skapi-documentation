@@ -87,6 +87,13 @@ memorable string, but the password remains the floor for anyone who does not.
 const skapi = new Skapi("<Project ID>", { encryption: true });
 ```
 
+`encryption` is an option of the Skapi class, and it only takes effect when the class is
+initialized. There is no method that turns it on later: an instance built without this
+option saves the `data` of every record as plain text for its entire lifetime, and enabling
+it afterwards does not go back and encrypt what was already saved. It is listed with the
+rest of the initialization options in
+[Advanced Settings](/introduction/getting-started.html#advanced-settings).
+
 With options:
 
 ```js

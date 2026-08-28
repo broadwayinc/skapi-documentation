@@ -55,7 +55,7 @@ skapi.getRecords(query).then(response => {
      * list: [{
      *  ... // only 1 result
      * }],
-     * startKey: null // startKey is null as no more records can be retrieved
+     * startKey: 'end' // startKey is 'end' as no more records can be retrieved
      */
 });
 ```

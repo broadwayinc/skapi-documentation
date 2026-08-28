@@ -160,7 +160,7 @@ Because this is only a portion of the full repository and does not include suppo
             // Callback executed when there is data transfer between the users.
             /**
             rt = {
-                type: 'message' | 'private' | 'error' | 'success' | 'close' | 'notice',
+                type: 'message' | 'private' | 'error' | 'success' | 'close' | 'notice' | 'reconnect' | 'rtc:incoming' | 'rtc:closed',
                 message: '...',
                 ...
             }

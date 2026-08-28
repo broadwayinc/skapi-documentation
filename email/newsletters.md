@@ -134,6 +134,7 @@ skapi.getNewsletters().then(newsletters => {
         subject: string; // Subject of the newsletter
         bounced: string; // Number of bounces
         url: string; // URL of the newsletter
+        delivered: number; // Number of users the newsletter was delivered to
     }  
     */
 })
@@ -169,6 +170,7 @@ skapi.getNewsletters({
         subject: string; // Subject of the newsletter
         bounced: string; // Number of bounces
         url: string; // URL of the newsletter
+        delivered: number; // Number of users the newsletter was delivered to
     }  
     */
 })

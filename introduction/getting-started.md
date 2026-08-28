@@ -113,16 +113,19 @@ skapi.getConnectionInfo().then(info => {
     /*
     Returns:
     {
-        service_name: "Your Project Name",
+        project_id: "Public project ID of the connected project",
         user_ip: "Connected user's IP address",
         user_agent: "Connected user agent",
         user_location: "Connected user's country code",
+        service_name: "Your Project Name",
+        service_description: "Your project description",
         version: 'x.x.x', // Skapi library version
+        ai_agent: "AI agent instructions set for the project",
         conf: {
-            freeze_database: boolean; // Database is read only
-            prevent_signup: boolean; // Signup is blocked
-            prevent_inquiry: boolean; // Inquiry is blocked
-            prevent_anonymous: boolean; // Annoymous users cannot write to the database.
+            freeze_database: boolean, // Database is read only
+            prevent_signup: boolean, // Signup is blocked
+            prevent_inquiry: boolean, // Inquiry is blocked
+            prevent_anonymous: boolean // Anonymous users cannot write to the database
         }
     }
     */
@@ -138,11 +141,20 @@ skapi.getConnectionInfo().then(info => {
     /*
     Returns:
     {
-        service_name: "Your Project Name",
+        project_id: "Public project ID of the connected project",
         user_ip: "Connected user's IP address",
         user_agent: "Connected user agent",
         user_location: "Connected user's country code",
-        version: 'x.x.x' // Skapi library version
+        service_name: "Your Project Name",
+        service_description: "Your project description",
+        version: 'x.x.x', // Skapi library version
+        ai_agent: "AI agent instructions set for the project",
+        conf: {
+            freeze_database: boolean, // Database is read only
+            prevent_signup: boolean, // Signup is blocked
+            prevent_inquiry: boolean, // Inquiry is blocked
+            prevent_anonymous: boolean // Anonymous users cannot write to the database
+        }
     }
     */
    window.alert(`Connected to ${info.service_name}`);
@@ -165,6 +177,15 @@ class Skapi {
         autoLogin?: boolean;        // Default: true
         refetchServiceInfo?: boolean;// Default: false. Bypasses cached project info and always fetch new project info on load.
         requestBatchSize?: number;  // Default: 30. Maximum number of requests processed per batch.
+        encryption?: boolean | { // Default: false. Encrypts the data of private records in the browser. Can only be set here, on initialization.
+            iterations?: number;             // Default: 600000. PBKDF2 cost. Minimum 100000.
+            minPasswordLength?: number;      // Default: 0 (off). Refuses to set up encryption for a shorter password.
+            persistDevice?: boolean;         // Default: true. Stays unlocked across page reloads on that device.
+            recovery?: 'code' | 'none';      // Default: 'code'. Issues a one-time recovery code.
+            trustPolicy?: 'tofu' | 'strict'; // Default: 'tofu'. How a recipient's public key is trusted when sharing.
+            withheld?: 'null' | 'sentinel';  // Default: 'null'. What data is set to when a record cannot be decrypted.
+            table?: string;                  // Default: 'skapi__keyring'. Reserved table that stores the user's keyring.
+        };
         eventListener?: {
             onLogin?: (user: UserProfile | null) => void; // Fires on initial page load (after Skapi initializes), on login/logout, and when a session expires. The callback receives a UserProfile object if the user is logged in; otherwise, it receives null.
             onUserUpdate?: (user: UserProfile | null) => void; // Fires on initial page load (after Skapi initializes), on login/logout, when a session expires, and when the user's profile is updated. The callback receives a UserProfile object if the user is logged in; otherwise, it receives null.
@@ -189,6 +210,20 @@ Options overview:
 
 - `requestBatchSize` (number, default: 30)
     - Maximum number of requests processed per batch.
+
+- `encryption` (boolean | object, default: false)
+    - Encrypts the `data` of the records saved to `access_group: 'private'`, in the browser, before it reaches the database. The contents of the files attached to those records are encrypted as well.
+    - **This only takes effect when it is set here, when the Skapi class is initialized.** There is no method that turns encryption on afterwards, so when this option is left out, the instance saves the `data` of every record as plain text for its entire lifetime.
+    - Enabling it later does not go back and encrypt the records that were already saved as plain text.
+    - Setting it to `true` uses the default settings. Pass an object to change them:
+        - `iterations` (number, default: 600000): PBKDF2 cost of deriving the key from the user's password. Minimum 100000.
+        - `minPasswordLength` (number, default: 0, off): refuses to set up encryption for a password shorter than this. The strength of the encryption is capped by the user's password, so it is worth setting.
+        - `persistDevice` (boolean, default: true): keeps encryption unlocked across page reloads on that device.
+        - `recovery` ('code' | 'none', default: 'code'): issues a one-time recovery code, which is the only way for the user to reach their data again after a password reset.
+        - `trustPolicy` ('tofu' | 'strict', default: 'tofu'): how a recipient's public key is trusted when a record is shared. `'strict'` requires the key to be pinned before the first share.
+        - `withheld` ('null' | 'sentinel', default: 'null'): what `data` is set to when a record cannot be decrypted. `'sentinel'` returns a placeholder object carrying the reason instead of `null`.
+        - `table` (string, default: 'skapi__keyring'): the reserved table that stores the user's keyring.
+    - See: [Encrypting Private Record Data](/database/encryption.html)
 
 - `eventListener` (callbacks for key events)
     - `onLogin(user: UserProfile | null)`
