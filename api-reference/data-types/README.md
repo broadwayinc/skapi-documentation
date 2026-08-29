@@ -123,6 +123,10 @@ type ConnectionInfo = {
         // `default_access_group` initialization option overrides it. Absent when
         // the owner has not set one. 'ask' means an omitted access group is an error.
         default_access_group?: number | 'public' | 'private' | 'authorized' | 'admin' | 'ask';
+        // When true, the SDK refuses database READS from a signed-out visitor
+        // (getRecords, getTables, getTags, getIndexes, getUniqueId) with
+        // code 'REQUIRE_LOGIN'. Defaults to true.
+        require_login?: boolean;
     }
 };
 ```

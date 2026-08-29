@@ -62,6 +62,17 @@ You can prevent users from sending inquiries to your project by turning off this
 This is useful when you are not planning to use the [`sendInquiry()`](/api-reference/email/README.md#sendinquiry) method, and want to prevent spam.
 
 
+## Require Login
+
+When this is on, the SDK refuses database reads from a visitor who is not signed in: [`getRecords()`](/api-reference/database/README.md#getrecords), `getTables()`, `getTags()`, `getIndexes()` and `getUniqueId()` throw `REQUIRE_LOGIN`. Signed-in users are unaffected.
+
+It is returned to every client as `conf.require_login` on [`getConnectionInfo()`](/api-reference/connection/README.md#getconnectioninfo), so a page can tell before any login whether it should show its own sign-in screen first.
+
+**This is a guard rail, not an access control.** Records in `access_group: 0` remain readable by anyone calling the API directly, whether or not this setting is on. What it prevents is your own app leaking public records through a signed-out page by accident. If data must not be readable without an account, do not store it in access group 0 - use `authorized`, `private`, or a higher group.
+
+It is also unrelated to anonymous **writes**: whether users without an account may create records is governed separately, and access group 0 is the only group they could ever write to.
+
+
 ## Freeze Database
 
 You can freeze your database to prevent write operations by non-admin users.
