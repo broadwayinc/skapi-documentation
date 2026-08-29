@@ -118,6 +118,11 @@ type ConnectionInfo = {
         prevent_signup: boolean;
         prevent_inquiry: boolean;
         prevent_anonymous: boolean;
+        // Project-wide default for table.access_group, set by the project owner.
+        // Applied by getRecords / postRecord / deleteRecords unless the
+        // `default_access_group` initialization option overrides it. Absent when
+        // the owner has not set one. 'ask' means an omitted access group is an error.
+        default_access_group?: number | 'public' | 'private' | 'authorized' | 'admin' | 'ask';
     }
 };
 ```
