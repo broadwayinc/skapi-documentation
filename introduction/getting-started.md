@@ -177,7 +177,6 @@ class Skapi {
         autoLogin?: boolean;        // Default: true
         refetchServiceInfo?: boolean;// Default: false. Bypasses cached project info and always fetch new project info on load.
         requestBatchSize?: number;  // Default: 30. Maximum number of requests processed per batch.
-        default_access_group?: number | 'public' | 'private' | 'authorized' | 'admin' | 'ask'; // Default: none. Fills in table.access_group when a record call omits one. 'ask' makes omitting it an error instead.
         encryption?: boolean | { // Default: false. Encrypts the data of private records in the browser. Can only be set here, on initialization.
             iterations?: number;             // Default: 600000. PBKDF2 cost. Minimum 100000.
             minPasswordLength?: number;      // Default: 0 (off). Refuses to set up encryption for a shorter password.
@@ -211,31 +210,6 @@ Options overview:
 
 - `requestBatchSize` (number, default: 30)
     - Maximum number of requests processed per batch.
-
-- `default_access_group` (number | string, default: none)
-    - Supplies `table.access_group` for [`getRecords()`](/database/query-records.html), [`postRecord()`](/database/create-record.html) and [`deleteRecords()`](/database/delete-record.html) whenever the call does not name one. Useful when most of a project's data sits behind a sign-in and repeating `access_group: 'authorized'` on every call is both noise and a hazard: forget it once and the record is written to public with no error.
-    - Takes anything `table.access_group` takes: a number from `0` to `99`, or `'public'` (0), `'private'`, `'authorized'` (1), `'admin'` (99).
-    - An access group written on the call **always wins**, including an explicit `0`. Only an absent one is filled in.
-    - `'ask'` picks no group. It makes an omitted `access_group` throw `INVALID_PARAMETER`, for projects that hold data at more than one visibility and would rather fail loudly than fall back to public.
-    - Calls addressed by `record_id` or `unique_id`, and updates to an existing record, carry no table at all. They are unaffected: they neither receive a default nor fail under `'ask'`.
-    - The project can carry the same value, set by its owner, and it is returned by `getConnectionInfo()` as `conf.default_access_group`. **This option overrides it**, so an app that pins a value in code keeps it. When neither is set, an omitted access group behaves as it always has.
-    - Careful with a non-zero default on a site with logged-out pages: unsigned users have no access to any group above `0`, so a record call from a visitor who is not signed in will throw. Pass `access_group: 'public'` explicitly on those calls.
-
-```js
-// Every record call defaults to the signed-in group.
-const skapi = new Skapi("<Project ID>", { default_access_group: 'authorized' });
-
-await skapi.postRecord({ title: 'Hello' }, { table: 'notes' });   // saved to 'authorized'
-await skapi.getRecords({ table: 'notes' });                        // reads 'authorized'
-await skapi.getRecords({ table: { name: 'notes', access_group: 'public' } }); // explicit wins
-
-// Or refuse to guess.
-const strict = new Skapi("<Project ID>", { default_access_group: 'ask' });
-
-await strict.getRecords({ table: 'notes' });                       // throws: access group required
-await strict.getRecords({ table: { name: 'notes', access_group: 0 } }); // fine
-await strict.getRecords({ unique_id: 'my-record' });               // fine, no table involved
-```
 
 - `encryption` (boolean | object, default: false)
     - Encrypts the `data` of the records saved to `access_group: 'private'`, in the browser, before it reaches the database. The contents of the files attached to those records are encrypted as well.

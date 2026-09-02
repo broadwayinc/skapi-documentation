@@ -12,7 +12,9 @@ postRecord(
         unique_id?: string; // Unique ID to set to the record; not available to anonymous users. If null is given, it will remove the previous unique ID when updating.
         /** When the table is given as a string value, the value is the table name. */
         /** 'table.name' is optional when 'record_id' or 'unique_id' is used. */
-        /** When the table is given as a string value, the given value will be set as table.name and table.access_group will be 'public' **/
+        /** CREATE (no 'record_id'): a table given as a string sets table.name and pins table.access_group to 0 ('public'). */
+        /** UPDATE ('record_id' given): no access group is sent in either form, and the record stays in the access group it is already in. Name the group to move it. */
+        /** A table object sends only the keys that were written, so leaving 'access_group' out of it sends none. See [Access Restrictions](/database/access-restrictions.md#the-table-shorthand-and-access-group) */
         table?: {
             name?: string; // 1..256 characters, where / ! * # % each count as 3. Blocks control chars and sentinel U+10FFFF.
             access_group?: number | 'private' | 'public' | 'authorized' | 'admin';  // Default: 'public', otherwise not available to anonymous users.
@@ -65,7 +67,8 @@ getRecords(
     query: {
         record_id?: string; // When record ID is given, it will fetch the record with the given record ID. all other parameters are bypassed and will override unique ID.
         unique_id?: string; // Unique ID of the record. When unique ID is given, it will fetch the record with the given unique ID. All other parameters are bypassed.
-        /** When the table is given as a string value, the given value will be set as table.name and table.access_group will be 'public' **/
+        /** When the table is given as a string value, the given value will be set as table.name and table.access_group will be pinned to 0 ('public'). */
+        /** A table object sends only the keys that were written: with 'access_group' left out, no access group is sent and the backend decides the scope. A signed in non-master reads group 0, the master reads every group in the table. See [Access Restrictions](/database/access-restrictions.md#the-table-shorthand-and-access-group) */
         /** 'table' is optional when 'record_id' or 'unique_id' is used. */
         table?: string | {
             name: string, // 1..256 characters, where / ! * # % each count as 3. Blocks control chars and sentinel U+10FFFF.
@@ -216,7 +219,8 @@ deleteRecords({
 
     /** Delete bulk records by query. Query will be bypassed when "record_id" is given. */
     /** When deleteing records by query, It will only delete the record that user owns. */
-    /** When the table is given as a string value, the value is the table name. */
+    /** When the table is given as a string value, the value is the table name, and table.access_group is pinned to 0 ('public'). A string table therefore deletes the PUBLIC records of that table, not the whole table. */
+    /** A table object sends only the keys that were written: with 'access_group' left out, no access group is sent and the backend decides the scope. See [Access Restrictions](/database/access-restrictions.md#the-table-shorthand-and-access-group) */
     /** 'table' is optional when 'record_id' or 'unique_id' is used. */
     table: string | {
         name: string,

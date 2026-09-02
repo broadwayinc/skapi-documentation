@@ -62,6 +62,44 @@ type BinaryFile = {
 }
 ```
 
+## ClientSecretStreamOptions
+
+```ts
+type ClientSecretStreamOptions = {
+    /** The URL the request was sent to. Required unless the request ID is an already-composed full ID. */
+    url?: string;
+    /** The method it was sent with. Required unless the request ID is an already-composed full ID. */
+    method?: 'GET' | 'POST' | 'DELETE' | 'PUT';
+    /** Called with each relayed piece, in order, with the sequence number it was stored under
+     *  and which transport carried it ('socket' when skapi's websocket got there first,
+     *  'poll' when the poll did). Raw text: skapi relays bytes and parses none of them. */
+    onStream?: (chunk: string, seq: number, via?: 'socket' | 'poll') => void;
+    /** The `realtime_group` the dispatching clientSecretRequest() handed back. With it, this
+     *  read ALSO listens on skapi's websocket while the request is still running, so text
+     *  arrives as it is relayed instead of on each poll tick. The group cannot be rebuilt
+     *  from a request ID, so keep it beside the ID. Without it the read works exactly as it
+     *  always has, at poll speed. */
+    realtimeGroup?: string;
+    /** Start after this sequence number instead of from the beginning, so a reader that already
+     *  holds part of a turn does not receive it twice. Default 0. */
+    since?: number;
+    /** Polling interval in milliseconds while the request is still running. Default 1000.
+     *  Must be a finite, non-negative number. */
+    poll?: number;
+    /** Called once with whatever the read resolves with. Not called when the read is stopped. */
+    onResponse?: (res: any) => void;
+    /** Called if the read itself fails. */
+    onError?: (err: any) => void;
+    service?: string;
+    owner?: string;
+}
+```
+
+The second argument of [`clientSecretRequestStream()`](/api-reference/api-bridge/README.md#clientsecretrequeststream).
+It is written inline in that method's signature, so it is not importable from `skapi-js` under this name.
+
+See [Streaming Request](/api-bridge/streaming-request.html)
+
 ## Condition
 
 ```ts
@@ -118,11 +156,6 @@ type ConnectionInfo = {
         prevent_signup: boolean;
         prevent_inquiry: boolean;
         prevent_anonymous: boolean;
-        // Project-wide default for table.access_group, set by the project owner.
-        // Applied by getRecords / postRecord / deleteRecords unless the
-        // `default_access_group` initialization option overrides it. Absent when
-        // the owner has not set one. 'ask' means an omitted access group is an error.
-        default_access_group?: number | 'public' | 'private' | 'authorized' | 'admin' | 'ask';
         // When true, the SDK refuses database READS from a signed-out visitor
         // (getRecords, getTables, getTags, getIndexes, getUniqueId) with
         // code 'REQUIRE_LOGIN'. Defaults to true.
@@ -421,7 +454,7 @@ type RecordData = {
 type RequestHistory = { 
     id: string; // request id. Format: {stamp}:{entropy}
     status_code: number; // http status code of the request
-    response_body: any;
+    response_body: any; // null on a STREAMED request until it is finalized: its text lives in the relayed chunks, not on the request. clientSecretRequestFinalize() is what stores a body here.
     error?: any;
     created: number; // timestamp of when the request was created, in milliseconds. Set once and never changes.
     updated: number; // timestamp of the last update of the request status (e.g. when the response arrived), in milliseconds.
@@ -440,7 +473,8 @@ type RequestHistory = {
         latency?: number;
         onResponse?: (res:any)=>void;
         onError?: (err:any)=>void;
-    }) => Promise<any>; // function to poll the request status until it settles. The promise resolves with the final result of the request: the third-party API response body when it resolves, or the error payload when it fails. It does not resolve with a RequestHistory item, so "created" and "updated" are not on the polled value. A poll stopped by stopClientSecretPolling() resolves with { id, status: 'stopped' }. Optional argument "latency" can be used to set the latency of the polling in milliseconds. Default latency is 1000ms.
+        onStream?: (chunk: string, seq: number, via?: 'socket' | 'poll')=>void; // reads a STREAMED item's text as it arrives, same as on the dispatch path. "via" names the transport that carried the piece: 'socket' when skapi's websocket got there first, 'poll' when the poll did. Supplying it is what makes the poll fetch chunks. An item that already settled has nothing left to poll: read that one back with clientSecretRequestStream().
+    }) => Promise<any>; // function to poll the request status until it settles. The promise resolves with the final result of the request: the third-party API response body when it resolves, or the error payload when it fails. It does not resolve with a RequestHistory item, so "created" and "updated" are not on the polled value. A poll stopped by stopClientSecretPolling() resolves with { id, status: 'stopped' }. Optional argument "latency" can be used to set the latency of the polling in milliseconds. Default latency is 1000ms. A STREAMED request has no body to resolve with until it is finalized, so it resolves with a StreamPollResult instead: the text arrived through onStream.
 }
 ```
 
@@ -500,6 +534,63 @@ type RTCResolved = {
     media: MediaStream;
 }
 ```
+
+## StreamChunk
+
+```ts
+type StreamChunk = {
+    /** Sequence number this piece was stored under. Ascending within one request, and the
+     *  value a reader sends back as its cursor. */
+    seq: number;
+    /** Raw relayed text, exactly as the destination wrote it and in whatever format the
+     *  destination chose. Skapi parses none of it. Empty string when the chunk was written
+     *  without text, which still advances seq. */
+    txt: string;
+}
+```
+
+One piece of a streamed request's relayed response, as a poll hands it back. `onStream(chunk, seq, via)`
+receives the `txt` and `seq` of each of these, in order, and never fires for an empty `txt`.
+
+This shape is written inline in the SDK, so it is not importable from `skapi-js` under this name.
+
+See [Streaming Request](/api-bridge/streaming-request.html)
+
+## StreamPollResult
+
+```ts
+type StreamPollResult = {
+    id: string;         // Request ID in "stamp:entropy" format.
+    status: 'pending' | 'running' | 'resolved' | 'failed' | 'cancelled'; // Everything but 'pending' and 'running' is terminal: nothing further is written to the request or to its chunks.
+    queue_name: string; // The plain queue name, or an empty string when the request is not queued.
+    in_queue: number;   // Unresolved requests in this queue.
+    // The fields below are present ONLY when the poll asked for chunks by sending a cursor:
+    // clientSecretRequest()'s poll() does that when an onStream callback was supplied, and
+    // clientSecretRequestStream() always does. Without a cursor you get exactly the four fields
+    // above, the same response polling returned before streaming existed.
+    stream: boolean;      // Whether the request was made with stream: true. false means there are no chunks to read, ever.
+    chunks: StreamChunk[]; // The pieces with seq greater than the cursor that was sent, oldest first.
+    last_seq: number;      // The sequence number to send as the next cursor. Stays at the requested value when nothing new arrived.
+    more: boolean;         // This read was CAPPED, not the end of the data. See below.
+    error?: any;           // Present only on a failed streamed request: what the server recorded about the failure, alongside the chunks that did arrive before the stream died.
+}
+```
+
+What a poll of a **streamed** request resolves with while it has not been finalized. A buffered
+request, and a streamed one that was finalized, resolve with the stored body itself instead: a
+response with no `status` field is a body, not this envelope. Like `StreamChunk`, this is a response
+shape rather than an exported type name, so there is nothing to import under it.
+
+`more: true` means one read was capped by a size budget, not that the request is unfinished. Ask
+again immediately with `last_seq` rather than waiting out the polling interval. The one exception is
+`more: true` with no new chunks and an unchanged `last_seq`: that is the server saying the chunk read
+itself failed, and re-asking immediately hammers a store that is already in trouble. The SDK's own
+readers tell the two apart by whether the cursor moved, and back off on the second.
+
+See [clientSecretRequest](/api-reference/api-bridge/README.md#clientsecretrequest) and
+[clientSecretRequestStream](/api-reference/api-bridge/README.md#clientsecretrequeststream).
+
+See [Streaming Request](/api-bridge/streaming-request.html)
 
 ## Subscription
 

@@ -23,7 +23,14 @@ The `options` object accepts the following properties:
 ### [`forwardRequest(form, options): Promise<any>`](/api-reference/api-bridge/README.md#forwardrequest)
 
 :::warning
-The destination instructions travel in a header, so `url` plus `headers` (and the rest of the options) are capped at **4096 characters** of JSON. Past that the call throws `INVALID_PARAMETER`; put large values in the body instead.
+The destination instructions travel in a request header, so `url`, `method`, `headers`, `apiKeyHeader` and `apiKeyScheme` share a cap of **4096 characters**. Past it the call throws `INVALID_PARAMETER`; put large values in the body instead, which is not capped here.
+
+Two things about that number:
+
+- It is measured **after escaping**, because a header cannot carry a character above `U+00FF` and the SDK escapes those to `\uXXXX` before sending. Every non-ASCII character therefore costs **six** toward the cap, not one. A Korean or accented query string runs out at roughly 650 characters, not 4096.
+- The budget also carries your project and owner identifiers, about 200 characters you do not control, so the room left for your own values is a little under the full 4096.
+
+The other options never leave the browser and cost nothing here: `onStream`, `signal` and `responseType` are instructions to the SDK, not to the forwarder.
 
 These header names are **rejected** rather than ignored, failing the call with `INVALID_PARAMETER`: connection and framing headers (`host`, `content-length`, `connection`, `keep-alive`, `transfer-encoding`, `upgrade`, `te`, `trailer`, `proxy-authorization`, `proxy-connection`, `expect`), anything starting `x-skapi-`, and any value containing a line break.
 :::

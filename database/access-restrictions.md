@@ -15,7 +15,7 @@ The following values can be set for `table.access_group`:
 - `admin`: Only admin can use this group. The record will only be accessible to the admin of your project. (Equivalent to number 99)
 
 
-If `access_group` is not set, the default value is `public`.
+If `access_group` is not set, what happens depends on **which form** the table was written in, because a table written as a plain string is not the same request as a table object with the `access_group` key left out. See [The `table` shorthand and `access_group`](#the-table-shorthand-and-access-group) below.
 
 ::: tip
 Users can only access records that have an access group that is the same or a lower number than the access group defined in their user profile.
@@ -31,6 +31,47 @@ You can read more about referencing records [here](/database/referencing.md).
 
 ::: warning
 Anonymous (unsigned) users can only create records with `access_group` set to `public`.
+:::
+
+## The `table` shorthand and `access_group`
+
+Everywhere a `table` is accepted, it can be written two ways, and the two do **not** mean the same thing when no
+`access_group` is given.
+
+Writing the table as a plain **string** is shorthand that pins access group `0` (`public`):
+
+```js
+// These two calls are identical. The string form fills in access_group: 0 for you.
+await skapi.getRecords({ table: 'notes' });
+await skapi.getRecords({ table: { name: 'notes', access_group: 0 } });
+```
+
+That is true on `getRecords()`, on `deleteRecords()`, and on a `postRecord()` that **creates** a record (one called
+without a `record_id`). It is worth being deliberate about on a delete: `deleteRecords({ table: 'notes' })` does not
+empty the table, it deletes your public records in it, and the records the same table holds at any other access group
+are left exactly where they are.
+
+Writing the table as an **object** sends only the keys you actually wrote. Leaving `access_group` out of the object
+sends no access group at all, and the backend decides the scope of the call:
+
+- For a signed in user who is not the project owner, no access group resolves to group `0`, so it reads and deletes the
+  same public records the shorthand would have.
+- For the **master** (project owner) account, it is not restricted to one group: the call spans every access group in
+  the table. That is the reason the two forms are kept apart. A dashboard or an admin tool that wants to see a whole
+  table wants the object form, and a call that must stay inside the public records wants the shorthand.
+
+```js
+await skapi.getRecords({ table: 'notes' });            // public records only, for everyone
+await skapi.getRecords({ table: { name: 'notes' } });  // no group sent: every group, when the caller is the master
+```
+
+::: warning
+On an **update**, neither form sends an access group. `postRecord(data, { record_id, table: 'notes' })` and
+`postRecord(data, { record_id, table: { name: 'notes' } })` both leave the record in whatever access group it is
+already in, and the backend fills the group back in from the stored record. This is what makes an update safe to write
+without repeating the group every time. To actually **move** a record between groups, name the group you want:
+`table: { name: 'notes', access_group: 'private' }`. Be aware that moving a record in or out of `'private'` is not a
+metadata change, see [Encrypting Private Record Data](/database/encryption.md).
 :::
 
 ## Creating Record With Access Restrictions
