@@ -177,14 +177,14 @@ class Skapi {
         autoLogin?: boolean;        // Default: true
         refetchServiceInfo?: boolean;// Default: false. Bypasses cached project info and always fetch new project info on load.
         requestBatchSize?: number;  // Default: 30. Maximum number of requests processed per batch.
-        encryption?: boolean | { // Default: false. Encrypts the data of private records in the browser. Can only be set here, on initialization.
+        encryption?: boolean | { // Default: false. Encrypts the data of private records in the browser. Can only be set here, on initialization. HTTPS required.
             iterations?: number;             // Default: 600000. PBKDF2 cost. Minimum 100000.
             minPasswordLength?: number;      // Default: 0 (off). Refuses to set up encryption for a shorter password.
             persistDevice?: boolean;         // Default: true. Stays unlocked across page reloads on that device.
             recovery?: 'code' | 'none';      // Default: 'code'. Issues a one-time recovery code.
             trustPolicy?: 'tofu' | 'strict'; // Default: 'tofu'. How a recipient's public key is trusted when sharing.
             withheld?: 'null' | 'sentinel';  // Default: 'null'. What data is set to when a record cannot be decrypted.
-            table?: string;                  // Default: 'skapi__keyring'. Reserved table that stores the user's keyring.
+            table?: string;                  // Default: '__skapi__keyring'. Reserved table that stores the user's keyring.
         };
         eventListener?: {
             onLogin?: (user: UserProfile | null) => void; // Fires on initial page load (after Skapi initializes), on login/logout, and when a session expires. The callback receives a UserProfile object if the user is logged in; otherwise, it receives null.
@@ -222,7 +222,7 @@ Options overview:
         - `recovery` ('code' | 'none', default: 'code'): issues a one-time recovery code, which is the only way for the user to reach their data again after a password reset.
         - `trustPolicy` ('tofu' | 'strict', default: 'tofu'): how a recipient's public key is trusted when a record is shared. `'strict'` requires the key to be pinned before the first share.
         - `withheld` ('null' | 'sentinel', default: 'null'): what `data` is set to when a record cannot be decrypted. `'sentinel'` returns a placeholder object carrying the reason instead of `null`.
-        - `table` (string, default: 'skapi__keyring'): the reserved table that stores the user's keyring.
+        - `table` (string, default: '__skapi__keyring'): the reserved table that stores the user's keyring.
     - See: [Encrypting Private Record Data](/database/encryption.html)
 
 - `eventListener` (callbacks for key events)

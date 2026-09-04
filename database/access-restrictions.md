@@ -10,6 +10,7 @@ The following values can be set for `table.access_group`:
 
 - Number 0 to 99: Integer from 0 to 99 can be set to define the access level.
 - `private`: Only the uploader of the record will have access.
+- `*`: Shorthand for `private`. The SDK converts it to `private` before the request is sent.
 - `public`: The record will be accessible to everyone. (Equivalent to number 0)
 - `authorized`: The record will only be accessible to users who are logged into your project. (Equivalent to number 1)
 - `admin`: Only admin can use this group. The record will only be accessible to the admin of your project. (Equivalent to number 99)

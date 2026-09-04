@@ -39,10 +39,13 @@ queries keep working:
 Only the `data` attribute and the **bytes** of attached files are covered. A file's name is
 part of its storage key, so it stays visible.
 
-::: warning For many apps, the index is the sensitive part
-If your index value is a patient name, an email address, or a salary, encrypting `data`
-protects almost nothing. Encryption cannot cover anything you need to search, sort, or
-range-query on, because those comparisons happen in the database.
+::: danger HTTPS required!
+Record encryption only runs on a page served over **https**. `localhost` and `127.0.0.1`
+also count, so local development works.
+
+The reason is the browser, not skapi. `crypto.subtle` is only exposed in a *secure context*.
+On plain http the page still gets `crypto.getRandomValues`, but `crypto.subtle` is
+`undefined`, so no key can be derived and nothing can be encrypted or decrypted.
 :::
 
 ## The security claim, stated exactly
@@ -759,7 +762,7 @@ genuinely what you want.
 For the record, and so an auditor does not have to reverse-engineer it:
 
 - A random **master key** per user, wrapped under `HKDF(PBKDF2(password))` bound to
-  `(service, owner, user_id)`. Stored in a reserved `skapi__keyring` table in the user's own
+  `(service, owner, user_id)`. Stored in a reserved `__skapi__keyring` table in the user's own
   private partition, readable by nobody else.
 - An **ECDH P-256 identity keypair** per user. The private half is encrypted under the
   master key; the public half is published in the same table's `authorized` partition, so
@@ -778,10 +781,3 @@ For the record, and so an auditor does not have to reverse-engineer it:
   `CryptoKey`**, so a page reload stays unlocked without a password. Non-extractable means
   injected script can *use* it but cannot read or exfiltrate it. That is a reduction in
   exposure, not immunity: an XSS on your origin can still decrypt anything the user can.
-
-::: danger Self-host the SDK
-If your application loads the skapi bundle from a CDN the provider controls, the provider
-can ship a build that steals the master key, and the entire guarantee collapses. Pin an
-exact version, self-host it, and use Subresource Integrity. No amount of client code can
-enforce this for you; it is a requirement of the claim, not a suggestion.
-:::

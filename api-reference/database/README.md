@@ -17,7 +17,7 @@ postRecord(
         /** A table object sends only the keys that were written, so leaving 'access_group' out of it sends none. See [Access Restrictions](/database/access-restrictions.md#the-table-shorthand-and-access-group) */
         table?: {
             name?: string; // 1..256 characters, where / ! * # % each count as 3. Blocks control chars and sentinel U+10FFFF.
-            access_group?: number | 'private' | 'public' | 'authorized' | 'admin';  // Default: 'public', otherwise not available to anonymous users.
+            access_group?: number | 'private' | '*' | 'public' | 'authorized' | 'admin';  // Default: 'public', otherwise not available to anonymous users. '*' is shorthand for 'private'.
             /** Subscription settings; not available to anonymous users. */
             subscription?: {
                 is_subscription_record?: boolean; // When true, record will be uploaded to subscription table.
@@ -72,7 +72,7 @@ getRecords(
         /** 'table' is optional when 'record_id' or 'unique_id' is used. */
         table?: string | {
             name: string, // 1..256 characters, where / ! * # % each count as 3. Blocks control chars and sentinel U+10FFFF.
-            access_group?: number | 'private' | 'public' | 'authorized' | 'admin'; // 0 to 99 if using number. Default: 'public'
+            access_group?: number | 'private' | '*' | 'public' | 'authorized' | 'admin'; // 0 to 99 if using number. 'public' = 0, 'authorized' = 1, 'admin' = 99, '*' = 'private'. Default: 'public'
             subscription?: string; // User ID that requester is subscribed to. (eg. "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")
         };
 
@@ -224,7 +224,7 @@ deleteRecords({
     /** 'table' is optional when 'record_id' or 'unique_id' is used. */
     table: string | {
         name: string,
-        access_group?: number | 'private' | 'public' | 'authorized' | 'admin'; // 0 to 99 if using number. Default: 'public'
+        access_group?: number | 'private' | '*' | 'public' | 'authorized' | 'admin'; // 0 to 99 if using number. 'public' = 0, 'authorized' = 1, 'admin' = 99, '*' = 'private'. Default: 'public'
         subscription?: string; // User ID that requester is subscribed to. (eg. "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")
     };
 
