@@ -2,7 +2,7 @@
 
 ### Current version: 2.0.0
 
-**2.0.0 (Release Candidate)**
+**2.0.0**
 
 - The `table: 'name'` shorthand no longer pins an access group on an **update**. Written as a plain string, a table still means access group `0`: `getRecords()`, `deleteRecords()` and a `postRecord()` that **creates** a record all send `{ name: 'name', access_group: 0 }`, which is what the string form has always meant. What changed is `postRecord()` with a `record_id`. 1.8.3 sent that same `access_group: 0` on an update, so writing the table as a string quietly **moved** the record to public whenever it had been living in some other group, and the only way to update it in place was to repeat the group on every call. An update now sends the table name with no access group at all, and the record keeps the group it is already in; pass `table: { name: 'name', access_group: ... }` when you actually want to move it. The object form is unchanged in both directions: it sends exactly the keys you wrote, so `table: { name: 'name' }` sends no access group and leaves the scope to the backend. See [The `table` shorthand and `access_group`](/database/access-restrictions.html#the-table-shorthand-and-access-group).
 
