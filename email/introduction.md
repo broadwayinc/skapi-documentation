@@ -10,6 +10,7 @@ Skapi provides three very convenient email services:
   
     Skapi provides a built-in E-Mail service that allows you to send bulk emails to your users.
     You can immediately collect email addresses from your users, and send newsletters using Skapi's E-Mail service.
+    A single service can also run more than one mailing list, by registering named newsletter groups that each keep their own subscribers and their own sending address.
 
 - **Receiving Inquiries**: Receive inquiries from your users.
 
