@@ -9,6 +9,23 @@ xxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@mail.skapi.com
 
 Go to `Newsletters` page, select the email type, and the page will show the email endpoint address to send the newsletter.
 
+:::danger Sending newsletters requires a paid plan
+The Trial plan includes **0 e-mail sends per month**, and that limit is a hard stop.
+A newsletter sent from a Trial project is refused before it reaches a single subscriber.
+Nothing is delivered, and the address you sent it from receives a `Monthly email send limit reached. Consider upgrading your plan.` notice instead.
+
+Upgrade the project to send newsletters:
+
+| Plan | E-mail sends per month |
+| --- | --- |
+| Trial | 0 |
+| Standard | 5,000 |
+| Premium | 50,000, and past that billed as overage at $1.00 per 1,000 sends |
+
+The same number is shown as **Monthly Email Sends** on your project's plan card in the Skapi dashboard.
+Automated e-mails, such as the signup confirmation and the newsletter subscription confirmation, are not newsletter sends and do not count against this limit.
+:::
+
 ## Sending Public Newsletters
 
 You can send public newsletters to your users by sending your email to the endpoint email.
@@ -229,13 +246,15 @@ Subscribers are counted per service, across every newsletter group together, nam
 
 | Plan | Subscribers |
 | --- | --- |
-| Trial | 100 |
 | Standard | 5,000 |
 | Premium | 50,000 |
 
-On the Trial and the Standard plan, a subscription past the limit is refused with `Newsletter subscriber limit reached. Consider upgrading your plan.`
+On the Standard plan, a subscription past the limit is refused with `Newsletter subscriber limit reached. Consider upgrading your plan.`
 
 On the Premium plan the excess is metered instead of stopped: new subscribers keep being accepted, and the subscribers past the limit are billed as overage, currently $1.00 per 1,000 subscribers-month.
+
+A Trial project can still collect subscribers, and the subscribe and confirmation flow works normally.
+It just cannot send a newsletter to them, so the limit above applies from the plan you send on.
 
 ## Checking if the user is subscribed to the project newsletters
 
