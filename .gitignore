@@ -7,3 +7,5 @@ skapi.md
 SKAPI.md
 skapi-docs.md
 skapi-types.md
+# Claude Code agent worktrees (nested checkouts, never commit)
+.claude/worktrees/
