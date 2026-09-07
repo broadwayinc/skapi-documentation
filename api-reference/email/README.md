@@ -11,8 +11,9 @@ subscribeNewsletter(
          * Numeric group 0 ~ 99, 'public' (group 0), 'authorized' (group 1),
          * or the name of a named newsletter group.
          * A group name is 2 ~ 20 lowercase alphanumeric characters, contains at least one letter,
+         * is not a number in exponent notation such as '1e5',
          * and is not one of the reserved names:
-         * 'tp', 'admin', 'public', 'authorized', 'newsletter', 'forward', 'all'.
+         * 'tp', 'admin', 'public', 'authorized', 'newsletter', 'forward', 'all', 'true', 'false', 'null'.
          */
         group: number | 'public' | 'authorized' | string;
         email?: string | string[]; // only for public newsletters, or a named group with restriction 0
@@ -96,8 +97,9 @@ registerNewsletterGroup(
         /**
          * Name of the newsletter group.
          * 2 ~ 20 lowercase alphanumeric characters, at least one letter,
+         * not a number in exponent notation such as '1e5',
          * and not one of the reserved names:
-         * 'tp', 'admin', 'public', 'authorized', 'newsletter', 'forward', 'all'.
+         * 'tp', 'admin', 'public', 'authorized', 'newsletter', 'forward', 'all', 'true', 'false', 'null'.
          */
         group: string;
         /**

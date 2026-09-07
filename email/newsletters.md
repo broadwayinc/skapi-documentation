@@ -89,7 +89,8 @@ Your service is not limited to a single mailing list.
 You can register **named newsletter groups**, and each group keeps its own subscribers, its own sending address, and its own sent mail history.
 For example, one service can run a `bunnyquery` list next to a `skapi` list, and a subscriber of one never receives the other.
 
-A group name is 2 ~ 20 lowercase alphanumeric characters, has to contain at least one letter, and cannot be one of the reserved names: `tp`, `admin`, `public`, `authorized`, `newsletter`, `forward`, `all`.
+A group name is 2 ~ 20 lowercase alphanumeric characters, has to contain at least one letter, and cannot be one of the reserved names: `tp`, `admin`, `public`, `authorized`, `newsletter`, `forward`, `all`, `true`, `false`, `null`.
+A name that reads as a number in exponent notation, such as `1e5`, is refused as well.
 
 Every group is registered with a `restriction`, which decides who may subscribe to it, and who may read its sent mail:
 
@@ -169,7 +170,7 @@ skapi.unsubscribeNewsletter({ group: 'bunnyquery' }).then(res => {
     // user is unsubscribed from the 'bunnyquery' newsletter
 });
 
-skapi.getNewsletters({ group: 'bunnyquery' }).then(newsletters => {
+skapi.getNewsletters({ searchFor: 'timestamp', value: Date.now(), condition: '<', group: 'bunnyquery' }).then(newsletters => {
     // newsletters.list is an array of newsletters sent to the 'bunnyquery' group
 });
 ```
