@@ -292,6 +292,11 @@ type Newsletter = {
     url: string;
     /** Number users delivered */
     delivered: number;
+    /**
+     * Newsletter group the message was sent to.<br>
+     * A number for the 0 ~ 99 groups, the group name for a named newsletter group.
+     */
+    group: number | string;
 }
 ```
 
