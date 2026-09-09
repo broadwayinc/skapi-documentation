@@ -1,6 +1,10 @@
 # Version History
 
-### Current version: 2.0.2
+### Current version: 2.0.3
+
+**2.0.3**
+
+- `clientSecretRequestHistory()` items carry **`executed`**: the moment the request actually **began running**, in milliseconds. `created` is when the request was *enqueued*, and a queued request can wait there for a long time before a worker picks it up, so `updated - created` measures the wait plus the call. `updated - executed` is the call on its own, which is what you want when timing a destination rather than your own queue depth. Absent on a request that has not started yet, and on rows old enough to predate the server recording it, so treat it as optional and show nothing rather than a fallback: substituting `created` reports a queue backlog as though the destination were slow. The value is normalised to milliseconds to match `created` and `updated`, and it needs no change to how you call the method. See [RequestHistory](/api-reference/data-types/README.md#requesthistory).
 
 **2.0.2**
 
