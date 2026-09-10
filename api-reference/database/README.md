@@ -280,6 +280,15 @@ While you are exploring and do not know the exact spelling, pass `gte`: it is a 
 A table name very often carries a leading name shared with the rest of its data set, a source or dataset prefix for example, so an exact match finds one spelling and silently misses its siblings, while the prefix finds the whole family.
 When you already know the exact name, omitting `condition` is the exact match you want.
 
+**Requires a signed in user** when the project's [Require Login](/service-settings/service-settings.md#require-login) setting is on, and a project that has never set that option counts as **on**.
+The SDK throws `REQUIRE_LOGIN` before the request leaves, and the backend refuses the same call with `INVALID_REQUEST`, so a direct API call or an older SDK with no gate is refused as well.
+This listing used to be served to anyone who knew the project ID, so an integration that reads it with no signed in user now gets an error.
+
+Table **names** are never filtered by access group: every table in the project is listed.
+The per access group record counters are filtered to the caller: `number_of_records_in_access_group_public` for everyone, the counters up to and including the caller's own access group for a signed in user, and `number_of_records_in_access_group_private` and `number_of_records_in_access_group_admin` for admins and the project owner.
+`number_of_records` and `size` are **not** filtered and stay totals over every access group, so `number_of_records` is normally larger than the counters you can see add up to.
+See [Table Information](/database/table-info.md).
+
 See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
 
 See [Table](/api-reference/data-types/README.md#table)
@@ -322,6 +331,14 @@ The only condition is `order.condition`, and it **requires** `order.value`: a qu
 
 While you are hunting for an index whose exact spelling you do not know, order by `index_name` and pass `gte` instead of a bare `order.value`: it is a prefix search, so it also surfaces the related entries an exact match would silently miss.
 
+**Requires a signed in user** when the project's [Require Login](/service-settings/service-settings.md#require-login) setting is on, and a project that has never set that option counts as **on**.
+The SDK throws `REQUIRE_LOGIN` before the request leaves, and the backend refuses the same call with `INVALID_REQUEST`, so a direct API call or an older SDK with no gate is refused as well.
+This listing used to be served to anyone who knew the project ID, so an integration that reads it with no signed in user now gets an error.
+
+The listing is **not** filtered by access group, for any caller.
+An index row is stored keyed by table and index name with the access group left out, so one row aggregates every group: `number_of_records`, `total_number`, `average_number` and the rest span the whole table, private and admin records included.
+Any caller allowed to read this listing reads the project's entire index vocabulary. The records behind it stay gated.
+
 See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
 
 See [Index](/api-reference/data-types/README.md#index)
@@ -360,6 +377,14 @@ While you are exploring and do not know the exact spelling, pass `gte`: it is a 
 A tag very often carries a leading name shared with the rest of its data set, a series name for example, or an entity recorded once plainly and once with a parenthesised alias, so an exact match finds one spelling and silently misses its siblings, while the prefix finds the whole family.
 When you already know the exact name, give both `table` and `tag` and omit `condition`: that is the exact match you want.
 
+**Requires a signed in user** when the project's [Require Login](/service-settings/service-settings.md#require-login) setting is on, and a project that has never set that option counts as **on**.
+The SDK throws `REQUIRE_LOGIN` before the request leaves, and the backend refuses the same call with `INVALID_REQUEST`, so a direct API call or an older SDK with no gate is refused as well.
+This listing used to be served to anyone who knew the project ID, so an integration that reads it with no signed in user now gets an error.
+
+The listing is **not** filtered by access group, for any caller.
+A tag row is stored keyed by tag and table name with the access group left out, so `number_of_records` counts the records in every group together.
+Any caller allowed to read this listing reads the project's entire tag vocabulary, tags carried only by private or admin records included. The records behind it stay gated, but a tag name is visible to every signed in user.
+
 See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
 
 See [Tag](/api-reference/data-types/README.md#tag)
@@ -376,6 +401,14 @@ getUniqueId(
     fetchOptions?: FetchOptions;
 ): Promise<DatabaseResponse<UniqueId>>
 ```
+
+**Requires a signed in user** when the project's [Require Login](/service-settings/service-settings.md#require-login) setting is on, and a project that has never set that option counts as **on**.
+The SDK throws `REQUIRE_LOGIN` before the request leaves, and the backend refuses the same call with `INVALID_REQUEST`, so a direct API call or an older SDK with no gate is refused as well.
+This listing used to be served to anyone who knew the project ID, so an integration that reads it with no signed in user now gets an error.
+
+Called with no `unique_id`, this enumerates **every** unique ID in the project.
+The listing is **not** filtered by access group: a row is keyed by the unique ID alone, so any caller allowed to read it sees the IDs of records in every group, each with the record ID it maps to. Fetching those records still goes through the usual access checks.
+
 See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
 
 See [UniqueId](/api-reference/data-types/README.md#uniqueid)

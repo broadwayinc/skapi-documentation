@@ -397,6 +397,21 @@ skapi.getIndexes({ index: 'Vote.Beer' }); // Error: "table" is required.
 [`getIndexes()`](/api-reference/database/README.md#getindex) has no top level `condition`.
 The only condition it accepts is `order.condition`, described in [Querying index value](#querying-index-value) below.
 
+### Who can read index information
+
+When the project's [Require Login](/service-settings/service-settings.md#require-login) setting is on, [`getIndexes()`](/api-reference/database/README.md#getindex) is refused to a visitor who is not signed in.
+The SDK throws `REQUIRE_LOGIN` before the request leaves the browser, and the backend refuses the same call with `INVALID_REQUEST`, so a direct API call or an older SDK with no gate is refused as well.
+A project that has never set that option counts as **on**.
+Index metadata used to be served to anyone who knew the project ID, so an integration that reads it without a signed in user now gets an error.
+
+:::warning
+The index listing is **not** filtered by access group, and cannot be.
+An index is stored as one row keyed by the table and index name, with the access group left out of the key, so `number_of_records`, `total_number`, `average_number`, `total_bool` and the rest are aggregates over **every** access group in that table, including the records a given caller could never read.
+Any caller allowed to read the listing reads the whole project's index vocabulary.
+
+The records themselves stay gated, but an index name, and any average or total computed from private values, is visible to every signed in user. An index whose very existence is sensitive does not belong in a table those users can list.
+:::
+
 For more detailed information on all the parameters and options available with the [`getIndexes()`](/api-reference/database/README.md#getindex) method, 
 please refer to the API Reference below:
 

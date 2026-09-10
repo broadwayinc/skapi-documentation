@@ -14,6 +14,29 @@ skapi.getTables().then(response => {
 Called with no argument, or with an empty query object, [`getTables()`](/api-reference/database/README.md#gettables) returns **every** table in the project.
 That is how you list everything: give no `table`, and give no `condition`.
 
+### Who can read table information
+
+When the project's [Require Login](/service-settings/service-settings.md#require-login) setting is on, [`getTables()`](/api-reference/database/README.md#gettables) is refused to a visitor who is not signed in.
+The SDK throws `REQUIRE_LOGIN` before the request leaves the browser, and the backend refuses the same call with `INVALID_REQUEST`, so a direct API call or an older SDK with no gate is refused as well.
+A project that has never set that option counts as **on**.
+
+:::warning
+Table metadata used to be served to anyone who knew the project ID.
+An integration that lists tables without a signed in user now gets an error where it used to get a list. If a signed out page genuinely needs the listing, turn Require Login off in the project settings.
+:::
+
+Table **names** are never filtered: the response carries every table in the project, whatever access group the records inside it live in.
+The per access group record counters are filtered to the caller:
+
+| Counter | Who receives it |
+| --- | --- |
+| `number_of_records_in_access_group_public` | Everyone, signed in or not. |
+| `number_of_records_in_access_group_authorized`, and every numbered group up to the caller's own | A signed in user, up to and including their own access group. |
+| `number_of_records_in_access_group_private`, `number_of_records_in_access_group_admin` | Admins and the project owner. |
+
+`number_of_records` and `size` are **not** filtered.
+Both are totals over every access group in the table, so `number_of_records` is normally larger than the counters you can see add up to.
+
 ### Querying tables
 
 To retrieve information for a specific table, pass an existing table name:

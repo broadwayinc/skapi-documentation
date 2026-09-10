@@ -59,6 +59,10 @@ skapi.getRecords({
 });
 ```
 
+The `tag` in a record query is matched **exactly**, and no condition widens it: the prefix search described below belongs to [`getTags()`](/api-reference/database/README.md#gettags), not to [`getRecords()`](/api-reference/database/README.md#getrecords).
+When one thing has been tagged more than one way, `Experimental` and `Experimental Rock` for example, a query on one of those spellings returns only that spelling's records and reports its count as though it were the whole set.
+List the spellings first with `getTags({ table, tag, condition: '>=' })`, then query each one and merge the results yourself.
+
 :::tip
 To query multiple tags simultaneously, you can make multiple API calls and await them all at once in Javascript Promise.all().
 Then you may sort the data as you wish.
@@ -138,6 +142,21 @@ So the combinations are:
 ```js
 skapi.getTags({ condition: '>=' }); // Error: "table" or "tag" is required for condition.
 ```
+
+### Who can read tag information
+
+When the project's [Require Login](/service-settings/service-settings.md#require-login) setting is on, [`getTags()`](/api-reference/database/README.md#gettags) is refused to a visitor who is not signed in.
+The SDK throws `REQUIRE_LOGIN` before the request leaves the browser, and the backend refuses the same call with `INVALID_REQUEST`, so a direct API call or an older SDK with no gate is refused as well.
+A project that has never set that option counts as **on**.
+Tag metadata used to be served to anyone who knew the project ID, so an integration that reads it without a signed in user now gets an error.
+
+:::warning
+The tag listing is **not** filtered by access group, and cannot be.
+A tag is stored as one row keyed by the tag and the table name, with the access group left out of the key, so `number_of_records` counts the records in every access group together.
+Any caller allowed to read the listing reads the whole project's tag vocabulary, including tags carried only by `private` or `admin` records, and their cross group counts.
+
+The records themselves stay gated: a tag tells a signed in user that records exist, not what is in them. Still, treat a tag name as visible to every signed in user, and do not encode anything sensitive in one.
+:::
 
 For more detailed information on all the parameters and options available with the [`getTags()`](/api-reference/database/README.md#gettags) method, 
 please refer to the API Reference below:
