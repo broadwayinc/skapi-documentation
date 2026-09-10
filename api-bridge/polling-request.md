@@ -61,6 +61,32 @@ Only requests with status `running` or `pending` can be polled.
 A request enters `running` or `pending` only when either `params.queue` (queue name) or `params.poll` (poll interval) is provided.
 :::
 
+## How long the call actually took
+
+`onResponse` receives a second argument, `meta`, carrying facts about the **request** rather than about the response. A settled poll resolves with the destination's own answer, and that answer belongs to the destination: there is nowhere in it to put a value of skapi's without changing what you asked for. So request-level facts arrive beside it instead.
+
+`meta.executed` is when the worker **began running** the request, in milliseconds. Subtract it from the request's `updated` to time the call on its own:
+
+```js
+res.poll({
+    latency: 2000,
+    onResponse(result, meta) {
+        if (meta?.executed) {
+            console.log('the call began at', new Date(meta.executed));
+        }
+        console.log('Done:', result);
+    }
+});
+```
+
+Use `executed` rather than `created` when you are timing the destination. `created` is when the request was **queued**, and a queued request can sit there for a long time before a worker picks it up, so `updated - created` measures your own queue depth plus the call while `updated - executed` measures the call.
+
+`meta.executed` is optional and can legitimately be absent, so branch on it rather than assuming it. The value rides on the status envelope that a **running** poll tick returns, so a request that began and finished between two ticks never showed one. When it is missing, show nothing: substituting `created` reports a queue backlog as though the destination had been slow. The value is on the request's own row either way, so a later [`clientSecretRequestHistory()`](/api-bridge/request-history.md) will still report it as `executed`.
+
+A poll started from a `clientSecretRequestHistory()` item is the exception: it takes the execution start from the listing that produced it, so it can hand you `meta.executed` even when the request settles on the poll's very first read.
+
+A callback that declares one parameter is unaffected, and `onResponse` on a direct, non-queued `clientSecretRequest()` receives no `meta`, since nothing ever recorded an execution start for a request that was never queued.
+
 
 ## Stopping Polling
 

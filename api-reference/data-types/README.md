@@ -86,8 +86,16 @@ type ClientSecretStreamOptions = {
     /** Polling interval in milliseconds while the request is still running. Default 1000.
      *  Must be a finite, non-negative number. */
     poll?: number;
-    /** Called once with whatever the read resolves with. Not called when the read is stopped. */
-    onResponse?: (res: any) => void;
+    /** Called once with whatever the read resolves with. Not called when the read is stopped.
+     *  `meta` carries facts about the REQUEST rather than the response: a settled poll resolves
+     *  with the destination's own answer, and that answer is the destination's, not a place to
+     *  attach skapi's fields. `meta.executed` is when the worker BEGAN running the request, in
+     *  milliseconds (the same value clientSecretRequestHistory() reports as `executed`), so
+     *  `updated - executed` times the call while `updated - created` also counts the queue wait.
+     *  Present only when this request was QUEUED and therefore polled, and absent even then for a
+     *  request that began and ended between two ticks, so treat it as optional and show nothing
+     *  rather than substituting `created`. A one-argument callback is unaffected. */
+    onResponse?: (res: any, meta?: { executed?: number }) => void;
     /** Called if the read itself fails. */
     onError?: (err: any) => void;
     service?: string;
@@ -477,7 +485,7 @@ type RequestHistory = {
     compact?: boolean; // true on items returned by a compact: true listing, so consumers can tell "bodies omitted" from "bodies empty".
     poll?: (arg?: {
         latency?: number;
-        onResponse?: (res:any)=>void;
+        onResponse?: (res:any, meta?: { executed?: number })=>void; // called when the request settles. `meta` carries request-level facts, which cannot ride on `res`: a settled poll resolves with the DESTINATION's own answer. `meta.executed` is when the worker BEGAN running this request, in milliseconds, matching the `executed` on a RequestHistory item -- `updated - executed` is the call, `updated - created` is the call plus the queue wait. A poll built from a clientSecretRequestHistory() item starts out already knowing it, taken from that listing, so it is delivered even when the request settles on the poll's first read; otherwise it is learned from a running tick, and a request that began and ended between two ticks has none. Optional either way: show nothing rather than falling back to `created`.
         onError?: (err:any)=>void;
         onStream?: (chunk: string, seq: number, via?: 'socket' | 'poll')=>void; // reads a STREAMED item's text as it arrives, same as on the dispatch path. "via" names the transport that carried the piece: 'socket' when skapi's websocket got there first, 'poll' when the poll did. Supplying it is what makes the poll fetch chunks. An item that already settled has nothing left to poll: read that one back with clientSecretRequestStream().
     }) => Promise<any>; // function to poll the request status until it settles. The promise resolves with the final result of the request: the third-party API response body when it resolves, or the error payload when it fails. It does not resolve with a RequestHistory item, so "created" and "updated" are not on the polled value. A poll stopped by stopClientSecretPolling() resolves with { id, status: 'stopped' }. Optional argument "latency" can be used to set the latency of the polling in milliseconds. Default latency is 1000ms. A STREAMED request has no body to resolve with until it is finalized, so it resolves with a StreamPollResult instead: the text arrived through onStream.

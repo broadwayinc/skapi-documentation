@@ -1,6 +1,17 @@
 # Version History
 
-### Current version: 2.0.3
+### Current version: 2.0.5
+
+**2.0.5**
+
+- The `onResponse` callback of a **poll** now receives a second argument, `meta`, carrying facts about the *request* rather than about the response. It holds one field so far: **`meta.executed`**, the moment the worker actually began running the request, in milliseconds, the same value `clientSecretRequestHistory()` reports as `executed`. It arrives on the second argument because a settled poll resolves with the **destination's own answer**, and that answer belongs to the destination: there is nowhere in it to put a fact of skapi's without changing what the caller asked for. `updated - executed` is how long the call itself took, while `updated - created` also counts however long the request sat in the queue. Existing one-argument callbacks are unaffected, since a second argument is simply ignored by a function that does not declare it.
+- `meta` reaches the two callbacks that are served by the poll: the `onResponse` on a `RequestHistory`'s **`poll()`**, and the `onResponse` passed to **`clientSecretRequest()`** when that request was queued and therefore polled. A `clientSecretRequest()` that answers directly, with no queue and no polling, calls `onResponse(res)` with no second argument, because nothing ever recorded an execution start for it. `clientSecretRequestStream()`'s `onResponse` does not receive one either.
+- `meta.executed` can legitimately be absent, so read it as optional. The execution start rides on the **status envelope**, which only a non-terminal poll tick returns, so a request that began and finished between two ticks never showed one. Show nothing rather than substituting `created`: that reports a queue backlog as though the destination had been slow. When the value is missing and you still want it, it is on the request's own row and a later `clientSecretRequestHistory()` will carry it.
+- A poll started from a `clientSecretRequestHistory()` item now begins already knowing the execution start, taken from the listing that produced it. Before this, such a poll could only learn it from a running tick, so a poll attached to a request that was **about to settle**, or that settled on the poll's very first read, delivered no `meta.executed` at all even though the value had just been listed. This is the common case when polls are rationed and a request waits for a free slot before one is attached. Nothing changes for a poll that does see a running tick: the row's own current value still wins.
+
+**2.0.4**
+
+- Never published. A version bump with no code change, superseded by 2.0.5 before release. There is no `2.0.4` on npm; upgrade from 2.0.3 straight to 2.0.5.
 
 **2.0.3**
 
