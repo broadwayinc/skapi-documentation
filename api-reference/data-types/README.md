@@ -120,6 +120,26 @@ See [Indexing](/database/indexing.html#ends-with-string-values).
 
 The 'ends with' behavior is specific to the record index query. On the other methods that accept a `Condition` ([`getTables()`](/api-reference/database/README.md#gettables), [`getTags()`](/api-reference/database/README.md#gettags), [`getIndexes()`](/api-reference/database/README.md#getindex), and [`getUniqueId()`](/api-reference/database/README.md#getuniqueid)), `<=` is never an 'ends with' search: on a `string` value it falls back to an exact match, and on a `number` value it is a plain 'lesser or equal' comparison.
 
+`condition` is optional, and the SDK never fills in a value for it: an omitted `condition` is simply absent from the request and the backend decides what it means.
+The default is not the same on every method:
+
+| Method | `condition` omitted |
+| --- | --- |
+| [`getTables()`](/api-reference/database/README.md#gettables) | Exact match on `table`. With `table` omitted as well, every table. |
+| [`getTags()`](/api-reference/database/README.md#gettags) | Exact match on `tag` when **both** `table` and `tag` are given. With only `table` given, `>=` (prefix), so every tag in the table. With neither, every tag in the project, ordered by record count, descending. |
+| [`getIndexes()`](/api-reference/database/README.md#getindex) | No top level `condition` exists. `order.condition` omitted is an exact match against `order.value`, and `order.condition` requires `order.value`. |
+
+Omit the key, do not blank it out. Passing `condition` explicitly as `undefined` or `null` is rejected with `INVALID_PARAMETER`, while leaving the key out works.
+When you assemble a query object programmatically, `delete` the key rather than setting it to `undefined`.
+
+A `condition` also needs something to compare against, and it is the value key that supplies it.
+Sending a `condition` with that key left out is an error, not a listing: [`getTables()`](/api-reference/database/README.md#gettables) with no `table` is rejected with `"table" is required for condition.`, [`getTags()`](/api-reference/database/README.md#gettags) with neither `table` nor `tag` with `"table" or "tag" is required for condition.`, and [`getIndexes()`](/api-reference/database/README.md#getindex) rejects `order.condition` without `order.value`.
+To list everything instead, leave the `condition` out as well.
+
+While you are exploring and do not know the exact spelling, pass `gte`: it is a prefix search, so it also surfaces related entries.
+An entity whose name is recorded two ways, such as `Asian Spice House` and `Asian Spice House (alias)`, is only found by the prefix.
+When you already know the exact name, omitting `condition` is the exact match you want.
+
 ## Connection
 
 ```ts

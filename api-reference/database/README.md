@@ -256,11 +256,30 @@ deleteRecords({
 getTables(
     query?: {
         table?: string; // If omitted, fetches the full list of tables.
+        /** Default when omitted: EXACT match on the given table name. */
+        /** 'gte' / '>=' is a prefix search: table names starting with the given value. */
+        /** 'gt' / '>' is lexicographic, so it spills past the prefix into every later table name. */
         condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '=';
     },
     fetchOptions?: FetchOptions;
 ): Promise<DatabaseResponse<Table>>
 ```
+
+When `condition` is omitted and `table` is given, the table name is matched **exactly**.
+When `table` is omitted as well, every table is returned.
+
+| Call | Result |
+| --- | --- |
+| `getTables()`, `getTables({})` | Every table in the project. |
+| `getTables({ table: 'x' })` | Exact match on `'x'`. |
+| `getTables({ table: 'x', condition: 'gte' })` | Prefix: every table name starting with `'x'`. |
+| `getTables({ table: '' })` | Error: `"table" should not be empty.` |
+| `getTables({ condition: 'gte' })`, with no `table` | Error: `"table" is required for condition.` |
+
+While you are exploring and do not know the exact spelling, pass `gte`: it is a prefix search, so it also surfaces related entries.
+A table name very often carries a leading name shared with the rest of its data set, a source or dataset prefix for example, so an exact match finds one spelling and silently misses its siblings, while the prefix finds the whole family.
+When you already know the exact name, omitting `condition` is the exact match you want.
+
 See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
 
 See [Table](/api-reference/data-types/README.md#table)
@@ -272,16 +291,37 @@ See [Table](/api-reference/data-types/README.md#table)
 getIndexes(
     query: {
         table: string;
+        /** Omitted: PREFIX, lists every index of the table. */
+        /** A name with no trailing '.': EXACT match on that index name. */
+        /** A name ending in '.': PREFIX, lists the children of that compound index. ('Band.' lists 'Band.name', 'Band.year') */
         index?: string; // 1..256 characters for custom names, where / ! * # % each count as 3; blocks control chars and sentinel U+10FFFF, cannot start with '$'.
         order?: {
             by: 'average_number' | 'total_number' | 'number_count' | 'average_bool' | 'total_bool' | 'bool_count' | 'string_count' | 'index_name' | 'number_of_records';
-            value?: number | boolean | string;
+            value?: number | boolean | string; // Required when 'order.condition' is given.
+            /** Default when omitted: EXACT match against 'order.value'. */
             condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '=';
         };
     },
     fetchOptions?: FetchOptions;
 ): Promise<DatabaseResponse<Index>>
 ```
+
+`table` is **required**, so there is no no-argument form.
+[`getIndexes()`](/api-reference/database/README.md#getindex) has no top level `condition` either.
+The only condition is `order.condition`, and it **requires** `order.value`: a query that sets `order.condition` without `order.value` is rejected.
+
+| Call | Result |
+| --- | --- |
+| `getIndexes({ table: 't' })` | Every index of table `'t'`. |
+| `getIndexes({ table: 't', index: 'Band' })` | Exact match on index `'Band'`. |
+| `getIndexes({ table: 't', index: 'Band.' })` | Prefix: the children of the compound index, so `Band.name` and `Band.year`. |
+| `getIndexes({ table: 't', order: { by: 'index_name', value: 'B' } })` | Exact match against the value. |
+| `getIndexes({ table: 't', order: { by: 'total_number' } })` | The whole partition, ordered by that attribute. |
+| `order.condition` without `order.value` | Error. |
+| No `table` | Error: `"table" is required.` |
+
+While you are hunting for an index whose exact spelling you do not know, order by `index_name` and pass `gte` instead of a bare `order.value`: it is a prefix search, so it also surfaces the related entries an exact match would silently miss.
+
 See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
 
 See [Index](/api-reference/data-types/README.md#index)
@@ -294,11 +334,32 @@ getTags(
     query?: {
         table?: string; // 1..256 characters, where / ! * # % each count as 3. Blocks control chars and sentinel U+10FFFF.
         tag?: string; // 1..256 characters, where / ! * # % each count as 3. Blocks control chars and sentinel U+10FFFF.
+        /** Default when omitted: EXACT match on the tag when BOTH 'table' and 'tag' are given, otherwise '>=' (prefix). */
+        /** 'gte' / '>=' is a prefix search. */
         condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '=';
     },
     fetchOptions?: FetchOptions;
 ): Promise<DatabaseResponse<Tag>>
 ```
+
+When `condition` is omitted and **both** `table` and `tag` are given, the tag is matched **exactly**.
+When only `table` is given, the omitted `condition` defaults to `>=`, a prefix search, so the call lists every tag in that table.
+When only `tag` is given, that same `>=` default searches every table, so the call finds that tag across the whole project.
+When neither `table` nor `tag` is given, every tag in the project is returned, ordered by record count, descending.
+
+| Call | Result |
+| --- | --- |
+| `getTags()`, `getTags({})` | Every tag in the project, ordered by record count, descending. |
+| `getTags({ table: 't' })` | Every tag in table `'t'`. |
+| `getTags({ table: 't', tag: 'g' })` | Exact match on tag `'g'` in table `'t'`. |
+| `getTags({ tag: 'g' })`, with no `table` | Tag `'g'` across all tables. |
+| `getTags({ table: 't', tag: 'g', condition: 'gte' })` | Prefix: every tag in `'t'` starting with `'g'`. |
+| `getTags({ condition: 'gte' })`, with neither `table` nor `tag` | Error: `"table" or "tag" is required for condition.` |
+
+While you are exploring and do not know the exact spelling, pass `gte`: it is a prefix search, so it also surfaces related entries.
+A tag very often carries a leading name shared with the rest of its data set, a series name for example, or an entity recorded once plainly and once with a parenthesised alias, so an exact match finds one spelling and silently misses its siblings, while the prefix finds the whole family.
+When you already know the exact name, give both `table` and `tag` and omit `condition`: that is the exact match you want.
+
 See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
 
 See [Tag](/api-reference/data-types/README.md#tag)

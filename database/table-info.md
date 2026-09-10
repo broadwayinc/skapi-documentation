@@ -11,6 +11,9 @@ skapi.getTables().then(response => {
 });
 ```
 
+Called with no argument, or with an empty query object, [`getTables()`](/api-reference/database/README.md#gettables) returns **every** table in the project.
+That is how you list everything: give no `table`, and give no `condition`.
+
 ### Querying tables
 
 To retrieve information for a specific table, pass an existing table name:
@@ -32,6 +35,9 @@ skapi.getTables({
     // }]
 })
 ```
+
+No `condition` is given here, and an omitted `condition` is an **exact** match on the table name.
+This returns the table named `my_collection` and nothing else.
 
 You can also query table names using `condition`.
 
@@ -56,6 +62,24 @@ skapi.getTables({
 }).then(response => {
     console.log(response); // Table names starting from 'my_' (for example, 'my_collection')
 })
+```
+
+While you are exploring and do not know the exact spelling, pass `>=` rather than omitting `condition`.
+It is a prefix search, so it also surfaces related entries: in real data a table name very often carries a leading name shared with the rest of its data set, such as a source or dataset prefix, so `my_collection` and `my_collection_archive` are only found together by the prefix.
+An exact match finds one spelling and silently misses its siblings.
+When you already know the exact name, omitting `condition` is the exact match you want.
+
+So there are five ways the call can land:
+
+- no argument, or an empty query object: every table in the project.
+- `table` alone: an exact match on that name.
+- `table` with `condition: '>='`: every table name starting with that value.
+- `table` as an empty string: rejected with `"table" should not be empty.`
+- `condition` with no `table`: rejected with `"table" is required for condition.`
+
+```js
+skapi.getTables({ table: '' });            // Error: "table" should not be empty.
+skapi.getTables({ condition: '>=' });      // Error: "table" is required for condition.
 ```
 
 Condition-based table search is useful when you need to check whether a table already exists before uploading data.

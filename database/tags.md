@@ -101,6 +101,44 @@ skapi.getTags({
     console.log(response); // List of all tags in table named 'MyTable'
 })
 ```
+
+This call gives no `condition`, and that is what makes it a listing.
+When only `table` is given, the omitted `condition` defaults to `>=`, a prefix search on the tag name, and with no `tag` to prefix it matches every tag in that table.
+
+When **both** `table` and `tag` are given and `condition` is omitted, the default is an **exact** match on the tag instead.
+
+Calling `getTags()` with no argument at all, or with an empty query object, returns every tag in the project, ordered by record count, descending.
+That is the widest listing there is:
+
+```js
+skapi.getTags().then(response=>{
+    console.log(response); // Every tag in the project, most used tag first
+})
+```
+
+Given only a `tag` and no `table`, the same `>=` default runs across the whole project, so the call finds that tag in every table that uses it:
+
+```js
+skapi.getTags({
+    tag: 'Experimental'
+}).then(response=>{
+    console.log(response); // The tag 'Experimental', in every table it appears in
+})
+```
+
+So the combinations are:
+
+- neither `table` nor `tag`: every tag in the project, ordered by record count, descending.
+- `table` alone: every tag in that table.
+- `tag` alone: that tag across all tables.
+- `table` and `tag`: an exact match on that tag in that table.
+- `table`, `tag` and `condition: '>='`: every tag in that table whose name starts with the value.
+- `condition` with neither `table` nor `tag`: rejected with `"table" or "tag" is required for condition.`
+
+```js
+skapi.getTags({ condition: '>=' }); // Error: "table" or "tag" is required for condition.
+```
+
 For more detailed information on all the parameters and options available with the [`getTags()`](/api-reference/database/README.md#gettags) method, 
 please refer to the API Reference below:
 
@@ -120,4 +158,11 @@ skapi.getTags({
 })
 ```
 
-In this example, the condition property is set to `>`, and `table` is set to `A`.  This query will return the table names that come after table 'A' in lexographic order, such as 'Ab', 'B', 'C', 'D' and so on.
+In this example, the condition property is set to `>`, and `tag` is set to `A`.  This query will return the tag names that come after tag 'A' in lexicographic order, such as 'Ab', 'B', 'C', 'D' and so on.
+
+To list only the tags whose name **starts with** 'A', set `condition` to `>=`, which is a prefix search.
+
+While you are exploring and do not know the exact spelling, pass `>=`.
+Because it is a prefix search it surfaces related entries: in real data a tag very often carries a leading name shared with the rest of its data set, a series name for example, or an entity recorded once plainly and once with a parenthesised alias, such as a tag `Asian Spice House` and a tag `Asian Spice House (alias)`.
+An exact match finds one spelling and silently misses its siblings, while the prefix finds the whole family.
+When you already know the exact name, give both `table` and `tag` and omit `condition`: that is the exact match you want.

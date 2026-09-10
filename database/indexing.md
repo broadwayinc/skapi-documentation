@@ -371,6 +371,32 @@ skapi.getIndexes({
 });
 ```
 
+The `index` parameter decides how much of the table comes back:
+
+- `index` omitted: a prefix listing of **every** index in the table.
+- `index` with no trailing period, as in the example above: an **exact** match on that index name.
+- `index` ending in a period: a prefix listing of the children of that compound index. `'Vote.'` lists `Vote.Beer`, `Vote.Wine`, and so on.
+
+So to list everything, give the table and nothing else:
+
+```js
+skapi.getIndexes({
+    table: 'VoteBoard'
+}).then(response => {
+    console.log(response.list); // Every index in the "VoteBoard" table
+});
+```
+
+`table` is **required**, so unlike [`getTables()`](/api-reference/database/README.md#gettables) and [`getTags()`](/api-reference/database/README.md#gettags) there is no no-argument form:
+a call without `table` is rejected with `"table" is required.`
+
+```js
+skapi.getIndexes({ index: 'Vote.Beer' }); // Error: "table" is required.
+```
+
+[`getIndexes()`](/api-reference/database/README.md#getindex) has no top level `condition`.
+The only condition it accepts is `order.condition`, described in [Querying index value](#querying-index-value) below.
+
 For more detailed information on all the parameters and options available with the [`getIndexes()`](/api-reference/database/README.md#getindex) method, 
 please refer to the API Reference below:
 
@@ -436,3 +462,25 @@ skapi.getIndexes(query, config).then(response => {
     console.log(response.list); // List of votes that rates higher then 50%, ordered from high votes.
 });
 ```
+
+`order.condition` **requires** `order.value`: a query that sets `order.condition` without `order.value` is rejected.
+When `order.value` is given and `order.condition` is omitted, the value is matched **exactly**.
+With `order.by` alone and no `order.value`, nothing is matched at all: the whole partition comes back, ordered by that attribute, as in the `average_bool` example above.
+
+When you are looking for an index by name rather than listing every one, order by `index_name` and pass `>=` instead of a bare value:
+
+```js
+skapi.getIndexes({
+    table: 'VoteBoard',
+    order: {
+        by: 'index_name',
+        value: 'Vote',
+        condition: '>=' // Starts with
+    }
+}).then(response => {
+    console.log(response.list); // Indexes of "VoteBoard" whose name starts with 'Vote'
+});
+```
+
+A bare `order.value` is an exact match on the name, and in real data an index name very often carries a leading name shared with the rest of its data set, such as a source or dataset prefix or a series name.
+The exact match finds one spelling and silently misses its siblings, while the prefix finds the whole family.
