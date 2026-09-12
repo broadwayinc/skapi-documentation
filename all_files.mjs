@@ -25,7 +25,7 @@ let method_ref = [
     {
         text: 'Introduction',
         items: [
-            { text: 'What is Skapi?', link: '/introduction/what-is-skapi.md' },
+            // { text: 'What is Skapi?', link: '/introduction/what-is-skapi.md' },
             { text: 'Getting Started', link: '/introduction/getting-started.md' },
             { text: 'Working with HTML forms', link: '/introduction/working-with-forms.md' }
         ]
@@ -130,6 +130,7 @@ let method_ref = [
         text: 'Admin Features',
         items: [
             { text: 'Introduction', link: '/admin/intro.md' },
+            // { text: 'Project Settings', link: '/admin/project-settings.md' },
             { text: 'Inviting Users', link: '/admin/invite.md' },
             { text: 'Managing Users', link: '/admin/account.md' },
         ]

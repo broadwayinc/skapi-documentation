@@ -1,23 +1,7 @@
-# What is Skapi?
 
-Skapi is serverless backend API for your web application.
+# Project Settings
 
-Whether you are an AI agent, a web developer, or anyone else who needs a secure and scalable backend, Skapi gives you one with no servers to deploy or manage: authentication, a database, file storage, and email are all included.
-
-Everything you build lives in a **Project**. A project is the complete backend for one application, and your frontend connects to it in a single line of code.
-
-## Creating a Project
-
-1. Sign up for an account at [skapi.com](https://www.skapi.com/signup).
-2. Log in, Name your project and choose a region. Hit **Create**.
-
-:::tip For BunnyQuery users
-BunnyQuery projects are fully compatible with Skapi. Each project shows up in both your BunnyQuery and Skapi project lists.
-:::
-
-## Project Settings
-
-You can set additional settings for your project.
+You can set advanced settings for your project.
 
 - **Name:** The project name used to identify your project on the **My Projects** page.
 
@@ -46,20 +30,4 @@ You can set additional settings for your project.
 
 :::warning
 Disabling your project will not pause your subscription. You will still be charged for the project even when it is disabled.
-:::
-
-## Deleting Your Project
-
-You can delete your project only under these conditions:
-- your subscription has expired, or
-- you are on the trial plan.
-
-You can delete your project from the project settings page.
-
-The **Delete Project** button is located at the bottom of the project settings page.
-
-When you click **Delete Project**, you will be asked to confirm deletion.
-
-:::danger
-When you delete your project, all related data is permanently deleted and cannot be recovered.
 :::

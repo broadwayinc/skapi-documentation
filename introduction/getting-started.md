@@ -1,19 +1,24 @@
 
 # Getting Started
 
-After creating your project in Skapi, connect it to your frontend.
+Skapi is a serverless backend API for your web application.
 
-Your frontend is the part users see, such as pages, buttons, and forms. It can be plain HTML or a JavaScript framework like Vue or React.
+To enable backend features, first create a project at [skapi.com](https://www.skapi.com/signup).
 
-Skapi works with vanilla HTML and modern JavaScript frameworks (for example Vue, React, and Angular).
+## Creating a Project
 
-To use Skapi, import the library and initialize it with your project ID.
+1. Sign up for an account at [skapi.com](https://www.skapi.com/signup).
+2. Log in, name your project, and choose a region. Click Create.
+
+:::tip For BunnyQuery users
+BunnyQuery projects are fully compatible with Skapi. Your project will appear in both your BunnyQuery and Skapi project lists.
+:::
 
 ### For HTML Projects
 
-For vanilla HTML projects, import Skapi using a script tag and initialize the library as shown below.
-Initialize the Skapi class in the HTML `<head>` of each page that uses Skapi.
-When you initialize the class, use the exact project ID from your Skapi dashboard.
+For vanilla HTML projects, load Skapi using a script tag and initialize the library as shown below.
+Add the Skapi script and initialize the Skapi class in the `<head>` of each page that uses Skapi.
+Use the exact Project ID of your Skapi project when initializing the library.
 
 ```html
 <!-- index.html -->
@@ -26,22 +31,21 @@ When you initialize the class, use the exact project ID from your Skapi dashboar
 ```
 
 :::warning Replace the placeholder
-`"<Project ID>"` is a placeholder, including the angle brackets. Replace the whole string with your actual project ID from your Skapi dashboard after you create a project, so the line reads like this:
+`<Project ID>` is a placeholder, including the angle brackets.
+
+Replace the entire string with your actual Project ID from the Skapi dashboard. For example:
 
 ```js
 const skapi = new Skapi("abc123defg456hij78-9klmnop012qrstu345vwxyz");
 ```
 
-Every example in these docs uses the same `"<Project ID>"` placeholder, so replace it wherever you copy one.
+Every example in these docs uses the same `"<Project ID>"` placeholder. Replace it wherever you copy an example.
 :::
 
-The project ID is a single token that identifies your project and its owner.
+The Project ID is a unique identifier for your Skapi project.
 
 Example format: `"xxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxx"`
 
-:::tip For BunnyQuery users
-A BunnyQuery project ID is a Skapi project ID; use it as-is.
-:::
 
 ### For SPA Projects
 
