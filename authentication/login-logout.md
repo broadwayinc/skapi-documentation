@@ -73,6 +73,10 @@ please refer to the API Reference below:
 
 ### [`login(params): Promise<UserProfile>`](/api-reference/authentication/README.md#login)
 
+If the account was created with a `username`, either the username or the account's current email
+logs the user in. Pass whichever the user typed. See
+[E-Mail and username](/authentication/create-account.md#e-mail-and-username).
+
 ## Auto Login
 
 By default, once user login to your website, their login session is maintained until they logout.

@@ -8,7 +8,10 @@ You can update a user's profile using [`updateProfile()`](/api-reference/user/RE
 If successful, the method returns the updated [UserProfile](/api-reference/data-types/README.md#userprofile) object.
 
 :::danger
--   If a user changes their email, their login email changes as well.
+-   Changing the email moves email login to the new address. A `username`, if the
+    account has one, is permanent and is not affected. See
+    [Which ID logs a user in](#which-id-logs-a-user-in) below for the one case
+    where the old address keeps working.
 -   When the email is changed, it becomes unverified.
 :::
 
@@ -103,3 +106,18 @@ skapi.updateProfile(params).then((user) => {
 For full details on parameters and options, see the API reference below:
 
 ### [`updateProfile(params): Promise<UserProfile>`](/api-reference/user/README.md#updateprofile)
+
+## Which ID logs a user in
+
+**Account created with a username.** The username is the permanent login ID and never changes. The
+current email logs the user in too, and follows the email: change the email and login moves to the new
+address, while the username keeps working. This is the clean case.
+
+**Account created without a username.** The email is the login ID, and here there is a wrinkle worth
+knowing: the address the account signed up with keeps working as a login ID forever, even after the
+email is changed, because that original address is what identifies the account internally. Changing
+the email adds the new address rather than retiring the old one, and changing it a second time drops
+the previous address but never the original.
+
+So if you need an address to stop being a way in, give the account a `username` at creation. Only then
+does email login move cleanly with the email.

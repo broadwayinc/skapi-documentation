@@ -93,3 +93,34 @@ please refer to the API Reference below:
 
 ### [`signup(params, options?): Promise<UserProfile | string>`](/api-reference/authentication/README.md#signup)  
 
+`options` also takes a `template` argument, which lets a single `signup()` call use a specific
+uploaded template for the signup confirmation and welcome e-mails instead of the template set for
+your project. For more info, see [Overriding the template for a single call](/email/email-templates.md#overriding-the-template-for-a-single-call).
+
+### E-Mail and username
+
+`email` is always required. Every account needs one, because it is what signup confirmation, e-mail
+verification, password reset and account recovery all work through. An account cannot be created
+without it.
+
+`username` is optional, and when you pass one the account gets **two** ways in. The username becomes
+the account's permanent login ID, and the email logs the account in as well. Leave `username` out and
+the email alone is the login ID, which is what most projects want.
+
+The username is permanent. It is fixed when the account is created and there is no API to change it.
+The email is not: when a user updates their email, email login moves to the new address and the
+username is unaffected. See
+[Which ID logs a user in](/user-account/update-account.md#which-id-logs-a-user-in).
+
+```js
+skapi.signup({ email: 'user@email.com', password: 'password', username: 'my_username' })
+    .then(() => {
+        // Both of these log the same account in.
+        skapi.login({ username: 'my_username', password: 'password' });
+        skapi.login({ email: 'user@email.com', password: 'password' });
+    });
+```
+
+The email keeps every other job it had: it is still the address verification and password-reset
+e-mails go to, and it is still what `email_public` exposes.
+

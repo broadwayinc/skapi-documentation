@@ -47,6 +47,85 @@ To customize the email template, just send your customized template via your e-m
 - You must use the same email address that you used to signup to Skapi.
 :::
 
+## Overriding the template for a single call
+
+The template you set in the `Automated Emails` page is your project's template: every e-mail of that
+type uses it. Some methods also take a `template` option that replaces it for one call only, which is
+useful when a single flow needs different wording, branding, or a different language from the rest of
+your project.
+
+Each value is the `message_id` of a template you have already sent to the e-mail endpoint. Open the
+`Automated Emails` page and select the e-mail type: every template you have uploaded is listed there
+with its `message_id`.
+
+The e-mail that actually goes out is chosen in this order:
+
+1. the `message_id` passed in the `template` option of the call
+2. your project's template for that e-mail type
+3. Skapi's built in default
+
+Methods that accept it:
+
+| Method | Argument | Type |
+|---|---|---|
+| [`signup()`](/api-reference/authentication/README.md#signup) | `options.template` | `{ signup_confirmation?: string; welcome?: string }` |
+| [`verifyEmail()`](/api-reference/user/README.md#verifyemail) | `options.template` | `{ verification?: string }` |
+| `verifyPhoneNumber()` | `options.template` | `{ verification?: string }` |
+| [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword) | `options.template` | `{ verification?: string }` |
+| [`openIdLogin()`](/api-reference/authentication/README.md#openidlogin) | `params.template` | `{ welcome?: string }` |
+
+Every value is an optional non empty `string`. Any other type, including an empty string, throws
+`INVALID_PARAMETER`. Keys you leave out simply fall through to your project's template, so you can
+override the welcome e-mail while leaving the signup confirmation alone.
+
+:::warning
+`option.template.signup_confirmation` requires `option.signup_confirmation` to be set on the same
+call. Without it there is no confirmation e-mail to apply the template to, and the call throws
+`INVALID_PARAMETER`.
+:::
+
+Overriding the signup confirmation and welcome e-mails:
+
+```js
+skapi.signup(
+    { email: 'user@email.com', password: 'password' },
+    {
+        signup_confirmation: true,
+        template: {
+            signup_confirmation: 'signupconfirmationtemplateidxxxxxxxxxxxx',
+            welcome: 'welcometemplateidxxxxxxxxxxxxxxxxxxxxxxx'
+        }
+    }
+).then(res => {
+    console.log(res); // SUCCESS: The account has been created. User's signup confirmation is required.
+});
+```
+
+Overriding the verification e-mail. `verifyEmail()` with no code issues a new one, so the template
+applies there; when you pass the code back to verify it, no e-mail is sent and the option is ignored:
+
+```js
+skapi.verifyEmail(undefined, {
+    template: { verification: 'verificationtemplateidxxxxxxxxxxxxxxxxxx' }
+}).then(res => {
+    console.log(res); // SUCCESS: Verification code has been sent.
+});
+```
+
+The same option covers the password reset code, since it is sent as a verification e-mail:
+
+```js
+skapi.forgotPassword(
+    { email: 'user@email.com' },
+    { template: { verification: 'verificationtemplateidxxxxxxxxxxxxxxxxxx' } }
+).then(res => {
+    console.log(res); // SUCCESS: Verification code has been sent.
+});
+```
+
+If the `message_id` given for a verification e-mail cannot be found in your project, Skapi falls back
+to your project's template rather than failing the call, and the e-mail is still sent.
+
 ## Template Placeholders
 
 E-Mail templates takes custom placeholders that can be used to customize the email template.
@@ -94,9 +173,17 @@ When user clicks on the link, they will be able to login with the temporary pass
 
 You can invite users to your project from the user page in your project page in Skapi website.
 
-:::tip
-To make the invitation email more personal, it would be good idea to include **`${name}`** placeholder in the template.
-:::
+### Optional placeholders
+
+These are not required. A template that leaves them out keeps working exactly as before.
+
+- **`${name}`**: The invited person's name. Worth including to make the e-mail less anonymous.
+- **`${username}`**: The account's permanent login username, when the invitation was created with one.
+  It renders as empty for an invitation with no username, so only use it in a line that still reads
+  correctly when it is blank, or send a template with it only to invitations that have one.
+
+An account invited with a username can sign in with either that username or the e-mail address the
+invitation was sent to, so `${email}` remains correct either way.
 
 ## Required Placeholders for public newsletter subscription confirmation email
 

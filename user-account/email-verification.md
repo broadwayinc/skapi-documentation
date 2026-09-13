@@ -42,8 +42,13 @@ The example below shows how you can verify your users email address.
 For more detailed information on all the parameters and options available with the [`verifyEmail()`](/api-reference/user/README.md#verifyemail) method, 
 please refer to the API Reference below:
 
-### [`verifyEmail(params?): Promise<'SUCCESS: Verification code has been sent.' | 'SUCCESS: "email" is verified.'>`](/api-reference/user/README.md#verifyemail)
+### [`verifyEmail(params?, options?): Promise<'SUCCESS: Verification code has been sent.' | 'SUCCESS: "email" is verified.'>`](/api-reference/user/README.md#verifyemail)
 
 :::warning
 The user's email verified state will be lost if the user had changed their email address.
 :::
+
+`options` takes a `template` argument, which lets a single call use a specific uploaded template for
+the verification e-mail instead of the template set for your project. It applies to the call that
+issues a new code, and is ignored when you pass a code back to verify it. For more info, see
+[Overriding the template for a single call](/email/email-templates.md#overriding-the-template-for-a-single-call).

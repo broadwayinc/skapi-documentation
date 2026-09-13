@@ -42,7 +42,7 @@ skapi.forgotPassword({email: 'someone@gmail.com'}).then(res=>{
 For more detailed information on all the parameters and options available with the [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword) method, 
 please refer to the API Reference below:
 
-### [`forgotPassword(params): Promise<'SUCCESS: Verification code has been sent.'>`](/api-reference/authentication/README.md#forgotpassword)
+### [`forgotPassword(params, options?): Promise<'SUCCESS: Verification code has been sent.'>`](/api-reference/authentication/README.md#forgotpassword)
 
 ::: info
 Due to security reasons, [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword) will not tell the user whether the email exists.
@@ -51,6 +51,10 @@ Due to security reasons, [`forgotPassword()`](/api-reference/authentication/READ
 You can also customize the email template for the verification email.
 
 For more info on email templates, see [E-Mail Templates](/email/email-templates.md).
+
+To use a different template for one call instead of the one set for your project, pass its
+`message_id` in the optional `options.template` argument. For more info, see
+[Overriding the template for a single call](/email/email-templates.md#overriding-the-template-for-a-single-call).
 
 ## Step 2: Reset Password
 

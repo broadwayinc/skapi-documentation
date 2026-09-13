@@ -276,6 +276,17 @@ skapi.getNewsletterSubscription({
 })
 ```
 
+### Who can read the subscriber list
+
+[`getNewsletterSubscription()`](/api-reference/email/README.md#getnewslettersubscription) only tells a user about **their own** subscriptions, and that includes admins: called by an admin, it returns the admin's own subscriptions, not the subscribers of the newsletter.
+
+The **whole subscriber list** of a newsletter is only available to the **project owner**.
+Open the `Newsletters` page of the Skapi dashboard, select the newsletter, and click `[View]` on the Subscribers row.
+The list is sorted by e-mail address, and the search bar finds the subscribers whose e-mail address **starts with** what you type: `john` finds `john@example.com` and `johnny@example.org`, but not `bigjohn@example.com`.
+
+No admin or user can list or search the subscribers of a newsletter, whatever their access group.
+An admin who called [`getNewsletterSubscription()`](/api-reference/email/README.md#getnewslettersubscription) without `user_id` used to receive every subscriber of the group; that call now returns the admin's own subscriptions.
+
 ## Unsubscribing from the project newsletters
 
 You can let the user unsubscribe from the project newsletters by calling [`unsubscribeNewsletter()`](/api-reference/email/README.md#unsubscribenewsletter).

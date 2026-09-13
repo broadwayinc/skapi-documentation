@@ -7,8 +7,8 @@ Below are the parameters and return data type references for the methods in Type
 ```ts
 signup(
     params: SubmitEvent | { 
-        email: string; // Must be in email format. ex) user@email.com
-        username?: string; // Optional username alias.
+        email: string; // Required. Must be in email format. ex) user@email.com
+        username?: string; // Optional. Becomes the account's PERMANENT login ID and can never be changed. The email logs the account in as well, and keeps doing so after the email is changed.
         password: string; // At least 6 characters and a maximum of 60 characters.
         name?: string;
         phone_number?: string; // Must be in "+0012341234" format.
@@ -47,6 +47,23 @@ signup(
          * Cannot use with 'signup_confirmation'. (Default = false)
          */
         login?: boolean;
+
+        /**
+         * Per-call e-mail template overrides.
+         * Each value is the message_id of a template already uploaded to your project's
+         * Automated Emails page. Overrides your project's template for this call only.
+         * See [Automated Emails](/email/email-templates.md#overriding-the-template-for-a-single-call).
+         */
+        template?: {
+            /**
+             * message_id of the template to use for the signup confirmation e-mail.
+             * 'signup_confirmation' must also be set, otherwise throws INVALID_PARAMETER.
+             */
+            signup_confirmation?: string;
+
+            /** message_id of the template to use for the welcome e-mail. */
+            welcome?: string;
+        };
     }
 ): Promise<
     UserProfile |
@@ -103,8 +120,8 @@ resendSignupConfirmation(): Promise<'SUCCESS: Signup confirmation e-mail has bee
 ```ts
 login(
     params: SubmitEvent | {
-        username?: string; // Optional username alias.
-        email: string;
+        username?: string; // The account's permanent login username, when it was created with one.
+        email: string; // The account's current login email. Required unless 'username' is given.
         password: string;
     }
 ): Promise<UserProfile>
@@ -160,6 +177,16 @@ logout(params?: { global: boolean; }): Promise<'SUCCESS: The user has been logge
 forgotPassword(
     params: SubmitEvent | {
         email: string;
+    },
+    options?: {
+        /**
+         * Per-call e-mail template override.
+         * See [Automated Emails](/email/email-templates.md#overriding-the-template-for-a-single-call).
+         */
+        template?: {
+            /** message_id of the template to use for the e-mail carrying the password reset code. */
+            verification?: string;
+        };
     }
 ): Promise<'SUCCESS: Verification code has been sent.'>
 ```
@@ -207,6 +234,15 @@ openIdLogin(
         token: string; // ID/Access token fetched from OpenID API service
         id: string; // OpenID Logger ID registered in the project page.
         merge?: boolean | string[] // When true, merges with previous account. When string[] is given, account is merged with the specified OpenID attribute values.
+
+        /**
+         * Per-call e-mail template override.
+         * See [Automated Emails](/email/email-templates.md#overriding-the-template-for-a-single-call).
+         */
+        template?: {
+            /** message_id of the template to use for the welcome e-mail, sent the first time this OpenID account is created. */
+            welcome?: string;
+        };
     }
 ): Promise<{
     userProfile: UserProfile;

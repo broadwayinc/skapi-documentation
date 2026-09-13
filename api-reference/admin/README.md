@@ -113,6 +113,7 @@ createAccount(
         gender_public?: boolean; // When set to true, gender attribute is visible to others.
         birthdate_public?: boolean; // When set to true, birthdate attribute is visible to others.
         password: string; // Required. At least 6 characters and a maximum of 60 characters.
+        username?: string; // Optional. Becomes the account's PERMANENT login ID. The email logs the account in as well.
         access_group?: number;
     }
 ): Promise<UserProfile & { email_admin: string; username: string; }>

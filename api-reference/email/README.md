@@ -40,7 +40,7 @@ getNewsletterSubscription(
     params: { 
         /** Numeric group, 'public', 'authorized' or a named newsletter group. Omit for every group. */
         group?: number | 'public' | 'authorized' | string | null;
-        user_id?: string; // Admin can fetch another user's subscriptions.
+        user_id?: string; // Another user's subscriptions. Project owner only.
     },
     fetchOptions?: FetchOptions
 ): Promise<{
@@ -55,6 +55,15 @@ getNewsletterSubscription(
     subscribed_email: string;
 }>>
 ```
+
+Returns **subscriptions of one user**, never the subscriber list of a newsletter.
+
+- Called without `user_id`, it returns the signed in user's own subscriptions. This is the same for admins.
+- Passing another user's `user_id` is refused by the SDK with `No access.` unless the caller is the project owner.
+
+The **whole subscriber list** of a newsletter, and searching it by e-mail, is only available to the **project owner**, from the `Newsletters` page of the Skapi dashboard. No admin or user can list or search subscribers through this method.
+An admin who called it without `user_id` used to receive every subscriber of the group; that call now returns the admin's own subscriptions.
+See [Who can read the subscriber list](/email/newsletters.md#who-can-read-the-subscriber-list).
 
 ## getNewsletters
 

@@ -54,6 +54,16 @@ verifyEmail(params?: SubmitEvent | {
      * When Called with out any argument, Skapi will issue a new verification.
      */
     code: string;
+}, options?: {
+    /**
+     * Per-call e-mail template override. Applies to the call that issues a new
+     * verification code, and is ignored when a code is being verified.
+     * See [Automated Emails](/email/email-templates.md#overriding-the-template-for-a-single-call).
+     */
+    template?: {
+        /** message_id of the template to use for the verification e-mail. */
+        verification?: string;
+    };
 }): Promise<string>
 ```
 
