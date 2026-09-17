@@ -16,7 +16,7 @@ the user is redirected to that URL after successful confirmation.
 
 You can use either a full URL or a relative path on your website.
 
-Once the user has confirmed their signup, their profile will automatically be marked as email verified.
+Once the user has confirmed their signup, their profile will automatically be marked as email verified. For an account created with a `username`, that is also what gives its email address a login: from then on the username and the email both log the account in. See [E-Mail and username](/authentication/create-account.md#e-mail-and-username).
 
 :::code-group
 

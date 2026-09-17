@@ -193,8 +193,8 @@ large files is not a cheap operation.
 
 ### The service owner cannot change these settings for someone else
 
-A master account can update any record in its project, but **not** move someone else's
-record into or out of `'private'`. That is refused in both directions, and the SDK refuses
+A master account can update any non-private record in its project, but **not** move someone
+else's record into or out of `'private'`. That is refused in both directions, and the SDK refuses
 it earlier with `ENCRYPTION_NOT_RECORD_OWNER` so the reason is clear before a round trip:
 
 - Making **someone else's record private** would seal it under the master's key, with the
@@ -208,14 +208,27 @@ Encryption operates only on records you own, whatever access level you hold. A m
 needs one of these changes has to have the owner make it.
 
 This is enforced in the **backend**, not only in the SDK, so an older client or a direct
-REST call is refused too:
+REST call is refused too. Declassifying someone else's private record, by setting its
+`table.access_group` to any non-private group, is refused with:
+
+> User has no access to change the private access of the record.
+
+Making someone else's record private, and any other change to someone else's private record,
+including a request that keeps it in `'private'` or changes only its subscription settings,
+are refused with:
 
 > Only the owner of a record can move it into or out of the private access group.
 
-A master may still move a record freely between any two **non-private** groups, and may do
-anything at all to its own records. The rule is specifically about the private boundary,
-because `'private'` is the only group whose contents may be encrypted, and no amount of
-privilege substitutes for a key that only the owner has.
+A master may still move someone else's record freely between any two **non-private** groups,
+but cannot change anything on someone else's private record, nor attach or delete its files.
+The rule is specifically about the private boundary, because `'private'` is the only
+group whose contents may be encrypted, and no amount of privilege substitutes for a key that
+only the owner has. See [Only the Owner Can Cross the Private
+Boundary](/database/access-restrictions.md#only-the-owner-can-cross-the-private-boundary).
+
+On its own records a master follows the usual rules, with one exception: the project owner's
+account is not a user of the project, so it cannot make its own records private or read-only,
+or give them subscription settings. See [Admin Features](/admin/intro.md#what-project-owners-cannot-do).
 
 ## Private grants are cleared at the boundary
 
@@ -290,7 +303,10 @@ Moving a record into or out of `'private'` removes every grant on it. See
 
 - Only the **owner** can share or revoke an encrypted record, because both mean writing to
   it. Delegated granting via `source.allow_granted_to_grant_others` does not work on
-  encrypted records.
+  encrypted records. An admin can still remove a user's private access to it, which stops
+  that user from fetching the record, but only the owner can roll the data key; an admin
+  whose session has encryption enabled gets `ENCRYPTION_NOT_RECORD_OWNER` after the access
+  is removed.
 - The recipient must have logged in at least once with encryption enabled, so that they
   have a published key. Granting to a user with no key throws
   `ENCRYPTION_RECIPIENT_HAS_NO_KEY` and changes nothing.
@@ -388,6 +404,10 @@ directory, because verifying that claim is the first test they will run.
 Files attached to a private record are encrypted too, under a key derived from that
 record's data key. Anyone who can read the record can open its files, with no extra key
 distribution, and a grantee gets both at once.
+
+Only the record's own user can attach files to a private record or delete its files. The
+project owner and admins, who may do both on another user's non-private record, are refused
+here. See [Files on Records of Other Users](/database/handling-files.md#files-on-records-of-other-users).
 
 Nothing changes in how you upload:
 

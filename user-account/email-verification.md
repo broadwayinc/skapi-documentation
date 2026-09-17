@@ -6,6 +6,7 @@ User must be logged in to call this method
 
 User with verified E-Mail can:
 
+- Log in with their email address, when the account was created with a `username`. See [Which ID logs a user in](/user-account/update-account.md#which-id-logs-a-user-in).
 - Reset their password if they've forgotten it.
 - Receive newsletter from the project owner if they choose to.
 - Recover their disabled account.
@@ -45,7 +46,11 @@ please refer to the API Reference below:
 ### [`verifyEmail(params?, options?): Promise<'SUCCESS: Verification code has been sent.' | 'SUCCESS: "email" is verified.'>`](/api-reference/user/README.md#verifyemail)
 
 :::warning
-The user's email verified state will be lost if the user had changed their email address.
+The user's email verified state will be lost if the user had changed their email address, or if an admin
+changed it for them. Email login goes with it: the account logs in with its `username`, or with the
+address it was created with when it has none, until the new address is verified. Verifying it grants the
+email login again a few seconds later, on the account's next token. See
+[Login IDs](/admin/permissions.md#login-ids).
 :::
 
 `options` takes a `template` argument, which lets a single call use a specific uploaded template for

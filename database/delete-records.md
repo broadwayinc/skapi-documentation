@@ -72,9 +72,9 @@ When deleting multiple records, the promise will return success immediately, but
 :::warning
 When deleting records by database query, user will not delete records that they do not own, or records that are uploaded as read-only.
 
-However, if the user is an admin, they can delete any records in the database. So be cafeful when admin is using this method.
+However, if the user is an admin, they can delete any records in the database, private and read-only records included. So be cafeful when admin is using this method.
 
-Read more about admin access [here](/admin/intro.md).
+Read more about admin access [here](/admin/permissions.md#deleting-records).
 :::
 
 For more detailed information on all the parameters and options available with the [`deleteRecords()`](/api-reference/database/README.md#deleterecords) method,

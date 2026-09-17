@@ -8,7 +8,7 @@ Below are the parameters and return data type references for the methods in Type
 signup(
     params: SubmitEvent | { 
         email: string; // Required. Must be in email format. ex) user@email.com
-        username?: string; // Optional. Becomes the account's PERMANENT login ID and can never be changed. The email logs the account in as well, and keeps doing so after the email is changed.
+        username?: string; // Optional. Becomes the account's PERMANENT login ID and can never be changed. The email logs the account in as well once that address is VERIFIED (not before), unless it is already a login ID another account was granted. A changed email logs the account in only after it is verified too.
         password: string; // At least 6 characters and a maximum of 60 characters.
         name?: string;
         phone_number?: string; // Must be in "+0012341234" format.
@@ -25,7 +25,7 @@ signup(
         profile?: string; // URL of the profile page.
         website?: string; // URL of the website.
         nickname?: string; // Nickname of the user.
-        misc?: string; // Additional string value that can be used freely. This value is only visible to the account owner.
+        misc?: string; // Additional string value that can be used freely. Visible to the account owner, to admins and to the project owner.
         email_public?: boolean; // Default = false
         phone_number_public?: boolean; // Default = false
         address_public?: boolean; // Default = false
@@ -40,7 +40,7 @@ signup(
          */
         signup_confirmation?: boolean | string;
 
-        /** When true, user can receive newsletter from the admin. (Default = false) */
+        /** When true, user is subscribed to Service Email (group 1) and can receive it from the admin. (Default = false) */
         email_subscription?: boolean;
 
         /** When true, user is logged in soon as the signup process is sucessful.
@@ -81,6 +81,12 @@ See [UserProfile](/api-reference/data-types/README.md#userprofile)
 }
 |
 {
+  code: 'EXISTS'; // 'INVALID_REQUEST' in skapi-js 2.0.5 and earlier. See below for the message those versions give.
+  message: 'E-mail "user@email.com" is already a login ID in this service.' | "The login ID is already used by another account in this service.";
+  // 'E-mail': a signup without 'username' whose email is already the email login another account was GRANTED by verifying that address. The other: a 'username' that is such an address, which only an e-mail address such as "jane@email.com" can be.
+}
+|
+{
   code: 'REQUEST_EXCEED';
   message: "Too many attempts. Please try again later.";
 }
@@ -100,6 +106,21 @@ See [UserProfile](/api-reference/data-types/README.md#userprofile)
   message: "Failed to signup.";
 }
 ```
+
+A signup is refused when its login ID is already a login ID another account of the project was granted,
+for example a signup without `username` using the verified email of an account that was created with a
+username. A login ID an account holds without proof, such as an email login for an address it never
+verified, refuses nothing: it is removed and the signup goes through. skapi-js 2.0.5 and earlier
+do not report that refusal with code `EXISTS`. From 1.2.14-beta.1 (first stable release: 1.5.0) through
+2.0.5 it comes with code `INVALID_REQUEST` and the same message. From 1.2.9 through 1.2.14-beta.0 it
+comes with code `INVALID_REQUEST` and Cognito's whole error text, such as
+`PreSignUp failed with error #EXISTS: E-mail "user@email.com" is already a login ID in this service.`
+From 1.0.97-beta.4 through 1.2.8 it is Cognito's own error, with code `UserLambdaValidationException`
+and that same whole text. See the warning in [Create Account](/authentication/create-account.md).
+A login ID another account was itself created with gives `The account already exists.` instead. A signup
+with a `username` whose email is already another account's login ID is not refused: the account is
+created and only its username logs it in. See
+[When a login ID is already taken](/authentication/create-account.md#when-a-login-id-is-already-taken).
 
 ## resendSignupConfirmation
 
@@ -121,7 +142,7 @@ resendSignupConfirmation(): Promise<'SUCCESS: Signup confirmation e-mail has bee
 login(
     params: SubmitEvent | {
         username?: string; // The account's permanent login username, when it was created with one.
-        email: string; // The account's current login email. Required unless 'username' is given.
+        email: string; // The account's current email, once it is verified, or the address the account was created with when it has no username. Required unless 'username' is given. An unverified address answers INCORRECT_USERNAME_OR_PASSWORD.
         password: string;
     }
 ): Promise<UserProfile>
@@ -233,7 +254,7 @@ openIdLogin(
     params: SubmitEvent | {
         token: string; // ID/Access token fetched from OpenID API service
         id: string; // OpenID Logger ID registered in the project page.
-        merge?: boolean | string[] // When true, merges with previous account. When string[] is given, account is merged with the specified OpenID attribute values.
+        merge?: boolean | string[] // When true, merges with the previous account whose original login ID matches this OpenID account's. When string[] is given, account is merged with the specified OpenID attribute values. Never matches through an email login alias.
 
         /**
          * Per-call e-mail template override.
@@ -261,4 +282,34 @@ openIdLogin(
     code: "INVALID_REQUEST";
     message: "The account needs to be confirmed."; // This occurs when the account is already signed up and requires confirmation from the user
 }
+|
+{
+    code: "EXISTS";
+    message: "The login ID of this OpenID account is already used by another account."; // This occurs, with or without 'merge', when the OpenID login ID is the email login another account of the project was GRANTED by verifying that address, and in the rare case where an unproven email login on another account cannot be removed safely.
+}
 ```
+
+`merge` matches an existing account by its original login identifier: the value it was created with,
+its `username` if it has one, otherwise the email it signed up with. It never matches through an email
+login alias. With a logger whose Username Key is `email`, that means:
+
+- An account created without a `username` using that email is merged into, even if its email has been
+  changed since.
+- An account created with a `username` whose email is that address is **not** merged into.
+- An account created without a `username` whose email was later changed to that address is **not**
+  merged into either.
+
+In the last two cases `openIdLogin()` never merges, because merging replaces the account's password and
+must never act on an account that only answers to that email through its email login. What happens
+instead depends on whether that account has **verified** the address:
+
+- It has verified it, so the email login is one it was granted: `openIdLogin()` fails with the `EXISTS`
+  error above, whether `merge` is set or not. The rare case where an unverified email login cannot be
+  removed safely gives the same error.
+- It has not verified it: that email login is removed, and a **new** OpenID account is created for the
+  address, so two accounts of the project then carry the same email address. The other account keeps
+  logging in with the login ID it was created with. The removal happens before signup restrictions are
+  checked, so it stands even when the login is then refused because signup is off or the user limit is
+  reached.
+
+See [Login IDs](/admin/permissions.md#login-ids).

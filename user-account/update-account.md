@@ -8,11 +8,14 @@ You can update a user's profile using [`updateProfile()`](/api-reference/user/RE
 If successful, the method returns the updated [UserProfile](/api-reference/data-types/README.md#userprofile) object.
 
 :::danger
--   Changing the email moves email login to the new address. A `username`, if the
-    account has one, is permanent and is not affected. See
-    [Which ID logs a user in](#which-id-logs-a-user-in) below for the one case
-    where the old address keeps working.
 -   When the email is changed, it becomes unverified.
+-   Changing the email does **not** hand email login to the new address. The new address logs the
+    account in only once the user verifies it with
+    [`verifyEmail()`](/api-reference/user/README.md#verifyemail), and then a few seconds later, on the
+    account's next token rather than in the `verifyEmail()` response.
+-   The old address stops logging the account in on that same next token. A `username`, if the account
+    has one, is permanent and is not affected, and neither is the address a no-username account was
+    created with. See [Which ID logs a user in](#which-id-logs-a-user-in) below.
 :::
 
 In this example, the user's name is updated by passing a new `name` value.
@@ -109,15 +112,45 @@ For full details on parameters and options, see the API reference below:
 
 ## Which ID logs a user in
 
-**Account created with a username.** The username is the permanent login ID and never changes. The
-current email logs the user in too, and follows the email: change the email and login moves to the new
-address, while the username keeps working. This is the clean case.
+An account has **one or two** ways in:
 
-**Account created without a username.** The email is the login ID, and here there is a wrinkle worth
-knowing: the address the account signed up with keeps working as a login ID forever, even after the
-email is changed, because that original address is what identifies the account internally. Changing
-the email adds the new address rather than retiring the old one, and changing it a second time drops
-the previous address but never the original.
+-   The **login ID it was created with**: its `username` when it was created with one, otherwise the
+    email address it signed up with. It is permanent, no method changes it, and it keeps working after
+    the account changes its email.
+-   Its **email login**: the account's current email address, and only once that address is **verified**.
+
+**Account created with a username.** The username is the permanent login ID and never changes. The
+current email logs the user in too, once it is verified. Change the email and the account is left with
+its username alone: the old address stops working on the next token, and the new one starts working a
+few seconds after [`verifyEmail()`](/api-reference/user/README.md#verifyemail) succeeds.
+
+**Account created without a username.** The address the account signed up with keeps working as a login
+ID forever, even after the email is changed, because that original address is what identifies the
+account internally. A changed address is an email login on top of it, so it works only once it is
+verified, and it stops working when the email is changed again.
 
 So if you need an address to stop being a way in, give the account a `username` at creation. Only then
-does email login move cleanly with the email.
+does the original address lose its hold.
+
+An email address proves the account owns it when the user clicks the signup confirmation link, accepts
+an invitation, or calls `verifyEmail()` successfully. Until then it does not reach the account at all,
+and it answers `INCORRECT_USERNAME_OR_PASSWORD`. If the address is already a login ID another account of
+the project was granted, email login is not enabled and the account's own login ID still works. See
+[E-Mail and username](/authentication/create-account.md#e-mail-and-username) and
+[Login IDs](/admin/permissions.md#login-ids).
+
+:::warning An admin changing the email takes email login away at once
+An email an admin sets with [`updateUserAttributes()`](/api-reference/admin/README.md#updateuserattributes),
+or with `updateProfile()` and another user's `user_id`, is written unverified and the account's email
+login is removed inside that request, whoever sent it. The account keeps its own login ID, and gets an
+email login back only after the user verifies the new address.
+:::
+
+:::info Older SDK versions
+skapi-js 2.0.5 and earlier send a login handle for the new address along with a user's own email change,
+which the server removes again on the next token. The address still logs the account in only once it is
+verified, but with those versions the change is refused outright when another account of the project
+already holds that address as a login ID, and the unverified new address logs the account in for the few
+seconds before the handle is removed. See
+[E-Mail and username](/authentication/create-account.md#e-mail-and-username).
+:::

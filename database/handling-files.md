@@ -58,6 +58,16 @@ This process is handled seamlessly without any complicated file handling require
 
 Once the files are uploaded, Skapi serves the files using a CDN with no additional setup required.
 
+:::info Every upload is signed for the size it declares
+Skapi asks storage for a one file upload permit, and that permit is issued for **exactly** the byte size
+the request declares. A request that then sends a different number of bytes is refused by storage and
+nothing is stored, so the size a file is counted and billed at is always the size it really has.
+
+The SDK declares the true size of the file it sends, [encrypted](/database/encryption.md) files (the
+size of the encrypted bytes) and empty files included, so this needs nothing from you. It matters only
+if you build the upload request yourself instead of using [`postRecord()`](/api-reference/database/README.md#postrecord).
+:::
+
 :::danger
 If the file is uploaded in a record where the access group is not 'public', the URL value in the [BinaryFile](/api-reference/data-types/README.md#binaryfile) objects can expire for security reasons.
 :::
@@ -305,6 +315,73 @@ The file that is targeted for removal should be in the record that you are updat
 If you remove the record that is holding the files, all files that the deleted record was holding will also be completely removed from the database.
 :::
 
+:::info Files attached by another account
+A file that the project owner or an admin attaches to another user's record is stored under the **record's user**, the same way as a file that user attached. The `uploader` in its [file information](#get-file-information) names the record's user, not the account that attached it. The record's user can delete it by its URL, it moves with the record when the record changes access group, and it is deleted with the record.
+:::
+
+:::warning Files attached by another account earlier
+Files that the project owner or an admin attached to another user's record before files were stored under the record's user keep the old behaviour, and are not moved. They stay under the account that attached them, and their `uploader` names that account, so you can tell one apart by an `uploader` that is not the record's `user_id`. The record's user cannot remove such a file by its URL (only `remove_bin: null` takes it off the record), it does not move when the record changes access group, and it is not removed from storage when the record is deleted.
+:::
+
+### Deleting Files by URL
+
+[`deleteFiles()`](/api-reference/database/README.md#deletefiles) deletes files by their endpoint URLs without updating anything else on the record. It takes one URL or a list of up to 1000, which may belong to different records, and resolves to the records the files were removed from.
+
+```js
+let fileToDelete = record.bin.picture[0]; // file object retrieved from the record.
+skapi.deleteFiles({ endpoints: [fileToDelete.url] }).then(records => {
+    console.log(records); // updated records
+});
+```
+
+The whole list is checked before anything is deleted, so if any file in it is refused, no file is deleted.
+
+A user who is not an admin can delete only the files of their own records, except [files attached by another account earlier](#removing-files), and is refused otherwise with:
+
+```ts
+{
+    code: "INVALID_REQUEST";
+    message: "The record should be owned by the user.";
+}
+```
+
+## Files on Records of Other Users
+
+Files are an admin right of their own, separate from a record's data and settings. The project owner and every admin (access groups `90` ~ `99`) can attach files to another user's record and delete its files, as long as the record is not private. This includes admins in access groups `90` ~ `98`, who otherwise can change only a record's [subscription settings](/database/subscription.md#who-can-change-subscription-settings).
+
+-   **Attach** by passing the files to [`postRecord()`](/api-reference/database/README.md#postrecord) with the record's `record_id`. The `postRecord()` call itself follows the update rules, so for admins in access groups `90` ~ `98` it must change nothing else: leave `data` as `undefined` and send no other setting that differs from the stored record. A read-only record refuses them with `Record is read only.`
+-   **Delete** with [`deleteFiles()`](#deleting-files-by-url). Admins in access groups `90` ~ `98` cannot remove a file from another user's record with `remove_bin`, because that is a change to the record itself: `postRecord()` refuses it with `Admins can only change the subscription settings of another user's record (remove_bin differs).` The project owner and admins in access group `99` can use either.
+
+```js
+// An admin attaches a file to another user's record, changing nothing else on it.
+skapi.postRecord(undefined, { record_id: "record_id_of_another_user" }, [
+    { name: "picture", file: someFile },
+]);
+
+// ...and deletes one of its files.
+skapi.deleteFiles({ endpoints: ["https://..."] });
+```
+
+A file attached this way is stored under the record's user, so that user can delete it, it moves with the record and it is deleted with the record. Files attached this way earlier are the exception, see [Files attached by another account](#removing-files) above.
+
+Files on a **private** record are locked to its user, for everyone, the project owner and admins included, because `private` is the only access group whose files may be [encrypted](/database/encryption.md#attached-files). Attaching with `postRecord()` is refused like any other change to another user's private record:
+
+```ts
+{
+    code: "INVALID_REQUEST";
+    message: "Only the owner of a record can move it into or out of the private access group.";
+}
+```
+
+and `deleteFiles()` is refused with:
+
+```ts
+{
+    code: "INVALID_REQUEST";
+    message: "Only the owner of a private record can delete its files.";
+}
+```
+
 ## Get File Information
 
 You can use [`getFile()`](/api-reference/database/README.md#getfile) method to get the file information just from the endpoint URL of the file.
@@ -322,7 +399,7 @@ skapi.getFile(fileUrl, { dataType: "info" }).then((fileInfo) => {
         access_group: number | 'private' | 'public' | 'authorized',
         filesize: number,   // for an encrypted file this is the PLAINTEXT length
         record_id: string,
-        uploader: string,
+        uploader: string,   // user ID the file is stored under: the record's user, apart from files attached by another account earlier
         uploaded: number,
         fileKey: string
     }

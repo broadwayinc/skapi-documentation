@@ -8,6 +8,22 @@ You can host your website with Skapi by simply uploading your website files in y
 Before you upload your website files, you must register a subdomain for your website.
 Go to `Web Hosting` page. If the project does not have a subdomain, it will ask you to make one.
 
+A subdomain is 5 to 32 characters long and can use lowercase letters, digits and hyphens.
+It cannot start or end with a hyphen, or have two hyphens in a row.
+
+Since every website is hosted under `skapi.com`, names that could pass as an official page are reserved and cannot be registered:
+
+- Skapi's own addresses and brand, such as `tutorial` or `skapi-support`.
+- Sign-in, payment, support and notice pages, such as `checkout`, `password-reset` or `secure-login`.
+- Names of banks, payment services and other brands that are impersonated for logins, such as `paypal` or `mybank-verify`, and any brand next to a sign-in or support word, such as `netflix-login`.
+
+A brand used for a project of your own, such as `netflix-clone` or `kakao-map-demo`, can be registered.
+
+:::warning The subdomain is a project setting
+Registering a subdomain, moving it and dropping it belong to the **project owner's Skapi account**. An [admin](/admin/permissions.md#project-settings-belong-to-the-project-owner) of the project, access group `99` included, is refused with `INVALID_REQUEST` and `Only the project owner can change project settings.`
+Uploading and deleting the hosted **files** is different: admins do that as usual, so a project stays deployable without the owner.
+:::
+
 <!-- 
 ![subdomain register](/hosting.png)
  -->
@@ -41,6 +57,8 @@ The `index.html` will also be served when the user visits `https://mywebsite.ska
 
 You can set the 404 page for your website from the `404 Page` section, which is in the upper section form on your `Web Hosting` page.
 This HTML file will be served when the user visits a page that does not exist in your website.
+
+Choosing it is a project setting, so only the **project owner's Skapi account** can, and an admin is refused with `Only the project owner can change project settings.`
 
 :::danger
 If you are using **SPA framework** such as Vue, React, or Angular, **YOU MUST** set the 404 page to your **`index.html`** file.

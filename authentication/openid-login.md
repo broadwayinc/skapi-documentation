@@ -10,6 +10,10 @@ OpenID is an authentication standard that lets users sign in with an identity pr
 
 If you have access to an OpenID provider API, you can register an OpenID Logger in your Skapi project settings.
 
+:::warning An OpenID Logger is a project setting
+Registering, updating, deleting and listing OpenID Loggers belong to the **project owner's Skapi account**, and to Skapi staff when you ask Skapi for help. An [admin](/admin/permissions.md#project-settings-belong-to-the-project-owner) of your project, access group `99` included, is refused with `INVALID_REQUEST` and `Only the project owner can change project settings.` The same holds for the [client secret keys](/api-bridge/client-secret-request.md) a logger uses.
+:::
+
 Although providers differ in details, the overall process is:
 
 1. You redirect the user to the provider's login page.
@@ -232,12 +236,12 @@ Then call [`openIdLogin(event?: SubmitEvent | params): Promise<{ userProfile: Us
 
 ## Merging an OpenID Account with a Previous Account
 
-In some cases, you may want to merge a user's OpenID account with an existing account. Accounts created by admins cannot be merged.
+In some cases, you may want to merge a user's OpenID account with an existing account. Accounts created by admins are merged like any other account that matches (see below which accounts match): an account made with [`createAccount()`](/api-reference/admin/README.md#createaccount), or an invited account once its invitation is accepted. A matching account that is still waiting for its signup confirmation, or whose invitation has not been accepted yet, cannot be merged: `openIdLogin()` fails with `INVALID_REQUEST` and `The account needs to be confirmed.`, with or without `merge`.
 
 To enable merging, set your OpenID Logger ID to `by_skapi`.
-Then, when calling `openIdLogin`, use the `merge` option to control what gets merged. Set `merge: true` to merge all supported attributes, or pass an array to merge only specific fields.
+Then, when calling `openIdLogin`, use the `merge` option to control what gets merged. Set `merge: true` to merge the OpenID account into the existing account (its password is replaced and no profile attributes are copied), or pass an array of OpenID attribute names, such as `["name"]`, to merge and also copy those attributes.
 
-For example, to merge only the user's "name" attribute:
+For example, to merge and also copy the user's "name" attribute:
 
 ```js
 skapi.openIdLogin({ id: 'by_skapi', token: ACCESS_TOKEN, merge: ["name"] });
@@ -246,6 +250,19 @@ skapi.openIdLogin({ id: 'by_skapi', token: ACCESS_TOKEN, merge: ["name"] });
 :::danger
 After a merge, the user can no longer log in with a password. This action cannot be undone.
 :::
+
+Merge only matches the account whose original login identifier is the OpenID account's login ID, for
+example an account created without a `username` using the same email. It never matches an account
+through its email login: an account created with a `username` that uses the same email, or an account
+whose email was changed to that address later, is not merged into.
+
+What happens to such an account depends on whether it has **verified** that address. If it has, the
+email login is one it was granted, and `openIdLogin()` fails with `EXISTS` and
+`The login ID of this OpenID account is already used by another account.`, with or without `merge`. If
+it has not, that email login is removed and a new OpenID account is created for the address, so two
+accounts of your project then carry the same email address. See
+[`openIdLogin()`](/api-reference/authentication/README.md#openidlogin) and
+[Login IDs](/admin/permissions.md#login-ids).
 
 :::tip
 You can first attempt login without the `merge` parameter and only prompt the user to merge if the account already exists:

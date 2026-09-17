@@ -104,23 +104,132 @@ verification, password reset and account recovery all work through. An account c
 without it.
 
 `username` is optional, and when you pass one the account gets **two** ways in. The username becomes
-the account's permanent login ID, and the email logs the account in as well. Leave `username` out and
-the email alone is the login ID, which is what most projects want.
+the account's permanent login ID, and once the email is verified it logs the account in as well. Leave
+`username` out and the email alone is the login ID, which is what most projects want.
 
 The username is permanent. It is fixed when the account is created and there is no API to change it.
-The email is not: when a user updates their email, email login moves to the new address and the
-username is unaffected. See
+The email is not, but changing it does not hand email login to the new address on its own. The new
+address logs the account in only once the user verifies it with
+[`verifyEmail()`](/api-reference/user/README.md#verifyemail), and it starts working a few seconds
+after the verification succeeds, not in the `verifyEmail()` response. An email an admin changes with
+[`updateUserAttributes()`](/api-reference/admin/README.md#updateuserattributes) is written unverified
+and takes the account's email login away at once, until the user verifies the new address.
+
+The username is unaffected either way, and so is the address the account signed up with when it was
+created without a `username`: that original address is the account's own login ID, not an email login,
+and it keeps working after an email change. See
 [Which ID logs a user in](/user-account/update-account.md#which-id-logs-a-user-in).
 
 ```js
 skapi.signup({ email: 'user@email.com', password: 'password', username: 'my_username' })
     .then(() => {
-        // Both of these log the same account in.
+        // The username logs the account in from the moment it is created.
         skapi.login({ username: 'my_username', password: 'password' });
+        // The email logs the same account in once it is verified, and not before.
         skapi.login({ email: 'user@email.com', password: 'password' });
     });
 ```
 
 The email keeps every other job it had: it is still the address verification and password-reset
 e-mails go to, and it is still what `email_public` exposes.
+
+For an account created with a `username`, email login starts once that email is **verified**, never
+before. An email only proves the account owns it once one of these happens:
+
+- the user clicks the confirmation link, when `signup_confirmation` is used,
+- the user accepts the invitation, for an account made with
+  [`inviteUser()`](/api-reference/admin/README.md#inviteuser),
+- the user calls [`verifyEmail()`](/api-reference/user/README.md#verifyemail) and it succeeds, which
+  is what a `signup()` without `signup_confirmation` and an account made with
+  [`createAccount()`](/api-reference/admin/README.md#createaccount) need. Creating the account proves
+  nothing about the address, so it logs in with its username alone until the user verifies. Email
+  login then arrives a few seconds later, on the account's next token, rather than in the
+  `verifyEmail()` response.
+
+Until then the email does not reach the account at all, even while the invitation or the confirmation
+link is pending. A user who types their email before opening the confirmation link gets
+`INCORRECT_USERNAME_OR_PASSWORD`, not `SIGNUP_CONFIRMATION_NEEDED`, and that attempt does not let
+[`resendSignupConfirmation()`](/api-reference/authentication/README.md#resendsignupconfirmation) send
+the link again. A login attempt with the username does both.
+
+If that email is already a login ID another account of your project was **granted**, email login is not
+enabled for the new account, and the username still logs it in. `signup()` creates such an account
+anyway; `createAccount()` and `inviteUser()` refuse it up front with `EXISTS` (see below).
+
+:::warning Older SDK versions send a login handle of their own
+When a user changes their **own** email with
+[`updateProfile()`](/api-reference/user/README.md#updateprofile), skapi-js 2.0.5 and earlier add a login
+handle for the new address to the same request. The server removes such a handle again on the account's
+next token, because the address is not verified, so the address ends up logging the account in only once
+it is verified either way. Two things still differ while an old version is in use:
+
+- The change is refused outright when another account of your project already holds that address as a
+  login ID, verified or not. From 2.0.6 the email is changed and only the login is withheld.
+- The unverified new address logs the account in for the few seconds before the handle is removed.
+
+An email an admin changes with
+[`updateUserAttributes()`](/api-reference/admin/README.md#updateuserattributes), or with
+`updateProfile()` and another user's `user_id`, is not affected: the server ignores any login handle the
+request sends, in every SDK version.
+
+Upgrade to skapi-js 2.0.6 or later, or pin a CDN URL to it, to get the behaviour described on this page.
+:::
+
+### When a login ID is already taken
+
+A login ID can only ever lead to one account. So an account is refused when its own login ID is already
+a login ID another account of your project was **granted**: the ID that account was created with, or an
+address it has verified. The usual case is signing up without a `username` with the verified email of an
+account that was created with one:
+
+```js
+// 'user@email.com' is the email of an account that was created with a username.
+skapi.signup({ email: 'user@email.com', password: 'password' })
+    .catch(err => {
+        // err.code: 'EXISTS'
+        // err.message: 'E-mail "user@email.com" is already a login ID in this service.'
+    });
+```
+
+`signup()` refuses a `username` the same way, with the message
+`The login ID is already used by another account in this service.`, when that `username` is an address
+another account was granted as its email login. Only an e-mail address can be one, for example a
+`username` of `jane@email.com` when `jane@email.com` is the verified email of an account created with a
+username. A login ID that another account was itself created with (the same `username`, or the same
+email both times without a `username`) is a plain duplicate and gives `The account already exists.`
+instead.
+
+`createAccount()` and `inviteUser()` run this check for every request without `openid_id`, with or
+without a `username`, and they also refuse an account created with a `username` whose email is already a
+login ID another account was granted, including the email that account was created with. See the
+`EXISTS` errors of [`inviteUser()`](/api-reference/admin/README.md#inviteuser) and
+[`createAccount()`](/api-reference/admin/README.md#createaccount).
+
+:::warning An account can lose its email login without anyone touching it
+Only a login ID an account was **granted** refuses a request. An email login an account holds without
+having verified the address, for example one an older SDK wrote when that account's email was changed,
+grants nothing: it is removed, and the address goes to the account that proves it.
+
+So an account of your project can lose its email login when another account signs up with that address,
+is created or invited with it, has an admin change its email to it, logs in with OpenID under it, or
+simply verifies it. The account that loses it keeps logging in with the login ID it was created with.
+See [Login IDs](/admin/permissions.md#login-ids).
+:::
+
+:::warning
+skapi-js 2.0.5 and earlier do not report this refusal from `signup()` with code `EXISTS`:
+
+- **1.2.14-beta.1 through 2.0.5** (stable releases 1.5.0 through 2.0.5): code `INVALID_REQUEST`, with
+  the same message as above.
+- **1.2.9 through 1.2.14-beta.0** (stable releases 1.2.9 through 1.2.12): code `INVALID_REQUEST`, with
+  Cognito's whole error text as the message, for example
+  `PreSignUp failed with error #EXISTS: E-mail "user@email.com" is already a login ID in this service.`
+- **1.0.97-beta.4 through 1.2.8**: Cognito's own error, passed on unchanged rather than as a skapi error,
+  with code `UserLambdaValidationException` and the same whole text as its message.
+
+If your app handles `EXISTS` and has to support those versions, also accept code `INVALID_REQUEST` or
+`UserLambdaValidationException` with a message ending in `is already a login ID in this service.` or
+`is already used by another account in this service.`, which matches every form.
+`createAccount()` and `inviteUser()` report `EXISTS` in every version.
+:::
 

@@ -6,7 +6,7 @@ Skapi database includes a subscription feature.
 
 This feature lets users subscribe to other users and view feed records from those subscriptions.
 
-Uploaders can also block specific users from accessing subscription-level records.
+Users can also block specific users from accessing their subscription-level records.
 
 You can let users upload records to the subscription table by setting `table.subscription.is_subscription_record` to `true` in [`postRecord()`](/api-reference/database/README.md#postrecord) parameters.
 
@@ -17,10 +17,10 @@ When `table.subscription.upload_to_feed` is set to `true`, subscribed users can 
 The `table.subscription` object controls how a record behaves for subscribers.
 
 -   `is_subscription_record`: Marks the record as subscription-scoped. Subscribed users can retrieve these records with [`getRecords()`](/api-reference/database/README.md#getrecords) (using `table.subscription`).
--   `upload_to_feed`: Publishes the record to subscriber feeds so it can appear in [`getFeed()`](/api-reference/database/README.md#getfeed).
--   `notify_subscribers`: Sends notifications to subscribers when the record is uploaded.
+-   `upload_to_feed`: Publishes the record to subscriber feeds so it can appear in [`getFeed()`](/api-reference/database/README.md#getfeed). Off unless set to `true`.
+-   `notify_subscribers`: Stored with the record, but currently has no effect.
 -   `feed_referencing_records`: Includes records that reference this record in subscriber feeds.
--   `notify_referencing_records`: Sends notifications when referencing records are created or updated.
+-   `notify_referencing_records`: Stored with the record, but currently has no effect.
 
 You can enable these options independently or combine them depending on your product behavior.
 
@@ -28,7 +28,6 @@ For example:
 
 -   Use `is_subscription_record: true` without `upload_to_feed` when records should be accessible to subscribers but not appear in feed timelines.
 -   Use `upload_to_feed: true` for timeline-style content.
--   Add `notify_subscribers: true` when users should receive immediate alerts.
 
 This is useful for social apps where users follow each other, consume feed content, and track subscriber counts.
 
@@ -47,7 +46,7 @@ skapi.postRecord(null, {
 });
 ```
 
-You can also configure full feed and notification behavior at upload time:
+You can also set every option at upload time:
 
 ```js
 skapi.postRecord({
@@ -68,11 +67,39 @@ skapi.postRecord({
 });
 ```
 
-To allow other users to access records that require a subscription, they must first subscribe to the uploader using the [`subscribe()`](/api-reference/database/README.md#subscribe) method:
+To allow other users to access records that require a subscription, they must first subscribe to the user the record belongs to using the [`subscribe()`](/api-reference/database/README.md#subscribe) method:
 
 :::warning
 Anonymous (unsigned) users cannot create subscription records.
 :::
+
+### Who can change subscription settings
+
+Every signed-in user of the project can set the subscription settings of their own records.
+
+The project owner and admins (access groups `90` ~ `99`) can also change the subscription settings of an existing record that belongs to another user of the project. The record stays that user's, so it is that user's subscribers who get access to it. Admins in access groups `90` ~ `98` can change nothing else in the record's data or settings, and cannot change a read-only one. Files are a separate right: they can attach files to such a record by passing them to [`postRecord()`](/api-reference/database/README.md#postrecord) with nothing else changed, except to a read-only record, which refuses them with `Record is read only.`, and they can delete its files with [`deleteFiles()`](/api-reference/database/README.md#deletefiles), read-only or not. The project owner and access group `99` can attach files to read-only records too. A file attached this way is stored under the record's user. See [Admin Permissions](/admin/permissions.md#subscription-settings) and [Files on Records of Other Users](/database/handling-files.md#files-on-records-of-other-users).
+
+Nobody but the record's own user can change anything on a private record, subscription settings included, or attach and delete its files.
+
+The project owner's own records can never have subscription settings, whoever sends the request. A request that adds or turns one on is refused, while settings an older record already has can be kept as they are or turned off:
+
+```ts
+{
+    code: "INVALID_REQUEST";
+    message: "Records of the project owner cannot have subscription settings.";
+}
+```
+
+Records posted by anonymous (signed-out) users belong to no user of the project, so the project owner and admins cannot give them subscription settings either. A request that adds or turns one on is refused, while settings such a record already has can be kept as they are or turned off:
+
+```ts
+{
+    code: "INVALID_REQUEST";
+    message: "Anonymous records cannot have subscription settings.";
+}
+```
+
+On an update, options left out of `table.subscription` keep their stored values, and `table.subscription: null` turns every subscription setting off.
 
 ## Subscribing
 
@@ -113,7 +140,7 @@ skapi
         },
     })
     .then((response) => {
-        console.log(response.list); // All records user A uploaded to the Posts table as subscription records.
+        console.log(response.list); // All of user A's subscription records in the Posts table.
     });
 ```
 
@@ -288,7 +315,7 @@ skapi.getFeed({ access_group: 'authorized' }).then((response) => {
 ```
 
 :::danger
-If the record was NOT uploaded with `table.subscription.upload_to_feed` set to `true`, it will not show up in the feed.
+If the record does NOT have `table.subscription.upload_to_feed` set to `true`, it will not show up in the feed. Saving a record without the flag leaves it as stored, and a record that never set it stays out of the feed.
 :::
 
 :::danger

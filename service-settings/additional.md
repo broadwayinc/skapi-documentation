@@ -4,6 +4,10 @@ Go to your project page and click on the **Project Settings** menu.
 
 On this page, you can configure the basic settings for your project.
 
+:::warning Only the project owner can change these
+The project name, the CORS list and the secret key belong to the **project owner's Skapi account**, and to Skapi staff when you ask Skapi for help. An [admin](/admin/permissions.md#project-settings-belong-to-the-project-owner) of your project, access group `99` included, is refused with `INVALID_REQUEST` and `Only the project owner can change project settings.`
+:::
+
 ## Project Name
 
 You can set the project name in your project settings.

@@ -343,13 +343,13 @@ type PostRecordConfig = {
         /** Number range: 0 ~ 99. 'public' = 0, 'authorized' = 1, 'admin' = 99. '*' is shorthand for 'private'. Default: 'public' */
         access_group?: number | 'private' | '*' | 'public' | 'authorized' | 'admin';
 
-        /** When true, Record will be only accessible for subscribed users. null removes all subscription settings from the record. */
+        /** Subscription settings. Never allowed on the project owner's own records. On an update, settings left out keep their stored values, and null removes all subscription settings from the record. */
         subscription?: {
             is_subscription_record?: boolean; // When true, this record is a subscription record.
-            upload_to_feed?: boolean; // When true, record will be uploaded to the feed of the subscribers.
-            notify_subscribers?: boolean; // When true, subscribers will receive notification when the record is uploaded.
+            upload_to_feed?: boolean; // When true, record will be uploaded to the feed of the subscribers. Off unless set.
+            notify_subscribers?: boolean; // Stored with the record, but currently has no effect.
             feed_referencing_records?: boolean; // When true, records referencing this record will be included to the subscribers feed.
-            notify_referencing_records?: boolean; // When true, records referencing this record will be notified to subscribers.
+            notify_referencing_records?: boolean; // Stored with the record, but currently has no effect.
         } | null;
     };
 
@@ -422,12 +422,13 @@ type RecordData = {
         name: string;
         /** Number range: 0 ~ 99 */
         access_group: number | 'private' | 'public' | 'authorized' | 'admin';
-        /** User ID of subscription */
+        /** Subscription settings of the record */
         subscription?: {
+            is_subscription_record: boolean; // When true, this record is a subscription record.
             upload_to_feed: boolean; // When true, record will be uploaded to the feed of the subscribers.
-            notify_subscribers: boolean; // When true, subscribers will receive notification when the record is uploaded.
+            notify_subscribers: boolean; // Stored with the record, but currently has no effect.
             feed_referencing_records: boolean; // When true, records referencing this record will be included to the subscribers feed.
-            notify_referencing_records: boolean; // When true, records referencing this record will be notified to subscribers.
+            notify_referencing_records: boolean; // Stored with the record, but currently has no effect.
         };
     };
     source: {

@@ -18,14 +18,16 @@ postRecord(
         table?: {
             name?: string; // 1..256 characters, where / ! * # % each count as 3. Blocks control chars and sentinel U+10FFFF.
             access_group?: number | 'private' | '*' | 'public' | 'authorized' | 'admin';  // Default: 'public', otherwise not available to anonymous users. '*' is shorthand for 'private'.
-            /** Subscription settings; not available to anonymous users. */
+            /** Subscription settings; not available to anonymous users, and never allowed on the project owner's own records. */
+            /** On an update, settings left out keep their stored values, and null turns every setting off. */
+            /** The project owner and admins can change them on an existing record of another user, unless it is private. On a record posted by an anonymous user they can only keep or turn them off. See [Subscription](/database/subscription.md#who-can-change-subscription-settings) */
             subscription?: {
                 is_subscription_record?: boolean; // When true, record will be uploaded to subscription table.
-                upload_to_feed?: boolean; // When true, record will be shown in the subscribers feeds that is retrieved via getFeed() method.
-                notify_subscribers?: boolean; // When true, subscribers will receive notification when the record is uploaded.
+                upload_to_feed?: boolean; // When true, record will be shown in the subscribers feeds that is retrieved via getFeed() method. Off unless set.
+                notify_subscribers?: boolean; // Stored with the record, but currently has no effect.
                 feed_referencing_records?: boolean; // When true, records referencing this record will be included to the subscribers feed.
-                notify_referencing_records?: boolean; // When true, records referencing this record will be notified to subscribers.
-            };
+                notify_referencing_records?: boolean; // Stored with the record, but currently has no effect.
+            } | null;
         };
         readonly?: boolean; // Default: false. When true, the record cannot be updated. (Not available to anonymous users)
         index?: {
@@ -50,7 +52,8 @@ postRecord(
         remove_bin?: BinaryFile[] | string[] | null; // If the BinaryFile object or the url of the file is given, it will remove the bin data(files) from the record. The file should be uploaded to this record. If null is given, it will remove all the bin data(files) from the record. (not available to anonymous users)
         progress?: ProgressCallback; // Progress callback function. Useful when uploading files.
     },
-    files?: { name: string; file: File }[] // Files to attach to the record.
+    /** Files to attach to the record. Each file is uploaded with a permit issued for exactly its byte size, so a request that sends a different number of bytes is refused by storage. The project owner and admins (access groups 90 ~ 99) can attach files to another user's record unless it is private. See [Files on Records of Other Users](/database/handling-files.md#files-on-records-of-other-users) */
+    files?: { name: string; file: File }[]
 ): Promise<RecordData>
 ```
 
@@ -59,6 +62,87 @@ See [RecordData](/api-reference/data-types/README.md#recorddata)
 See [ProgressCallback](/api-reference/data-types/README.md#progresscallback)
 
 See [BinaryFile](/api-reference/data-types/README.md#binaryfile)
+
+#### Errors
+```ts
+{
+    code: "INVALID_REQUEST";
+    // Another account (the project owner or an admin) set table.access_group of a user's
+    // private record to a non-private group, moving it out of the 'private' access group.
+    message: "User has no access to change the private access of the record.";
+}
+|
+{
+    code: "INVALID_REQUEST";
+    // Only the record's own user can move it into the 'private' access group, or change
+    // anything else on it while it is private, subscription settings and attaching files
+    // included. This holds for the project owner and admin accounts too.
+    // This error and the one above are sent only to the project owner or an admin account.
+    // Other users are refused earlier with "User has no access to update this record."
+    message: "Only the owner of a record can move it into or out of the private access group.";
+}
+|
+{
+    code: "INVALID_REQUEST";
+    // The project owner's own records can never have subscription settings, whoever sends
+    // the request. Keeping the settings an older record already has, or turning them off,
+    // is allowed.
+    message: "Records of the project owner cannot have subscription settings.";
+}
+|
+{
+    code: "INVALID_REQUEST";
+    // A record posted by an anonymous (signed-out) user belongs to no user of the project,
+    // so the project owner and admins cannot add or turn on its subscription settings.
+    // Keeping the settings it already has, or turning them off, is allowed.
+    message: "Anonymous records cannot have subscription settings.";
+}
+|
+{
+    code: "INVALID_REQUEST";
+    // Admins in access groups 90 ~ 98 can change only the subscription settings of another
+    // user's record. {field} names the first field that differs from the stored record,
+    // for example data, index, tags, table.name, table.access_group, readonly, unique_id,
+    // reference, remove_bin, source.<key> or table.subscription.<key>.
+    // Attaching files is a separate right: passing files with nothing else changed is
+    // allowed. Removing a stored file with remove_bin is a change, so use deleteFiles().
+    message: "Admins can only change the subscription settings of another user's record ({field} differs).";
+}
+|
+{
+    code: "INVALID_REQUEST";
+    // Admins in access groups 90 ~ 98 changing the subscription settings of another user's
+    // record: the record was changed after this request read it, for example saved by its
+    // user. Nothing was written. Send the request again, and it is judged against the record
+    // as it is stored then.
+    message: "The record changed while it was being updated. Try again.";
+}
+|
+{
+    code: "INVALID_REQUEST";
+    // The project owner's account is not a user of the project.
+    message: "The project owner cannot upload records to the private access group." | "The project owner cannot upload read-only records.";
+}
+|
+{
+    code: "INVALID_REQUEST";
+    // The record belongs to another user and the caller is not the project owner or an admin.
+    // Checked before the private access group errors above, so it is also what such a caller
+    // gets for another user's private record.
+    message: "User has no access to update this record.";
+}
+|
+{
+    code: "INVALID_REQUEST";
+    // Only the project owner and admins in access group 99 can update a read-only record.
+    message: "Record is read only.";
+}
+```
+
+Each attached file is uploaded with a permit issued for exactly the byte size the request declares, so
+storage refuses a request that then sends a different number of bytes and stores nothing. The SDK always
+declares the true size of the file it sends, [encrypted](/database/encryption.md) and empty files
+included. See [Uploading Files](/database/handling-files.md#uploading-files).
 
 ## getRecords
 
@@ -104,18 +188,6 @@ See [RecordData](/api-reference/data-types/README.md#recorddata)
 See [FetchOptions](/api-reference/data-types/README.md#fetchoptions)
 
 See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
-
-#### Errors
-```ts
-{
-    code: "INVALID_REQUEST";
-    // Moving a record into or out of the 'private' access group is restricted to the
-    // record's owner, even for a project owner or admin account. Every other setting on
-    // another user's record remains updatable, including moving it between any two
-    // non-private groups.
-    message: "Only the owner of a record can move it into or out of the private access group.";
-}
-```
 
 ## grantPrivateAccess
 ```ts
@@ -510,3 +582,70 @@ and the file was no longer in the browser cache.
 See [FileInfo](/api-reference/data-types/README.md#fileinfo)
 
 See [ProgressCallback](/api-reference/data-types/README.md#progresscallback)
+
+## deleteFiles
+
+```ts
+deleteFiles({
+    /** Endpoint URLs of record files (the url of a BinaryFile), up to 1000. They may belong to different records of the project. */
+    /** A user who is not an admin can delete only the files of their own records, except files the project owner or an admin attached to them before such files were stored under the record's user. See [Files attached by another account](/database/handling-files.md#removing-files) */
+    /** The project owner and admins (access groups 90 ~ 99) can also delete the files of another user's record, unless it is private. */
+    /** Files on a private record can be deleted only by its user. See [Files on Records of Other Users](/database/handling-files.md#files-on-records-of-other-users) */
+    endpoints: string | string[];
+}): Promise<RecordData[]> // The records the files were removed from.
+```
+
+The whole list is checked before anything is deleted, so a refused request deletes no file.
+
+See [RecordData](/api-reference/data-types/README.md#recorddata)
+
+#### Errors
+```ts
+{
+    code: "INVALID_REQUEST";
+    // The caller is not an admin, and either the record is not theirs or the file is one the
+    // project owner or an admin attached to it before such files were stored under the record's user.
+    message: "The record should be owned by the user.";
+}
+|
+{
+    code: "INVALID_REQUEST";
+    // The record belongs to another user and is private. Refused for everyone, the project
+    // owner and admins included.
+    message: "Only the owner of a private record can delete its files.";
+}
+|
+{
+    code: "NOT_EXISTS";
+    // A record that one of the files belongs to does not exist.
+    message: 'Record "<record_id>" does not exists.';
+}
+|
+{
+    code: "INVALID_REQUEST";
+    // The URL is not the endpoint of a record file in this project.
+    message: "Invalid endpoint";
+}
+|
+{
+    code: "INVALID_REQUEST";
+    // The file that holds a record's offloaded data cannot be deleted by URL.
+    message: '"__data__/__json__.json" is a reserved file name.';
+}
+|
+{
+    code: "INVALID_REQUEST";
+    message: "Cannot delete more than 1000 files at once.";
+}
+|
+{
+    code: "INVALID_REQUEST";
+    // The database is frozen. Admins and the project owner are not affected.
+    message: "Database is frozen. Write access is denied for this user.";
+}
+|
+{
+    code: "INVALID_PARAMETER";
+    message: '"endpoints" should be type: array | string.';
+}
+```

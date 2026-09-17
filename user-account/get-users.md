@@ -106,6 +106,10 @@ When searching for a `string` attribute, `>` and `<` will search for strings tha
 - Users cannot search for attributes that are not set to public.
 :::
 
+:::tip What an admin sees
+Admins (access groups `90` ~ `99`) and the project owner get more from the same call: the `email` of every account, whether or not the user made it public, its `email_verified` state, and the `misc` field, which is otherwise visible only to the account itself. `searchFor: 'email'` searches those addresses too, so an admin can find an account by an address that is not public. Everything else follows the rules above. See [What an admin can see about a user](/admin/permissions.md#what-an-admin-can-see-about-a-user).
+:::
+
 
 The `range` parameter enables searching for users based on a specific attribute value within a given range. For example, if searching by `timestamp` with a range of 1651748526 to 1651143726, only users created between the two timestamps will be returned. 
 

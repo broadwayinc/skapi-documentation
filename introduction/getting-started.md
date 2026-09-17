@@ -1,14 +1,15 @@
 
 # Getting Started
 
-Skapi is a serverless backend API for your web application.
+Skapi is a serverless backend API for web applications.
 
-To enable backend features, first create a project at [skapi.com](https://www.skapi.com/signup).
+To build a full-stack web application, create a project and connect it to your HTML or JavaScript code.
+
 
 ## Creating a Project
 
 1. Sign up for an account at [skapi.com](https://www.skapi.com/signup).
-2. Log in, name your project, and choose a region. Click Create.
+2. Log in, create a new project. Give your project a name, choose a region, and click Create.
 
 :::tip For BunnyQuery users
 BunnyQuery projects are fully compatible with Skapi. Your project will appear in both your BunnyQuery and Skapi project lists.
@@ -16,9 +17,9 @@ BunnyQuery projects are fully compatible with Skapi. Your project will appear in
 
 ### For HTML Projects
 
-For vanilla HTML projects, load Skapi using a script tag and initialize the library as shown below.
-Add the Skapi script and initialize the Skapi class in the `<head>` of each page that uses Skapi.
-Use the exact Project ID of your Skapi project when initializing the library.
+For a vanilla HTML project, load Skapi with a script tag and initialize the library as shown below.
+Add the Skapi script and initialize the `Skapi` class in the `<head>` of each page that uses Skapi.
+Use your Skapi project's exact Project ID when initializing the library.
 
 ```html
 <!-- index.html -->
@@ -33,23 +34,21 @@ Use the exact Project ID of your Skapi project when initializing the library.
 :::warning Replace the placeholder
 `<Project ID>` is a placeholder, including the angle brackets.
 
-Replace the entire string with your actual Project ID from the Skapi dashboard. For example:
+Replace the entire placeholder with your actual Project ID from the Skapi dashboard. For example:
 
 ```js
 const skapi = new Skapi("abc123defg456hij78-9klmnop012qrstu345vwxyz");
 ```
 
-Every example in these docs uses the same `"<Project ID>"` placeholder. Replace it wherever you copy an example.
+Every example in this documentation uses the same `"<Project ID>"` placeholder. Replace it wherever you copy an example.
 :::
 
-The Project ID is a unique identifier for your Skapi project.
-
-Example format: `"xxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxx"`
+The Project ID uniquely identifies your Skapi project.
 
 
 ### For SPA Projects
 
-To use Skapi in a Single Page Application (SPA) such as Vue, React, or Angular, install `skapi-js` with npm.
+To use Skapi in a single-page application (SPA) such as Vue, React, or Angular, install `skapi-js` with npm.
 
 ```sh
 $ npm i skapi-js
@@ -69,7 +68,7 @@ export { skapi }
 
 ### For TypeScript Projects
 
-Skapi includes TypeScript support, so you can import both the class and related types.
+Skapi includes TypeScript support, so you can import the `Skapi` class and related types.
 
 ```typescript
 import { Skapi } from 'skapi-js';
@@ -95,13 +94,13 @@ import { Skapi } from 'skapi-js';
 const skapi = new Skapi("<Project ID>");
 ```
 
-> **Note:** When running Skapi in Node.js, browser-specific features such as WebSocket, WebRTC, and Notifications are not available.
+> **Note:** When running Skapi in Node.js, browser-specific features such as WebSocket, WebRTC, and Notifications are unavailable.
 
 
 
 ## Get Connection Information
 
-After your client connects to Skapi, call [`getConnectionInfo()`](/api-reference/connection/README.md#getconnectioninfo) to retrieve connection details.
+After your client connects to Skapi, call [`getConnectionInfo()`](/api-reference/connection/README.md#getconnectioninfo) to retrieve information about the connection.
 
 ::: code-group
 ```html [HTML]
@@ -117,18 +116,18 @@ skapi.getConnectionInfo().then(info => {
     /*
     Returns:
     {
-        project_id: "Public project ID of the connected project",
+        project_id: "Public ID of the connected project",
         user_ip: "Connected user's IP address",
-        user_agent: "Connected user agent",
+        user_agent: "Connected user's user agent",
         user_location: "Connected user's country code",
-        service_name: "Your Project Name",
+        service_name: "Your project name",
         service_description: "Your project description",
         version: 'x.x.x', // Skapi library version
-        ai_agent: "AI agent instructions set for the project",
+        ai_agent: "AI agent instructions configured for the project",
         conf: {
-            freeze_database: boolean, // Database is read only
-            prevent_signup: boolean, // Signup is blocked
-            prevent_inquiry: boolean, // Inquiry is blocked
+            freeze_database: boolean, // The database is read-only
+            prevent_signup: boolean, // Sign-up is blocked
+            prevent_inquiry: boolean, // Inquiries are blocked
             prevent_anonymous: boolean // Anonymous users cannot write to the database
         }
     }
@@ -145,18 +144,18 @@ skapi.getConnectionInfo().then(info => {
     /*
     Returns:
     {
-        project_id: "Public project ID of the connected project",
+        project_id: "Public ID of the connected project",
         user_ip: "Connected user's IP address",
-        user_agent: "Connected user agent",
+        user_agent: "Connected user's user agent",
         user_location: "Connected user's country code",
-        service_name: "Your Project Name",
+        service_name: "Your project name",
         service_description: "Your project description",
         version: 'x.x.x', // Skapi library version
-        ai_agent: "AI agent instructions set for the project",
+        ai_agent: "AI agent instructions configured for the project",
         conf: {
-            freeze_database: boolean, // Database is read only
-            prevent_signup: boolean, // Signup is blocked
-            prevent_inquiry: boolean, // Inquiry is blocked
+            freeze_database: boolean, // The database is read-only
+            prevent_signup: boolean, // Sign-up is blocked
+            prevent_inquiry: boolean, // Inquiries are blocked
             prevent_anonymous: boolean // Anonymous users cannot write to the database
         }
     }
@@ -169,33 +168,33 @@ skapi.getConnectionInfo().then(info => {
 
 ## Advanced Settings
 
-You can pass additional options when initializing the Skapi class.
+You can pass additional options when initializing the `Skapi` class.
 
 ### new Skapi(...)
 
 ```ts
 class Skapi {
   constructor(
-    project_id: string, // Skapi project ID. The legacy service ID + owner ID pair is still accepted.
+    project_id: string, // Skapi project ID. The legacy service ID and owner ID pair is also accepted.
     options?: {
         autoLogin?: boolean;        // Default: true
-        refetchServiceInfo?: boolean;// Default: false. Bypasses cached project info and always fetch new project info on load.
+        refetchServiceInfo?: boolean;// Default: false. Bypasses cached project information and fetches fresh information on every load.
         requestBatchSize?: number;  // Default: 30. Maximum number of requests processed per batch.
-        encryption?: boolean | { // Default: false. Encrypts the data of private records in the browser. Can only be set here, on initialization. HTTPS required.
-            iterations?: number;             // Default: 600000. PBKDF2 cost. Minimum 100000.
-            minPasswordLength?: number;      // Default: 0 (off). Refuses to set up encryption for a shorter password.
-            persistDevice?: boolean;         // Default: true. Stays unlocked across page reloads on that device.
+        encryption?: boolean | { // Default: false. Encrypts private record data in the browser. Can only be set during initialization. HTTPS is required.
+            iterations?: number;             // Default: 600000. PBKDF2 cost. Minimum: 100000.
+            minPasswordLength?: number;      // Default: 0 (off). Rejects passwords shorter than this value.
+            persistDevice?: boolean;         // Default: true. Keeps encryption unlocked across page reloads on that device.
             recovery?: 'code' | 'none';      // Default: 'code'. Issues a one-time recovery code.
-            trustPolicy?: 'tofu' | 'strict'; // Default: 'tofu'. How a recipient's public key is trusted when sharing.
-            withheld?: 'null' | 'sentinel';  // Default: 'null'. What data is set to when a record cannot be decrypted.
-            table?: string;                  // Default: '__skapi__keyring'. Reserved table that stores the user's keyring.
+            trustPolicy?: 'tofu' | 'strict'; // Default: 'tofu'. Controls how a recipient's public key is trusted when sharing.
+            withheld?: 'null' | 'sentinel';  // Default: 'null'. Specifies what `data` contains when a record cannot be decrypted.
+            table?: string;                  // Default: '__skapi__keyring'. Reserved table for the user's keyring.
         };
         eventListener?: {
             onLogin?: (user: UserProfile | null) => void; // Fires on initial page load (after Skapi initializes), on login/logout, and when a session expires. The callback receives a UserProfile object if the user is logged in; otherwise, it receives null.
             onUserUpdate?: (user: UserProfile | null) => void; // Fires on initial page load (after Skapi initializes), on login/logout, when a session expires, and when the user's profile is updated. The callback receives a UserProfile object if the user is logged in; otherwise, it receives null.
             onBatchProcess?: (process: {
-                batchToProcess: number; // Number of batches left to process
-                itemsToProcess: number; // Number of items left to process
+                batchToProcess: number; // Number of batches remaining
+                itemsToProcess: number; // Number of items remaining
                 completed: any[]; // Results completed in this batch
             }) => void;
         }
@@ -209,36 +208,36 @@ class Skapi {
 Options overview:
 
 - `autoLogin` (boolean, default: true)
-    - Automatically restores the user's session on page load.
+    - Automatically restores the user's session when the page loads.
     - See: [Auto Login](/authentication/login-logout.html#auto-login)
 
 - `requestBatchSize` (number, default: 30)
-    - Maximum number of requests processed per batch.
+    - Maximum number of requests processed in each batch.
 
 - `encryption` (boolean | object, default: false)
-    - Encrypts the `data` of the records saved to `access_group: 'private'`, in the browser, before it reaches the database. The contents of the files attached to those records are encrypted as well.
-    - **This only takes effect when it is set here, when the Skapi class is initialized.** There is no method that turns encryption on afterwards, so when this option is left out, the instance saves the `data` of every record as plain text for its entire lifetime.
-    - Enabling it later does not go back and encrypt the records that were already saved as plain text.
-    - Setting it to `true` uses the default settings. Pass an object to change them:
-        - `iterations` (number, default: 600000): PBKDF2 cost of deriving the key from the user's password. Minimum 100000.
-        - `minPasswordLength` (number, default: 0, off): refuses to set up encryption for a password shorter than this. The strength of the encryption is capped by the user's password, so it is worth setting.
+    - Encrypts the `data` of records saved with `access_group: 'private'` in the browser before the data reaches the database. The contents of files attached to those records are encrypted as well.
+    - **This option takes effect only when it is set during `Skapi` initialization.** There is no method for enabling encryption later. If this option is omitted, the instance saves every record's `data` as plain text for its entire lifetime.
+    - Enabling encryption later does not encrypt records that were already saved as plain text.
+    - Setting it to `true` uses the default settings. Pass an object to customize them:
+        - `iterations` (number, default: 600000): PBKDF2 cost for deriving the key from the user's password. Minimum: 100000.
+        - `minPasswordLength` (number, default: 0, off): rejects passwords shorter than this value. Because encryption strength is limited by the user's password, setting a minimum is recommended.
         - `persistDevice` (boolean, default: true): keeps encryption unlocked across page reloads on that device.
-        - `recovery` ('code' | 'none', default: 'code'): issues a one-time recovery code, which is the only way for the user to reach their data again after a password reset.
-        - `trustPolicy` ('tofu' | 'strict', default: 'tofu'): how a recipient's public key is trusted when a record is shared. `'strict'` requires the key to be pinned before the first share.
-        - `withheld` ('null' | 'sentinel', default: 'null'): what `data` is set to when a record cannot be decrypted. `'sentinel'` returns a placeholder object carrying the reason instead of `null`.
-        - `table` (string, default: '__skapi__keyring'): the reserved table that stores the user's keyring.
+        - `recovery` ('code' | 'none', default: 'code'): issues a one-time recovery code. This is the only way to regain access to the data after a password reset.
+        - `trustPolicy` ('tofu' | 'strict', default: 'tofu'): controls how a recipient's public key is trusted when a record is shared. `'strict'` requires the key to be pinned before the first share.
+        - `withheld` ('null' | 'sentinel', default: 'null'): specifies what `data` contains when a record cannot be decrypted. `'sentinel'` returns a placeholder object with the reason instead of `null`.
+        - `table` (string, default: '__skapi__keyring'): the reserved table for the user's keyring.
     - See: [Encrypting Private Record Data](/database/encryption.html)
 
 - `eventListener` (callbacks for key events)
     - `onLogin(user: UserProfile | null)`
-        - Fires on initial page load (after Skapi initializes), on login/logout, and when a session expires. The callback receives a `UserProfile` object if the user is logged in; otherwise, it receives `null`.
+        - Fires after Skapi initializes on the initial page load, after login or logout, and when a session expires. The callback receives a `UserProfile` object when the user is logged in; otherwise, it receives `null`.
         - See: [Listening to Login/Logout Status](/authentication/login-logout.html#listening-to-login-logout-status)
 
     - `onUserUpdate(user: UserProfile | null)`
-        - Fires on initial page load (after Skapi initializes), on login/logout, when a session expires, and when the user's profile is updated. The callback receives a `UserProfile` object if the user is logged in; otherwise, it receives `null`.
+        - Fires after login, before logout, when a session expires, and when the user's profile is updated. The callback receives a `UserProfile` object when the user is logged in; otherwise, it receives `null`.
         - See: [Listening to User Profile Updates](/authentication/user-info.html#listening-to-users-profile-updates)
 
     - `onBatchProcess(process)`
-        - Fires each time Skapi completes processing a request batch.
+        - Fires each time Skapi finishes processing a request batch.
 
 Type reference: See [UserProfile](/api-reference/data-types/README.md#userprofile).

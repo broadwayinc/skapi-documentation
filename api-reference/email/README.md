@@ -40,30 +40,34 @@ getNewsletterSubscription(
     params: { 
         /** Numeric group, 'public', 'authorized' or a named newsletter group. Omit for every group. */
         group?: number | 'public' | 'authorized' | string | null;
-        user_id?: string; // Another user's subscriptions. Project owner only.
+        user_id?: string; // Another user's subscriptions. Project owner and admins (access groups 90 ~ 99) only. Omit it to get your own, or the whole list of the group as the owner or an admin.
+        email?: string; // Project owner, Skapi staff and admins in access group 99 only. Returns the subscribers of "group" whose e-mail address starts with this text. Requires "group", cannot be used with "user_id". Admins in access groups 90 ~ 98 are refused with "No access."
     },
     fetchOptions?: FetchOptions
 ): Promise<{
     active: boolean;
-    timestamp: number;
+    timestamp: number; // Undefined on a group's whole subscriber list.
     group: number | string; // Number for the 0 ~ 99 groups, the group name for a named newsletter group.
-    subscribed_email: string;
+    subscribed_email: string; // Masked as "j**@**.com" for admins in access groups 90 ~ 98, except on their own subscriptions.
+    subscriber_token?: string; // Only on a masked row of a group's subscriber list. Opaque, stable per address, and different for different addresses.
 }[] | DatabaseResponse<{
     active: boolean;
     timestamp: number;
     group: number | string; // Number for the 0 ~ 99 groups, the group name for a named newsletter group.
-    subscribed_email: string;
+    subscribed_email: string; // Masked as "j**@**.com" for admins in access groups 90 ~ 98, except on their own subscriptions.
+    subscriber_token?: string; // Only on a masked row of a group's subscriber list. Opaque, stable per address, and different for different addresses.
 }>>
 ```
 
-Returns **subscriptions of one user**, never the subscriber list of a newsletter.
+- Called with a `group` and no `user_id` by the project owner or an admin (access groups `90` ~ `99`), it returns **every subscriber** of that group, sorted by e-mail address.
+- Called without `user_id` by any other user, it returns the signed in user's own subscriptions.
+- Called with a `group` and an `email` by the project owner, Skapi staff or an admin in access group `99`, it returns only the subscribers of that group whose e-mail address **starts with** `email`, matched in lowercase and sorted by e-mail address. Everyone else, admins in access groups `90` ~ `98` included, gets `INVALID_REQUEST` and `No access.`
+- Passing another user's `user_id` is refused with `No access.` unless the caller is the project owner or an admin (access groups `90` ~ `99`).
+- `subscribed_email` comes back **masked**, as `j**@**.com`, to an admin in access groups `90` ~ `98`: on a group's subscriber list, and on another user's subscriptions read with `user_id`. The project owner, Skapi staff and admins in access group `99` get the addresses in full, and every user reading their own subscriptions gets their own address in full.
+- A masked address cannot be mailed and is not unique, so it is never a key. `subscriber_token` is what tells two masked rows apart: it comes with every masked row of a **group's subscriber list**, is the same string for the same subscriber on every call and every page, and is a different string for a different address. It is opaque, it is scoped to this project, owner and group, and it is **absent** for a caller who reads addresses in full. The single user path read with `user_id` carries none.
+- Paging is unchanged, but for an admin in access groups `90` ~ `98` the `startKey` of a page is sealed, `{ seal: '...' }` rather than the database's own key. `fetchMore` replays it; a `startKey` you pass yourself has to be the previous page's object unchanged, or the request is refused with `INVALID_PARAMETER` and `"startKey" does not belong to this request.`
 
-- Called without `user_id`, it returns the signed in user's own subscriptions. This is the same for admins.
-- Passing another user's `user_id` is refused by the SDK with `No access.` unless the caller is the project owner.
-
-The **whole subscriber list** of a newsletter, and searching it by e-mail, is only available to the **project owner**, from the `Newsletters` page of the Skapi dashboard. No admin or user can list or search subscribers through this method.
-An admin who called it without `user_id` used to receive every subscriber of the group; that call now returns the admin's own subscriptions.
-See [Who can read the subscriber list](/email/newsletters.md#who-can-read-the-subscriber-list).
+See [Searching subscribers by e-mail](/email/newsletters.md#searching-subscribers-by-e-mail) and [Who can read the subscriber list](/email/newsletters.md#who-can-read-the-subscriber-list).
 
 ## getNewsletters
 
@@ -98,7 +102,7 @@ See [Newsletter](/api-reference/data-types/README.md#newsletter)
 
 ## registerNewsletterGroup
 
-Service owner only.
+Project owner and admins in access group `99` only.
 
 ```ts
 registerNewsletterGroup(
@@ -126,7 +130,7 @@ A service can hold up to 20 named newsletter groups.
 
 ## deleteNewsletterGroup
 
-Service owner only. Deletes the group along with every subscription of that group.
+Project owner and admins in access group `99` only. Deletes the group along with every subscription of that group.
 
 ```ts
 deleteNewsletterGroup(
@@ -139,7 +143,7 @@ deleteNewsletterGroup(
 
 ## newsletterGroupEndpoint
 
-Service owner only.
+Project owner and admins in access group `99` only.
 
 ```ts
 newsletterGroupEndpoint(): Promise<{

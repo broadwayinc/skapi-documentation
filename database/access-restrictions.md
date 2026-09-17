@@ -13,7 +13,7 @@ The following values can be set for `table.access_group`:
 - `*`: Shorthand for `private`. The SDK converts it to `private` before the request is sent.
 - `public`: The record will be accessible to everyone. (Equivalent to number 0)
 - `authorized`: The record will only be accessible to users who are logged into your project. (Equivalent to number 1)
-- `admin`: Only admin can use this group. The record will only be accessible to the admin of your project. (Equivalent to number 99)
+- `admin`: The record will only be accessible to admins (access groups `90` ~ `99`) and the project owner. (Equivalent to number 99)
 
 
 If `access_group` is not set, what happens depends on **which form** the table was written in, because a table written as a plain string is not the same request as a table object with the `access_group` key left out. See [The `table` shorthand and `access_group`](#the-table-shorthand-and-access-group) below.
@@ -21,11 +21,13 @@ If `access_group` is not set, what happens depends on **which form** the table w
 ::: tip
 Users can only access records that have an access group that is the same or a lower number than the access group defined in their user profile.
 
-The user profile's access group can only be changed by the project owners.
+Admins (access groups `90` ~ `99`) and the project owner are the exception: they query and upload records in **every** access group, including `admin` (`99`). Fetching a single record by its `record_id` is stricter for admins in access groups `90` ~ `98`: a record in a higher access group than their own is refused with `No access to the record.` Admins in access group `99` and the project owner reach any record. Private records are off limits to all of them. See [Admin Permissions](/admin/permissions.md#records).
+
+The user profile's access group is set by the project owner, and by admins with [`grantAccess()`](/api-reference/admin/README.md#grantaccess), up to their own access group and only on accounts below their own. See [Granting an access group](/admin/permissions.md#granting-an-access-group).
 :::
 
 ::: tip
-Unless the user is referencing a private access granted record, the user cannot upload a record with `access_group` set to a higher level than their own access level.
+Unless the user is referencing a private access granted record, the user cannot upload a record with `access_group` set to a higher level than their own access level. Admins and the project owner can.
 
 You can read more about referencing records [here](/database/referencing.md).
 :::
@@ -131,7 +133,7 @@ skapi.getRecords(config)
 
 Private records are only accessible to the uploader of the record.
 
-**Even the admin of the project will not have access to view the user's private data.**
+**Even the admin of the project will not have access to view the user's private data.** Admins in access groups `90` ~ `98` cannot fetch another user's private record at all. The project owner and admins in access group `99` can fetch it, but its `data` comes back withheld, as `{ __is_private__: null }`, so the stored data never leaves. Deleting such a record, and removing private access from a user, are admin rights all the same. See [Private records](/admin/permissions.md#private-records).
 
 The example below demonstrates uploading a private record:
 
@@ -160,7 +162,7 @@ let config = {
 };
 
 skapi.getRecords(config)
-    .catch(err=>alert(err.message)); // User has no access to private record.
+    .catch(err=>alert(err.message)); // User has no private access.
 ```
 
 ## Grant Private Access
@@ -183,6 +185,9 @@ You can read more about referencing records [here](/database/referencing.md).
 ## Remove Private Access
 
 Users can remove access of their private record from other users by using the [`removePrivateRecordAccess(params)`](/api-reference/database/README.md#removeprivateaccess) method.
+
+Admins (access groups `90` ~ `99`) can remove private access from any record in the project, not only their own.
+On an [encrypted](/database/encryption.md) record this stops the user from fetching it, but only the record's uploader can re-encrypt it, so a copy the user already holds stays readable to them.
 
 ```js
 skapi.removePrivateRecordAccess({
@@ -234,9 +239,35 @@ This is handled server side, so it applies to every project.
 
 A record can only be moved **into or out of** `private` by **the user who owns it**.
 
-This is the one record setting that a project owner or admin account cannot change on
-someone else's behalf. Everything else about another user's record remains available to
-them, including moving it between any two non-private access groups.
+Nobody else can change anything on a user's private record either, subscription settings
+included, or attach and delete its files. This holds for the project owner and admin accounts
+too.
+
+The two refusals below are what the project owner and admin accounts get, because they are the
+only other accounts allowed to update another user's record at all (on a read-only record, admins
+in access groups `90` ~ `98` get `Record is read only.` first). Any other user is refused
+before either check, for a private record or not, with:
+
+```ts
+{
+    code: "INVALID_REQUEST";
+    message: "User has no access to update this record.";
+}
+```
+
+A request from the project owner or an admin account that sets `table.access_group` of a user's
+private record to any other group, moving it out of `private`, is refused with:
+
+```ts
+{
+    code: "INVALID_REQUEST";
+    message: "User has no access to change the private access of the record.";
+}
+```
+
+From the project owner or an admin account, any other change to that record, including a
+request that keeps it in `private` or changes only its subscription settings, and moving another
+user's record into `private`, are refused with:
 
 ```ts
 {
@@ -253,6 +284,17 @@ reporting success, and neither is recoverable.
 
 The rule is enforced whether or not encryption is enabled, so that a project cannot enable
 it later and discover its records were already stranded.
+
+On another user's non-private record, the project owner and admins in access group `99` can
+change the data and the other settings, including moving it between any two non-private
+access groups and changing its subscription settings. The project owner cannot make it
+read-only. Admins in access groups `90` ~ `98` can change none of its data or settings
+except its subscription settings. Files are a separate right: the project owner and every admin
+(access groups `90` ~ `99`) can attach files to it and delete its files, see [Files on
+Records of Other Users](/database/handling-files.md#files-on-records-of-other-users).
+On a record posted by an anonymous user, subscription settings can only be kept or turned
+off. See [Admin Permissions](/admin/permissions.md#updating-another-users-record) and
+[Subscription](/database/subscription.md#who-can-change-subscription-settings).
 
 ## Allowing Others to Grant Private Access to Others
 

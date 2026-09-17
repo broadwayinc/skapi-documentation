@@ -19,6 +19,10 @@ BunnyQuery projects are fully compatible with Skapi. Each project shows up in bo
 
 You can set additional settings for your project.
 
+:::warning Only the project owner changes them
+Project settings belong to the **project owner's Skapi account**, the account that created the project, and to Skapi staff when you ask Skapi for help. An [admin](/admin/permissions.md#project-settings-belong-to-the-project-owner) of your project, access group `99` included, is refused with `INVALID_REQUEST` and `Only the project owner can change project settings.`
+:::
+
 - **Name:** The project name used to identify your project on the **My Projects** page.
 
 - **CORS:** Configure CORS to allow requests from specific domains. If left empty, CORS defaults to `*`. To restrict access, set one or more domains, for example, `https://example.com` or `https://example.com, https://example2.com`. Requests from domains not listed in CORS will be blocked. In production, set CORS to specific domains to help prevent unauthorized access to your project.
@@ -33,7 +37,7 @@ You can set additional settings for your project.
 
 - **Freeze Database:**
   You can freeze your database to prevent write operations.
-  When the database is frozen, all user write operations are blocked and only read operations are allowed. When this option is enabled, only the project owner can write to the database.
+  When the database is frozen, write operations from every user below access group `90` are blocked and only read operations are allowed. Admins (access groups `90` ~ `99`) and the project owner still write as usual. See [Admin Permissions](/admin/permissions.md#a-frozen-database).
 
 - **Allow Anonymous Posts to Database:**
   You can allow anonymous users (users who are not logged in) to post public records to the database.

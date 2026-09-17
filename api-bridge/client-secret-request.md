@@ -17,6 +17,11 @@ Because client secrets must never be exposed in frontend code, register each sec
 
 4. Click **Save**.
 
+:::warning Client secret keys are a project setting
+Registering, listing, replacing and deleting them belong to the **project owner's Skapi account**, and to Skapi staff when you ask Skapi for help. Listing them answers with the stored secret values, so it is owner only as well. An [admin](/admin/permissions.md#project-settings-belong-to-the-project-owner) of your project, access group `99` included, is refused with `INVALID_REQUEST` and `Only the project owner can change project settings.`
+Using a saved key with [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) is unchanged for every user of your project.
+:::
+
 
 ## Sending Requests to Third-Party APIs
 

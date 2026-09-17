@@ -52,8 +52,10 @@ access granted to other users, **those grants are removed** by the change, in ei
 direction. See [Changing the Access Group Clears Private
 Access](/database/access-restrictions.md#changing-the-access-group-clears-private-access).
 
-Only the record's **owner** can move it into or out of `private`. A project owner or admin
-account can change any other setting on another user's record, but not this one.
+Only the record's **owner** can move it into or out of `private`, or change anything on it
+while it is private. See [Only the Owner Can Cross the Private
+Boundary](/database/access-restrictions.md#only-the-owner-can-cross-the-private-boundary)
+for what a project owner or admin account can change on another user's record.
 :::
 
 :::tip
@@ -82,7 +84,7 @@ If `null` is used instead of undefined, the record data will be overwritten to v
 :::
 
 :::info
-Only the owner of the record can update a record.
+Only the owner of the record can update it. The project owner and admins in access group `99` can also update other users' records, read-only ones included, and admins in access groups `90` ~ `98` can change only their [subscription settings](/database/subscription.md#who-can-change-subscription-settings). Every admin and the project owner can also attach files to another user's record and delete its files, see [Files on Records of Other Users](/database/handling-files.md#files-on-records-of-other-users). Nobody but the owner can update a private record or change its files. See [Updating another user's record](/admin/permissions.md#updating-another-users-record).
 :::
 
 ## Readonly Record
@@ -107,10 +109,10 @@ skapi.postRecord(data, config).then(record => {
 });
 ```
 
-When the record is created with `readonly` set to `true`, the user will not be able edit or delete the record anymore.
+When the record is created with `readonly` set to `true`, the user will not be able edit or delete the record anymore. The project owner and admins in access group `99` can still update it, and admins can delete it.
 
 ```js
 skapi.postRecord({ myData: "Can this be updated?" }, { record_id: read_only_record_id }).catch(err=>{
-    alert(err.message); // Record is readonly.
+    alert(err.message); // Record is read only.
 })
 ```

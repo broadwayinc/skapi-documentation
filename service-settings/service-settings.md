@@ -4,6 +4,10 @@ Go to your project page and click on the **Project Settings** menu.
 
 On this page, you can configure settings for your project.
 
+:::warning Only the project owner can change these
+Every setting on this page belongs to the **project owner's Skapi account**, and to Skapi staff when you ask Skapi for help. An [admin](/admin/permissions.md#project-settings-belong-to-the-project-owner) of your project, access group `99` included, is refused with `INVALID_REQUEST` and `Only the project owner can change project settings.`
+:::
+
 ## Project Name
 
 You can set the project name in your project settings.
@@ -98,6 +102,6 @@ It is also unrelated to anonymous **writes**: whether users without an account m
 
 You can freeze your database to prevent write operations by non-admin users.
 
-When the database is frozen, all users with an access level below 99 will be blocked from performing write operations. Only read operations will be allowed.
+When the database is frozen, every user below access group `90` is blocked from performing write operations. Only read operations will be allowed. They are refused with `Database is frozen. Write access is denied for this user.`, and on a delete with `Database is frozen. Delete access is denied for this user.`
 
-When this is enabled, only the project owner can write to the database.
+Admins (access groups `90` ~ `99`) and the project owner still write as usual, so a frozen project stays manageable: they upload, update and delete records and files while it is frozen. See [Admin Permissions](/admin/permissions.md#a-frozen-database).

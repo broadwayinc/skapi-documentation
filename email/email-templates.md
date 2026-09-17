@@ -6,41 +6,53 @@ You can customize the email template of these automated emails by sending your t
 
 E-Mail endpoints can be found in your `Automated Emails` page in your Skapi admin page.
 
+:::warning Templates and the sending address are project settings
+Setting or deleting a template, and choosing the address your automated emails are sent from, belong to the **project owner's Skapi account**, and to Skapi staff when you ask Skapi for help. An [admin](/admin/permissions.md#project-settings-belong-to-the-project-owner) of your project, access group `99` included, is refused with `INVALID_REQUEST` and `Only the project owner can change project settings.`
+:::
+
 In the `Automated Emails` page, select an email type you want to set the template.
 
 - **Signup Confirmation**
   
-  Endpoint for signup confirmation email template. The user receives this email when they are requested for confirmation on signup.
+  Sent when a user signs up with `signup_confirmation` on in [`signup()`](/api-reference/authentication/README.md#signup), or when they call [`resendSignupConfirmation()`](/api-reference/authentication/README.md#resendsignupconfirmation). It carries the link that activates the account.
 
 - **Welcome E-Mail**
   
-  Endpoint for welcome email template. The user receives this email when they signup, and have successfully verified their email, and logged in for the first time.
+  Sent at a user's first login if their email address is already verified, for example after a confirmed signup, an accepted invitation, or a first [`openIdLogin()`](/api-reference/authentication/README.md#openidlogin).
 
 - **Verification E-Mail**
   
-  Endpoint for verification email template. The user receives this email when verifes their email or when they request the [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword).
-  
+  Sent with a one-time code by [`verifyEmail()`](/api-reference/user/README.md#verifyemail) for an unverified email address, or by [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword) for a verified one.
 
 - **Invitation E-Mail**
   
-  Endpoint for invitation email template. The user receives this email when they are invited to the project.
-  You can send invitation to users from the `Users` page in your admin page in Skapi website.
+  Sent by [`inviteUser()`](/api-reference/admin/README.md#inviteuser) and [`resendInvitation()`](/api-reference/admin/README.md#resendinvitation), with the generated password and the link that accepts the invitation.
+  You can also invite users from the `Users` page in your admin page in Skapi website.
 
 - **Newsletter Subscription**
   
-  Endpoint for public newsletter subscription confirmation email template. The user receives this email when they subscribe to the public newsletter.
+  Sent when a visitor who is not logged in subscribes to your public newsletter, with a link to confirm the subscription.
 
-Once you select the email type, the page will show the email endpoint address to set the template in the `E-Mail Template` section.
+Once you select the email type, the page shows:
+
+- **Sending address**: the address your automated emails go out from.
+- **Template address**: the email endpoint that takes templates for the selected type. Click it to copy it.
+- **Placeholders**: the placeholders the selected type fills in, split into required and optional ones. Hover over a placeholder to see what it turns into, and click it to copy it.
+- **Current template**: the template in use, or `Built-in default`, and when this type of email is sent.
+
+Below them is the list of the templates you have sent for that type.
 
 Following example shows the format for email endpoints:
 
 ```
-xxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@mail.skapi.com
+tpxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxx@mail.skapi.com
 ```
 
-You may view already set templates, copy the end point.
+Endpoints in the older `xxxxxxxxxxxxxxxxxxxx-tpxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@mail.skapi.com` format keep working, so a saved address does not need to be updated.
 
 To customize the email template, just send your customized template via your e-mail to the endpoint address.
+Skapi checks the template when it arrives (see [When a template is rejected](#when-a-template-is-rejected)) and replies to you by email.
+A template that passes is added to the list for its type: select it there to use it.
 
 :::danger
 - **DO NOT** share your email endpoint address with anyone. This endpoint is unique to your project and should be kept private.
@@ -128,19 +140,57 @@ to your project's template rather than failing the call, and the e-mail is still
 
 ## Template Placeholders
 
-E-Mail templates takes custom placeholders that can be used to customize the email template.
-If there is a placeholder character in your email content, it will be replaced with the corresponding value.
+E-Mail templates take placeholders: text that Skapi replaces with a value when the email is sent.
+Each email type fills in its own set. A **required** placeholder must appear in the template, or the template is rejected when it arrives.
+An **optional** one is filled in wherever you use it.
+
+| Email type | Required | Optional |
+|---|---|---|
+| Signup Confirmation | `https://link.skapi.com` | `${email}`, `${name}`, `${service_name}` |
+| Welcome E-Mail | none | `${email}`, `${name}`, `${service_name}` |
+| Verification E-Mail | `${code}` | `${email}`, `${name}`, `${service_name}` |
+| Invitation E-Mail | `https://link.skapi.com`, `${email}`, `${password}` | `${name}`, `${service_name}`, `${username}` |
+| Newsletter Subscription | `https://link.skapi.com` | `${service_name}` |
 
 - **`${service_name}`**: Name of your project.
 - **`${name}`**: User's name from the profile. If the user has not set their name, it will be replaced with empty string.
 - **`${email}`**: User's email address.
 
+The newsletter subscription confirmation is sent to an email address rather than to a user account, so it has no `${name}` or `${email}`.
+
+In the `Automated Emails` page, hover over a placeholder to see what it turns into for the selected type, and click it to copy it.
+
+## The link placeholder
+
+Signup confirmation, invitation and newsletter subscription emails carry a link. Put **`https://link.skapi.com`** in your template as the URL of a link, and Skapi replaces it with the real link when the email is sent.
+
+- **`https://link.skapi`**, the original form, still works everywhere. Templates that use it do not need to be changed.
+- **`https://link.skapi.app`** is accepted as well.
+- Use the placeholder on its own as the URL, with nothing added to it. A trailing `/` is fine, but a longer domain such as `https://link.skapi.company` does not count as the placeholder.
+
+`https://link.skapi.com` reads as a real web address, so mail editors that refuse a link to `https://link.skapi` accept it.
+
+## When a template is rejected
+
+Skapi checks every template it receives before saving it. A template is rejected when:
+
+- it is missing one or more of the required placeholders for its type, or
+- its HTML is larger than 240kb. Images and attachments are stored separately and do not count toward this.
+
+A rejected template is not saved and does not appear in the template list. Skapi replies to the address that sent it with an email that names the template type and the subject, and lists every required placeholder that was missing and what each one is for. Add the missing placeholders and send the template again to the same endpoint.
+
+A template that passes gets a reply saying it has been uploaded. It is not used until you select it in the `Automated Emails` page.
+
+:::warning
+Templates sent before these checks were in place are not checked again. Invitation templates are now checked for `${email}` and `${password}` as well as the link, so an invitation template without them that was accepted before is rejected if you send it again.
+:::
+
 ## Required Placeholders for signup confirmation email
 
-When sending signup confirmation email, you must include set a link with **`https://link.skapi`** as a url in your email content.
-The dummy url **`https://link.skapi`** will be replaced with the actual link that confirms the user's signup.
+When sending signup confirmation email, you must include a link with **`https://link.skapi.com`** as its URL in your email content.
+The placeholder URL **`https://link.skapi.com`** will be replaced with the actual link that confirms the user's signup.
 
-Example below shows how to set the link with **`https://link.skapi`** url in gmail.
+Example below shows how to set the link URL in gmail. The screenshot shows the original `https://link.skapi`, which still works.
 Any other email service should have similar way to set the link.
 
 ![gmail link](/linkexam.png)
@@ -165,7 +215,7 @@ Your verification code is: ${code}
 
 Below are the required placeholders for invitation email.
 
-- **`https://link.skapi`**: Link to accept the invitation.
+- **`https://link.skapi.com`**: Link to accept the invitation.
 - **`${email}`**: Invited person's login email.
 - **`${password}`**: Temporary password for the invited person.
 
@@ -179,15 +229,21 @@ These are not required. A template that leaves them out keeps working exactly as
 
 - **`${name}`**: The invited person's name. Worth including to make the e-mail less anonymous.
 - **`${username}`**: The account's permanent login username, when the invitation was created with one.
-  It renders as empty for an invitation with no username, so only use it in a line that still reads
-  correctly when it is blank, or send a template with it only to invitations that have one.
+  For an invitation with no username it renders the invited person's e-mail address instead, which is
+  that account's login ID, so a line such as `Sign in with ${username}` reads correctly either way. It is
+  never empty. A resent invitation renders the same value, except for an invitation sent before the
+  backend started keeping the plain username with the invitation, whose resend renders the e-mail address.
 
-An account invited with a username can sign in with either that username or the e-mail address the
-invitation was sent to, so `${email}` remains correct either way.
+Once an account invited with a username accepts the invitation, the e-mail address the invitation was
+sent to logs it in as well as the username, because accepting verifies the address, so `${email}` is
+correct for it too. The address does not log the account in while the invitation is pending, and if it
+is already a login ID another account of the project was granted by the time the invitation is accepted,
+email login is not enabled and only the username logs the account in. See
+[Login IDs](/admin/permissions.md#login-ids).
 
 ## Required Placeholders for public newsletter subscription confirmation email
 
 When user subscribes to your public newsletters user receives subscription confirmation email.
 The subscription confirmation email contains a link to confirm the subscription.
 
-you must include **`https://link.skapi`** placeholders in your email content.
+You must include a link with **`https://link.skapi.com`** as its URL in your email content. `${service_name}` is the only other placeholder this email fills in.

@@ -73,9 +73,17 @@ please refer to the API Reference below:
 
 ### [`login(params): Promise<UserProfile>`](/api-reference/authentication/README.md#login)
 
-If the account was created with a `username`, either the username or the account's current email
-logs the user in. Pass whichever the user typed. See
-[E-Mail and username](/authentication/create-account.md#e-mail-and-username).
+If the account was created with a `username`, the username logs the user in from the moment the account
+is created, and the account's current email does too once that address is **verified**. Pass whichever
+the user typed. Until the address is verified, by the signup confirmation link, by accepting an
+invitation or by [`verifyEmail()`](/api-reference/user/README.md#verifyemail), only the username reaches
+the account, and the email answers `INCORRECT_USERNAME_OR_PASSWORD`. Email login then starts a few
+seconds after the verification, on the account's next token.
+
+An account created **without** a `username` logs in with the address it signed up with, which is its own
+permanent login ID and keeps working even after the email is changed. See
+[E-Mail and username](/authentication/create-account.md#e-mail-and-username) for when email login
+starts, and the one case where it is not enabled.
 
 ## Auto Login
 

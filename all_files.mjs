@@ -14,6 +14,7 @@ let api_reference = [
             { text: 'Realtime', link: '/api-reference/realtime/README.md' },
             { text: 'API Bridge', link: '/api-reference/api-bridge/README.md' },
             { text: 'Admin', link: '/api-reference/admin/README.md' },
+            { text: 'Tickets', link: '/api-reference/tickets/README.md' },
             { text: 'Data Types', link: '/api-reference/data-types/README.md' }
         ]
     }
@@ -27,6 +28,7 @@ let method_ref = [
         items: [
             // { text: 'What is Skapi?', link: '/introduction/what-is-skapi.md' },
             { text: 'Getting Started', link: '/introduction/getting-started.md' },
+            { text: 'Plans and Limits', link: '/introduction/plans.md' },
             { text: 'Working with HTML forms', link: '/introduction/working-with-forms.md' }
         ]
     },
@@ -130,9 +132,20 @@ let method_ref = [
         text: 'Admin Features',
         items: [
             { text: 'Introduction', link: '/admin/intro.md' },
+            { text: 'Admin Permissions', link: '/admin/permissions.md' },
             // { text: 'Project Settings', link: '/admin/project-settings.md' },
             { text: 'Inviting Users', link: '/admin/invite.md' },
             { text: 'Managing Users', link: '/admin/account.md' },
+        ]
+    },
+    {
+        text: 'Tickets',
+        items: [
+            { text: 'Introduction', link: '/tickets/introduction.md' },
+            { text: 'Conditions and Placeholders', link: '/tickets/conditions.md' },
+            { text: 'Actions', link: '/tickets/actions.md' },
+            { text: 'Errors and Logs', link: '/tickets/errors.md' },
+            { text: 'Examples', link: '/tickets/examples.md' },
         ]
     },
     {

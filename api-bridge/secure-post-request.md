@@ -37,6 +37,7 @@ skapi.secureRequest({
 
 Skapi will mirror your request to your custom API. From your API, it receives user information along with the request data.
 If you have set the secret key in your [project settings](/service-settings/additional.md) page, the request will contain your secret key.
+Setting that key is a project setting, so only the **project owner's Skapi account** can set it. An [admin](/admin/permissions.md#project-settings-belong-to-the-project-owner) of your project, access group `99` included, is refused with `Only the project owner can change project settings.`
 
 You can have your custom API's to check the secret key in the request data. If the secret key is not matched, you can return the error response.
 

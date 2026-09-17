@@ -3,6 +3,11 @@
 
 You can set advanced settings for your project.
 
+:::warning Project settings are the project owner's alone
+They are changed on the Skapi project pages by the **project owner's Skapi account**, and by Skapi staff when you ask Skapi for help. No SDK method changes them, and a request that carries an **admin's** token is refused with `INVALID_REQUEST` and `Only the project owner can change project settings.`, access group `99` included.
+Admins keep managing users, records, files, invitations, newsletters and notifications. See [Project settings belong to the project owner](/admin/permissions.md#project-settings-belong-to-the-project-owner).
+:::
+
 - **Name:** The project name used to identify your project on the **My Projects** page.
 
 - **CORS:** Configure CORS to allow requests from specific domains. If left empty, CORS defaults to `*`. To restrict access, set one or more domains, for example, `https://example.com` or `https://example.com, https://example2.com`. Requests from domains not listed in CORS will be blocked. In production, set CORS to specific domains to help prevent unauthorized access to your project.
@@ -17,7 +22,7 @@ You can set advanced settings for your project.
 
 - **Freeze Database:**
   You can freeze your database to prevent write operations.
-  When the database is frozen, all user write operations are blocked and only read operations are allowed. When this option is enabled, only the project owner can write to the database.
+  When the database is frozen, write operations from every user below access group `90` are blocked and only read operations are allowed. Admins (access groups `90` ~ `99`) and the project owner still write as usual. See [Admin Permissions](/admin/permissions.md#a-frozen-database).
 
 - **Allow Anonymous Posts to Database:**
   You can allow anonymous users (users who are not logged in) to post public records to the database.
