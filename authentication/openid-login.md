@@ -11,7 +11,7 @@ OpenID is an authentication standard that lets users sign in with an identity pr
 If you have access to an OpenID provider API, you can register an OpenID Logger in your Skapi project settings.
 
 :::warning An OpenID Logger is a project setting
-Registering, updating, deleting and listing OpenID Loggers belong to the **project owner's Skapi account**, and to Skapi staff when you ask Skapi for help. An [admin](/admin/permissions.md#project-settings-belong-to-the-project-owner) of your project, access group `99` included, is refused with `INVALID_REQUEST` and `Only the project owner can change project settings.` The same holds for the [client secret keys](/api-bridge/client-secret-request.md) a logger uses.
+Registering, updating, deleting and listing OpenID Loggers belong to the **project owner's Skapi account**, and to Skapi staff when you ask Skapi for help. An [admin](/admin/permissions.md#project-settings-belong-to-the-project-owner) of your project, access group `99` included, is refused with `INVALID_REQUEST` and `Only the project owner can change project settings.` The same holds for the [Secret Keys](/api-bridge/client-secret-request.md#registering-secret-keys) a logger uses.
 :::
 
 Although providers differ in details, the overall process is:
@@ -19,7 +19,7 @@ Although providers differ in details, the overall process is:
 1. You redirect the user to the provider's login page.
 2. The provider authenticates the user.
 3. The user is redirected back to your app.
-4. Exchange the returned authorization code for an access token using a secure client secret request.
+4. Exchange the returned authorization code for an access token with [`forwardRequest()`](/api-bridge/forward-request.md) and a stored Secret Key.
 5. Call [`openIdLogin()`](/api-reference/authentication/README.md#openidlogin) with the token.
 
 ## Google OAuth Example
@@ -59,23 +59,23 @@ After setting up OAuth in [Google Cloud Console](https://console.cloud.google.co
 </script>
 ```
 
-### 3. Register Client Secret Key
+### 3. Register a Secret Key
 
 After a successful Google login, the user is redirected back to your page with a `code` query parameter.
 
-You must exchange this `code` for an access token. Because this step requires a client secret, store the secret in Skapi and request the token with [`clientSecretRequest()`](/api-bridge/client-secret-request.md).
+You must exchange this `code` for an access token. Because this step requires a client secret, store the secret in Skapi and request the token with [`forwardRequest()`](/api-bridge/forward-request.md).
 
-To register a client secret key in Skapi:
+To register a secret key in Skapi:
 
-1. In the project page, click on the **Client Secret Keys** menu.
-2. Click **+** at the top-right of the table.
+1. In the project page, click on the **Secret Keys** menu.
+2. Click **+ Register Secret**.
 3. In the form, enter:
     - **Name:** A key identifier. For this guide, use **ggltoken**.
-    - **Client Secret Key:** The exact secret from your Google OAuth app.
+    - **Secret Value:** The exact client secret from your Google OAuth app.
 
-4. Click **Save**.
+4. Click **Register**.
 
-For more information about registering a client secret key, see [Client Secret Keys](/api-bridge/client-secret-request.md).
+For more information about registering a secret key, see [Secret Keys](/api-bridge/client-secret-request.md#registering-secret-keys).
 
 After registering the client secret, run the following code on the redirect page to exchange the authorization code for an access token:
 
@@ -87,19 +87,18 @@ const REDIRECT_URL = window.location.origin + window.location.pathname;
 const urlParams = new URLSearchParams(window.location.search);
 const code = urlParams.get('code');
 
-const tokenResponse = await skapi.clientSecretRequest({
-    clientSecretName: 'ggltoken',
+const tokenResponse = await skapi.forwardRequest({
+    code,
+    client_id: GOOGLE_CLIENT_ID,
+    client_secret: '$CLIENT_SECRET',
+    redirect_uri: REDIRECT_URL,
+    grant_type: 'authorization_code'
+}, {
+    secretName: 'ggltoken',
     url: 'https://oauth2.googleapis.com/token',
     method: 'POST',
     headers: {
         'Content-Type': 'application/json'
-    },
-    data: {
-        code,
-        client_id: GOOGLE_CLIENT_ID,
-        client_secret: '$CLIENT_SECRET',
-        redirect_uri: REDIRECT_URL,
-        grant_type: 'authorization_code'
     }
 });
 const ACCESS_TOKEN = tokenResponse?.access_token;
@@ -161,7 +160,7 @@ skapi.openIdLogin({ id: 'google', token: ACCESS_TOKEN }).then(user => {
 
 ### Wrapping up: All in one page
 
-This example shows the entire flow in one page. After the user signs in with Google and is redirected back to your app, use [`clientSecretRequest()`](/api-bridge/client-secret-request.md) to exchange the authorization code for an access token.
+This example shows the entire flow in one page. After the user signs in with Google and is redirected back to your app, use [`forwardRequest()`](/api-bridge/forward-request.md) to exchange the authorization code for an access token.
 
 Then call [`openIdLogin(event?: SubmitEvent | params): Promise<{ userProfile: UserProfile; openid: { [attribute: string]: string } }>`](/api-reference/authentication/README.md#openidlogin) to sign the user in to your Skapi project.
 
@@ -195,19 +194,18 @@ Then call [`openIdLogin(event?: SubmitEvent | params): Promise<{ userProfile: Us
         }
 
         try {
-            const tokenResponse = await skapi.clientSecretRequest({
-                clientSecretName: 'ggltoken',
+            const tokenResponse = await skapi.forwardRequest({
+                code,
+                client_id: GOOGLE_CLIENT_ID,
+                client_secret: '$CLIENT_SECRET',
+                redirect_uri: REDIRECT_URL,
+                grant_type: 'authorization_code'
+            }, {
+                secretName: 'ggltoken',
                 url: 'https://oauth2.googleapis.com/token',
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
-                },
-                data: {
-                    code,
-                    client_id: GOOGLE_CLIENT_ID,
-                    client_secret: '$CLIENT_SECRET',
-                    redirect_uri: REDIRECT_URL,
-                    grant_type: 'authorization_code'
                 }
             });
 

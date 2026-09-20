@@ -137,6 +137,14 @@ See [BinaryFile](/api-reference/data-types/README.md#binaryfile)
     // Only the project owner and admins in access group 99 can update a read-only record.
     message: "Record is read only.";
 }
+|
+{
+    code: "INVALID_REQUEST";
+    // An attached file may not take the name the record's own offloaded data file uses:
+    // the file input name "__data__", or the file name "__json__.json".
+    // See Large Record Data: /database/create.md#large-record-data
+    message: '"__data__/__json__.json" is a reserved file name.';
+}
 ```
 
 Each attached file is uploaded with a permit issued for exactly the byte size the request declares, so
@@ -189,6 +197,13 @@ See [FetchOptions](/api-reference/data-types/README.md#fetchoptions)
 
 See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
 
+A private record of another user comes back to the project owner and to admins in access group `99` with
+its `data` as `{ __is_private__: null }` unless they have access to it: it was shared with them, or they
+have private access to the record it references. This holds however it was reached: by `record_id`, by a listing of the
+table, by a listing that names `access_group: 'private'`, or by a `tag` query. The rest of the record is
+unchanged. Admins in access groups `90` ~ `98` without access cannot fetch such a record by its `record_id`
+at all: they get `User has no private access.` See [Private records](/admin/permissions.md#private-records).
+
 ## grantPrivateAccess
 ```ts
 grantPrivateRecordAccess(
@@ -210,7 +225,8 @@ Access](/database/access-restrictions.md#changing-the-access-group-clears-privat
 ```ts
 {
     code: "INVALID_REQUEST";
-    message: "Private access cannot be granted to project owners.";
+    // The project owner's account can never be given private access to a record.
+    message: "Private access cannot be granted to service owners.";
 }
 |
 {
@@ -228,6 +244,9 @@ Access](/database/access-restrictions.md#changing-the-access-group-clears-privat
     message: "At least 1 user id is required.";
 }
 ```
+
+A grant is what lets another user read a private record, admins in access group `99` included. It
+cannot be given to the project owner. See [Private records](/admin/permissions.md#private-records).
 
 
 ## removePrivateAccess
@@ -353,8 +372,7 @@ A table name very often carries a leading name shared with the rest of its data 
 When you already know the exact name, omitting `condition` is the exact match you want.
 
 **Requires a signed in user** when the project's [Require Login](/service-settings/service-settings.md#require-login) setting is on, and a project that has never set that option counts as **on**.
-The SDK throws `REQUIRE_LOGIN` before the request leaves, and the backend refuses the same call with `INVALID_REQUEST`, so a direct API call or an older SDK with no gate is refused as well.
-This listing used to be served to anyone who knew the project ID, so an integration that reads it with no signed in user now gets an error.
+The SDK throws `REQUIRE_LOGIN` before the request leaves, and the backend refuses the same call with `INVALID_REQUEST`, so a direct API call is refused as well.
 
 Table **names** are never filtered by access group: every table in the project is listed.
 The per access group record counters are filtered to the caller: `number_of_records_in_access_group_public` for everyone, the counters up to and including the caller's own access group for a signed in user, and `number_of_records_in_access_group_private` and `number_of_records_in_access_group_admin` for admins and the project owner.
@@ -404,8 +422,7 @@ The only condition is `order.condition`, and it **requires** `order.value`: a qu
 While you are hunting for an index whose exact spelling you do not know, order by `index_name` and pass `gte` instead of a bare `order.value`: it is a prefix search, so it also surfaces the related entries an exact match would silently miss.
 
 **Requires a signed in user** when the project's [Require Login](/service-settings/service-settings.md#require-login) setting is on, and a project that has never set that option counts as **on**.
-The SDK throws `REQUIRE_LOGIN` before the request leaves, and the backend refuses the same call with `INVALID_REQUEST`, so a direct API call or an older SDK with no gate is refused as well.
-This listing used to be served to anyone who knew the project ID, so an integration that reads it with no signed in user now gets an error.
+The SDK throws `REQUIRE_LOGIN` before the request leaves, and the backend refuses the same call with `INVALID_REQUEST`, so a direct API call is refused as well.
 
 The listing is **not** filtered by access group, for any caller.
 An index row is stored keyed by table and index name with the access group left out, so one row aggregates every group: `number_of_records`, `total_number`, `average_number` and the rest span the whole table, private and admin records included.
@@ -450,8 +467,7 @@ A tag very often carries a leading name shared with the rest of its data set, a 
 When you already know the exact name, give both `table` and `tag` and omit `condition`: that is the exact match you want.
 
 **Requires a signed in user** when the project's [Require Login](/service-settings/service-settings.md#require-login) setting is on, and a project that has never set that option counts as **on**.
-The SDK throws `REQUIRE_LOGIN` before the request leaves, and the backend refuses the same call with `INVALID_REQUEST`, so a direct API call or an older SDK with no gate is refused as well.
-This listing used to be served to anyone who knew the project ID, so an integration that reads it with no signed in user now gets an error.
+The SDK throws `REQUIRE_LOGIN` before the request leaves, and the backend refuses the same call with `INVALID_REQUEST`, so a direct API call is refused as well.
 
 The listing is **not** filtered by access group, for any caller.
 A tag row is stored keyed by tag and table name with the access group left out, so `number_of_records` counts the records in every group together.
@@ -475,8 +491,7 @@ getUniqueId(
 ```
 
 **Requires a signed in user** when the project's [Require Login](/service-settings/service-settings.md#require-login) setting is on, and a project that has never set that option counts as **on**.
-The SDK throws `REQUIRE_LOGIN` before the request leaves, and the backend refuses the same call with `INVALID_REQUEST`, so a direct API call or an older SDK with no gate is refused as well.
-This listing used to be served to anyone who knew the project ID, so an integration that reads it with no signed in user now gets an error.
+The SDK throws `REQUIRE_LOGIN` before the request leaves, and the backend refuses the same call with `INVALID_REQUEST`, so a direct API call is refused as well.
 
 Called with no `unique_id`, this enumerates **every** unique ID in the project.
 The listing is **not** filtered by access group: a row is keyed by the unique ID alone, so any caller allowed to read it sees the IDs of records in every group, each with the record ID it maps to. Fetching those records still goes through the usual access checks.

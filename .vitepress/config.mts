@@ -2,6 +2,8 @@ import { defineConfig } from 'vitepress'
 import all_files from '../all_files.mjs';
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  srcExclude: ['SKAPI.md', 'skapi-docs.md', 'skapi-types.md', 'public/**/*.md'],
+
   lang: 'en-US',
 
   title: "Skapi",

@@ -2,8 +2,7 @@
 
 Skapi's API Bridge allows your project to connect external API's.
 
-API Bridge provides [`secureRequest()`](/api-reference/api-bridge/README.md#securerequest), [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) and [`forwardRequest()`](/api-reference/api-bridge/README.md#forwardrequest) methods to make secure requests to your custom API's.
+API Bridge provides [`forwardRequest()`](/api-reference/api-bridge/README.md#forwardrequest) and [`secureRequest()`](/api-reference/api-bridge/README.md#securerequest) methods to make secure requests to your custom API's.
 
+[`forwardRequest()`](/api-reference/api-bridge/README.md#forwardrequest) relays a request to any destination you choose from Skapi's servers instead of from the browser, optionally substituting one of your stored secret keys into it, and can queue the request, poll for its result and stream the response back as it arrives.
 [`secureRequest()`](/api-reference/api-bridge/README.md#securerequest) is used to make a secure request to your custom API's.
-[`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) is used to make a request to your 3rd party API with a client secret key.
-[`forwardRequest()`](/api-reference/api-bridge/README.md#forwardrequest) is used to forward a request, including an HTML form and its files, to your own external backend, which recognises the call by your project's API key, and streams the response back as it arrives.

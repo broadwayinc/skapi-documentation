@@ -62,52 +62,6 @@ type BinaryFile = {
 }
 ```
 
-## ClientSecretStreamOptions
-
-```ts
-type ClientSecretStreamOptions = {
-    /** The URL the request was sent to. Required unless the request ID is an already-composed full ID. */
-    url?: string;
-    /** The method it was sent with. Required unless the request ID is an already-composed full ID. */
-    method?: 'GET' | 'POST' | 'DELETE' | 'PUT';
-    /** Called with each relayed piece, in order, with the sequence number it was stored under
-     *  and which transport carried it ('socket' when skapi's websocket got there first,
-     *  'poll' when the poll did). Raw text: skapi relays bytes and parses none of them. */
-    onStream?: (chunk: string, seq: number, via?: 'socket' | 'poll') => void;
-    /** The `realtime_group` the dispatching clientSecretRequest() handed back. With it, this
-     *  read ALSO listens on skapi's websocket while the request is still running, so text
-     *  arrives as it is relayed instead of on each poll tick. The group cannot be rebuilt
-     *  from a request ID, so keep it beside the ID. Without it the read works exactly as it
-     *  always has, at poll speed. */
-    realtimeGroup?: string;
-    /** Start after this sequence number instead of from the beginning, so a reader that already
-     *  holds part of a turn does not receive it twice. Default 0. */
-    since?: number;
-    /** Polling interval in milliseconds while the request is still running. Default 1000.
-     *  Must be a finite, non-negative number. */
-    poll?: number;
-    /** Called once with whatever the read resolves with. Not called when the read is stopped.
-     *  `meta` carries facts about the REQUEST rather than the response: a settled poll resolves
-     *  with the destination's own answer, and that answer is the destination's, not a place to
-     *  attach skapi's fields. `meta.executed` is when the worker BEGAN running the request, in
-     *  milliseconds (the same value clientSecretRequestHistory() reports as `executed`), so
-     *  `updated - executed` times the call while `updated - created` also counts the queue wait.
-     *  Present only when this request was QUEUED and therefore polled, and absent even then for a
-     *  request that began and ended between two ticks, so treat it as optional and show nothing
-     *  rather than substituting `created`. A one-argument callback is unaffected. */
-    onResponse?: (res: any, meta?: { executed?: number }) => void;
-    /** Called if the read itself fails. */
-    onError?: (err: any) => void;
-    service?: string;
-    owner?: string;
-}
-```
-
-The second argument of [`clientSecretRequestStream()`](/api-reference/api-bridge/README.md#clientsecretrequeststream).
-It is written inline in that method's signature, so it is not importable from `skapi-js` under this name.
-
-See [Streaming Request](/api-bridge/streaming-request.html)
-
 ## Condition
 
 ```ts
@@ -244,6 +198,52 @@ type FileInfo = {
 ```ts
 type Form<T> = HTMLFormElement | FormData | SubmitEvent | T;
 ```
+
+## ForwardRequestStreamOptions
+
+```ts
+type ForwardRequestStreamOptions = {
+    /** The URL the request was sent to. Required unless the request ID is an already-composed full ID. */
+    url?: string;
+    /** The method it was sent with. Required unless the request ID is an already-composed full ID. */
+    method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD';
+    /** Called with each relayed piece, in order, with the sequence number it was stored under
+     *  and which transport carried it ('socket' when skapi's websocket got there first,
+     *  'poll' when the poll did). Raw text: skapi relays bytes and parses none of them. */
+    onStream?: (chunk: string, seq: number, via?: 'socket' | 'poll') => void;
+    /** The `realtime_group` the dispatching forwardRequest() handed back. With it, this
+     *  read ALSO listens on skapi's websocket while the request is still running, so text
+     *  arrives as it is relayed instead of on each poll tick. The group cannot be rebuilt
+     *  from a request ID, so keep it beside the ID. Without it the read works exactly as it
+     *  always has, at poll speed. */
+    realtimeGroup?: string;
+    /** Start after this sequence number instead of from the beginning, so a reader that already
+     *  holds part of a turn does not receive it twice. Default 0. */
+    since?: number;
+    /** Polling interval in milliseconds while the request is still running. Default 1000.
+     *  Must be a finite, non-negative number. */
+    poll?: number;
+    /** Called once with whatever the read resolves with. Not called when the read is stopped.
+     *  `meta` carries facts about the REQUEST rather than the response: a settled poll resolves
+     *  with the destination's own answer, and that answer is the destination's, not a place to
+     *  attach skapi's fields. `meta.executed` is when the worker BEGAN running the request, in
+     *  milliseconds (the same value forwardRequestHistory() reports as `executed`), so
+     *  `updated - executed` times the call while `updated - created` also counts the queue wait.
+     *  Present only when this request was QUEUED and therefore polled, and absent even then for a
+     *  request that began and ended between two ticks, so treat it as optional and show nothing
+     *  rather than substituting `created`. A one-argument callback is unaffected. */
+    onResponse?: (res: any, meta?: { executed?: number }) => void;
+    /** Called if the read itself fails. */
+    onError?: (err: any) => void;
+    service?: string;
+    owner?: string;
+}
+```
+
+The second argument of [`forwardRequestStream()`](/api-reference/api-bridge/README.md#forwardrequeststream).
+It is written inline in that method's signature, so it is not importable from `skapi-js` under this name.
+
+See [Streaming Request](/api-bridge/streaming-request.html)
 
 ## GetRecordQuery
 
@@ -448,7 +448,11 @@ type RecordData = {
         name: string;
         value: string | number | boolean;
     };
-    /** null (or the withheld placeholder) when this session could not decrypt it: see `encrypted`. */
+    /** null (or the withheld placeholder) when this session could not decrypt it: see `encrypted`.
+     *  { __is_private__: null } when it is another user's private record that the project owner or an
+     *  admin in access group 99 has no access to: the database withheld the payload itself, so no
+     *  `encrypted` field comes with it and isWithheld() does not report it.
+     *  See /database/access-restrictions.md#private-records */
     data?: Record<string, any>;
     /** Present ONLY when the record's data passed through the client-side encryption layer.
      *  Its ABSENCE means the record was stored in the clear, which is how existing plaintext
@@ -456,8 +460,8 @@ type RecordData = {
      *
      *  status 'encrypted' means `data` above is the decrypted value.
      *  status 'failed' means `data` is null (or the sentinel) and `reason` says why:
-     *    NOT_A_RECIPIENT     this user has no key wrap on the record (a MASTER reading
-     *                        another user's private record lands here; unlocking cannot help)
+     *    NOT_A_RECIPIENT     this user has no key wrap on the record (a user who was granted
+     *                        private access to it, but no key, lands here; unlocking cannot help)
      *    NO_SESSION_KEY      this user IS a recipient but encryption is locked; unlock and retry
      *    BAD_KEY             the key wrap did not open (usually a rolled key)
      *    BINDING_MISMATCH    the stored envelope does not belong to this record
@@ -488,7 +492,7 @@ type RecordData = {
 type RequestHistory = { 
     id: string; // request id. Format: {stamp}:{entropy}
     status_code: number; // http status code of the request
-    response_body: any; // null on a STREAMED request until it is finalized: its text lives in the relayed chunks, not on the request. clientSecretRequestFinalize() is what stores a body here.
+    response_body: any; // null on a STREAMED request until it is finalized: its text lives in the relayed chunks, not on the request. forwardRequestFinalize() is what stores a body here.
     error?: any;
     created: number; // timestamp of when the request was created, in milliseconds. Set once and never changes.
     updated: number; // timestamp of the last update of the request status (e.g. when the response arrived), in milliseconds.
@@ -506,10 +510,10 @@ type RequestHistory = {
     compact?: boolean; // true on items returned by a compact: true listing, so consumers can tell "bodies omitted" from "bodies empty".
     poll?: (arg?: {
         latency?: number;
-        onResponse?: (res:any, meta?: { executed?: number })=>void; // called when the request settles. `meta` carries request-level facts, which cannot ride on `res`: a settled poll resolves with the DESTINATION's own answer. `meta.executed` is when the worker BEGAN running this request, in milliseconds, matching the `executed` on a RequestHistory item -- `updated - executed` is the call, `updated - created` is the call plus the queue wait. A poll built from a clientSecretRequestHistory() item starts out already knowing it, taken from that listing, so it is delivered even when the request settles on the poll's first read; otherwise it is learned from a running tick, and a request that began and ended between two ticks has none. Optional either way: show nothing rather than falling back to `created`.
+        onResponse?: (res:any, meta?: { executed?: number })=>void; // called when the request settles. `meta` carries request-level facts, which cannot ride on `res`: a settled poll resolves with the DESTINATION's own answer. `meta.executed` is when the worker BEGAN running this request, in milliseconds, matching the `executed` on a RequestHistory item -- `updated - executed` is the call, `updated - created` is the call plus the queue wait. A poll built from a forwardRequestHistory() item starts out already knowing it, taken from that listing, so it is delivered even when the request settles on the poll's first read; otherwise it is learned from a running tick, and a request that began and ended between two ticks has none. Optional either way: show nothing rather than falling back to `created`.
         onError?: (err:any)=>void;
-        onStream?: (chunk: string, seq: number, via?: 'socket' | 'poll')=>void; // reads a STREAMED item's text as it arrives, same as on the dispatch path. "via" names the transport that carried the piece: 'socket' when skapi's websocket got there first, 'poll' when the poll did. Supplying it is what makes the poll fetch chunks. An item that already settled has nothing left to poll: read that one back with clientSecretRequestStream().
-    }) => Promise<any>; // function to poll the request status until it settles. The promise resolves with the final result of the request: the third-party API response body when it resolves, or the error payload when it fails. It does not resolve with a RequestHistory item, so "created" and "updated" are not on the polled value. A poll stopped by stopClientSecretPolling() resolves with { id, status: 'stopped' }. Optional argument "latency" can be used to set the latency of the polling in milliseconds. Default latency is 1000ms. A STREAMED request has no body to resolve with until it is finalized, so it resolves with a StreamPollResult instead: the text arrived through onStream.
+        onStream?: (chunk: string, seq: number, via?: 'socket' | 'poll')=>void; // reads a STREAMED item's text as it arrives, same as on the dispatch path. "via" names the transport that carried the piece: 'socket' when skapi's websocket got there first, 'poll' when the poll did. Supplying it is what makes the poll fetch chunks. An item that already settled has nothing left to poll: read that one back with forwardRequestStream().
+    }) => Promise<any>; // function to poll the request status until it settles. The promise resolves with the final result of the request: the third-party API response body when it resolves, or the error payload when it fails. It does not resolve with a RequestHistory item, so "created" and "updated" are not on the polled value. A poll stopped by stopForwardRequestPolling() resolves with { id, status: 'stopped' }. Optional argument "latency" can be used to set the latency of the polling in milliseconds. Default latency is 1000ms. A STREAMED request has no body to resolve with until it is finalized, so it resolves with a StreamPollResult instead: the text arrived through onStream.
 }
 ```
 
@@ -600,8 +604,8 @@ type StreamPollResult = {
     queue_name: string; // The plain queue name, or an empty string when the request is not queued.
     in_queue: number;   // Unresolved requests in this queue.
     // The fields below are present ONLY when the poll asked for chunks by sending a cursor:
-    // clientSecretRequest()'s poll() does that when an onStream callback was supplied, and
-    // clientSecretRequestStream() always does. Without a cursor you get exactly the four fields
+    // forwardRequest()'s poll() does that when an onStream callback was supplied, and
+    // forwardRequestStream() always does. Without a cursor you get exactly the four fields
     // above, the same response polling returned before streaming existed.
     stream: boolean;      // Whether the request was made with stream: true. false means there are no chunks to read, ever.
     chunks: StreamChunk[]; // The pieces with seq greater than the cursor that was sent, oldest first.
@@ -622,8 +626,8 @@ again immediately with `last_seq` rather than waiting out the polling interval. 
 itself failed, and re-asking immediately hammers a store that is already in trouble. The SDK's own
 readers tell the two apart by whether the cursor moved, and back off on the second.
 
-See [clientSecretRequest](/api-reference/api-bridge/README.md#clientsecretrequest) and
-[clientSecretRequestStream](/api-reference/api-bridge/README.md#clientsecretrequeststream).
+See [forwardRequest](/api-reference/api-bridge/README.md#forwardrequest) and
+[forwardRequestStream](/api-reference/api-bridge/README.md#forwardrequeststream).
 
 See [Streaming Request](/api-bridge/streaming-request.html)
 

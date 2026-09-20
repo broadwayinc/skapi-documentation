@@ -1,8 +1,8 @@
-# Working with AI Assistants
+# Working with AI Agents
 
-Skapi works smoothly with CLI-based AI coding assistants, such as Claude Code, OpenAI Codex, and Gemini CLI.
+Skapi works smoothly with CLI-based AI coding tools, such as Claude Code, OpenAI Codex, and Gemini CLI.
 
-If you are building your project with an AI coding assistant, use the system prompt file below to help it understand how to integrate the Skapi API.
+If you are building your project with an AI coding agent, use the system prompt file below to help it understand how to integrate the Skapi API.
 
 ### 1. Download the system prompt file
 
@@ -20,11 +20,11 @@ Examples:
 
 ### 3. Start writing prompts
 
-When you run your coding assistant, start with a prompt like this:
+When you run your AI coding agent, start with a prompt like this:
 
-```
-My Skapi project ID is: "xxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxx".
+```text
+My Skapi project ID is: "<Project ID>".
 Build me a [describe what you want].
 ```
 
-Replace the placeholder project ID with your actual project ID before running your prompt.
+Replace the placeholder `Project ID` with your actual project ID before running your prompt.

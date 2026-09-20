@@ -107,8 +107,7 @@ every invitation without `openid_id` is checked before the account is created:
   with gives `User is already invited.`
 
 An email login another account holds **without** having verified the address is not a login ID anyone
-was granted, for example one an older SDK wrote when it changed that account's email. It refuses
-nothing: it is removed, that account keeps logging in with the login ID it was created with, and the
+was granted. It refuses nothing: it is removed, that account keeps logging in with the login ID it was created with, and the
 invitation goes out. See [Login IDs](/admin/permissions.md#login-ids).
 
 These checks are lookups made just before the account is created, not reservations: two invitations

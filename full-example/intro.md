@@ -35,8 +35,6 @@ The **project ID** is set in the `service.js` file.
 Currently, the example connects to the project:
   - Project ID: **"5fRHl9Cw2Qq3eFEc0w-7Zd6TgdLUaFxseKMT1qveY"**
 
-(The example's `service.js` passes it as the legacy project ID + owner ID pair, which the SDK accepts and converts to the same project ID.)
-
 Replace the value with your own project ID from your Skapi dashboard.
 
 You can retrieve your own project ID from your Skapi project dashboard.
@@ -118,7 +116,7 @@ This tutorial encompasses all aspects of heavy lifting in production-level appli
 
 - AI Image Generator
   - Generate images using AI with given text
-  - Making a request to 3rd party API with client secret key
+  - Making a request to 3rd party API with a Secret Key
   
 ### Detailed Documentation
 

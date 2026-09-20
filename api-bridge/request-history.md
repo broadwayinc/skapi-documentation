@@ -1,12 +1,12 @@
 
 # Fetching Request History
 
-Every call made through `clientSecretRequest()` is stored in your project so the result can be retrieved later — even if the original call returned before the third-party API responded, or if the page was reloaded mid-request.
+Every call made through `forwardRequest()` is stored in your project so the result can be retrieved later, even if the original call returned before the third-party API responded, or if the page was reloaded mid-request.
 
-Use [`clientSecretRequestHistory(params, fetchOptions)`](/api-reference/api-bridge/README.md#clientsecretrequesthistory) to list past requests for a given `url` and `method`:
+Use [`forwardRequestHistory(params, fetchOptions)`](/api-reference/api-bridge/README.md#forwardrequesthistory) to list past requests for a given `url` and `method`:
 
 ```js
-const history = await skapi.clientSecretRequestHistory({
+const history = await skapi.forwardRequestHistory({
     url: 'https://api.openai.com/v1/images/generations',
     method: 'POST'
 });
@@ -22,7 +22,7 @@ Every [`RequestHistory`](/api-reference/data-types/README.md#requesthistory) ite
 - `updated`: when the request status last changed. For a request that has settled (`resolved` or `failed`) this is when its response arrived, so `updated - created` is how long the third-party API took.
 
 ```js
-const history = await skapi.clientSecretRequestHistory({
+const history = await skapi.forwardRequestHistory({
     url: 'https://api.openai.com/v1/images/generations',
     method: 'POST'
 });
@@ -37,7 +37,7 @@ for (const item of history.list) {
 Items with `status: 'running'` or `status: 'pending'` include a `poll()` method. Call it to start polling that specific item:
 
 ```js
-const history = await skapi.clientSecretRequestHistory({
+const history = await skapi.forwardRequestHistory({
     url: 'https://api.openai.com/v1/images/generations',
     method: 'POST'
 });
@@ -58,7 +58,7 @@ for (const item of history.list) {
 Pass a `status` filter to return only requests in a specific state:
 
 ```js
-skapi.clientSecretRequestHistory({
+skapi.forwardRequestHistory({
     url: 'https://api.openai.com/v1/images/generations',
     method: 'POST',
     status: 'pending'
@@ -70,7 +70,7 @@ skapi.clientSecretRequestHistory({
 If the original request used a `queue` name, pass the same `queue` to return only requests in that queue:
 
 ```js
-skapi.clientSecretRequestHistory({
+skapi.forwardRequestHistory({
     url: 'https://api.openai.com/v1/images/generations',
     method: 'POST',
     queue: 'image-jobs'
@@ -88,7 +88,7 @@ A bare `queue` lookup is a prefix range: `queue: 'image'` also returns requests 
 `queue_exact: true` restricts the listing to exactly the named queue:
 
 ```js
-skapi.clientSecretRequestHistory({
+skapi.forwardRequestHistory({
     url: 'https://api.openai.com/v1/images/generations',
     method: 'POST',
     queue: 'image',
@@ -110,7 +110,7 @@ only need to *list* requests (render a history view, label rows, check whether s
 finished), pass `compact: true`:
 
 ```js
-const history = await skapi.clientSecretRequestHistory({
+const history = await skapi.forwardRequestHistory({
     url: 'https://api.openai.com/v1/images/generations',
     method: 'POST',
     compact: true
@@ -133,5 +133,5 @@ no recognizable user message. When you do need a full body, re-fetch that listin
 
 For full parameter details, see the API reference:
 
-### [`clientSecretRequestHistory(params, fetchOptions): Promise<DatabaseResponse<RequestHistory[]>>`](/api-reference/api-bridge/README.md#clientsecretrequesthistory)
+### [`forwardRequestHistory(params, fetchOptions): Promise<DatabaseResponse<RequestHistory[]>>`](/api-reference/api-bridge/README.md#forwardrequesthistory)
 

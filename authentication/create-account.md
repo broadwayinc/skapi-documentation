@@ -156,25 +156,6 @@ If that email is already a login ID another account of your project was **grante
 enabled for the new account, and the username still logs it in. `signup()` creates such an account
 anyway; `createAccount()` and `inviteUser()` refuse it up front with `EXISTS` (see below).
 
-:::warning Older SDK versions send a login handle of their own
-When a user changes their **own** email with
-[`updateProfile()`](/api-reference/user/README.md#updateprofile), skapi-js 2.0.5 and earlier add a login
-handle for the new address to the same request. The server removes such a handle again on the account's
-next token, because the address is not verified, so the address ends up logging the account in only once
-it is verified either way. Two things still differ while an old version is in use:
-
-- The change is refused outright when another account of your project already holds that address as a
-  login ID, verified or not. From 2.0.6 the email is changed and only the login is withheld.
-- The unverified new address logs the account in for the few seconds before the handle is removed.
-
-An email an admin changes with
-[`updateUserAttributes()`](/api-reference/admin/README.md#updateuserattributes), or with
-`updateProfile()` and another user's `user_id`, is not affected: the server ignores any login handle the
-request sends, in every SDK version.
-
-Upgrade to skapi-js 2.0.6 or later, or pin a CDN URL to it, to get the behaviour described on this page.
-:::
-
 ### When a login ID is already taken
 
 A login ID can only ever lead to one account. So an account is refused when its own login ID is already
@@ -207,29 +188,11 @@ login ID another account was granted, including the email that account was creat
 
 :::warning An account can lose its email login without anyone touching it
 Only a login ID an account was **granted** refuses a request. An email login an account holds without
-having verified the address, for example one an older SDK wrote when that account's email was changed,
-grants nothing: it is removed, and the address goes to the account that proves it.
+having verified the address grants nothing: it is removed, and the address goes to the account that proves it.
 
 So an account of your project can lose its email login when another account signs up with that address,
 is created or invited with it, has an admin change its email to it, logs in with OpenID under it, or
 simply verifies it. The account that loses it keeps logging in with the login ID it was created with.
 See [Login IDs](/admin/permissions.md#login-ids).
-:::
-
-:::warning
-skapi-js 2.0.5 and earlier do not report this refusal from `signup()` with code `EXISTS`:
-
-- **1.2.14-beta.1 through 2.0.5** (stable releases 1.5.0 through 2.0.5): code `INVALID_REQUEST`, with
-  the same message as above.
-- **1.2.9 through 1.2.14-beta.0** (stable releases 1.2.9 through 1.2.12): code `INVALID_REQUEST`, with
-  Cognito's whole error text as the message, for example
-  `PreSignUp failed with error #EXISTS: E-mail "user@email.com" is already a login ID in this service.`
-- **1.0.97-beta.4 through 1.2.8**: Cognito's own error, passed on unchanged rather than as a skapi error,
-  with code `UserLambdaValidationException` and the same whole text as its message.
-
-If your app handles `EXISTS` and has to support those versions, also accept code `INVALID_REQUEST` or
-`UserLambdaValidationException` with a message ending in `is already a login ID in this service.` or
-`is already used by another account in this service.`, which matches every form.
-`createAccount()` and `inviteUser()` report `EXISTS` in every version.
 :::
 

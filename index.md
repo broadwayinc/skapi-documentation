@@ -3,24 +3,24 @@ layout: home
 
 hero:
   name: "Skapi"
-  text: Serverless Backend API
-  tagline: "Serverless, Lightweight, Instant Backend API For Web Services"
+  text: "Serverless\nLightweight\nInstant Backend API"
+  tagline: "Everything your web application needs from a backend, without running one."
   
   actions:
     - theme: brand
-      text: Start
-      link: /introduction/what-is-skapi
+      text: Getting Started
+      link: /introduction/getting-started
   image:
     src: skapi-icon-cut-low.png
     alt: Skapi logo
 
 features:
-  - title: Works with Any Framework
-    icon: 💯
-    details: Works with plain HTML, any JavaScript framework, or Node.js.
   - title: Everything Out of the Box
     icon: ⚡
     details: Authentication, database, file storage, realtime data, and more, all through a single JS library.
+  - title: Works with Any Framework
+    icon: 🧩
+    details: Works with plain HTML, any JavaScript framework, or Node.js.
   - title: Built for AI Agents
     icon: 🤖
     details: Build faster. Use fewer tokens. Skip the backend.

@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "dev": "vitepress dev --host",
-    "docs:build": "vitepress build",
+    "dev": "node all_files.mjs && vitepress dev --host",
+    "build": "node all_files.mjs && vitepress build",
     "prev": "vitepress build;vitepress preview"
   },
   "dependencies": {

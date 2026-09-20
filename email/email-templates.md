@@ -164,11 +164,8 @@ In the `Automated Emails` page, hover over a placeholder to see what it turns in
 
 Signup confirmation, invitation and newsletter subscription emails carry a link. Put **`https://link.skapi.com`** in your template as the URL of a link, and Skapi replaces it with the real link when the email is sent.
 
-- **`https://link.skapi`**, the original form, still works everywhere. Templates that use it do not need to be changed.
 - **`https://link.skapi.app`** is accepted as well.
 - Use the placeholder on its own as the URL, with nothing added to it. A trailing `/` is fine, but a longer domain such as `https://link.skapi.company` does not count as the placeholder.
-
-`https://link.skapi.com` reads as a real web address, so mail editors that refuse a link to `https://link.skapi` accept it.
 
 ## When a template is rejected
 
@@ -181,16 +178,13 @@ A rejected template is not saved and does not appear in the template list. Skapi
 
 A template that passes gets a reply saying it has been uploaded. It is not used until you select it in the `Automated Emails` page.
 
-:::warning
-Templates sent before these checks were in place are not checked again. Invitation templates are now checked for `${email}` and `${password}` as well as the link, so an invitation template without them that was accepted before is rejected if you send it again.
-:::
 
 ## Required Placeholders for signup confirmation email
 
 When sending signup confirmation email, you must include a link with **`https://link.skapi.com`** as its URL in your email content.
 The placeholder URL **`https://link.skapi.com`** will be replaced with the actual link that confirms the user's signup.
 
-Example below shows how to set the link URL in gmail. The screenshot shows the original `https://link.skapi`, which still works.
+Example below shows how to set the link URL in gmail.
 Any other email service should have similar way to set the link.
 
 ![gmail link](/linkexam.png)

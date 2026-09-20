@@ -7,14 +7,17 @@ The limits below are per project.
 | | Trial | Standard | Premium |
 | --- | --- | --- | --- |
 | Price | Free | $19 per month | $89 per month |
-| User accounts | 100 | 50,000 | 100,000 |
+| User accounts | 50 | 50,000 | 100,000 |
 | Database storage | 500 MB | 3 GB | 10 GB |
 | File storage, pooled | 1 GB | 120 GB | 600 GB |
-| Email storage | none | 1 GB | 5 GB |
-| E-mail sends per month | 0 | 5,000 | 50,000 |
-| Newsletter subscribers | 0 | 5,000 | 50,000 |
+| Email storage | 50 MB | 1 GB | 5 GB |
+| E-mail sends per month | 50 | 5,000 | 50,000 |
+| Newsletter subscribers | 50 | 5,000 | 50,000 |
 | Bandwidth per month | 10 GB | 100 GB | 400 GB |
 | Past a limit | Stop | Stop | Billed as overage |
+
+One Trial limit is counted per owner rather than per project: across every Trial project one owner has, 200 newsletter mails per calendar month, on top of each project's own 50.
+Standard and Premium are always counted per project and have no owner cap.
 
 File storage is one pooled figure covering your web hosting, your record file attachments and your AI indexed files.
 
@@ -27,8 +30,8 @@ The Trial and Standard plans stop at their limits instead of billing you for the
 - New signups past the user limit are refused.
 - Record writes past the database storage limit are refused.
 - File uploads past the file storage limit are refused.
-- Newsletter sends past the monthly limit are refused. On the Trial plan, subscribing to a newsletter and sending one are both refused.
-- When database storage, file storage or email storage goes over the plan limit, the project is suspended.
+- Newsletter sends past the monthly limit are refused, and so are subscriptions past the subscriber limit. One newsletter costs one send per subscriber it goes to, so one send to a full Trial list of 50 subscribers uses all 50 monthly sends. A Trial project is also refused once its owner has used the 200 newsletter mails a month their Trial projects share.
+- When database storage or file storage goes over the plan limit, the project is suspended. Email storage never suspends a project: the oldest newsletters are deleted to make room instead.
 
 Writes stop at the limit, so a project normally never gets far past one.
 A project that is over a storage limit anyway, for example because it moved to a smaller plan, is suspended.
@@ -85,11 +88,21 @@ A project is never suspended for bandwidth, and Premium is never refused.
 
 Newsletters you send are stored, and they count against the plan's email storage limit.
 
-On the Standard plan, exceeding email storage deletes the oldest newsletters to reclaim space, and the project is never suspended for it.
-The Trial plan never deletes: it includes no email storage, so a Trial project is suspended once its stored newsletters go past 10 MB.
-On the Premium plan nothing is deleted and the excess is billed.
+On the Trial and Standard plans, exceeding email storage deletes the oldest newsletters to reclaim space, and the project is never suspended for it.
+Trial includes 50 MB and Standard 1 GB.
+On the Premium plan nothing is ever deleted and the excess is billed.
 
 See [Sending Newsletters](/email/newsletters.md) for the send and subscriber limits.
+
+## Newsletter complaints
+
+On every plan, a project stops sending newsletters when, in the current UTC month, it reaches 5 spam complaints, or a complaint rate of 0.5 percent once at least 100 mails have gone out, whichever comes first.
+
+Only newsletter sending stops.
+The project keeps working, its automated e-mails keep going out, and nothing about it is suspended or deleted.
+An upgrade does not lift the block and it does not clear itself when the month rolls over: Skapi staff clear it after looking at the project, so contact us if yours is blocked.
+
+Whenever a newsletter is refused, for this, for the per-owner Trial cap or for the project's own monthly sends, the sender gets a reply from the project's newsletter endpoint address saying which limit was reached.
 
 ## Cancelling and failed payments
 
@@ -97,13 +110,11 @@ Cancelling a paid plan keeps that plan until the end of the billing period.
 The project then moves to the Trial plan.
 The cancellation alone never suspends it; it is suspended only if it holds more than Trial allows on that day, and the cancel dialog in the dashboard tells you beforehand if it does.
 
-If a payment fails, the paid plan stays in place while Stripe retries the charge.
-Only when every retry has failed does the project move to the Trial plan.
+If a payment fails, the paid plan stays in place while the payment provider retries the charge.
+Only when every payment retry has failed does the project move to the Trial plan.
 
 ## Large record data
 
 Record `data` larger than 32 KB is stored as a file in your project's file storage instead of in the database, and it counts toward file storage rather than database storage.
 
 The SDK puts it back together for you, so `record.data` still comes back whole.
-A build of `skapi-js` from before this feature does not resolve the file itself, so the server fills the payload back into the response for it.
-That fallback is bounded by the size of the response, so a large read can still hand an older build a `{ "__data__": ... }` marker. Keep `skapi-js` up to date.

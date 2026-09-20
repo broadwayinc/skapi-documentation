@@ -168,13 +168,13 @@ This is what an admin needs to know about it:
 
 - An account created with [`createAccount()`](#creating-accounts) with a `username`, or signed up with a `username` in a project with no signup confirmation, logs in **only** with its username until it verifies its e-mail address.
 - An account you invite gets its e-mail login when it accepts the invitation.
-- An e-mail you change with [`updateUserAttributes()`](#editing-a-users-profile) removes the account's e-mail login until the user verifies the new address.
+- An e-mail you change with [`updateUserAttributes()`](#editing-a-user-s-profile) removes the account's e-mail login until the user verifies the new address.
 
 When a login ID is already taken, [`createAccount()`](/api-reference/admin/README.md#createaccount) and [`inviteUser()`](/api-reference/admin/README.md#inviteuser) are refused with `EXISTS` and `E-mail "user@email.com" is already a login ID in this service.`, or `Username "jane@email.com" is already a login ID in this service.` for a `username` that is an e-mail address logging another account in.
 A refusal means one thing: the address is already a login ID the other account was **granted**, its own login ID or its own verified e-mail.
 
 :::warning An account can lose its e-mail login without anyone touching it
-An e-mail login an account holds **without** having verified the address, for example one an older SDK wrote when it changed that account's e-mail, blocks nothing. It is removed, and the address is given to the account that proves it.
+An e-mail login an account holds **without** having verified the address blocks nothing. It is removed, and the address is given to the account that proves it.
 
 So an account of your project can lose its e-mail login when another account signs up with that address, is created or invited with it, has an admin change its e-mail to it, logs in with OpenID under it, or simply verifies it. The account that loses it keeps logging in with the login ID it was created with.
 :::
@@ -274,7 +274,8 @@ See [Who can change subscription settings](/database/subscription.md#who-can-cha
 
 - Only the record's own user can move a record **into or out of** `private`.
 - Nobody else changes anything on a private record, subscription settings included, and nobody else attaches or deletes its files.
-- Admins and the project owner cannot read another user's private record data. A private record of another user comes back **without its data** in a query, for every role. Fetched by its `record_id`, it comes back without its data to the project owner and to admins in access group `99`, and admins in access groups `90` ~ `98` cannot fetch it at all: they are refused with `User has no private access.`
+- Admins and the project owner read another user's private record data only where they have access to it, the same way as any other user: the record was shared with them with [`grantPrivateRecordAccess()`](/api-reference/database/README.md#grantprivateaccess), or they have private access to the record it references, because they uploaded that record or it was shared with them. Being able to read the referenced record is not enough, so a public record opens none of the private records attached to it. Private access is never granted to the project owner, so the owner reads another user's private record only when it references a record the owner uploaded.
+- Without that access, the project owner and admins in access group `99` still see the record, and its `data` comes back as `{ __is_private__: null }`, however they reach it: by `record_id`, in a listing of a table or of the whole project, in a listing that names `access_group: 'private'`, or in a `tag` query. Everything else on the record stays visible, and their own private records are never withheld from them. Admins in access groups `90` ~ `98` without access cannot fetch the record at all: they are refused with `User has no private access.`
 
 What admins **can** do on a private record:
 
@@ -323,7 +324,7 @@ Everyone else is refused with `Database is frozen. Write access is denied for th
 
 [`getNewsletters()`](/api-reference/email/README.md#getnewsletters) returns a sent newsletter's read, bounce and complaint counts only to the project owner and admins in access group `99`. Everyone else who may read that group gets the message id, the timestamp and the subject.
 
-[`getNewsletterSubscription({ group })`](/email/newsletters.md#who-can-read-the-subscriber-list) returns the whole list to an admin. Anyone else gets their own subscriptions. `email` narrows the list to the addresses that start with what you type, and it belongs to the project owner, Skapi staff and admins in access group `99`: everyone else is refused with `No access.`
+[`getNewsletterSubscription({ group })`](/admin/newsletters.md#who-can-read-the-subscriber-list) returns the whole list to an admin. Anyone else gets their own subscriptions. `email` narrows the list to the addresses that start with what you type, and it belongs to the project owner, Skapi staff and admins in access group `99`: everyone else is refused with `No access.`
 
 :::warning Admins in access groups 90 ~ 98 read masked addresses
 The subscriber list of a group returns the `subscribed_email` of every row **masked**, as `j**@**.com`, to an admin in access groups `90` ~ `98`.
@@ -363,7 +364,7 @@ Owner only, everything that configures the project itself:
 
 - The project **name** and description, and the **CORS** list.
 - **Freeze Database**, **Allow Signup**, **Allow Inquiries**, **Allow Anonymous Posts to Database**, **Require Login**, and the AI agent option.
-- The project's [**secret key**](/service-settings/additional.md#secret-key) and API key, and the [**client secret keys**](/api-bridge/client-secret-request.md#registering-client-secret-keys). Listing the client secret keys answers with their stored values, so reading them is owner only as well.
+- The project's [**secret key**](/service-settings/additional.md#secret-key) and API key, and the keys on the [**Secret Keys**](/api-bridge/client-secret-request.md#registering-secret-keys) page. Listing those keys answers with their stored values, so reading them is owner only as well.
 - The **subdomain**: registering it, moving it and dropping it, and the **404 page** of the hosted site.
 - The **OpenID loggers**, registering, updating, deleting and listing them, since a logger's stored URL, headers and parameters come back with the listing.
 - The **sender e-mail address** the project's mail is sent from, and the [automated e-mail templates](/email/email-templates.md), which decide what the project's verification, welcome, invitation and confirmation mail says.
@@ -389,7 +390,7 @@ What no admin can do, access group `99` included, is register or move the **subd
 - Move a record **into or out of** `private`. Only the record's own user can.
 - Grant **private record access** on another user's record. Only its user, and the users that user allowed to grant others, can.
 - Upload or delete the files of the **hosted site**, or refresh its CDN cache, unless they are in access group `99`. An admin in access groups `90` ~ `98` is refused with `No access.`
-- Change **project settings**, such as freezing the database, allowing signup, the CORS list, the subdomain, the OpenID loggers, the client secret keys or the automated e-mail templates. This holds for admins in access group `99` as well, and there is no SDK method for any of them: project settings are managed by the project owner on the Skapi project pages. A request that carries an admin's token is refused with `Only the project owner can change project settings.` See [Project settings belong to the project owner](#project-settings-belong-to-the-project-owner).
+- Change **project settings**, such as freezing the database, allowing signup, the CORS list, the subdomain, the OpenID loggers, the Secret Keys or the automated e-mail templates. This holds for admins in access group `99` as well, and there is no SDK method for any of them: project settings are managed by the project owner on the Skapi project pages. A request that carries an admin's token is refused with `Only the project owner can change project settings.` See [Project settings belong to the project owner](#project-settings-belong-to-the-project-owner).
 
 ## What neither admins nor the project owner can do
 

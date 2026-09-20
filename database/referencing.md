@@ -276,4 +276,4 @@ Note that the "Review.Album.GetzGilberto" `index` uses a `value` of type `number
 
 3. Sharing private data between limited users
    
-   If the reference record has a private access group, only the users who have access to the reference record can access the referencing records.
+   Private referencing records are readable only by their uploaders and by the users with private access to the reference record: its uploader, and the users it is shared with. This holds whatever the reference record's access group, so a private record attached to a public one stays private.

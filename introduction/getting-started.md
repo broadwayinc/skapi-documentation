@@ -175,7 +175,7 @@ You can pass additional options when initializing the `Skapi` class.
 ```ts
 class Skapi {
   constructor(
-    project_id: string, // Skapi project ID. The legacy service ID and owner ID pair is also accepted.
+    project_id: string, // Skapi project ID.
     options?: {
         autoLogin?: boolean;        // Default: true
         refetchServiceInfo?: boolean;// Default: false. Bypasses cached project information and fetches fresh information on every load.
@@ -235,7 +235,7 @@ Options overview:
 
     - `onUserUpdate(user: UserProfile | null)`
         - Fires after login, before logout, when a session expires, and when the user's profile is updated. The callback receives a `UserProfile` object when the user is logged in; otherwise, it receives `null`.
-        - See: [Listening to User Profile Updates](/authentication/user-info.html#listening-to-users-profile-updates)
+        - See: [Listening to User Profile Updates](/authentication/user-info.html#listening-to-user-s-profile-updates)
 
     - `onBatchProcess(process)`
         - Fires each time Skapi finishes processing a request batch.

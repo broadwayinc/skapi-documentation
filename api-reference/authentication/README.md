@@ -81,7 +81,7 @@ See [UserProfile](/api-reference/data-types/README.md#userprofile)
 }
 |
 {
-  code: 'EXISTS'; // 'INVALID_REQUEST' in skapi-js 2.0.5 and earlier. See below for the message those versions give.
+  code: 'EXISTS';
   message: 'E-mail "user@email.com" is already a login ID in this service.' | "The login ID is already used by another account in this service.";
   // 'E-mail': a signup without 'username' whose email is already the email login another account was GRANTED by verifying that address. The other: a 'username' that is such an address, which only an e-mail address such as "jane@email.com" can be.
 }
@@ -110,13 +110,7 @@ See [UserProfile](/api-reference/data-types/README.md#userprofile)
 A signup is refused when its login ID is already a login ID another account of the project was granted,
 for example a signup without `username` using the verified email of an account that was created with a
 username. A login ID an account holds without proof, such as an email login for an address it never
-verified, refuses nothing: it is removed and the signup goes through. skapi-js 2.0.5 and earlier
-do not report that refusal with code `EXISTS`. From 1.2.14-beta.1 (first stable release: 1.5.0) through
-2.0.5 it comes with code `INVALID_REQUEST` and the same message. From 1.2.9 through 1.2.14-beta.0 it
-comes with code `INVALID_REQUEST` and Cognito's whole error text, such as
-`PreSignUp failed with error #EXISTS: E-mail "user@email.com" is already a login ID in this service.`
-From 1.0.97-beta.4 through 1.2.8 it is Cognito's own error, with code `UserLambdaValidationException`
-and that same whole text. See the warning in [Create Account](/authentication/create-account.md).
+verified, refuses nothing: it is removed and the signup goes through.
 A login ID another account was itself created with gives `The account already exists.` instead. A signup
 with a `username` whose email is already another account's login ID is not refused: the account is
 created and only its username logs it in. See

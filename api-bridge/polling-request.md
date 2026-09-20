@@ -1,22 +1,21 @@
 
 # Polling for the Result
 
-Because third-party APIs can take time to respond, `clientSecretRequest()` uses a queue-and-poll model. Every call is queued on the server and you can poll for the result.
+Because third-party APIs can take time to respond, `forwardRequest()` uses a queue-and-poll model. Every call is queued on the server and you can poll for the result.
 
 ## Automatic polling with `poll`
 
-Pass a `poll` interval (in milliseconds) together with `onResponse` and `onError` callbacks. With `poll` greater than `0`, Skapi auto-generates a queue and starts polling automatically; the final result is delivered to `onResponse` (and errors to `onError`). Note that when `onResponse` is provided, the awaited return value of `clientSecretRequest()` is the callback's return value, so don't rely on the returned promise for the status object in the auto-poll case. The immediate status object with a `poll()` method (`{ id, status, ... }`) is only returned when `poll` is omitted or `0` and `onResponse` is not supplied.
+Pass a `poll` interval (in milliseconds) together with `onResponse` and `onError` callbacks. With `poll` greater than `0`, Skapi auto-generates a queue and starts polling automatically; the final result is delivered to `onResponse` (and errors to `onError`). Note that when `onResponse` is provided, the awaited return value of `forwardRequest()` is the callback's return value, so don't rely on the returned promise for the status object in the auto-poll case. The immediate status object with a `poll()` method (`{ id, status, ... }`) is only returned when `poll` is omitted or `0` and `onResponse` is not supplied.
 
 ```js
-skapi.clientSecretRequest({
-    clientSecretName: 'openai',
+skapi.forwardRequest({ model: 'gpt-image-1.5', prompt: 'A cute baby sea otter', n: 1, size: '1024x1024' }, {
+    secretName: 'openai',
     url: 'https://api.openai.com/v1/images/generations',
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
         Authorization: 'Bearer $CLIENT_SECRET'
     },
-    data: { model: 'gpt-image-1.5', prompt: 'A cute baby sea otter', n: 1, size: '1024x1024' },
     poll: 2000,              // poll every 2 seconds
     onResponse(result) {
         console.log('Done:', result);
@@ -32,16 +31,15 @@ skapi.clientSecretRequest({
 When `poll` is omitted or `0`, the promise resolves with the status object plus a `poll()` method. Call it whenever you are ready to start polling:
 
 ```js
-const res = await skapi.clientSecretRequest({
-    clientSecretName: 'openai',
+const res = await skapi.forwardRequest({ model: 'gpt-image-1.5', prompt: 'A cute baby sea otter', n: 1, size: '1024x1024' }, {
+    secretName: 'openai',
     url: 'https://api.openai.com/v1/images/generations',
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
         Authorization: 'Bearer $CLIENT_SECRET'
     },
-    queue: 'image-queue',
-    data: { model: 'gpt-image-1.5', prompt: 'A cute baby sea otter', n: 1, size: '1024x1024' }
+    queue: 'image-queue'
 });
 
 // res = { id, status: 'running', queue_name, in_queue, poll }
@@ -81,16 +79,16 @@ res.poll({
 
 Use `executed` rather than `created` when you are timing the destination. `created` is when the request was **queued**, and a queued request can sit there for a long time before a worker picks it up, so `updated - created` measures your own queue depth plus the call while `updated - executed` measures the call.
 
-`meta.executed` is optional and can legitimately be absent, so branch on it rather than assuming it. The value rides on the status envelope that a **running** poll tick returns, so a request that began and finished between two ticks never showed one. When it is missing, show nothing: substituting `created` reports a queue backlog as though the destination had been slow. The value is on the request's own row either way, so a later [`clientSecretRequestHistory()`](/api-bridge/request-history.md) will still report it as `executed`.
+`meta.executed` is optional and can legitimately be absent, so branch on it rather than assuming it. The value rides on the status envelope that a **running** poll tick returns, so a request that began and finished between two ticks never showed one. When it is missing, show nothing: substituting `created` reports a queue backlog as though the destination had been slow. The value is on the request's own row either way, so a later [`forwardRequestHistory()`](/api-bridge/request-history.md) will still report it as `executed`.
 
-A poll started from a `clientSecretRequestHistory()` item is the exception: it takes the execution start from the listing that produced it, so it can hand you `meta.executed` even when the request settles on the poll's very first read.
+A poll started from a `forwardRequestHistory()` item is the exception: it takes the execution start from the listing that produced it, so it can hand you `meta.executed` even when the request settles on the poll's very first read.
 
-A callback that declares one parameter is unaffected, and `onResponse` on a direct, non-queued `clientSecretRequest()` receives no `meta`, since nothing ever recorded an execution start for a request that was never queued.
+A callback that declares one parameter is unaffected, and `onResponse` on a direct, non-queued `forwardRequest()` receives no `meta`, since nothing ever recorded an execution start for a request that was never queued.
 
 
 ## Stopping Polling
 
-Polling and the request itself are separate things. `stopClientSecretPolling()` stops *watching* a
+Polling and the request itself are separate things. `stopForwardRequestPolling()` stops *watching* a
 request; the server keeps working on it, and you can pick the result up later.
 
 This matters because polling is real network traffic. A long-running request polled every second keeps
@@ -99,17 +97,17 @@ the user navigates away or the tab is hidden, and start again when they come bac
 
 ```js
 // Stop watching one request. It keeps running on the server.
-skapi.stopClientSecretPolling({
+skapi.stopForwardRequestPolling({
     url: 'https://api.openai.com/v1/images/generations',
     method: 'POST',
-    id: 'stamp:entropy'   // the id from the clientSecretRequest response
+    id: 'stamp:entropy'   // the id from the forwardRequest response
 });
 
 // Stop every poll on a queue.
-skapi.stopClientSecretPolling({ queue: 'image-queue' });
+skapi.stopForwardRequestPolling({ queue: 'image-queue' });
 
 // Stop everything this client is polling.
-skapi.stopClientSecretPolling();
+skapi.stopForwardRequestPolling();
 ```
 
 Each call returns how many polls it stopped.
@@ -121,7 +119,7 @@ not need a `catch`. Its `onResponse` and `onError` callbacks are **not** called,
 result. Use `isPollStopped()` to tell the two apart:
 
 ```js
-const res = await skapi.clientSecretRequest({ /* ... */ });
+const res = await skapi.forwardRequest(null, { /* ... */ });
 
 const result = await res.poll({ latency: 2000 });
 
@@ -136,18 +134,18 @@ console.log('Done:', result);
 ### Resuming
 
 There is nothing to resume, as such — just poll again. Fetch the request from
-[`clientSecretRequestHistory()`](/api-reference/api-bridge/README.md#clientsecretrequesthistory) and call
+[`forwardRequestHistory()`](/api-reference/api-bridge/README.md#forwardrequesthistory) and call
 `poll()` on it. If it finished while you were not watching, the history entry already carries the result.
 
 ```js
 document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') {
-        skapi.stopClientSecretPolling({ queue: 'image-queue' });
+        skapi.stopForwardRequestPolling({ queue: 'image-queue' });
     }
 });
 ```
 
-### [`stopClientSecretPolling(params?): number`](/api-reference/api-bridge/README.md#stopclientsecretpolling)
+### [`stopForwardRequestPolling(params?): number`](/api-reference/api-bridge/README.md#stopforwardrequestpolling)
 
 ### [`isPollStopped(res): boolean`](/api-reference/api-bridge/README.md#ispollstopped)
 
@@ -159,13 +157,13 @@ started yet removes it from the queue entirely, freeing the slot immediately.
 
 ## Cancelling a Request
 
-To cancel a pending request before it is processed, call [`cancelClientSecretRequest()`](/api-reference/api-bridge/README.md#cancelclientsecretrequest):
+To cancel a pending request before it is processed, call [`cancelForwardRequest()`](/api-reference/api-bridge/README.md#cancelforwardrequest):
 
 ```js
-const result = await skapi.cancelClientSecretRequest({
+const result = await skapi.cancelForwardRequest({
     url: 'https://api.openai.com/v1/images/generations',
     method: 'POST',
-    id: 'stamp:entropy',  // the id from the clientSecretRequest response
+    id: 'stamp:entropy',  // the id from the forwardRequest response
     queue: 'image-jobs'   // required if the request was submitted with a queue name
 });
 
@@ -175,21 +173,21 @@ console.log(result.removed); // true if successfully removed
 Provide `queue` when the original request was submitted with a queue name. This removes the pending job from the client-side queue in addition to cancelling it on the server.
 
 :::info
-`cancelClientSecretRequest()` cancels the **request**. [`stopClientSecretPolling()`](#stopping-polling)
+`cancelForwardRequest()` cancels the **request**. [`stopForwardRequestPolling()`](#stopping-polling)
 only stops **watching** it — the request carries on and its result stays available. Use cancel when the
 work is no longer wanted, and stop-polling when only the traffic is.
 :::
 
-### [`cancelClientSecretRequest(params): Promise<{ removed: boolean; message: string }>`](/api-reference/api-bridge/README.md#cancelclientsecretrequest)
+### [`cancelForwardRequest(params): Promise<{ removed: boolean; message: string }>`](/api-reference/api-bridge/README.md#cancelforwardrequest)
 
 
 ## Checking Queue Size
 
-To check how many requests are currently waiting in a named queue, use [`clientSecretRequestQueueCount()`](/api-reference/api-bridge/README.md#clientsecretrequestqueuecount):
+To check how many requests are currently waiting in a named queue, use [`forwardRequestQueueCount()`](/api-reference/api-bridge/README.md#forwardrequestqueuecount):
 
 ```js
-const info = await skapi.clientSecretRequestQueueCount({ queue: 'image-jobs' });
+const info = await skapi.forwardRequestQueueCount({ queue: 'image-jobs' });
 console.log(info.in_queue); // number of requests waiting
 ```
 
-### [`clientSecretRequestQueueCount(params): Promise<{ queue_name: string; in_queue: number }>`](/api-reference/api-bridge/README.md#clientsecretrequestqueuecount)
+### [`forwardRequestQueueCount(params): Promise<{ queue_name: string; in_queue: number }>`](/api-reference/api-bridge/README.md#forwardrequestqueuecount)

@@ -131,10 +131,18 @@ See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
 type TicketCondition = {
     return200?: boolean; // Answer 200 even when the consumption fails (webhook friendly).
     method?: 'GET' | 'POST'; // Absent = both allowed.
-    signature?: {
-        header: string; // The request header carrying the signature.
-        secret: string; // The NAME of a Secret Key of the project (or a legacy client_secret entry), never the secret itself. Must exist at registration.
-        scheme: 'stripe' | 'hmac-sha256';
+    signature?: { // An HMAC of the request, made with a secret shared with the sender. Verified first, over the raw body.
+        secretName: string; // The NAME of a Secret Key of the project, never the secret itself. Must exist at registration. When the named key carries Destinations, EVERY outbound call this ticket makes is held to that list.
+        header: string; // The request header carrying the signature. Case-insensitive. Up to 256 characters.
+        algorithm?: 'sha256' | 'sha1' | 'sha512'; // Default 'sha256'.
+        encoding?: 'hex' | 'base64'; // How the signature in the header is written. Default 'hex'.
+        separator?: string; // Splits the header value into items, each trimmed. 1 to 8 characters. Absent: the whole value is one item.
+        parts?: string[]; // Patterns matched against each item, each with at most one ${name} capture. At least one captures ${signature}. Up to 10, each up to 256 characters. Default ['${signature}'].
+        signed?: string; // Template of the signed bytes. Tokens: ${body}, ${method}, ${header:Name} and the captures of parts. Up to 512 characters. Default '${body}'.
+        timestamp?: string; // Template resolving to unix time in seconds, or milliseconds above 10^12. Same tokens. Absent: no time check.
+        tolerance?: number; // Seconds the timestamp may be away from now, 1 to 86400. Only used with timestamp. Default 300.
+        secret_encoding?: 'raw' | 'base64' | 'hex'; // How the stored secret becomes the HMAC key. Default 'raw'.
+        secret_prefix?: string; // Removed from the start of the stored secret before decoding. Up to 64 characters.
     };
     ip?: {
         operator: '=' | '!=' | '>' | '>=' | '<' | '<=' | 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte';
@@ -173,6 +181,10 @@ type TicketCondition = {
 ```
 
 On a string value `>=` means "starts with". A `value` list passes when any member matches. Rows with the same `key` are alternatives; rows with different keys must all match. The parts are evaluated in the order `method`, `signature`, `ip`, `user_agent`, `headers`, `data`, `params`, `user`, `record_access`, `request`.
+
+A `signature` that does not verify, for any reason, fails with `CONDITION_FAILED` and `detail: { field: "signature" }`. Public-key signatures (RSA, ECDSA, Ed25519) are not supported. See [Signature](/tickets/conditions.md#signature).
+
+When the Secret Key named in `signature.secretName` carries Destinations, every outbound call the ticket makes must be to a URL on that list, and one that is not fails with `REQUEST_FAILED` and `detail: { reason: "refused_address" }`. See [Where a signature secret may be sent](/tickets/conditions.md#where-a-signature-secret-may-be-sent).
 
 See [Conditions and Placeholders](/tickets/conditions.md)
 

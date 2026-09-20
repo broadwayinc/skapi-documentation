@@ -67,7 +67,7 @@ getNewsletterSubscription(
 - A masked address cannot be mailed and is not unique, so it is never a key. `subscriber_token` is what tells two masked rows apart: it comes with every masked row of a **group's subscriber list**, is the same string for the same subscriber on every call and every page, and is a different string for a different address. It is opaque, it is scoped to this project, owner and group, and it is **absent** for a caller who reads addresses in full. The single user path read with `user_id` carries none.
 - Paging is unchanged, but for an admin in access groups `90` ~ `98` the `startKey` of a page is sealed, `{ seal: '...' }` rather than the database's own key. `fetchMore` replays it; a `startKey` you pass yourself has to be the previous page's object unchanged, or the request is refused with `INVALID_PARAMETER` and `"startKey" does not belong to this request.`
 
-See [Searching subscribers by e-mail](/email/newsletters.md#searching-subscribers-by-e-mail) and [Who can read the subscriber list](/email/newsletters.md#who-can-read-the-subscriber-list).
+See [Searching subscribers by e-mail](/admin/newsletters.md#searching-subscribers-by-e-mail) and [Who can read the subscriber list](/admin/newsletters.md#who-can-read-the-subscriber-list).
 
 ## getNewsletters
 

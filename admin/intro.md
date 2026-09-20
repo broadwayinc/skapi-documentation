@@ -22,7 +22,7 @@ Admins use high access groups (`90` ~ `99`) and can perform the following action
 - Upload, update and delete records while the database is frozen.
 - View the record counts of every access group, private and admin totals included, in table information.
 - Delete user accounts in a lower access group than their own.
-- Update the profiles of user accounts in a lower access group than their own. Admins in access group `99` can update every account but their own. See [Editing a user's profile](/admin/permissions.md#editing-a-users-profile).
+- Update the profiles of user accounts in a lower access group than their own. Admins in access group `99` can update every account but their own. See [Editing a user's profile](/admin/permissions.md#editing-a-user-s-profile).
 - View the e-mail address and `misc` of every user, and search users by e-mail.
 - Invite users to the project.
 - View, resend and cancel pending invitations.
@@ -33,7 +33,7 @@ Admins use high access groups (`90` ~ `99`) and can perform the following action
 - Delete any record, including private and read-only records.
 - Attach files to records of other users, and delete their files with [`deleteFiles()`](/api-reference/database/README.md#deletefiles). Files on a private record are locked to its user. See [Files on Records of Other Users](/database/handling-files.md#files-on-records-of-other-users).
 - Upload private, subscription and read-only records, like every user of the project.
-- Fetch the list of newsletter subscribers. Admins in access groups `90` ~ `98` read those addresses **masked**, as `j**@**.com`, with an opaque `subscriber_token` beside each one to tell two rows apart, and the list pages as usual on a sealed cursor they hand back unchanged. Searching the list by e-mail address is not theirs: it belongs to the project owner, Skapi staff and access group `99`. See [Newsletters, subscribers and notifications](/admin/permissions.md#newsletters-subscribers-and-notifications).
+- Fetch the list of newsletter subscribers. Admins in access groups `90` ~ `98` read those addresses **masked**, as `j**@**.com`, with an opaque `subscriber_token` beside each one to tell two rows apart, and the list pages as usual on a sealed cursor they hand back unchanged. Searching the list by e-mail address is not theirs: it belongs to the project owner, Skapi staff and access group `99`. See [Managing Newsletter Subscribers](/admin/newsletters.md) and [Newsletters, subscribers and notifications](/admin/permissions.md#newsletters-subscribers-and-notifications).
 - Send notifications to users.
 - Change the [subscription settings](/database/subscription.md#who-can-change-subscription-settings) of records uploaded by other users. Private records are excluded, and so are read-only records for admins below access group `99`. On records posted by anonymous users, settings can only be kept or turned off.
 
@@ -50,7 +50,7 @@ Admins in access group `99` can also:
 
 Admins cannot perform the following actions:
 
-- View private records of other users.
+- Read the data of other users' private records they have no access to.
 - Change the data or settings of records uploaded by other users, apart from their subscription settings. Admins in access group `99` can, except private records.
 - Attach files to, or delete files from, private records of other users.
 - Give a user an access group higher than their own, when granting access, creating an account or sending an invitation.
@@ -64,7 +64,7 @@ Admins cannot perform the following actions:
 - Change project settings, in **any** access group, `99` included.
 
 Project settings are available only to the project owner's Skapi account, through the Skapi project pages, and to Skapi staff when you ask Skapi for help.
-That covers the project name and CORS, Allow Signup, Allow Inquiries, Allow Anonymous Posts, Require Login, Freeze Database, the API key and client secret keys, the subdomain and the 404 page, the OpenID loggers, the sender e-mail address and the automated e-mail templates, and creating, disabling, enabling or deleting the project.
+That covers the project name and CORS, Allow Signup, Allow Inquiries, Allow Anonymous Posts, Require Login, Freeze Database, the API key and the Secret Keys, the subdomain and the 404 page, the OpenID loggers, the sender e-mail address and the automated e-mail templates, and creating, disabling, enabling or deleting the project.
 An admin request for any of them is refused with `INVALID_REQUEST` and `Only the project owner can change project settings.` Admins still upload and delete the files of a hosted site, and still manage users, records, invitations, newsletters and notifications. See [Project settings belong to the project owner](/admin/permissions.md#project-settings-belong-to-the-project-owner).
 
 Admin methods are useful when building projects that require admin access to manage users and data.
@@ -77,13 +77,14 @@ Admins can delete user accounts and data, which can cause irreversible damage to
 ## What Both Admins and Project Owners Cannot Do
 
 - Change or view user account passwords. No method resets another account's password, for any role.
-- View private database data of other users. A private record of another user fetched by the project owner or an admin in access group `99` comes back without its data, and admins in access groups `90` ~ `98` cannot fetch it at all: they get `User has no private access.`
+- Read private database data of other users without access to it. See [Private records](/admin/permissions.md#private-records).
 - Read encrypted record data of other users without being given access.
 - Change a login `username`, or mark another account's e-mail address verified.
 
 :::info Encrypted records
-When a record's data is [encrypted](/database/encryption.md), admins and the project owner can still fetch the record, but they cannot decrypt its data unless the record's uploader gives them access with [`grantPrivateRecordAccess()`](/api-reference/database/README.md#grantprivateaccess).
-Private access cannot be granted to the project owner, so the project owner can never read it.
+[Encryption](/database/encryption.md) only ever covers the data of a private record, and the project owner and admins receive that data only where they have access to it. See [Private records](/admin/permissions.md#private-records).
+An admin the record's uploader gives access to with [`grantPrivateRecordAccess()`](/api-reference/database/README.md#grantprivateaccess) receives the data and can decrypt it, because the grant wraps the record's key for them. A record reached through a reference arrives sealed, and opens only for the users its key was shared with.
+Private access cannot be granted to the project owner at all: `Private access cannot be granted to service owners.`
 :::
 
 ## What Project Owners Cannot Do

@@ -2,22 +2,29 @@
 
 Three tickets, each explained line by line. Paste any of them into the **Edit as JSON** view of the dashboard's Tickets page, click **Apply**, and register.
 
-## A Stripe Checkout Webhook
+## A Payment Webhook
 
-A Stripe checkout completes. The ticket records the order, lifts the buyer's access group, and asks your fulfilment API to ship. The whole ticket:
+Your payment provider reports a completed payment. The ticket records the order, lifts the buyer's access group, and asks your fulfilment API to ship. The whole ticket:
 
 ```json
 {
   "ticket_id": "order-paid",
-  "description": "Stripe checkout completed",
+  "description": "Payment completed",
   "condition": {
     "return200": true,
     "method": "POST",
-    "signature": { "header": "stripe-signature", "secret": "stripe_webhook", "scheme": "stripe" },
+    "signature": {
+      "secretName": "payment_webhook",
+      "header": "x-signature",
+      "separator": ",",
+      "parts": ["t=${timestamp}", "v1=${signature}"],
+      "signed": "${timestamp}.${body}",
+      "timestamp": "${timestamp}"
+    },
     "data": [
-      { "key": "type", "operator": "=", "value": "checkout.session.completed" },
+      { "key": "type", "operator": "=", "value": "payment.completed" },
       { "key": "data[object][metadata][user_id]", "placeholder": "BUYER" },
-      { "key": "data[object][customer_details][address][country]", "placeholder": "COUNTRY" }
+      { "key": "data[object][customer][country]", "placeholder": "COUNTRY" }
     ]
   },
   "actions": [
@@ -26,7 +33,7 @@ A Stripe checkout completes. The ticket records the order, lifts the buyer's acc
                "unique_id": "order-${data[object][id]}",
                "index": { "name": "buyer", "value": "placeholder[BUYER]" },
                "data": { "session": "data[object][id]", "amount": "data[object][amount_total]",
-                         "country": "placeholder[COUNTRY]", "note": "paid via ${data[object][payment_method_types][0]}" } },
+                         "country": "placeholder[COUNTRY]", "note": "paid via ${data[object][payment_methods][0]}" } },
       "err": [ { "act": "req", "exe": { "url": "https://hooks.example.com/alert", "method": "POST",
                  "headers": { "content-type": "application/json" },
                  "data": { "text": "order record failed: ${error[message]}" } } } ] },
@@ -43,25 +50,44 @@ A Stripe checkout completes. The ticket records the order, lifts the buyer's acc
 }
 ```
 
+The event this ticket expects looks like this, with the signature in the `x-signature` header:
+
+```json
+{ "type": "payment.completed",
+  "data": { "object": { "id": "pay_a1B2c3", "amount_total": 4200, "payment_methods": ["card"],
+                        "metadata": { "user_id": "<the Skapi user id>" }, "customer": { "country": "KR" } } } }
+```
+
 ### The ticket
 
-`"ticket_id": "order-paid"` is the last segment of the endpoint. The webhook URL to paste into Stripe is `https://<reg>.skapi.dev/tp/<service_id>/order-paid`, copied from the **Endpoints** section of the ticket.
+`"ticket_id": "order-paid"` is the last segment of the endpoint. The webhook URL to paste into your payment provider's webhook settings is `https://<reg>.skapi.dev/tp/<service_id>/order-paid`, copied from the **Endpoints** section of the ticket.
 
-`"description"` is what the list shows. There is no `count`, `limit_per_user` or `time_to_live`: the ticket is unlimited and never expires. A per-user limit would not apply anyway, because Stripe calls the anonymous endpoint.
+`"description"` is what the list shows. There is no `count`, `limit_per_user` or `time_to_live`: the ticket is unlimited and never expires. A per-user limit would not apply anyway, because the provider calls the anonymous endpoint.
 
 ### The condition
 
-`"return200": true`. Stripe retries an endpoint that answers anything but 2xx. An event the condition turns away would fail the same way on every retry, so failures are answered with 200. The error body still says what failed, and the Log tab still records it.
+`"return200": true`. Webhook senders usually retry an endpoint that answers anything but 2xx. An event the condition turns away would fail the same way on every retry, so failures are answered with 200. The error body still says what failed, and the Log tab still records it.
 
 `"method": "POST"`. A GET is answered `METHOD_NOT_ALLOWED`.
 
-`"signature"`. Stripe signs every event with the endpoint's signing secret and sends `t=<timestamp>,v1=<hex>` in the `stripe-signature` header. Save that secret (it starts with `whsec_`) as a [Client Secret Key](/api-bridge/client-secret-request.md#registering-client-secret-keys) named `stripe_webhook`; `"secret": "stripe_webhook"` is that **name**. Skapi recomputes the HMAC over the raw body, compares in constant time, and refuses a timestamp more than five minutes off. Without this row, anyone who knows the URL could post a fake event and run your actions.
+`"signature"`. The provider signs every event with a signing secret it gives you when you add the endpoint. This example assumes it sends `t=<timestamp>,v1=<hex>` in the `x-signature` header, where the hex is the HMAC-SHA256 of `<timestamp>.<raw body>`:
 
-`{ "key": "type", "operator": "=", "value": "checkout.session.completed" }`. `type` is a top-level key of Stripe's event. Any other event type fails here with `CONDITION_FAILED` and `detail: { field: "data", keys: ["type"] }`, answered 200 because of `return200`, and logged, because it carried a valid signature and so came from Stripe.
+- `"separator": ","` splits the header into its `t=...` and `v1=...` items.
+- `"parts"` captures the timestamp from the `t=` item and the signature from every `v1=` item.
+- `"signed": "${timestamp}.${body}"` rebuilds the text the provider signed.
+- `"timestamp": "${timestamp}"` refuses an event more than 300 seconds (the default `tolerance`) away from now, so a captured request cannot be replayed later.
 
-`{ "key": "data[object][metadata][user_id]", "placeholder": "BUYER" }`. A capture-only row: no operator, no value. The path starts at the event body: `data`, then `object` (the checkout session), then its `metadata`, then `user_id`, which you set when creating the session on the Stripe side (`metadata: { user_id: <the Skapi user id> }`). The value is remembered as `BUYER`. A session without it does not fail here; the first action that reads `placeholder[BUYER]` raises `PLACEHOLDER_MISSING` instead.
+`algorithm` and `encoding` are left at their defaults, SHA-256 and hex. If your provider lays the header out differently or signs other bytes, change these fields to match its documentation; [Describing a sender](/tickets/conditions.md#describing-a-sender) shows other common shapes. Save the signing secret as a [Secret Key](/api-bridge/client-secret-request.md#registering-secret-keys) named `payment_webhook`; `"secretName": "payment_webhook"` is that **name**. Skapi recomputes the HMAC over the raw body and compares in constant time. Without this condition, anyone who knows the URL could post a fake event and run your actions.
 
-`{ "key": "data[object][customer_details][address][country]", "placeholder": "COUNTRY" }`. The same, for the buyer's country.
+:::warning Leave `payment_webhook` without Destinations, or list every address this ticket calls
+If that Secret Key carries [Destinations](/api-bridge/client-secret-request.md#restricting-where-a-key-can-be-sent), the whole ticket is held to them: both `https://api.example.com/fulfil` and the alert hook `https://hooks.example.com/alert` in the `err` chain would be refused with `REQUEST_FAILED` and `detail: { "reason": "refused_address" }`, because neither is on a list restricted to the provider's own domain. See [Where a signature secret may be sent](/tickets/conditions.md#where-a-signature-secret-may-be-sent).
+:::
+
+`{ "key": "type", "operator": "=", "value": "payment.completed" }`. `type` is a top-level key of the event. Any other event type fails here with `CONDITION_FAILED` and `detail: { field: "data", keys: ["type"] }`, answered 200 because of `return200`, and logged, because it carried a valid signature and so came from your provider.
+
+`{ "key": "data[object][metadata][user_id]", "placeholder": "BUYER" }`. A capture-only row: no operator, no value. The path starts at the event body: `data`, then `object` (the payment), then its `metadata`, then `user_id`, which you set when you create the payment with the provider (`metadata: { user_id: <the Skapi user id> }`). The value is remembered as `BUYER`. A payment without it does not fail here; the first action that reads `placeholder[BUYER]` raises `PLACEHOLDER_MISSING` instead.
+
+`{ "key": "data[object][customer][country]", "placeholder": "COUNTRY" }`. The same, for the buyer's country.
 
 ### The actions
 
@@ -69,11 +95,11 @@ A Stripe checkout completes. The ticket records the order, lifts the buyer's acc
 
 `"table": { "name": "orders", "access_group": "admin" }`. The record goes into `orders`, readable by admins only.
 
-`"unique_id": "order-${data[object][id]}"`. Interpolation inside text: the session id `cs_test_a1B2c3` becomes the unique id `order-cs_test_a1B2c3`. When Stripe retries the event, the same unique id makes this an update of the same record instead of a second record.
+`"unique_id": "order-${data[object][id]}"`. Interpolation inside text: the payment id `pay_a1B2c3` becomes the unique id `order-pay_a1B2c3`. When the provider retries the event, the same unique id makes this an update of the same record instead of a second record.
 
 `"index": { "name": "buyer", "value": "placeholder[BUYER]" }`. A whole-value path, so the index value is the captured user id, and `getRecords({ table: { name: 'orders', access_group: 'admin' }, index: { name: 'buyer', value: userId } })` finds one buyer's orders.
 
-`"data"`. Four keys. `session` and `amount` are whole-value paths and keep their types, so `amount` is the number Stripe sent (`4200`, in the smallest unit of the currency). `country` reads the placeholder. `note` interpolates a list element and becomes `paid via card`.
+`"data"`. Four keys. `session` and `amount` are whole-value paths and keep their types, so `amount` is the number the provider sent (`4200`, in the smallest unit of the currency). `country` reads the placeholder. `note` interpolates a list element and becomes `paid via card`.
 
 `"err"`. When the post fails, this chain runs. It is one `req` action that POSTs `{ "text": "order record failed: <the message>" }` to an alert hook, `${error[message]}` being the failed action's message. After it the consumption stops and answers the `pstr` failure; the alert cannot make it succeed.
 
@@ -83,7 +109,7 @@ A Stripe checkout completes. The ticket records the order, lifts the buyer's acc
 
 **`actions[2]`: call your fulfilment API.**
 
-`"data": { "user_id": "result[user_id]", "session": "data[object][id]" }`. `result[user_id]` reads the previous action's result, the buyer's id. `data[object][id]` still reads the Stripe event, because at this level the data root is the original request.
+`"data": { "user_id": "result[user_id]", "session": "data[object][id]" }`. `result[user_id]` reads the previous action's result, the buyer's id. `data[object][id]` still reads the provider's event, because at this level the data root is the original request.
 
 `"condition"` is evaluated against the **response**. `status` must be `ok`, else the `req` fails with `CONDITION_FAILED` and `field: "data"`, answered with `stage: "action"` and `action: { act: "req", path: "actions[2]" }` because the failure happened inside the action. `shipment[id]` is captured as `SHIPMENT` from the response.
 
@@ -91,7 +117,7 @@ A Stripe checkout completes. The ticket records the order, lifts the buyer's acc
 
 ### What you see afterwards
 
-Consuming the ticket writes a log row whose `outcome.actions` lists the three actions with their results, and whose `outcome.placeholders` holds `BUYER`, `COUNTRY` and `SHIPMENT`. The `orders` table has one record per session, indexed by buyer. The buyer is in access group `2`.
+Consuming the ticket writes a log row whose `outcome.actions` lists the three actions with their results, and whose `outcome.placeholders` holds `BUYER`, `COUNTRY` and `SHIPMENT`. The `orders` table has one record per payment, indexed by buyer. The buyer is in access group `2`.
 
 ## A Coupon Link
 

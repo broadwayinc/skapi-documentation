@@ -1,263 +1,188 @@
-# Forward Request
+# Forwarding Requests
 
-[`forwardRequest()`](/api-reference/api-bridge/README.md#forwardrequest) forwards a request to **your own external backend** from Skapi's servers instead of from the browser, and streams the response back as it arrives.
+[`forwardRequest(form, options)`](/api-reference/api-bridge/README.md#forwardrequest) relays a request to a destination of your choosing **from Skapi's servers** instead of from the browser. It is the method to reach for whenever the call should not leave the browser as it stands: because it carries a key the page must not hold, because it has to be queued or rate limited, because its answer has to outlive the page that asked for it, or because you want the response streamed as it arrives.
 
-:::warning
-User must be logged in to call this method.
-:::
+## Sending a request
 
-Your backend recognises the call by the `x-api-key` header: Skapi adds it server side, using the API key string you set on your [project settings](/service-settings/additional.md) page. Your backend compares it against the same string, and rejects anything that does not match. The key never reaches the browser, so it cannot be read out of your frontend code.
+```js
+skapi.forwardRequest({ report: 'quarterly' }, {
+    url: 'https://api.example.com/v1/report',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+}).then(res => console.log(res));
+```
 
-Use it when the browser should not be the one talking to your backend: when the call must be attributable to a signed-in user, when your backend only accepts requests carrying your API key, or when the response is a stream you want to render as it arrives.
+The first argument is the request body, here a plain object. Pass `null` when there is nothing to send.
 
-The `options` object accepts the following properties:
-- `url`: Your backend's URL. Must be `http`/`https` and resolve to a public address.
-- `method`: The HTTP method. Defaults to `POST`.
-- `headers`: Headers to send **to your backend**. These travel outbound only; they have no effect on the response the browser sees, so putting CORS headers such as `Access-Control-Allow-Origin` here does nothing. Your body's `Content-Type` is forwarded automatically unless you set one here.
-- `apiKeyHeader`: Which header carries your API key. Defaults to `x-api-key`.
-- `apiKeyScheme`: A prefix for the key value, such as `Bearer`.
-- `onStream`: Called with each chunk of the response as it arrives. Supplying this is what makes the call streaming.
-- `responseType`: `json`, `text`, or `response` for the raw `Response` object.
-- `signal`: An `AbortSignal` that stops the client receiving the rest of the response. The request already sent to your backend is **not** cancelled and runs to completion, so make the endpoint safe to abandon.
+To send a stored secret with the request, name it and put `$CLIENT_SECRET` where the value goes:
 
-### [`forwardRequest(form, options): Promise<any>`](/api-reference/api-bridge/README.md#forwardrequest)
+```js
+skapi.forwardRequest({ report: 'quarterly' }, {
+    secretName: 'my_secret',
+    url: 'https://api.example.com/v1/report',
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer $CLIENT_SECRET'
+    }
+});
+```
 
-:::warning
-The destination instructions travel in a request header, so `url`, `method`, `headers`, `apiKeyHeader` and `apiKeyScheme` share a cap of **4096 characters**. Past it the call throws `INVALID_PARAMETER`; put large values in the body instead, which is not capped here.
+The substitution happens on the server, so the secret never reaches the browser. Registering secrets, and restricting where each one may be sent, is on the [Secret Keys](/api-bridge/client-secret-request.md) page.
 
-Two things about that number:
+## The form is the first argument
 
-- It is measured **after escaping**, because a header cannot carry a character above `U+00FF` and the SDK escapes those to `\uXXXX` before sending. Every non-ASCII character therefore costs **six** toward the cap, not one. A Korean or accented query string runs out at roughly 650 characters, not 4096.
-- The budget also carries your project and owner identifiers, about 200 characters you do not control, so the room left for your own values is a little under the full 4096.
+The first argument is a **submit event**, a **form element**, a **`FormData`**, a **plain object**, or **`null`**. A submit event uses its target form, and the SDK calls `preventDefault()` for you, so `onsubmit="skapi.forwardRequest(event, { ... })"` works with nothing else to write.
 
-The other options never leave the browser and cost nothing here: `onStream`, `signal` and `responseType` are instructions to the SDK, not to the forwarder.
+By default the form is **flattened** into a plain key-value object and merged into the request:
 
-These header names are **rejected** rather than ignored, failing the call with `INVALID_PARAMETER`: connection and framing headers (`host`, `content-length`, `connection`, `keep-alive`, `transfer-encoding`, `upgrade`, `te`, `trailer`, `proxy-authorization`, `proxy-connection`, `expect`), anything starting `x-skapi-`, and any value containing a line break.
-:::
+- into **`params`** when the method is `GET`, `DELETE` or `HEAD`,
+- into **`data`** for every other method.
 
-## Example: Forwarding a form to your backend
-
-The first argument is the form itself, so a form reaches your backend without you rebuilding its payload. It is relayed as `multipart/form-data`, **files included**. The form's own `enctype` and `method` attributes are not used; the method comes from `options.method`.
+Repeated field names collapse to an array, and bracketed names such as `name="filter[status]"` build nested objects, exactly as everywhere else in this SDK. Where the form and your options carry the same key, **the option wins**: you typed it at the call site, while the form's value was collected from a page.
 
 ::: code-group
 
 ```html [Form]
 <form onsubmit="skapi.forwardRequest(event, {
-        url: 'https://api.yourbackend.com/report'
+        secretName: 'my_secret',
+        url: 'https://api.example.com/v1/report',
+        method: 'POST',
+        headers: { Authorization: 'Bearer $CLIENT_SECRET' }
     }).then(res => console.log(res))">
     <input name="title" placeholder="Title" required>
-    <input name="attachment" type="file">
+    <textarea name="notes"></textarea>
     <input type="submit" value="Send">
 </form>
 ```
 
 ```js [JS]
-skapi.forwardRequest({
-    title: 'Quarterly numbers'
-}, {
-    url: 'https://api.yourbackend.com/report',
-    headers: {
-        Accept: 'application/json'
-    }
-}).then(res => {
-    console.log(res);
-});
+skapi.forwardRequest({ title: 'Quarterly numbers', notes: '' }, {
+    secretName: 'my_secret',
+    url: 'https://api.example.com/v1/report',
+    method: 'POST',
+    headers: { Authorization: 'Bearer $CLIENT_SECRET' }
+}).then(res => console.log(res));
 ```
 
 :::
 
-The first argument can be a form submit event, a form element, a `FormData`, or a plain object.
+Both calls send `{ title, notes }` as the request body.
 
-## Example: Streaming a response
-
-When your backend streams its response, such as a chat completion or a long report, pass `onStream` and render each chunk as it lands. The promise still resolves with the complete body at the end.
-
-::: code-group
-
-```html [Form]
-<form onsubmit="skapi.forwardRequest(event, {
-        url: 'https://api.yourbackend.com/chat',
-        onStream: chunk => document.getElementById('output').textContent += chunk
-    })">
-    <textarea name="question" required>What were last quarter's numbers?</textarea>
-    <input type="submit" value="Ask">
-</form>
-
-<pre id="output"></pre>
-```
-
-```js [JS]
-let output = document.getElementById('output');
-
-skapi.forwardRequest({
-    question: "What were last quarter's numbers?"
-}, {
-    url: 'https://api.yourbackend.com/chat',
-    onStream: chunk => {
-        output.textContent += chunk;
-    }
-}).then(whole => {
-    console.log('finished:', whole.length, 'characters');
-});
-```
-
+:::warning Files are dropped
+The flattened object is merged into `data` or `params` and travels as **JSON**, where a file has no representation. A file input in the form is therefore **dropped**, silently, along with a `File` or `Blob` value in a plain object. To send the file itself, use `multipart: true` below.
 :::
 
-Server-sent events work the same way: your backend's `Content-Type` is preserved, so a `text/event-stream` response arrives as `data:` frames in the order they were produced.
+## Sending the raw form body with multipart
 
-## What the client receives
-
-Your backend's **status code and response headers are passed through** on the wire, so a `404` stays a `404` and a custom `X-Request-Id` arrives intact.
-
-To read them from JavaScript, call with `responseType: 'response'` and use the raw `Response`. Without it the SDK resolves with the parsed body alone, and a non-2xx is thrown as a `SkapiError` whose `code` comes from your JSON body's `code` field (otherwise `ERROR`).
-
-Three groups are withheld, each because forwarding it would break something:
-
-| withheld | why |
-|---|---|
-| `transfer-encoding`, `content-length`, `connection`, and other hop-by-hop headers | they describe your backend's connection, not the one delivering the stream to the browser |
-| `access-control-*` | Skapi writes these from your project's CORS setting. A second copy from your backend would put two values in one header, which browsers reject outright |
-| `set-cookie` | every project shares one forwarder endpoint, so a cookie from one backend would be stored against the shared domain and sent on another project's requests |
-
-Skapi also sets `Access-Control-Expose-Headers` naming every header it forwarded. Without that, browsers hide all but a small safelist from `fetch`, and a header you set would read as `null` on the client even though it arrived.
-
-:::info
-CORS for the browser is answered by Skapi using your project's CORS setting, not by your backend. If the request is refused with `INVALID_CORS`, add the page's origin on your [project settings](/service-settings/additional.md) page.
-:::
-
-:::warning
-A streaming form must not have an `action` attribute. With an `action`, the response is stored and the page navigates once the request resolves, which discards the stream.
-:::
-
-## What your backend receives
-
-Alongside your `headers`, the forwarded request carries:
-
-| header | value |
-|---|---|
-| `x-api-key` | The API key string from your project settings page, or `none` when the project has no key set. Skapi always sends this header, so a request arriving **without** it did not come through Skapi. Compare the value against your own key rather than merely checking that the header exists, since `none` is a non-empty string. |
-| `x-skapi-user` | The signed-in user, as JSON, taken from the verified session. |
-| `x-skapi-service` | Your project's service ID. |
-
-The identity headers are written by Skapi, not by the caller: any request that tries to set an `x-skapi-` header itself is rejected, so your backend can trust them to attribute the call.
-
-:::info Non-ASCII text in headers
-An HTTP header carries bytes, not text, so a profile with a Korean name or an emoji cannot be put into one as it stands. `x-skapi-user` is therefore JSON with every non-ASCII character escaped as `\uXXXX`. It stays valid JSON, so `JSON.parse` (or `json.loads`) hands you the original text with nothing to undo.
-
-Non-ASCII values in your own `headers` are sent as UTF-8 bytes instead, the same as any other HTTP client. Node and Python's `http.server` both decode incoming headers as Latin-1, so a backend reading such a header gets those bytes back with `Buffer.from(value, 'latin1').toString('utf8')` or `value.encode('latin1').decode('utf8')`. Values that cannot be sent at all, such as a line break, are refused with `INVALID_PARAMETER` rather than silently dropped.
-:::
-
-::: code-group
-
-```js [Node]
-const http = require('http');
-
-http.createServer(function (request, response) {
-    // Consume the body even when you are about to refuse the request: an unread
-    // request stream keeps the connection from being reused, and a large upload
-    // can reach the client as a reset instead of your status code. This is the
-    // form payload, verbatim.
-    const chunks = [];
-    request.on('data', function (chunk) { chunks.push(chunk); });
-    request.on('end', function () {
-        const body = Buffer.concat(chunks);
-
-        function reply(code, payload, contentType) {
-            response.writeHead(code, {
-                'content-type': contentType || 'text/plain',
-                'content-length': Buffer.byteLength(payload)
-            });
-            response.end(payload);
-        }
-
-        if (request.method !== 'POST' || request.url !== '/report') {
-            return reply(404, 'not found');
-        }
-
-        // compare the VALUE: an unset project key arrives as the string "none"
-        if (request.headers['x-api-key'] !== 'your api key string') {
-            return reply(401, 'api key mismatch');
-        }
-
-        const user = JSON.parse(request.headers['x-skapi-user']);
-        console.log(user.user_id, 'sent a report');
-
-        reply(200, JSON.stringify({ received: true }), 'application/json');
-    });
-}).listen(8000);
-```
-
-```py [Python]
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-import json
-
-class Handler(BaseHTTPRequestHandler):
-    # HTTP/1.1, so a streaming reply can be chunked. The default is 1.0, which
-    # has no chunked encoding and closes the connection after every response.
-    protocol_version = "HTTP/1.1"
-
-    def do_POST(self):
-        # Read the body even when you are about to refuse the request: bytes
-        # left unread in the socket can reach the client as a reset connection
-        # instead of your status code. This is the form payload, verbatim.
-        body = self.rfile.read(int(self.headers.get("content-length") or 0))
-
-        if self.path != "/report":
-            return self.reply(404, b"not found")
-
-        # compare the VALUE: an unset project key arrives as the string "none"
-        if self.headers.get("x-api-key") != "your api key string":
-            return self.reply(401, b"api key mismatch")
-
-        user = json.loads(self.headers["x-skapi-user"])
-        print(user["user_id"], "sent a report")
-
-        self.reply(200, json.dumps({"received": True}).encode(), "application/json")
-
-    def reply(self, code, body, content_type="text/plain"):
-        self.send_response(code)
-        self.send_header("content-type", content_type)
-        self.send_header("content-length", str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
-
-# Threaded: a forwarded request holds the connection open for as long as your
-# handler takes, and the single-threaded default would serialize them.
-ThreadingHTTPServer(("0.0.0.0", 8000), Handler).serve_forever()
-```
-
-:::
-
-To stream from a Python backend, respond with `text/event-stream` (or chunked plain text) and flush as you go; the chunks reach the browser as they are produced.
-
-## Aborting
+`multipart: true` sends the body **byte for byte the way a browser posting that form would send it, files included**. Skapi builds the body with the platform's own `FormData` serialization, so the boundary, the part headers and the file bytes are exactly what `fetch()` would have written, and relays it to the destination with that same content type.
 
 ```js
-let controller = new AbortController();
-
-skapi.forwardRequest({ question: 'Long one' }, {
-    url: 'https://api.yourbackend.com/chat',
-    onStream: chunk => output.textContent += chunk,
-    signal: controller.signal
+skapi.forwardRequest(formElement, {
+    secretName: 'my_secret',
+    url: 'https://api.example.com/v1/upload',
+    method: 'POST',
+    headers: { Authorization: 'Bearer $CLIENT_SECRET' },
+    multipart: true
 });
-
-// stop receiving the response; the request already sent to your backend keeps running
-controller.abort();
 ```
+
+:::warning Keep a multipart body under about 1.5 MB
+A raw body rides the **ordinary request**, not a separate upload, so it shares that request's payload budget. Skapi caps a request at 2 MB, and the encoded body is capped at **2 MB minus 64 KB (2,031,616 characters)**, the headroom being for the url, the headers and the query string that share the same budget.
+
+The cap is measured on the **base64 text**, and base64 costs four characters per three bytes, so the file itself has to be about a quarter smaller again: roughly **1.5 MB**. Past it the call throws `INVALID_PARAMETER` with the measured size in the message.
+
+More than that, and the file belongs somewhere else: [upload it](/database/handling-files.md) first and send its url.
+:::
+
+`data` is **refused** alongside `multipart: true`, in the SDK and on the server both. There is no sane merge of a raw body with a key-value object, and either choice of which to drop would be a quiet surprise. `headers` and `params` are unaffected; your `Content-Type`, if you set one, is replaced by the multipart type the body actually has.
+
+`multipart: true` needs a form: called with `null` it throws `INVALID_PARAMETER`. In an environment with no `FormData` or `Response`, it throws `NOT_SUPPORTED`.
+
+## Naming a secret key is optional
+
+`secretName` names one of your project's [Secret Keys](/api-bridge/client-secret-request.md#registering-secret-keys). It is **optional**.
+
+**Named.** `$CLIENT_SECRET` is substituted server side in the `url`, the `headers`, `data` and `params`; the key's access group authorizes the caller; and the key's [Destinations](/api-bridge/client-secret-request.md#restricting-where-a-key-can-be-sent) are enforced before anything is sent. At least one value has to carry the placeholder, or the call is refused with `INVALID_PARAMETER`: there would be nothing for the secret to fill.
+
+**Absent.** Nothing is resolved and no placeholder is required. The request is forwarded with only what you supplied. A literal `$CLIENT_SECRET` in a request that names no secret is just text you typed, and is sent as such.
+
+:::info Signing in is not required
+A signed-out visitor can call this, and the key's own **Locked** setting decides whether they may use it: a locked key needs a signed-in caller whose access group reaches the key's, an unlocked one is open to anyone.
+:::
+
+## Telling the destination who is calling
+
+`skapiHeaders` is **off by default**: the destination is told nothing about the caller.
+
+| value | sent |
+|---|---|
+| `true` | `x-skapi-user` and `x-skapi-service` |
+| `{ user: true }` | `x-skapi-user` |
+| `{ service: true }` | `x-skapi-service` |
+
+- **`x-skapi-user`** is the signed-in caller's **user id**. A signed-out caller has none, so the header is **left out entirely** rather than sent empty, which lets a destination read its presence as "a signed-in caller".
+- **`x-skapi-service`** is **the service this request runs against**, which is not necessarily the caller's own connection service.
+
+Both values are written on the server from the **verified identity of the request**, never from anything typed at the call site.
+
+:::warning The `x-skapi-` prefix is reserved
+A header of your own whose name starts with `x-skapi-` is **refused** with `INVALID_PARAMETER`, whatever `skapiHeaders` says, matched without regard to case. Both the SDK and the server refuse it. That refusal is the whole value of the prefix: a caller who could set one of these headers could claim to be any user of any service, so a destination would have no reason to trust them.
+:::
+
+## Methods
+
+`GET`, `POST`, `PUT`, `PATCH`, `DELETE` and `HEAD`. `POST` is the default, which is what a form with no method attribute of its own would have meant and what all but a read is.
+
+`GET`, `DELETE` and `HEAD` carry the form's fields in the **query string** (`params`); everything else carries them in the **body** (`data`).
+
+## Reading the answer
+
+`responseType` shapes what the promise resolves with:
+
+- `'text'` hands back a string, stringifying a value that is not one already.
+- `'json'` parses a string, and hands the string back unchanged when it does not parse.
+- Left out, the answer arrives exactly as the server stored it.
+
+A Skapi status object, the envelope a queued request resolves with, is handed back **untouched** either way: reshaping it would corrupt the very fields it is read for.
+
+The destination is called **server side** and its body is relayed, so there is no live `Response` object to hand back. The destination's own status code is the `status_code` of the row [`forwardRequestHistory()`](/api-bridge/request-history.md) lists.
+
+`signal` takes an `AbortSignal`, and aborting it stops **this client's poll**. The request is already on the server and may already be running at the destination, so it is deliberately not cancelled: [`cancelForwardRequest()`](/api-bridge/polling-request.md#cancelling-a-request) is what removes it. A signal that is already aborted throws before anything is sent, and on the direct non-queued path there is no poll, so a signal does nothing there.
+
+## Queueing, polling and streaming
+
+Each of these has a page of its own:
+
+- [Polling Requests](/api-bridge/polling-request.md): `poll`, `queue`, the `poll()` handle on the reply, stopping a poll, cancelling a request, and the queue count.
+- [Streaming the Response](/api-bridge/streaming-request.md): `stream`, `realtime`, `onStream`, reading a request you did not start, and finalizing what to keep.
+- [Request History](/api-bridge/request-history.md): listing past requests, and their timestamps.
+
+```js
+const res = await skapi.forwardRequest({ report: 'quarterly' }, {
+    secretName: 'my_secret',
+    url: 'https://api.example.com/v1/report',
+    method: 'POST',
+    headers: { Authorization: 'Bearer $CLIENT_SECRET' },
+    queue: 'reports',
+    poll: 1000,
+    onResponse: (result) => console.log('final result', result),
+    onError: (err) => console.error(err)
+});
+```
+
+:::warning A streaming form must have no `action`
+When a form carries an `action` attribute, the SDK stores the resolved value and navigates to that url once the request settles, which throws a stream away. Leave `action` off a form you stream from.
+:::
 
 ## Errors
 
-An error raised before your backend answers, such as a rejected URL or an unauthenticated caller, arrives as a `SkapiError` with the usual `code`, whether or not you supplied `onStream`. Common ones: `INVALID_REQUEST` for a signed-out caller (`User login is required.`), `INVALID_PARAMETER` for a malformed url or header, `INVALID_CORS` when the page's origin is not on your project's CORS list, and `NOT_EXISTS` when the region has not published this feature yet.
+| code | when |
+|---|---|
+| `INVALID_PARAMETER` | a bad `method`, `multipart` with `data`, `multipart` with no form, a header in the `x-skapi-` namespace, a `secretName` with no `$CLIENT_SECRET` anywhere, a multipart body over the size cap, a negative `poll` |
+| `INVALID_REQUEST` | an unknown `secretName`, no access to the named secret, a destination the secret is not allowed to be sent to, a `signal` that was already aborted |
+| `NOT_SUPPORTED` | `multipart: true` in an environment with no `FormData` or `Response` |
 
-Once your backend has answered, its status is already on the wire and cannot be taken back. If reading its body then fails mid-stream, the body you receive ends with a marker rather than simply stopping:
+A destination that answers with an error of its own is not one of these: that answer is relayed and stored like any other, and is read from the request's status and history.
 
-```
-...partial output...
-{"error":"STREAM_INTERRUPTED","message":"..."}
-```
-
-The marker is best effort: it covers a failure while reading your backend, which is the common case. A forwarder timeout or a broken connection to the browser can still end a stream without one, so treat a stream as complete only when your own payload says it is.
-
-:::warning
-Your backend must resolve to a public address. Private ranges, loopback, and cloud metadata addresses are refused, and the connection is pinned to the address that passed that check.
-:::
+### [`forwardRequest(form, options): Promise<any>`](/api-reference/api-bridge/README.md#forwardrequest)

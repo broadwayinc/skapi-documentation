@@ -146,9 +146,8 @@ skapi.getTags({ condition: '>=' }); // Error: "table" or "tag" is required for c
 ### Who can read tag information
 
 When the project's [Require Login](/service-settings/service-settings.md#require-login) setting is on, [`getTags()`](/api-reference/database/README.md#gettags) is refused to a visitor who is not signed in.
-The SDK throws `REQUIRE_LOGIN` before the request leaves the browser, and the backend refuses the same call with `INVALID_REQUEST`, so a direct API call or an older SDK with no gate is refused as well.
+The SDK throws `REQUIRE_LOGIN` before the request leaves the browser, and the backend refuses the same call with `INVALID_REQUEST`, so a direct API call is refused as well.
 A project that has never set that option counts as **on**.
-Tag metadata used to be served to anyone who knew the project ID, so an integration that reads it without a signed in user now gets an error.
 
 :::warning
 The tag listing is **not** filtered by access group, and cannot be.

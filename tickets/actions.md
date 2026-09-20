@@ -52,7 +52,7 @@ An action's parameters are templated right before it runs, by the rules in [Temp
 |---|---|
 | `req` | `url`, `method`, `headers`, `data`, `params` |
 | `acsg`, `acsr`, `pstr` | every key of `exe` |
-| `srvc` | none of the above; internal legacy substitution |
+| `srvc` | none of the above; `srvc` is internal and fills its values its own way |
 
 A `req` action's `condition`, `match` and `actions` are never templated up front: the condition and match rows are evaluated against the response, and the nested chain is templated action by action when it runs, with the response body as its data root.
 
@@ -174,6 +174,7 @@ These rules apply to a `req` action and to a `request` condition. Registration v
 - The engine resolves the host and refuses loopback, link-local (`169.254/16`, `fe80::/10`), private (`10/8`, `172.16/12`, `192.168/16`, `fc00::/7`), unspecified and IPv4-mapped forms of those.
 - Any host under the API domain (`*.skapi.dev`) and any `*.execute-api.*.amazonaws.com` host is refused. A consume request that arrives carrying an `X-Skapi-Ticket` header is refused as well, with `CONDITION_FAILED` and `field: "request"`, so a ticket cannot call tickets. That refusal is checked on every consumption, before the condition and even when the ticket has none, and is never logged.
 - The connection is pinned to the vetted address. Redirects are never followed; a 3xx is `REQUEST_FAILED` with its status.
+- When the Secret Key named in the ticket's `condition.signature.secretName` carries [Destinations](/api-bridge/client-secret-request.md#restricting-where-a-key-can-be-sent), the URL must be on that list. It applies to **every** call the ticket makes, this one included, not only to a call that carries the secret. See [Where a signature secret may be sent](/tickets/conditions.md#where-a-signature-secret-may-be-sent).
 - Every request carries `X-Skapi-Ticket: <service_id>/<ticket_id>`.
 
 A refused address is `REQUEST_FAILED` with `reason: "refused_address"`.

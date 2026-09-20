@@ -66,6 +66,10 @@ nothing is stored, so the size a file is counted and billed at is always the siz
 The SDK declares the true size of the file it sends, [encrypted](/database/encryption.md) files (the
 size of the encrypted bytes) and empty files included, so this needs nothing from you. It matters only
 if you build the upload request yourself instead of using [`postRecord()`](/api-reference/database/README.md#postrecord).
+
+A refused upload does not fail the record. [`postRecord()`](/api-reference/database/README.md#postrecord)
+resolves as usual and that one file is simply never stored, so fetch the record again when you need to
+know which files it really holds.
 :::
 
 :::danger
@@ -225,7 +229,7 @@ imgElement.src = src;
 ::: info
 The `url` property on a bin object is deliberately **not** the cached URL.
 It stays the record's own file URL, because that is the string you pass back to `remove_bin` and `deleteFiles`, the string the dashboards render, and the one that is safe to store: a cached URL is signed for one user and stops working once it expires.
-Reading `file.url` directly still works exactly as before, it is just not the cached path.
+Reading `file.url` directly works too, it is just not the cached path.
 :::
 
 ::: info

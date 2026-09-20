@@ -101,3 +101,16 @@ Skapi does not require you to predefine a database schema.
 If the specified table does not exist, it will be automatically created when you create the record.
 Conversely, if a table has no records, it will be automatically deleted.
 :::
+
+## Large Record Data
+
+There is no separate call for a large payload. When a record's `data` is larger than 32 KB, Skapi stores the
+value as a file in your project's file storage instead of keeping it in the database, and the record keeps
+only a reference to it. The value then counts toward your file storage instead of your database storage, see
+[Plans and Limits](/introduction/plans.md#large-record-data).
+
+Reading it back needs nothing from you either. The SDK fetches the value and puts it in `record.data`, so
+what you get is what you posted, whatever its size. The file it lives in never appears in the record's `bin`,
+and it cannot be uploaded or deleted by name: `"__data__/__json__.json"` is a reserved file name in
+[`postRecord()`](/api-reference/database/README.md#postrecord) and in
+[`deleteFiles()`](/api-reference/database/README.md#deletefiles).

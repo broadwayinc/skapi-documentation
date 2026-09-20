@@ -145,12 +145,3 @@ or with `updateProfile()` and another user's `user_id`, is written unverified an
 login is removed inside that request, whoever sent it. The account keeps its own login ID, and gets an
 email login back only after the user verifies the new address.
 :::
-
-:::info Older SDK versions
-skapi-js 2.0.5 and earlier send a login handle for the new address along with a user's own email change,
-which the server removes again on the next token. The address still logs the account in only once it is
-verified, but with those versions the change is refused outright when another account of the project
-already holds that address as a login ID, and the unverified new address logs the account in for the few
-seconds before the handle is removed. See
-[E-Mail and username](/authentication/create-account.md#e-mail-and-username).
-:::

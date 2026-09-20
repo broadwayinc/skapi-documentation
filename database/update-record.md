@@ -84,7 +84,7 @@ If `null` is used instead of undefined, the record data will be overwritten to v
 :::
 
 :::info
-Only the owner of the record can update it. The project owner and admins in access group `99` can also update other users' records, read-only ones included, and admins in access groups `90` ~ `98` can change only their [subscription settings](/database/subscription.md#who-can-change-subscription-settings). Every admin and the project owner can also attach files to another user's record and delete its files, see [Files on Records of Other Users](/database/handling-files.md#files-on-records-of-other-users). Nobody but the owner can update a private record or change its files. See [Updating another user's record](/admin/permissions.md#updating-another-users-record).
+Only the owner of the record can update it. The project owner and admins in access group `99` can also update other users' records, read-only ones included, and admins in access groups `90` ~ `98` can change only their [subscription settings](/database/subscription.md#who-can-change-subscription-settings). Every admin and the project owner can also attach files to another user's record and delete its files, see [Files on Records of Other Users](/database/handling-files.md#files-on-records-of-other-users). Nobody but the owner can update a private record or change its files. See [Updating another user's record](/admin/permissions.md#updating-another-user-s-record).
 :::
 
 ## Readonly Record

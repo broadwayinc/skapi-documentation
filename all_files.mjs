@@ -20,7 +20,7 @@ let api_reference = [
     }
 ]
 
-let working_with_ai = { text: 'Working with AI Assistants', link: '/introduction/ai-driven.md' };
+let working_with_ai = { text: 'Working with AI Agents', link: '/introduction/ai-driven.md' };
 
 let method_ref = [
     {
@@ -28,7 +28,6 @@ let method_ref = [
         items: [
             // { text: 'What is Skapi?', link: '/introduction/what-is-skapi.md' },
             { text: 'Getting Started', link: '/introduction/getting-started.md' },
-            { text: 'Plans and Limits', link: '/introduction/plans.md' },
             { text: 'Working with HTML forms', link: '/introduction/working-with-forms.md' }
         ]
     },
@@ -88,12 +87,22 @@ let method_ref = [
     {
         text: 'Using Third-Party APIs',
         items: [
-            { text: 'Client Secret Keys', link: '/api-bridge/client-secret-request.md' },
+            { text: 'Secret Keys', link: '/api-bridge/client-secret-request.md' },
+            { text: 'Forwarding Requests', link: '/api-bridge/forward-request.md' },
             { text: 'Polling Requests', link: '/api-bridge/polling-request.md' },
             { text: 'Streaming the Response', link: '/api-bridge/streaming-request.md' },
             { text: 'Request History', link: '/api-bridge/request-history.md' },
-            { text: 'Forward Request', link: '/api-bridge/forward-request.md' },
             { text: 'OpenAI API Example', link: '/api-bridge/example.md' },
+        ]
+    },
+    {
+        text: 'Tickets',
+        items: [
+            { text: 'Introduction', link: '/tickets/introduction.md' },
+            { text: 'Conditions and Placeholders', link: '/tickets/conditions.md' },
+            { text: 'Actions', link: '/tickets/actions.md' },
+            { text: 'Errors and Logs', link: '/tickets/errors.md' },
+            { text: 'Examples', link: '/tickets/examples.md' },
         ]
     },
     {
@@ -136,16 +145,8 @@ let method_ref = [
             // { text: 'Project Settings', link: '/admin/project-settings.md' },
             { text: 'Inviting Users', link: '/admin/invite.md' },
             { text: 'Managing Users', link: '/admin/account.md' },
-        ]
-    },
-    {
-        text: 'Tickets',
-        items: [
-            { text: 'Introduction', link: '/tickets/introduction.md' },
-            { text: 'Conditions and Placeholders', link: '/tickets/conditions.md' },
-            { text: 'Actions', link: '/tickets/actions.md' },
-            { text: 'Errors and Logs', link: '/tickets/errors.md' },
-            { text: 'Examples', link: '/tickets/examples.md' },
+            { text: 'Newsletter Subscribers', link: '/admin/newsletters.md' },
+            { text: 'Plans and Limits', link: '/introduction/plans.md' }
         ]
     },
     {
@@ -160,82 +161,308 @@ let all_files = [
     {
         text: 'Version History',
         link: '/versionlog/versions.md'
+    },
+    {
+        text: 'Deprecated',
+        link: '/deprecated/deprecated.md'
+    },
+
+    {
+        text: 'One Pager',
+        link: '/SKAPI.md'
     }
 ]
 
-let files = [];
-jsoncrawler(method_ref).forEach((item) => {
-    if (item.key === 'link') {
-        files.push('.' + item.value);
-    }
-});
-
-console.log('files', files);
-function replaceURL(finalSysContent) {
-    // replace all "](/" to "](https://docs.skapi.com/" in SYS.md and replace README.md with README.html in that link urls
-    finalSysContent = finalSysContent.replaceAll('](/', '](https://docs.skapi.com/');
-    finalSysContent = finalSysContent.replaceAll('README.md#', 'README.html#');
-    return finalSysContent;
-}
+// ---------------------------------------------------------------------------------
+// Single file bundles
+//
+//   skapi-docs.md   every guide page (method_ref)
+//   skapi-types.md  every API reference page (api_reference)
+//   SKAPI.md        SYSTEM.md + both of the above: the one file an AI agent reads
+//
+// A page written for the website links to other pages by path ("/database/create.md#x")
+// and to its own headings by fragment ("#x"). Neither means anything once 66 pages are
+// one file: the paths are gone, and "#errors" exists on a dozen pages. So inside a bundle:
+//
+//   - every page gets an id:                      doc-database-create
+//   - every heading that is linked to gets one:   doc-database-create-errors
+//   - a link to a page IN the bundle becomes that id, a "#x" link becomes its own page's
+//   - a link to a page NOT in the bundle, and every image, becomes a full
+//     https://docs.skapi.com/... url, because that is the only place it still exists
+//   - external urls, and everything inside code, are left exactly as written
+//
+// Heading ids are only written where a link needs one. There are ~650 headings and an id
+// costs tokens on every read of the file, for an anchor nothing points at.
+// ---------------------------------------------------------------------------------
 import fs from 'fs';
-// concatenate all files into a single string
-let concatenatedContent = '';
-for (const file of files) {
-    try {
-        const content = fs.readFileSync(file, 'utf-8');
-        concatenatedContent += content + `\n\n<br>\n\n`;
-    } catch (err) {
-        console.error(`Error reading file ${file}:`, err);
-    }
-}
-concatenatedContent = replaceURL(concatenatedContent);
+import path from 'path';
 
-fs.writeFileSync('skapi-docs.md', concatenatedContent);
+const DOCS_ORIGIN = 'https://docs.skapi.com';
 
-
-// concatenate all files into a single string
-concatenatedContent = '';
-
-let reffiles = [];
-jsoncrawler(api_reference).forEach((item) => {
-    if (item.key === 'link') {
-        reffiles.push('.' + item.value);
-    }
-});
-
-for (const file of reffiles) {
-    try {
-        const content = fs.readFileSync(file, 'utf-8');
-        concatenatedContent += content + `\n\n<br>\n\n`;
-    } catch (err) {
-        console.error(`Error reading file ${file}:`, err);
-    }
+function linksOf(tree) {
+    let links = [];
+    jsoncrawler(tree).forEach((item) => {
+        if (item.key === 'link') links.push(item.value);
+    });
+    return links;
 }
 
-concatenatedContent = replaceURL(concatenatedContent);
+/** '/api-reference/email/README.md' -> 'api-reference/email', '/database/create.html' -> 'database/create' */
+function pageKey(sitePath) {
+    return sitePath
+        .replace(/^\/+/, '')
+        .replace(/\.(md|html)$/i, '')
+        .replace(/\/(README|index)$/i, '')
+        .replace(/\/+$/, '');
+}
 
-fs.writeFileSync('skapi-types.md', concatenatedContent);
+function pageId(key) {
+    return 'doc-' + key.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
 
-// concatincate SYSTEM.md and skapi.md and put #SKAPI_DOCS between them
-const systemContent = fs.readFileSync('./SYSTEM.md', 'utf-8');
-const skapiContent = fs.readFileSync('./skapi-docs.md', 'utf-8');
-let finalSysContent = systemContent + `\n\n# SKAPI_DOCS\n\n` + skapiContent;
+/** The heading slug VitePress gives a heading (@mdit-vue/shared slugify), so a "#fragment" written for the site resolves here. */
+function slugifyHeading(str) {
+    return str
+        .normalize('NFKD')
+        .replace(/[\u0300-\u036F]/g, '')
+        .replace(/[\u0000-\u001f]/g, '')
+        .replace(/[\s~`!@#$%^&*()\-_+=[\]{}|\\;:"'“”‘’<>,.?/]+/g, '-')
+        .replace(/-{2,}/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .replace(/^(\d)/, '_$1')
+        .toLowerCase();
+}
 
-// concatinate _SYS.md and skapi-types.md with #SKAPI_TYPES between them
-const skapiTypesContent = fs.readFileSync('./skapi-types.md', 'utf-8');
-finalSysContent = finalSysContent + `\n\n# SKAPI_TYPES\n\n` + skapiTypesContent;
+/** The text a heading is slugged from: its plain text and the content of its code spans, without markup. */
+function headingText(raw) {
+    let codes = [];
+    let text = raw
+        .replace(/\s+#+\s*$/, '')
+        .replace(/(`+)(.+?)\1/g, (m, ticks, code) => {
+            codes.push(code.trim());
+            return `\u0000${codes.length - 1}\u0000`;
+        })
+        .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+        .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+        .replace(/<[^>]+>/g, '')
+        .replace(/\\([\\`*_{}[\]()#+\-.!|<>~])/g, '$1')
+        .replace(/(\*\*|__|~~)(.+?)\1/g, '$2')
+        .replace(/(^|[^\w*])[*_]([^*_]+)[*_](?=[^\w*]|$)/g, '$1$2')
+        .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
+    return text.replace(/\u0000(\d+)\u0000/g, (m, i) => codes[+i]);
+}
 
-finalSysContent = replaceURL(finalSysContent);
+/** Calls onLine(line, index) for every line that is NOT inside a fenced code block. */
+function eachProseLine(lines, onLine) {
+    let fence = null;
+    lines.forEach((line, i) => {
+        let m = line.match(/^\s*(`{3,}|~{3,})(.*)$/);
+        if (fence) {
+            if (m && m[1][0] === fence[0] && m[1].length >= fence.length && !m[2].trim()) fence = null;
+            return;
+        }
+        if (m) {
+            fence = m[1];
+            return;
+        }
+        onLine(line, i);
+    });
+}
 
-// remove all blank lines in SYS.md
-finalSysContent = finalSysContent.replace(/^\s*[\r\n]/gm, '');
+/**
+ * In SKAPI.md the guides simply follow SYSTEM.md, starting at Getting Started, which SYSTEM.md
+ * links to like any other page. The API reference is the one part with a heading of its own,
+ * and its id is the slug any markdown renderer gives that heading, so SYSTEM.md links to
+ * "#api-reference" the way it would link to any heading of its own file.
+ */
+const REFERENCE = { title: api_reference[0].text, id: slugifyHeading(api_reference[0].text) };
 
-// remove all <br> in sys.md
-finalSysContent = finalSysContent.replace(/<br>/gm, '');
+function loadPage(sitePath, text) {
+    let key = pageKey(sitePath);
+    let lines = (text === undefined ? fs.readFileSync('.' + sitePath, 'utf-8') : text).split(/\r?\n/);
+    let headings = [];      // { line, slug }
+    let taken = {};
+    eachProseLine(lines, (line, i) => {
+        let m = line.match(/^ {0,3}(#{1,6})[ \t]+(.*)$/);
+        if (!m) return;
+        let base = slugifyHeading(headingText(m[2]));
+        let slug = base;
+        for (let n = 1; taken[slug]; n++) slug = `${base}-${n}`;
+        taken[slug] = true;
+        headings.push({ line: i, slug });
+    });
+    return { sitePath, key, id: pageId(key), lines, headings, slugs: taken };
+}
 
-fs.writeFileSync('SKAPI.md', finalSysContent);
-console.log('Generated SKAPI.md with all documentation.');
+/**
+ * Rewrites every link of every page for a bundle holding exactly `pages`, then writes the
+ * ids those links need. Returns the pages' text, joined.
+ */
+function buildBundle(pages, report) {
+    let byKey = {};
+    let idOwner = {};
+    for (let p of pages) {
+        if (p.key) byKey[p.key.toLowerCase()] = p;
+        p.out = p.lines.slice();
+        p.wanted = new Set();
+    }
 
-all_files[0].items.push(working_with_ai);
+    let sectionIds = [REFERENCE.id];
+    // SYSTEM.md has no page id: its headings are the file's own, so their slug is their id.
+    let idOf = (page, frag) => (page.id ? `${page.id}-${frag}` : frag);
+
+    let fragmentOf = (page, hash) => {
+        if (!hash) return null;
+        let frag;
+        try { frag = decodeURIComponent(hash); } catch (err) { frag = hash; }
+        frag = frag.toLowerCase();
+        return page.slugs[frag] ? frag : null;
+    };
+
+    let resolve = (page, target) => {
+        if (/^[a-z][a-z0-9+.-]*:/i.test(target) || target.startsWith('//')) return null;   // external: as is
+
+        let [rawPath, hash = ''] = target.split('#');
+        if (!rawPath) {
+            // "#x": a heading of the page the link is written on. SYSTEM.md opens the file,
+            // so from there it is also how the API reference section is reached.
+            if (!page.id && sectionIds.includes(hash.toLowerCase())) return `#${hash.toLowerCase()}`;
+            let frag = fragmentOf(page, hash);
+            if (!frag) {
+                report.warnings.push(`${page.sitePath}: "#${hash}" is not a heading of this page`);
+                return page.id ? `#${page.id}` : null;
+            }
+            page.wanted.add(frag);
+            return '#' + idOf(page, frag);
+        }
+
+        let sitePath = rawPath.startsWith('/')
+            ? path.posix.normalize(rawPath)
+            : path.posix.normalize(path.posix.join('/', path.posix.dirname(page.sitePath), rawPath));
+        let ext = path.posix.extname(sitePath).toLowerCase();
+
+        if (ext && ext !== '.md' && ext !== '.html') {
+            return DOCS_ORIGIN + sitePath;                                                   // an image or a download
+        }
+
+        let dest = byKey[pageKey(sitePath).toLowerCase()];
+        if (!dest) {
+            // Not in this file, so the website is the only place it can be read.
+            report.external++;
+            let url = sitePath.endsWith('/') ? sitePath : sitePath.replace(/\.(md|html)$/i, '') + '.html';
+            return DOCS_ORIGIN + url + (hash ? '#' + hash : '');
+        }
+
+        report.internal++;
+        if (!hash) return `#${dest.id}`;
+        let frag = fragmentOf(dest, hash);
+        if (!frag) {
+            report.warnings.push(`${page.sitePath}: "${target}" names a heading that ${dest.sitePath} does not have`);
+            return `#${dest.id}`;
+        }
+        dest.wanted.add(frag);
+        return '#' + idOf(dest, frag);
+    };
+
+    for (let p of pages) {
+        eachProseLine(p.lines, (line, i) => {
+            if (!line.includes('](')) return;
+            // Code spans are left alone: split them out, rewrite only what is between them.
+            p.out[i] = line.split(/(`+[^`]*`+)/).map((part, n) => {
+                if (n % 2) return part;
+                return part.replace(/\]\((\s*)([^)\s]+)((?:\s+"[^"]*")?\s*)\)/g, (m, lead, target, title) => {
+                    let to = resolve(p, target);
+                    return to === null ? m : `](${lead}${to}${title})`;
+                });
+            }).join('');
+        });
+    }
+
+    // The ids. At the end of the heading line, so the heading still reads, and still greps, as itself.
+    for (let p of pages) {
+        let ids = {};
+        if (p.id && p.headings.length) ids[p.headings[0].line] = [p.id];
+        for (let h of p.headings) {
+            if (p.wanted.has(h.slug)) (ids[h.line] = ids[h.line] || []).push(idOf(p, h.slug));
+        }
+        for (let line in ids) {
+            for (let id of ids[line]) {
+                if (idOwner[id]) report.warnings.push(`id "${id}" is used by both ${idOwner[id]} and ${p.sitePath}`);
+                idOwner[id] = p.sitePath;
+                report.ids++;
+            }
+            p.out[line] = p.out[line].replace(/\s+$/, '') + ' ' + ids[line].map((id) => `<a id="${id}"></a>`).join('');
+        }
+        if (p.id && !p.headings.length) p.out.unshift(`<a id="${p.id}"></a>`, '');
+    }
+
+    return pages;
+}
+
+function joinPages(pages) {
+    return pages.filter((p) => p.key).map((p) => '\n\n' + p.out.join('\n') + '\n\n<br>\n\n').join('');
+}
+
+/** The table of contents SYSTEM.md carries in place of <!-- DOCUMENTATION_MAP -->. */
+function documentationMap() {
+    let out = [];
+    let walk = (nodes, depth) => {
+        for (let node of nodes) {
+            let label = node.link ? `[${node.text}](${node.link})` : node.text;
+            out.push(`${'  '.repeat(depth)}- ${label}`);
+            if (node.items) walk(node.items, depth + 1);
+        }
+    };
+    // The website's sidebar, as is: every guide group, then the API reference.
+    walk(method_ref, 0);
+    out.push(`- [${REFERENCE.title}](#${REFERENCE.id})`);
+    walk(api_reference[0].items, 1);
+    return out.join('\n');
+}
+
+function build() {
+    let report = { internal: 0, external: 0, ids: 0, warnings: [] };
+    let load = (tree) => linksOf(tree).map((link) => {
+        try {
+            return loadPage(link);
+        } catch (err) {
+            console.error(`Error reading file .${link}:`, err.message);
+            return null;
+        }
+    }).filter(Boolean);
+
+    // The two part bundles. A guide that links to the API reference leaves skapi-docs.md,
+    // so there it is a website url; in SKAPI.md the same link stays inside the file.
+    let quiet = { internal: 0, external: 0, ids: 0, warnings: [] };
+    fs.writeFileSync('skapi-docs.md', joinPages(buildBundle(load(method_ref), quiet)));
+    fs.writeFileSync('skapi-types.md', joinPages(buildBundle(load(api_reference), { ...quiet, warnings: [] })));
+
+    let system = loadPage('/SYSTEM.md', fs.readFileSync('./SYSTEM.md', 'utf-8').replace('<!-- DOCUMENTATION_MAP -->', documentationMap()));
+    system.key = system.id = '';
+    let docs = load(method_ref);
+    let types = load(api_reference);
+    buildBundle([system, ...docs, ...types], report);
+
+    let skapi = system.out.join('\n')
+        + joinPages(docs)
+        + `\n\n# ${REFERENCE.title} <a id="${REFERENCE.id}"></a>\n\n` + joinPages(types);
+
+    // Blank lines and the <br> page separators are layout for a person. An agent pays for each.
+    skapi = skapi.replace(/^\s*[\r\n]/gm, '').replace(/<br>/gm, '');
+
+    fs.writeFileSync('SKAPI.md', skapi);
+    fs.mkdirSync('./public', { recursive: true });
+    fs.copyFileSync('./SKAPI.md', './public/SKAPI.md');
+
+    console.log(
+        `Generated SKAPI.md: ${docs.length + types.length} pages, ${report.internal} links kept inside the file on ${report.ids} ids, `
+        + `${report.external} links to pages outside it sent to ${DOCS_ORIGIN}.`
+    );
+    for (let w of report.warnings) console.warn('  link warning:', w);
+}
+
+build();
+
+all_files[0].items.splice(1, 0, working_with_ai);
 
 export default all_files;

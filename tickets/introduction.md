@@ -1,6 +1,6 @@
 # Tickets
 
-A ticket is an HTTP endpoint that you register once as the project owner, and that anyone can call afterwards: a webhook such as Stripe, a browser, or a signed-in user of your project. Each call is a **consumption**.
+A ticket is an HTTP endpoint that you register once as the project owner, and that anyone can call afterwards: a webhook sender such as your payment provider, a browser, or a signed-in user of your project. Each call is a **consumption**.
 
 On every consumption Skapi:
 
@@ -10,7 +10,7 @@ On every consumption Skapi:
 4. writes a consumption log row you can inspect from the dashboard,
 5. answers with `{ tkid, hash }` on success or a standardized JSON error.
 
-A ticket is how a request from outside your frontend reaches your database without a server of your own. A paid Stripe checkout becomes an `orders` record and lifts the buyer's access group. A coupon link writes one record per visit. A signed-in user unlocks a private record by calling one URL.
+A ticket is how a request from outside your frontend reaches your database without a server of your own. A payment your payment provider reports becomes an `orders` record and lifts the buyer's access group. A coupon link writes one record per visit. A signed-in user unlocks a private record by calling one URL.
 
 There is no rollback: actions that already ran stay applied when a later one fails. Design tickets so that a repeated call is harmless. See [Actions](/tickets/actions.md#how-a-chain-runs).
 
@@ -67,8 +67,6 @@ Every ticket answers on a regional host, `https://<reg>.skapi.dev`, where `<reg>
 | `POST /tp/<service_id>/<ticket_id>` | none | body = JSON (or raw text) |
 | `GET  /tg/<service_id>/<ticket_id>` | none | query string = data |
 | `POST /tpa/<service_id>/<ticket_id>` | Cognito id token in `Authorization` | consumer = the user. POST only |
-| `POST/GET /publ/consume/<service_id>/<owner_id>/<ticket_id>` | none | legacy long form, identical behaviour |
-| `POST /auth/consume/<service_id>/<owner_id>/<ticket_id>` | Cognito | legacy long form |
 | `GET/POST /publ/check/<service_id>/<owner_id>/<ticket_id>` | none | dry run: service and ticket checks + condition only, no actions, no count change; log row with `:CHK` |
 
 Signed-in consumption is POST only. The signed-in endpoint is what [`consumeTicket()`](/api-reference/tickets/README.md#consumeticket) calls with `auth: true`; the SDK sends the token, you never handle it.
@@ -129,7 +127,7 @@ A webhook sender only needs the URL. Paste the POST endpoint into the sender's s
 ```sh
 curl -X POST https://eu73.skapi.dev/tp/eu73kXm2PqA9vLb4/order-paid \
   -H 'content-type: application/json' \
-  -d '{ "type": "checkout.session.completed", "data": { "object": { "id": "cs_test_a1B2c3" } } }'
+  -d '{ "type": "payment.completed", "data": { "object": { "id": "pay_a1B2c3" } } }'
 ```
 
 Success answers `200` with `application/json`:
@@ -163,13 +161,25 @@ curl 'https://eu73.skapi.dev/publ/check/eu73kXm2PqA9vLb4/f2b6c9e1-3a4d-4c8b-9e0f
 # a POST ticket: the body is the data
 curl -X POST https://eu73.skapi.dev/publ/check/eu73kXm2PqA9vLb4/f2b6c9e1-3a4d-4c8b-9e0f-1a2b3c4d5e6f/order-paid \
   -H 'content-type: application/json' \
-  -d '{ "type": "checkout.session.completed", "data": { "object": { "id": "cs_test_a1B2c3" } } }'
+  -d '{ "type": "payment.completed", "data": { "object": { "id": "pay_a1B2c3" } } }'
 ```
 
 A passing dry run answers the JSON string `"SUCCESS: Ticket check passed. No action taken."`. A failing one answers the same error body a real consumption would. Once the ticket has been read, a dry run is always logged, whatever fails after that: a passing one shows as `check` in the Log tab, with the captured placeholders in its details before an action ever runs, and a failing one shows as `failed: <code>` with `"check": true` in its details, an expired ticket or a signature that does not verify included. Only a dry run that never reaches the ticket (`INVALID_SERVICE`, `SERVICE_DISABLED`, `TICKET_NOT_FOUND`) leaves no row.
 
 :::tip
-The dry run evaluates the whole condition, a signature included. To try a signed webhook, send it a real event: with Stripe, point a test-mode endpoint at the check URL and use **Send test event**, then read the Log tab. A row marked `failed: CONDITION_FAILED` whose details say `"field": "signature"` means the secret name or the secret itself is wrong; a `check` row means the signature verified and the placeholders were captured.
+The dry run evaluates the whole condition, a signature included. To try a signed webhook, point the sender's test mode, or its "send test event" feature, at the check URL and read the Log tab. You can also sign a request yourself. For a ticket with the signature of the [payment webhook example](/tickets/examples.md#a-payment-webhook):
+
+```sh
+body='{ "type": "payment.completed", "data": { "object": { "id": "pay_a1B2c3" } } }'
+ts=$(date +%s)
+sig=$(printf '%s.%s' "$ts" "$body" | openssl dgst -sha256 -hmac "$SIGNING_SECRET" | sed 's/^.* //')
+curl -X POST https://eu73.skapi.dev/publ/check/eu73kXm2PqA9vLb4/f2b6c9e1-3a4d-4c8b-9e0f-1a2b3c4d5e6f/order-paid \
+  -H 'content-type: application/json' \
+  -H "x-signature: t=$ts,v1=$sig" \
+  --data-raw "$body"
+```
+
+A row marked `failed: CONDITION_FAILED` whose details say `"field": "signature"` means the secret name, the secret itself, or the way the signature fields describe the header is wrong; a `check` row means the signature verified and the placeholders were captured.
 :::
 
 ## Next
@@ -177,4 +187,4 @@ The dry run evaluates the whole condition, a signature included. To try a signed
 - [Conditions and Placeholders](/tickets/conditions.md): what a request must look like, and how values are read out of it.
 - [Actions](/tickets/actions.md): what a ticket does, chaining and error chains.
 - [Errors and Logs](/tickets/errors.md): every error code, and the consumption log.
-- [Examples](/tickets/examples.md): a Stripe checkout webhook, a coupon link, and a signed-in unlock.
+- [Examples](/tickets/examples.md): a payment webhook, a coupon link, and a signed-in unlock.

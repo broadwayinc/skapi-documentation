@@ -68,6 +68,10 @@ await skapi.getRecords({ table: 'notes' });            // public records only, f
 await skapi.getRecords({ table: { name: 'notes' } });  // no group sent: every group, when the caller is the master
 ```
 
+A listing that spans every group includes the `private` records of your users, and those come back with their
+`data` withheld. That is true of every way of listing them, so an admin tool reads the whole table without
+reading anyone's private payload. See [Private Records](#private-records).
+
 ::: warning
 On an **update**, neither form sends an access group. `postRecord(data, { record_id, table: 'notes' })` and
 `postRecord(data, { record_id, table: { name: 'notes' } })` both leave the record in whatever access group it is
@@ -133,7 +137,9 @@ skapi.getRecords(config)
 
 Private records are only accessible to the uploader of the record.
 
-**Even the admin of the project will not have access to view the user's private data.** Admins in access groups `90` ~ `98` cannot fetch another user's private record at all. The project owner and admins in access group `99` can fetch it, but its `data` comes back withheld, as `{ __is_private__: null }`, so the stored data never leaves. Deleting such a record, and removing private access from a user, are admin rights all the same. See [Private records](/admin/permissions.md#private-records).
+A private record that references another record is also readable by the users with private access to that record: its uploader, and the users it is shared with. This does not depend on the referenced record's access group, so a public record opens none of the private records attached to it.
+
+The project owner and admins read a private record's data only on the same terms as any other user. See [Private records](/admin/permissions.md#private-records).
 
 The example below demonstrates uploading a private record:
 
@@ -293,7 +299,7 @@ except its subscription settings. Files are a separate right: the project owner 
 (access groups `90` ~ `99`) can attach files to it and delete its files, see [Files on
 Records of Other Users](/database/handling-files.md#files-on-records-of-other-users).
 On a record posted by an anonymous user, subscription settings can only be kept or turned
-off. See [Admin Permissions](/admin/permissions.md#updating-another-users-record) and
+off. See [Admin Permissions](/admin/permissions.md#updating-another-user-s-record) and
 [Subscription](/database/subscription.md#who-can-change-subscription-settings).
 
 ## Allowing Others to Grant Private Access to Others

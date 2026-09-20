@@ -8,7 +8,7 @@ The condition is one object. Every key is optional, and an empty condition passe
 {
     return200?: boolean,                 // answer 200 even when the consumption fails (webhook friendly)
     method?: "GET" | "POST",             // absent = both allowed
-    signature?:  { header: string, secret: string, scheme: "stripe" | "hmac-sha256" },
+    signature?:  { secretName, header, algorithm?, encoding?, separator?, parts?, signed?, timestamp?, tolerance?, secret_encoding?, secret_prefix? }, // an HMAC of the request
     ip?:         { operator, value: string | string[] },
     user_agent?: { operator, value: string | string[] },
     headers?: [ { key, operator, value } ],                                  // key = header name, matched case-insensitively
@@ -34,13 +34,13 @@ Rows in `headers`, `data`, `params` and `user` combine by key. Rows with the **s
 
 ```json
 "data": [
-    { "key": "type", "operator": "=", "value": "checkout.session.completed" },
-    { "key": "type", "operator": "=", "value": "checkout.session.async_payment_succeeded" },
-    { "key": "livemode", "operator": "=", "value": true }
+    { "key": "type", "operator": "=", "value": "payment.completed" },
+    { "key": "type", "operator": "=", "value": "payment.captured" },
+    { "key": "live", "operator": "=", "value": true }
 ]
 ```
 
-Here `type` may be either event, and `livemode` must be `true` as well.
+Here `type` may be either event, and `live` must be `true` as well.
 
 ## `return200` and `method`
 
@@ -50,21 +50,125 @@ Here `type` may be either event, and `livemode` must be `true` as well.
 
 ## Signature
 
-`signature` verifies that the body was signed by the sender you expect. It is checked over the **raw body as received**, before anything is parsed.
+`signature` verifies an HMAC that the sender computed over the request with a secret it shares with you. It is checked before anything else, over the **raw body as received**, never over a parsed or re-serialized copy. Every field is plain data, so any sender that signs with HMAC-SHA256, HMAC-SHA1 or HMAC-SHA512 can be described.
 
 ```json
-"signature": { "header": "stripe-signature", "secret": "stripe_webhook", "scheme": "stripe" }
+"signature": {
+    "secretName": "webhook_secret",
+    "header": "x-signature",
+    "separator": ",",
+    "parts": ["t=${timestamp}", "v1=${signature}"],
+    "signed": "${timestamp}.${body}",
+    "timestamp": "${timestamp}"
+}
 ```
 
-- `header`: the request header that carries the signature.
-- `secret`: the **name** of a Secret Key of your project, never the secret itself. Save the sender's signing secret on the dashboard's **Secret Keys** page, the same store [`clientSecretRequest()`](/api-bridge/client-secret-request.md#registering-client-secret-keys) resolves `$CLIENT_SECRET` from, and write its name here. A key from the project's legacy `client_secret` store is accepted as well.
-- `scheme`:
-  - `stripe`: the header is `t=<timestamp>,v1=<hex>`. Skapi signs `<timestamp>.<raw body>` with HMAC-SHA256 using the secret, compares the result against every `v1` in constant time, and refuses a timestamp more than 300 seconds away from now.
-  - `hmac-sha256`: the header value is the hex HMAC-SHA256 of the raw body, with an optional `sha256=` prefix. This is the `sha256=<hex>` form GitHub and many other senders use. A base64-encoded HMAC header, such as Shopify's, is not supported.
+This one reads a header such as `x-signature: t=1757721600,v1=<hex>`, signs `<timestamp>.<raw body>` with HMAC-SHA256, and refuses a timestamp more than 300 seconds away from now.
 
-A header value that is not hex is a mismatch, never an error. A missing header, a signature that does not verify, and a `secret` that names no key all fail the same way: `CONDITION_FAILED` with `detail: { "field": "signature" }`.
+| field | default | meaning |
+|---|---|---|
+| `secretName` | required | The **name** of a Secret Key of your project, never the secret itself. Save the sender's signing secret on the dashboard's **Secret Keys** page, the same store [`forwardRequest()`](/api-bridge/client-secret-request.md#registering-secret-keys) resolves `$CLIENT_SECRET` from, and write its name here. See also [Where a signature secret may be sent](#where-a-signature-secret-may-be-sent). |
+| `header` | required | The request header that carries the signature, matched case-insensitively. Up to 256 characters. |
+| `algorithm` | `"sha256"` | The HMAC hash: `"sha256"`, `"sha1"` or `"sha512"`. |
+| `encoding` | `"hex"` | How the signature in the header is written: `"hex"` or `"base64"`. |
+| `separator` | none | Splits the header value into items, and each item is trimmed. 1 to 8 characters; a single space is allowed. Without it, the whole header value is one item. |
+| `parts` | `["${signature}"]` | The patterns each item is matched against. See [Header parts](#header-parts). Up to 10 patterns of up to 256 characters each. |
+| `signed` | `"${body}"` | A template of the bytes the sender signed. See [Tokens](#tokens). Up to 512 characters. |
+| `timestamp` | none | A template that resolves to a unix time: seconds, or milliseconds when the number is above 10^12. Without it, no time check is made. Up to 512 characters. |
+| `tolerance` | `300` | How many seconds the timestamp may be away from now, 1 to 86400. Only used with `timestamp`. |
+| `secret_encoding` | `"raw"` | How the stored secret becomes the HMAC key: `"raw"` uses its text as is, `"base64"` and `"hex"` decode it. |
+| `secret_prefix` | none | Text removed from the start of the stored secret before it is decoded. Up to 64 characters. |
 
-The key must exist when you register: a `secret` that names no Secret Key is refused with `INVALID_PARAMETER`. If the key is deleted later, the condition fails on every consumption instead.
+### Header parts
+
+Each pattern in `parts` is literal text with at most **one** capture, `${name}`, where the name uses letters, digits and `_`. Each header item is tried against the patterns in order, and the first pattern whose literal text before and after the capture fits the item captures the rest of it. Literal text is compared exactly, case included. An item that matches no pattern is ignored.
+
+- `${signature}` captures a signature to compare. Several items may carry one, as happens while a sender rotates its secret; the request passes when any one of them matches.
+- Any other name, such as `${timestamp}` or `${id}`, becomes a token for `signed` and `timestamp`. When several items capture the same name, the first one wins. `body` and `method` are built-in tokens and cannot be capture names.
+- At least one pattern must capture `${signature}`. A request whose header yields no signature fails.
+
+With `"separator": ","` and `"parts": ["t=${timestamp}", "v1=${signature}"]`, the header `t=1757721600,v1=5f2b,v1=9c0d` yields the token `timestamp` = `1757721600` and the two signature candidates `5f2b` and `9c0d`.
+
+### Tokens
+
+`signed` and `timestamp` are literal text in which these tokens are replaced:
+
+| token | value |
+|---|---|
+| `${body}` | the raw request body, byte for byte as received |
+| `${method}` | the HTTP method, upper case |
+| `${header:Name}` | the value of the request header `Name`, matched case-insensitively. An absent header fails the verification |
+| `${name}` | a capture from `parts` (not `${signature}`) |
+
+Everything else is copied as is. A token that is none of these is refused when you register.
+
+### How verification works
+
+1. When `timestamp` is set, it is resolved and must be a whole number within `tolerance` seconds of now.
+2. `signed` is resolved into the bytes to sign.
+3. The key is the stored secret with `secret_prefix` removed, decoded according to `secret_encoding`.
+4. The HMAC of the signed bytes is computed with `algorithm` and compared, in constant time, with every `${signature}` candidate decoded according to `encoding`. One match passes.
+
+Anything that goes wrong on the way is a plain mismatch, never a server error: a missing header, no signature candidate, a timestamp that is not a number or is out of tolerance, a secret that does not decode, a candidate that is not valid hex or base64, or a `secretName` that names no key. They all fail the same way: `CONDITION_FAILED` with `detail: { "field": "signature" }`.
+
+The key must exist when you register: a `secretName` that names no Secret Key is refused with `INVALID_PARAMETER`. If the key is deleted later, the condition fails on every consumption instead.
+
+### Describing a sender
+
+Look up three things in the sender's documentation: which header carries the signature and how its value is laid out, which bytes are signed, and how the signing secret is given to you. Each answer maps to the fields above. Some common shapes:
+
+A header carrying `t=<timestamp>,v1=<hex>` pairs over `<timestamp>.<body>`:
+
+```json
+{ "secretName": "webhook_secret", "header": "x-signature", "separator": ",",
+  "parts": ["t=${timestamp}", "v1=${signature}"],
+  "signed": "${timestamp}.${body}", "timestamp": "${timestamp}" }
+```
+
+The hex HMAC of the body, after a `sha256=` prefix:
+
+```json
+{ "secretName": "webhook_secret", "header": "x-signature-256", "parts": ["sha256=${signature}"] }
+```
+
+The base64 HMAC of the body, alone in the header:
+
+```json
+{ "secretName": "webhook_secret", "header": "x-hmac-sha256", "encoding": "base64" }
+```
+
+`v0=<hex>` over `v0:<timestamp>:<body>`, with the timestamp in a header of its own:
+
+```json
+{ "secretName": "webhook_secret", "header": "x-request-signature", "parts": ["v0=${signature}"],
+  "signed": "v0:${header:X-Request-Timestamp}:${body}", "timestamp": "${header:X-Request-Timestamp}" }
+```
+
+Space-separated `v1,<base64>` items over `<id>.<timestamp>.<body>`, with the id and the timestamp in headers of their own and a base64 secret that starts with a fixed prefix:
+
+```json
+{ "secretName": "webhook_secret", "header": "x-signature", "separator": " ", "parts": ["v1,${signature}"],
+  "signed": "${header:X-Id}.${header:X-Timestamp}.${body}", "timestamp": "${header:X-Timestamp}",
+  "encoding": "base64", "secret_encoding": "base64", "secret_prefix": "key_" }
+```
+
+Public-key signatures (RSA, ECDSA, Ed25519) are not supported: this condition only verifies an HMAC made with a shared secret.
+
+### Where a signature secret may be sent
+
+A Secret Key can carry **Destinations**, the per-key URL allowlist described under [Restricting Where a Key Can Be Sent](/api-bridge/client-secret-request.md#restricting-where-a-key-can-be-sent). When the key named in `signature.secretName` has one, **this ticket may only call URLs on that list**, on every outbound call it makes: `req` actions, a `request` condition, the nested actions of a `req`, and `err` chains alike.
+
+A key with no destinations is unrestricted, exactly as everywhere else, and so is a ticket with no `signature`.
+
+:::warning Restricting a signature secret restricts the whole ticket
+This is deliberately broader than "the one call that carries the secret", because no action can inject a secret value: there is no token for it, and the stored secret is read by the verifier alone. The rule is therefore about the ticket, not about one call.
+
+The consequence to plan for: restricting a signature key to the sender's own domain also stops that ticket calling **anything else**, including your own alert webhook. Either leave the key unrestricted, or list every address the ticket calls.
+:::
+
+A refused address is an ordinary action failure and never a server error: `REQUEST_FAILED` with `detail: { "reason": "refused_address" }`, raised before the address is resolved or dialled. Every call a ticket makes has redirects turned off already, which is the other half of the rule the [forwardRequest](/api-bridge/forward-request.md) path applies to a restricted key.
+
+The list is read with the key itself, on consumption, from a lookup held for at most 60 seconds, so narrowing a key's Destinations changes where its tickets may call within a minute.
 
 :::warning
 `headers`, `ip` and `user_agent` rows are **not authentication**. Anyone can send any header, and addresses and user agents are trivially forged or shared. Use them to filter noise. Use `signature`, or the signed-in endpoint with `user` rows, to decide who gets to run your actions.
@@ -76,7 +180,7 @@ The key must exist when you register: a `secret` that names no Secret Key is ref
 
 ```json
 "ip": { "operator": ">=", "value": ["203.0.113.", "198.51.100."] },
-"user_agent": { "operator": ">=", "value": "Stripe/" }
+"user_agent": { "operator": ">=", "value": "MyService/" }
 ```
 
 `headers` rows match request headers. `key` is the header name, compared case-insensitively.
@@ -102,7 +206,7 @@ A row with `placeholder` but no `operator` and `value` is a **capture-only row**
 
 ```json
 "data": [
-    { "key": "type", "operator": "=", "value": "checkout.session.completed" },
+    { "key": "type", "operator": "=", "value": "payment.completed" },
     { "key": "data[object][metadata][user_id]", "placeholder": "BUYER" },
     { "key": "data[object][mode]", "operator": "=", "value": "payment", "setValueWhenMatch": "one-time" }
 ]
@@ -148,7 +252,7 @@ The keys are the consumer's [`UserProfile`](/api-reference/data-types/README.md#
 
 ## Paths
 
-A condition row names a path into the request, such as `data[object][id]`; the leading `data` there is the request's own key (Stripe wraps every event in `data`), not the row list. Give the row a `placeholder` name and the value at that path is remembered under that name; leave out operator and value and the row only captures. In an action, write the path itself, `placeholder[NAME]`, or embed either in text with `${...}`. A whole-value path keeps the value's type; inside text it becomes a string. Bare words are literal text; to read a top-level key write `${code}`. You need a placeholder only when the value must survive into a request action, whose paths read the response instead.
+A condition row names a path into the request, such as `data[object][id]`; the leading `data` there is the request's own key (many webhook senders wrap the event's object in `data`), not the row list. Give the row a `placeholder` name and the value at that path is remembered under that name; leave out operator and value and the row only captures. In an action, write the path itself, `placeholder[NAME]`, or embed either in text with `${...}`. A whole-value path keeps the value's type; inside text it becomes a string. Bare words are literal text; to read a top-level key write `${code}`. You need a placeholder only when the value must survive into a request action, whose paths read the response instead.
 
 | you write | where | reads |
 |---|---|---|
@@ -161,7 +265,7 @@ A condition row names a path into the request, such as `data[object][id]`; the l
 | `orders` | an action value | the literal text `orders` |
 
 :::warning
-Paths start at the **received JSON body**, not at the condition. A Stripe event is `{ "type": ..., "data": { "object": { ... } } }`, so everything about the object is addressed as `data[object][...]`. A `data` row whose key is `data[object][id]` is reading the body's `data` key, not the row list it sits in.
+Paths start at the **received JSON body**, not at the condition. When the body is an event such as `{ "type": ..., "data": { "object": { ... } } }`, everything about the object is addressed as `data[object][...]`. A `data` row whose key is `data[object][id]` is reading the body's `data` key, not the row list it sits in.
 :::
 
 A **path** is a bare root segment followed by zero or more bracketed segments: `type`, `data[object][id]`, `items[data][0][price][id]`, `placeholder[SERVICE_ID]`. Segments are literal keys. A segment that is all digits indexes a list when the value is a list, and is a key when the value is an object. There is no escaping inside segments. The root segment may hold letters, digits, `_`, `.` and `-` (`[A-Za-z0-9_][A-Za-z0-9_.\-]*`); a row key that does not fit this grammar is refused at registration.
@@ -203,8 +307,8 @@ Action parameters are templated right before the action runs, over every **strin
 | action value | request | becomes |
 |---|---|---|
 | `"data[object][amount_total]"` | `{ "data": { "object": { "amount_total": 4200 } } }` | `4200`, a number |
-| `"${type}"` | `{ "type": "checkout.session.completed" }` | `"checkout.session.completed"` |
-| `"order-${data[object][id]}"` | `{ "data": { "object": { "id": "cs_test_a1B2c3" } } }` | `"order-cs_test_a1B2c3"` |
+| `"${type}"` | `{ "type": "payment.completed" }` | `"payment.completed"` |
+| `"order-${data[object][id]}"` | `{ "data": { "object": { "id": "pay_a1B2c3" } } }` | `"order-pay_a1B2c3"` |
 | `"items: ${items}"` | `{ "items": [1, 2] }` | `"items: [1,2]"` |
 | `"orders"` | anything | `"orders"`, bare words are literal |
 | `"type"` | anything | `"type"`, no bracket and no `${}` means literal |
@@ -212,7 +316,3 @@ Action parameters are templated right before the action runs, over every **strin
 | `"\\items[0]"` (the JSON spelling of `\items[0]`) | anything | `"items[0]"` |
 
 Which keys are templated depends on the action. See [What is Templated](/tickets/actions.md#what-is-templated).
-
-## Legacy Tickets
-
-Tickets registered before this version stored a `placeholder` map (`{ "NAME": "path" }`) and a single `action` object. They keep working and are converted when read: each map entry becomes a capture-only row (in `data`, or in `params` when the method is GET), the action object becomes an `actions` list in the order request, update service, access group, record access, and every `$NAME` inside the condition and the converted actions becomes `${placeholder[NAME]}`. Opening such a ticket in the dashboard shows the converted form, and saving it stores that form. Until you save it, the old `$NAME` replacement still runs on every consumption as it always did.

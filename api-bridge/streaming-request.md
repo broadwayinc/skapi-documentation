@@ -1,7 +1,7 @@
 
 # Streaming the Response
 
-By default, a queued [`clientSecretRequest()`](/api-reference/api-bridge/README.md#clientsecretrequest) waits for the destination to finish, downloads the whole response, and stores it on the request. Pass `stream: true` and the server reads the response **incrementally** instead, relaying the raw bytes as they arrive. Your `onStream` callback receives them in order, so you can act on the beginning of a response while the destination is still producing the end of it.
+By default, a queued [`forwardRequest()`](/api-reference/api-bridge/README.md#forwardrequest) waits for the destination to finish, downloads the whole response, and stores it on the request. Pass `stream: true` and the server reads the response **incrementally** instead, relaying the raw bytes as they arrive. Your `onStream` callback receives them in order, so you can act on the beginning of a response while the destination is still producing the end of it.
 
 Anything that answers incrementally works: a Server-Sent Events endpoint, an NDJSON export, a log tail, a progress feed, a long report a vendor writes row by row. Skapi relays the bytes and reads none of them, so the format is entirely between you and the destination.
 
@@ -12,8 +12,8 @@ Streaming does not make the destination faster. A request that takes 30 seconds 
 Three things are worth being blunt about before you write any code:
 
 1. **Skapi does not parse the stream.** It relays bytes and never inspects them, so decoding whatever framing your destination uses is your code's job. That is deliberate: it is what makes this work against any destination rather than a list of blessed ones.
-2. **A streamed request settles with a status and no body.** The relayed bytes live in a chunk store, not on the request, so its history entry stays empty until you say what should be kept with [`clientSecretRequestFinalize()`](#finalizing-what-to-keep).
-3. **Your destination has to be streaming too.** `stream: true` only says how Skapi should READ the response. Asking the destination to produce one incrementally is part of your own request, so whatever that API requires (most spell it `"stream": true` in the body) goes in `data` as usual. Set only Skapi's half and you get one ordinary document relayed in pieces, with no error to tell you so. Set only the destination's and Skapi buffers the whole event transcript into the stored response, where a reader expecting that API's normal document finds a wall of `data: {...}` lines. Neither half-set case raises: your request body is yours and is never inspected.
+2. **A streamed request settles with a status and no body.** The relayed bytes live in a chunk store, not on the request, so its history entry stays empty until you say what should be kept with [`forwardRequestFinalize()`](#finalizing-what-to-keep).
+3. **Your destination has to be streaming too.** `stream: true` only says how Skapi should READ the response. Asking the destination to produce one incrementally is part of your own request, so whatever that API requires (most spell it `"stream": true`) goes in the request body, the first argument, as usual. Set only Skapi's half and you get one ordinary document relayed in pieces, with no error to tell you so. Set only the destination's and Skapi buffers the whole event transcript into the stored response, where a reader expecting that API's normal document finds a wall of `data: {...}` lines. Neither half-set case raises: your request body is yours and is never inspected.
 
 ## Streaming a request
 
@@ -49,20 +49,19 @@ function readEvents(chunk) {
     }
 }
 
-skapi.clientSecretRequest({
-    clientSecretName: 'openai',
+skapi.forwardRequest({
+    model: 'gpt-4.1',
+    // This "stream" is OpenAI's own field, asking IT to answer in pieces.
+    // Skapi passes it through without looking at it.
+    stream: true,
+    messages: [{ role: 'user', content: 'Explain HTTP polling in two paragraphs.' }]
+}, {
+    secretName: 'openai',
     url: 'https://api.openai.com/v1/chat/completions',
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
         Authorization: 'Bearer $CLIENT_SECRET'
-    },
-    data: {
-        model: 'gpt-4.1',
-        // This "stream" is OpenAI's own field, asking IT to answer in pieces.
-        // Skapi passes it through without looking at it.
-        stream: true,
-        messages: [{ role: 'user', content: 'Explain HTTP polling in two paragraphs.' }]
     },
     // And this one is Skapi's, telling it to relay that answer as it arrives.
     stream: true,
@@ -73,7 +72,7 @@ skapi.clientSecretRequest({
     console.log(res.status); // "resolved"
 
     // Keep what we assembled as this request's history, and release the chunks.
-    return skapi.clientSecretRequestFinalize(res.id, answer, {
+    return skapi.forwardRequestFinalize(res.id, answer, {
         url: 'https://api.openai.com/v1/chat/completions',
         method: 'POST'
     });
@@ -81,7 +80,7 @@ skapi.clientSecretRequest({
 </script>
 ```
 
-Three parameters are added to `clientSecretRequest()` for this:
+Three parameters are added to `forwardRequest()` for this:
 
 - `stream`: relay the destination's response incrementally instead of buffering it. Requires a queue (one is minted if you do not name it). Never sent to the destination.
 - `realtime`: also push each relayed piece over skapi's websocket, so it arrives as it is relayed instead of on the next poll tick. Optional accelerator, covered under [Faster delivery over the websocket](#faster-delivery-over-the-websocket).
@@ -94,15 +93,14 @@ The presence of `onStream` is what makes the poll loop fetch chunks at all. A po
 When you omit `poll`, the promise resolves with the status object and its `poll()` method instead, and you pass the callback there:
 
 ```js
-const res = await skapi.clientSecretRequest({
-    clientSecretName: 'openai',
+const res = await skapi.forwardRequest({ model: 'gpt-4.1', stream: true, messages: [/* ... */] }, {
+    secretName: 'openai',
     url: 'https://api.openai.com/v1/chat/completions',
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
         Authorization: 'Bearer $CLIENT_SECRET'
     },
-    data: { model: 'gpt-4.1', stream: true, messages: [/* ... */] },
     stream: true
 });
 
@@ -116,7 +114,7 @@ The relayed bytes are decoded as **UTF-8, and only UTF-8**. A `charset` in the d
 
 ## Reading a request you did not start
 
-`onStream` on `clientSecretRequest()` only reaches the caller that started the request. The page was reloaded, a second tab is watching, or an old request is being opened from history and was never finalized: for all of those, use `clientSecretRequestStream()`.
+`onStream` on `forwardRequest()` only reaches the caller that started the request. The page was reloaded, a second tab is watching, or an old request is being opened from history and was never finalized: for all of those, use `forwardRequestStream()`.
 
 Give it the request id and it does the right thing for the state the request is in:
 
@@ -131,7 +129,7 @@ localStorage.setItem('pending_turn', res.id);
 // ...after a reload, or in another tab
 let requestId = localStorage.getItem('pending_turn');
 
-const restored = await skapi.clientSecretRequestStream(requestId, {
+const restored = await skapi.forwardRequestStream(requestId, {
     url: 'https://api.openai.com/v1/chat/completions',
     method: 'POST',
     poll: 1000,                     // interval while it is still running, default 1000
@@ -140,7 +138,7 @@ const restored = await skapi.clientSecretRequestStream(requestId, {
 ```
 
 ```ts
-clientSecretRequestStream(
+forwardRequestStream(
     requestId: string, // "stamp:entropy" as returned by the request, or an already composed full id.
     options: {
         url?: string; // The url the request was sent to. Required unless requestId is a full id.
@@ -155,7 +153,7 @@ clientSecretRequestStream(
 ): Promise<any> & { stop: () => void }
 ```
 
-`since` is there so a reader that already holds part of a response does not receive it twice. The returned promise carries a `stop()` that ends the read without touching the request, and it is registered like any other poll, so [`stopClientSecretPolling()`](/api-reference/api-bridge/README.md#stopclientsecretpolling) reaches it too when called with the request's `url`, `method` and `id`, or with no arguments at all.
+`since` is there so a reader that already holds part of a response does not receive it twice. The returned promise carries a `stop()` that ends the read without touching the request, and it is registered like any other poll, so [`stopForwardRequestPolling()`](/api-reference/api-bridge/README.md#stopforwardrequestpolling) reaches it too when called with the request's `url`, `method` and `id`, or with no arguments at all.
 
 Telling the two resolutions apart takes all three fields: a status envelope always carries `status`, `id` and `in_queue` **together**, and anything that does not is a finalized body. Do not test `status` alone, because the body you finalized may carry a `status` field of its own, and most destinations' responses do. This is exactly the test the SDK uses internally.
 
@@ -168,11 +166,10 @@ Only the caller who made a request can read it back. The identity half of a requ
 The poll decides how quickly relayed text reaches you: at `poll: 1000` a piece written just after a tick waits nearly a second for the next one. Pass `realtime: true` and the server ALSO pushes each piece over skapi's websocket as it relays it, so it arrives as soon as it exists.
 
 ```js
-const res = await skapi.clientSecretRequest({
-    clientSecretName: 'my_secret',
+const res = await skapi.forwardRequest({ report: 'quarterly', stream: true }, {
+    secretName: 'my_secret',
     url: 'https://api.example.com/v1/report',
     method: 'POST',
-    data: { report: 'quarterly', stream: true },
     stream: true,
     realtime: true,
     poll: 1000,
@@ -184,7 +181,7 @@ const res = await skapi.clientSecretRequest({
 
 - No websocket in this environment, no session to open one with, a connection that will not open, a connection that drops mid-response: none of them are errors and none of them are reported. The read continues at poll speed, which is the behaviour with no websocket at all.
 - Nothing is delivered twice and nothing arrives out of order, whichever transport carried it. A piece the websocket delivers is skipped by the poll, and a piece that arrives ahead of one still missing is held until the gap is filled rather than handed over early.
-- Every piece is in the chunk store either way, so a response is re-readable in full with `clientSecretRequestStream()` regardless of how it was delivered live.
+- Every piece is in the chunk store either way, so a response is re-readable in full with `forwardRequestStream()` regardless of how it was delivered live.
 
 Because both transports hand their text to the same `onStream`, a response delivered perfectly over the websocket and one polled the whole way look identical from the outside. The third argument is the difference: `via` is `'socket'` when the websocket got there first, `'poll'` when the poll did. It is there to be observed, not acted on, and a callback that ignores it reads exactly as it did before.
 
@@ -217,7 +214,7 @@ localStorage.setItem('pending', JSON.stringify({ id: res.id, group: res.realtime
 
 // ...after a reload
 const saved = JSON.parse(localStorage.getItem('pending'));
-await skapi.clientSecretRequestStream(saved.id, {
+await skapi.forwardRequestStream(saved.id, {
     url: 'https://api.example.com/v1/report',
     method: 'POST',
     realtimeGroup: saved.group,
@@ -229,10 +226,10 @@ Everything above holds for this read too. Omit `realtimeGroup` and it works exac
 
 ## Finalizing what to keep
 
-A streamed request settles with a status and no body. Skapi never decides what those chunks add up to, because it never read them. `clientSecretRequestFinalize()` is where you say:
+A streamed request settles with a status and no body. Skapi never decides what those chunks add up to, because it never read them. `forwardRequestFinalize()` is where you say:
 
 ```js
-await skapi.clientSecretRequestFinalize(requestId, answer, {
+await skapi.forwardRequestFinalize(requestId, answer, {
     url: 'https://api.openai.com/v1/chat/completions',
     method: 'POST'
 });
@@ -240,7 +237,7 @@ await skapi.clientSecretRequestFinalize(requestId, answer, {
 ```
 
 ```ts
-clientSecretRequestFinalize(
+forwardRequestFinalize(
     requestId: string, // "stamp:entropy", or an already composed full id.
     data?: any, // The version to keep. Sent verbatim and stored as given.
     options?: {
@@ -250,14 +247,14 @@ clientSecretRequestFinalize(
 ): Promise<{ finalized: boolean; message: string }>
 ```
 
-What you send becomes that request's stored result: the value [`clientSecretRequestHistory()`](/api-reference/api-bridge/README.md#clientsecretrequesthistory) lists as `response_body`, and the value a later poll of the same request hands back. The content is entirely yours. Skapi does not validate it, parse it, or interpret it: text you assembled from the chunks, a rebuilt response object, a summary, a single word, anything at all. It is stored as given and returned as given. Calling it with **no** `data` is not a no-op: it keeps `null` as the request's result and still releases the chunks, which destroys the relayed text. Pass what you actually want kept.
+What you send becomes that request's stored result: the value [`forwardRequestHistory()`](/api-reference/api-bridge/README.md#forwardrequesthistory) lists as `response_body`, and the value a later poll of the same request hands back. The content is entirely yours. Skapi does not validate it, parse it, or interpret it: text you assembled from the chunks, a rebuilt response object, a summary, a single word, anything at all. It is stored as given and returned as given. Calling it with **no** `data` is not a no-op: it keeps `null` as the request's result and still releases the chunks, which destroys the relayed text. Pass what you actually want kept.
 
 Storing that version is also what **releases the chunks**, which are deleted once the result lands.
 
 :::warning
 Chunks are kept **indefinitely** until you finalize. Nothing expires them on a timer. Until then, opening that request cold has to fetch and re-parse all of its chunks, so a request nobody finalized gets slower and more expensive to open, forever. (A reader that already holds a cursor only fetches past it, which is what `since` is for.) Finalize as soon as you have what you want: it is what turns a pile of relayed bytes into an ordinary history entry.
 
-The one exception is `expires`. A request sent with it is removed when its history expires, and the removal takes its chunks with it. Cancelling a **live** streamed request with [`cancelClientSecretRequest()`](/api-reference/api-bridge/README.md#cancelclientsecretrequest) also discards them, so finalize first if you want to keep the part that arrived. Cancel only reaches a request that is still `pending` or `running`: a settled one is refused with `{ removed: false }`, so for a finished request finalize (or `expires`) is the only release.
+The one exception is `expires`. A request sent with it is removed when its history expires, and the removal takes its chunks with it. Cancelling a **live** streamed request with [`cancelForwardRequest()`](/api-reference/api-bridge/README.md#cancelforwardrequest) also discards them, so finalize first if you want to keep the part that arrived. Cancel only reaches a request that is still `pending` or `running`: a settled one is refused with `{ removed: false }`, so for a finished request finalize (or `expires`) is the only release.
 
 :::
 
@@ -288,7 +285,7 @@ For a streamed request polled **with** `onStream` (which is what sends the curso
 ```
 
 - While the request is **running or pending**, that is what every tick returns, with `chunks` carrying whatever arrived since the last one.
-- Once it is **`resolved` or `failed` and not finalized**, the same shape comes back with the terminal `status`, and the chunks stay readable. This is the state `clientSecretRequestStream()` replays. A **`cancelled`** request is the exception: the cancel releases its chunks, so there is nothing left to replay.
+- Once it is **`resolved` or `failed` and not finalized**, the same shape comes back with the terminal `status`, and the chunks stay readable. This is the state `forwardRequestStream()` replays. A **`cancelled`** request is the exception: the cancel releases its chunks, so there is nothing left to replay.
 - When it **failed**, the same shape also carries an `error` field. See below.
 - Once it is **finalized**, the poll returns your stored body verbatim instead, with none of the envelope fields. The signal is the absence of `status`, `id` and `in_queue` together, not the absence of `status` on its own.
 
@@ -326,21 +323,33 @@ A failed request does not throw and does not reach `onError`, which is reserved 
 
 Read without `onStream`, a failed request answers with that error payload on its own rather than the status envelope, exactly as a buffered one always has.
 
-You can read that partial answer back later with `clientSecretRequestStream()`, and you can finalize it: a failed request is still finalizable, so keeping the 80% that arrived is a normal thing to do.
+You can read that partial answer back later with `forwardRequestStream()`, and you can finalize it: a failed request is still finalizable, so keeping the 80% that arrived is a normal thing to do.
 
-## Streaming from your own backend instead
+## Streaming from your own backend
 
-[`forwardRequest()`](/api-bridge/forward-request.md) also streams, and the two are for different jobs.
+Your own backend is simply another destination, and streaming from it works exactly as streaming
+from anywhere else does: the response is relayed into a chunk store, read by polling, survives a
+reload through [`forwardRequestStream()`](#reading-a-request-you-did-not-start), and stays stored until
+you finalize it.
 
-| | `clientSecretRequest({ stream: true })` | `forwardRequest()` |
-|---|---|---|
-| destination | any third party, authenticated with a stored client secret | **your own** backend, authenticated with your project's API key |
-| transport | queued, relayed into a chunk store, read by polling | one HTTP connection held open, chunks pushed straight through |
-| survives a reload | yes, re-attach with `clientSecretRequestStream()` | no, the response is gone with the connection |
-| stored | yes, and stays stored until you finalize | nothing is stored |
-| stopping | `stopClientSecretPolling()` stops watching, the request keeps running | an `AbortSignal` stops receiving, the request keeps running |
+Store your backend's key on the [Secret Keys](/api-bridge/client-secret-request.md#registering-secret-keys) page, name it with `secretName`, and put `$CLIENT_SECRET` where the key goes. Set `skapiHeaders` when your backend needs to know who is calling: it is off by default, and `x-skapi-user` carries the caller's **user id**.
 
-Reach for `forwardRequest()` when the destination is your own backend and a live connection is all you need. Reach for a streamed `clientSecretRequest()` when the secret belongs to a third party, or when the answer has to outlive the page that asked for it.
+```js
+skapi.forwardRequest({ question: 'What were last quarter\'s numbers?', stream: true }, {
+    secretName: 'my_backend_key',
+    url: 'https://api.yourbackend.com/chat',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': '$CLIENT_SECRET' },
+    skapiHeaders: true,
+    stream: true,
+    poll: 1000,
+    onStream: (chunk) => { output.textContent += chunk; }
+});
+```
+
+An `AbortSignal` in `signal` stops **this client** receiving the rest, and leaves the request
+running. What removes the request itself is
+[`cancelForwardRequest()`](/api-bridge/polling-request.md#cancelling-a-request).
 
 ## A destination that is not SSE
 
@@ -350,15 +359,14 @@ Nothing above depends on Server-Sent Events. A destination that writes newline-d
 let carry = '';
 const rows = [];
 
-await skapi.clientSecretRequest({
-    clientSecretName: 'vendor',
+await skapi.forwardRequest({ report: 'quarterly', format: 'ndjson' }, {
+    secretName: 'vendor',
     url: 'https://api.vendor.example/v1/export',
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
         Authorization: 'Bearer $CLIENT_SECRET'
     },
-    data: { report: 'quarterly', format: 'ndjson' },
     stream: true,
     onStream(chunk) {
         carry += chunk;

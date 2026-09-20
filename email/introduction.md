@@ -12,7 +12,7 @@ Skapi provides three very convenient email services:
     You can immediately collect email addresses from your users, and send newsletters using Skapi's E-Mail service.
     A single service can also run more than one mailing list, by registering named newsletter groups that each keep their own subscribers and their own sending address.
 
-    Newsletters require a paid plan. On the Trial plan, subscribing to a newsletter and sending one are both refused. See [Sending Newsletters](/email/newsletters.md).
+    Newsletters work on every plan, Trial included. The Trial plan includes 50 newsletter subscribers, 50 e-mail sends per month and 50 MB of e-mail storage, which is one newsletter to a full list of 50 subscribers each month; one owner can send 200 newsletter mails a month across all of their Trial projects. Sends are counted per recipient, and on every plan a project stops sending newsletters once it collects too many spam complaints. See [Sending Newsletters](/email/newsletters.md).
 
 - **Receiving Inquiries**: Receive inquiries from your users.
 

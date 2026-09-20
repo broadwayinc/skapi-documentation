@@ -15,16 +15,23 @@ If the project already uses a SPA framework (React, Vue, Svelte, etc.), follow t
 ## Non-Negotiable Rules
 
 1. Use Skapi for backend features. Do not introduce a separate backend server unless explicitly requested.
-2. Before coding any Skapi feature, read the relevant API docs in [SKAPI_DOCS](#SKAPI_DOCS) and verify types in [SKAPI_TYPES](#SKAPI_TYPES).
-3. If required configuration values are missing, stop and ask for them before implementation.
-4. Prefer minimal, production-safe code with clear error handling.
+2. Before coding any Skapi feature, read its guide, starting from [Getting Started](/introduction/getting-started.md), and verify the method signatures and types in the [API Reference](#api-reference).
+3. This file is the current documentation. Where it differs from what you remember of `skapi-js`, this file is right: use only the methods, parameters and return shapes written here.
+4. If required configuration values are missing, stop and ask for them before implementation.
+5. Prefer minimal, production-safe code with clear error handling.
+
+## Documentation Map
+
+The whole Skapi documentation follows this prompt. Each entry below links to its page in this file.
+
+<!-- DOCUMENTATION_MAP -->
 
 ## Required Startup Checklist
 
 Before implementing features, confirm these values are available:
 
 1. Skapi project ID
-2. Any required client secret key names
+2. Any required Secret Key names
 3. Any required OpenID logger IDs
 
 If any of these are missing, ask for them first.
@@ -40,27 +47,31 @@ In `index.html`, load and initialize Skapi:
 </script>
 ```
 
-- Replace `"project_id"` with the actual project ID provided by the user.
-- In SPA projects, expose the instance as `window.skapi`.
-- In SPA projects, if npm install is available, you may install Skapi and import it as a module instead of using the CDN script.
+- Replace `"<Project ID>"` with the actual project ID provided by the user.
+- In SPA projects, install `skapi-js` with npm when that is available, create the instance once in a module, export it, and import it wherever it is used. See [Getting Started](/introduction/getting-started.md).
+- In SPA projects, an inline `onsubmit="skapi.login(event)"` attribute only works if the instance is also reachable as `window.skapi`. Prefer the framework's own submit handler calling the imported instance.
 
 ## Backend Integration Requirements
 
 - Implement backend logic only through Skapi APIs.
-- Validate method parameters and return shapes against [SKAPI_TYPES](#SKAPI_TYPES).
-- Read large documentation files in manageable chunks when necessary.
+- Validate method parameters and return shapes against the [API Reference](#api-reference).
+- Most methods that fetch a list resolve to a [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse): read the items from `list`, and fetch the next page with `fetchMore`. Check each method's return type, a few resolve to a plain array.
 
-## Third-Party API Integration (Client Secrets)
+## Third-Party API Integration (Secret Keys)
+
+A secret such as a third-party API key must never appear in frontend code. The project owner registers it on the **Secret Keys** page of the Skapi dashboard, and the app refers to it by name. See [Secret Keys](/api-bridge/client-secret-request.md) and [Forwarding Requests](/api-bridge/forward-request.md).
 
 When integrating third-party APIs that require secrets:
 
-1. Ask for the Skapi client secret key name if missing.
-2. Confirm secret visibility:
-  - Public secret: login not required
-  - Private secret: login required
-3. Use `skapi.clientSecretRequest()` for requests.
-4. If the user is unsure, direct them to:
-  https://docs.skapi.com/api-bridge/client-secret-request.html
+1. Ask for the name of the Skapi Secret Key if missing.
+2. Confirm whether the key is **Locked**:
+  - Locked: only a logged-in user can use it, so the feature needs login.
+  - Not locked: any visitor can use it, logged in or not.
+3. Use `skapi.forwardRequest(form, options)` for requests, naming the key as `secretName`. Pass the request body as the first argument, or `null` when there is none.
+4. Put the placeholder `$CLIENT_SECRET` where the secret value belongs, in `headers`, `url`, `params` or the body. Skapi substitutes the real value on the server. A request that names a `secretName` must contain the placeholder at least once.
+5. If the key has **Destinations** set, it can only be sent to those URLs. Tell the user which URL the app calls so they can allow it.
+6. If the user is unsure, direct them to:
+  https://docs.skapi.com/api-bridge/forward-request.html
 
 ## Third-Party OAuth Integration
 
@@ -69,23 +80,23 @@ When implementing Google/Facebook/GitHub-style login:
 1. Inform the user they must configure OAuth on the provider side.
 2. Inform the user they must configure an OpenID logger in Skapi.
 3. Ask for OpenID logger IDs if missing.
-4. Note that provider-specific OAuth flows vary and may require a client-secret request step.
+4. Note that provider-specific OAuth flows vary. Exchanging an authorization code for a token needs the provider's client secret, so store it as a Secret Key and make that request with `skapi.forwardRequest()`. See [OpenID Login](/authentication/openid-login.md).
 5. Inform the user HTTPS may be required by the provider for auth to work.
 
 If the user is unsure, direct them to:
 https://docs.skapi.com/authentication/openid-login.html
 
-## Push Notifications and WebRTC
+## Features That Need HTTPS
 
-If implementing push notifications or WebRTC, explicitly inform the user that HTTPS hosting is required for reliable behavior.
+Push notifications and WebRTC only work on a page served over HTTPS. Record encryption needs HTTPS as well, though `localhost` and `127.0.0.1` also count, so local development works. If implementing any of them, explicitly inform the user that the app must be hosted on HTTPS.
 
 ## Coding Guidelines
 
-- If a Skapi method accepts `SubmitEvent` and is designed for HTML forms, pass the form `onsubmit` event directly.
+- If a Skapi method accepts `SubmitEvent` and is designed for HTML forms, pass the form `onsubmit` event directly. See [Working with HTML forms](/introduction/working-with-forms.md).
 - Use defensive programming when reading fetched data.
 - Always guard against `null` and `undefined`.
-- Include practical error handling and user-visible failure states.
-- When using `postRecord()` or `getRecords()`, follow special-character rules for `index`, `tags`, and `table`.
+- Include practical error handling and user-visible failure states. A failed Skapi call rejects with an error that has a `code` and a `message`.
+- When using `postRecord()` or `getRecords()`, follow the naming rules for `table`, `index` and `tags`. See [Creating a Record](/database/create.md), [Indexing](/database/indexing.md) and [Tags](/database/tags.md).
 
 ## Static HTML App Rules
 
@@ -93,12 +104,14 @@ If implementing push notifications or WebRTC, explicitly inform the user that HT
 
 - The entry page must be `index.html`.
 - Keep links and form actions compatible with local static usage (`file://`) where possible.
+- A form's `action` attribute is where Skapi sends the user after the request succeeds, and the next page reads the result with `skapi.getFormResponse()`.
 
 ### Authentication and Access Control
 
 - Initialize Skapi on every page that uses auth or backend calls.
-- Check login state on protected pages.
+- Check login state on protected pages with `skapi.getProfile()`, which resolves to `null` when nobody is logged in.
 - Redirect unauthenticated users away from restricted pages.
+- Hiding a page is not access control. What a user may read or change is decided by the record's access settings on the server. See [Access Restrictions](/database/access-restrictions.md).
 
 ## Response Behavior (for the assistant using this prompt)
 

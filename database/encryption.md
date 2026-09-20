@@ -207,7 +207,7 @@ it earlier with `ENCRYPTION_NOT_RECORD_OWNER` so the reason is clear before a ro
 Encryption operates only on records you own, whatever access level you hold. A master who
 needs one of these changes has to have the owner make it.
 
-This is enforced in the **backend**, not only in the SDK, so an older client or a direct
+This is enforced in the **backend**, not only in the SDK, so a direct
 REST call is refused too. Declassifying someone else's private record, by setting its
 `table.access_group` to any non-private group, is refused with:
 
@@ -560,27 +560,40 @@ read-modify-write by a session that could not decrypt cannot overwrite the recor
 
 ## What the service owner sees
 
-The backend lets a master account read and delete any record in its project, and that does
-not change. What changes is that the payload is not readable:
+The backend lets a master account read and delete any record in its project. What it does not
+hand over is the payload of another user's private record it has no access to, and that happens
+before encryption enters the picture at all: unless it holds private access to the record, or to
+the record it references, the database withholds the `data` from the project owner and from admins
+in access group `99`, encrypted or not, so a master never receives the envelope at all:
 
 ```js
 const res = await skapi.getRecords({ record_id });
-res.list[0].data;       // null (or the sentinel)
-res.list[0].encrypted;  // { status: 'failed', reason: 'NOT_A_RECIPIENT', recipients: [...] }
+res.list[0].data;       // { __is_private__: null }
+res.list[0].encrypted;  // undefined: no envelope arrived, so there is nothing to report on
 ```
 
 Nothing throws, and everything else on the record stays fully visible: `record_id`,
-`user_id`, index name and value, tags, reference, timestamps, and the list of user_ids that
-*can* decrypt it.
+`user_id`, index name and value, tags, reference and timestamps. The list of user_ids that
+*can* decrypt it travels inside the envelope, so it is not visible either. See [Private
+Records](/database/access-restrictions.md#private-records).
+
+This is also why `withheld: 'sentinel'` and `isWithheld()` have nothing to say here. They
+describe a payload the SDK received and could not open. `{ __is_private__: null }` is the
+database saying it sent no payload, and a tool that has to tell the two apart checks for the
+`__is_private__` key itself.
 
 `deleteRecords` behaves the same way. The delete still happens, and the records it returns
-come back with their data withheld rather than as raw ciphertext. The owner of a record
-deleting their own gets it back decrypted, which is the point of a delete that returns what
-it removed.
+come back with their data withheld where the caller has no access to it. The owner of a record deleting their own gets it back
+decrypted, which is the point of a delete that returns what it removed.
+
+The `encrypted` failures on this page are for the callers that do receive an envelope: the
+record's own user on a locked or re-keyed session, a user their record was
+[shared](#sharing-a-record) with, admins included, and anyone who reaches the record through a
+reference but was never given its key.
 
 ::: tip Support tooling
 Any dashboard or support tool that reads customer record data needs to be identified before
-you enable this. It will keep working at the ACL level and start receiving `data: null`.
+you enable this. It keeps working at the ACL level, and it stops receiving payloads.
 :::
 
 A record stored in plaintext has **no** `encrypted` field at all, which is how existing
@@ -774,8 +787,6 @@ genuinely what you want.
   again.
 - **Cross-project writes are refused.** The key is derived per project; use a separate
   Skapi instance for another service.
-- **Upgrade every client first.** An older SDK reading an encrypted record sees the raw
-  envelope. It loses nothing, but it cannot read it.
 
 ## Where the keys live
 

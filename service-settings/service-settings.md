@@ -73,12 +73,11 @@ When this is on, database reads are refused to a visitor who is not signed in.
 The SDK refuses them first: [`getRecords()`](/api-reference/database/README.md#getrecords), `getTables()`, `getTags()`, `getIndexes()` and `getUniqueId()` throw `REQUIRE_LOGIN` from a session with no signed-in user. Signed-in users are unaffected.
 
 The four metadata listings are enforced on the **server** as well.
-[`getTables()`](/api-reference/database/README.md#gettables), [`getTags()`](/api-reference/database/README.md#gettags), [`getIndexes()`](/api-reference/database/README.md#getindex) and [`getUniqueId()`](/api-reference/database/README.md#getuniqueid) are refused with `INVALID_REQUEST` when the request arrives with no signed-in user, so a direct API call, a script, or an older SDK with no gate is refused too.
+[`getTables()`](/api-reference/database/README.md#gettables), [`getTags()`](/api-reference/database/README.md#gettags), [`getIndexes()`](/api-reference/database/README.md#getindex) and [`getUniqueId()`](/api-reference/database/README.md#getuniqueid) are refused with `INVALID_REQUEST` when the request arrives with no signed-in user, so a direct API call or a script is refused too.
 A project that has **never set** this option counts as on, which is the same default every client already receives as `conf.require_login`.
 
 :::warning
-Those four listings used to be served to anyone who knew the project ID.
-If you have an integration that reads table, tag, index or unique ID metadata without signing a user in, it will start getting an error. Turn this option off if that is what you intend.
+An integration that reads table, tag, index or unique ID metadata without signing a user in gets an error while this option is on. Turn this option off if that is what you intend.
 :::
 
 It is returned to every client as `conf.require_login` on [`getConnectionInfo()`](/api-reference/connection/README.md#getconnectioninfo), so a page can tell before any login whether it should show its own sign-in screen first.

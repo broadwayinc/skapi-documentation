@@ -17,13 +17,10 @@ That is how you list everything: give no `table`, and give no `condition`.
 ### Who can read table information
 
 When the project's [Require Login](/service-settings/service-settings.md#require-login) setting is on, [`getTables()`](/api-reference/database/README.md#gettables) is refused to a visitor who is not signed in.
-The SDK throws `REQUIRE_LOGIN` before the request leaves the browser, and the backend refuses the same call with `INVALID_REQUEST`, so a direct API call or an older SDK with no gate is refused as well.
+The SDK throws `REQUIRE_LOGIN` before the request leaves the browser, and the backend refuses the same call with `INVALID_REQUEST`, so a direct API call is refused as well.
 A project that has never set that option counts as **on**.
 
-:::warning
-Table metadata used to be served to anyone who knew the project ID.
-An integration that lists tables without a signed in user now gets an error where it used to get a list. If a signed out page genuinely needs the listing, turn Require Login off in the project settings.
-:::
+If a signed out page genuinely needs the listing, turn Require Login off in the project settings.
 
 Table **names** are never filtered: the response carries every table in the project, whatever access group the records inside it live in.
 The per access group record counters are filtered to the caller:

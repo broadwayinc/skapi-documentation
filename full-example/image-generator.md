@@ -20,10 +20,10 @@ See the tutorial [Introduction](/full-example/intro.html) for more information.
 ## Prerequisites
 
 - You need to have an OpenAI account to use the API.
-- You need to obtain the client secret key from OpenAI.
-- You need to save your client secret key in your project dashboard.
+- You need to obtain an API key from OpenAI.
+- You need to save that key on the **Secret Keys** page of your project dashboard.
 
-  For more information, see [Client Secret Key](/service-settings/service-settings.html#secret-key).
+  For more information, see [Secret Keys](/api-bridge/client-secret-request.md#registering-secret-keys).
 
 ## AI Image Generator
 
@@ -70,13 +70,16 @@ See the tutorial [Introduction](/full-example/intro.html) for more information.
     </style>
     <form onsubmit="
         /*
-        We will use the clientSecretRequest() method to call the OpenAI's API.
-        We will pass the url, method, headers and post data according to the OpenAI's API documentation.
-        The client secret name is the key name of the client secret you may have saved in the project dashboard.
-        
-        For more information about the setting your client secret keys,
-        visit: https://docs.skapi.com/service-settings/service-settings.html#secret-key
-        
+        We will use the forwardRequest() method to call the OpenAI's API.
+        The first argument is the form itself: its fields are flattened and become the
+        request body. The url, method and headers go in the second argument, according
+        to the OpenAI's API documentation.
+        secretName is the name of the key you saved on the Secret Keys page of the
+        project dashboard, and $CLIENT_SECRET is replaced with its value on the server.
+
+        For more information about registering your secret keys,
+        visit: https://docs.skapi.com/api-bridge/client-secret-request.html
+
         When successful, it will return the response data.
         When unsuccessful, it will return the error object.
         */
@@ -86,7 +89,15 @@ See the tutorial [Introduction](/full-example/intro.html) for more information.
         // The function is defined in the service.js file.
         disableForm(this, true);
 
-        skapi.clientSecretRequest(event).then(r => {
+        skapi.forwardRequest(event, {
+            secretName: 'openai',
+            url: 'https://api.openai.com/v1/images/generations',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer $CLIENT_SECRET'
+            }
+        }).then(r => {
             if (r.error) {
                 generated.innerHTML = /*html*/ `<p>Describe an image you want to generate</p>`;
                 alert(r.error.message);
@@ -103,16 +114,11 @@ See the tutorial [Introduction](/full-example/intro.html) for more information.
             disableForm(this, false);
         });
     ">
-        <input name="clientSecretName" hidden value="openai">
-        <input name="url" hidden value="https://api.openai.com/v1/images/generations">
-        <input name="method" hidden value="POST">
-        <input name="headers[Content-Type]" hidden value='application/json'>
-        <input name="headers[Authorization]" hidden value="Bearer $CLIENT_SECRET">
-        <input name="data[model]" hidden value="dall-e-3">
-        <input name="data[n]" type='number' hidden value="1">
-        <input name="data[size]" hidden value="1024x1024">
-        <input name="data[style]" hidden value="vivid">
-        <textarea name='data[prompt]' rows="4" placeholder="Describe an image" required></textarea>
+        <input name="model" hidden value="dall-e-3">
+        <input name="n" type='number' hidden value="1">
+        <input name="size" hidden value="1024x1024">
+        <input name="style" hidden value="vivid">
+        <textarea name='prompt' rows="4" placeholder="Describe an image" required></textarea>
         <input type="submit" value="Generate">
     </form>
     <style>
