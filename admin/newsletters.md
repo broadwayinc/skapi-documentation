@@ -44,6 +44,8 @@ The **project owner**, **Skapi staff** and admins in access group **`99`** read 
 **`subscriber_token` is what tells two masked rows apart.** Every masked row of a group listing carries one, beside the masked address. It is **stable**, so the same subscriber gives the same token on every call and on every page, and it is **distinct**, so two different addresses never give the same one. Key your rows on it, and your list stops losing the subscribers the mask reads alike.
 
 The token is opaque: it is not a readable address, your code cannot turn it back into one, and it is not something to display or to mail. It is **scoped** to the project, the project owner and the newsletter group, so the same subscriber carries a different token in another group, and a token from one group or project means nothing in another. Its length varies with the address, so keep it as a plain string.
+
+Use the token to key rows, selections and counts while you work with a listing, across its calls and pages. **Do not store it as a lasting id for a subscriber**: the platform can reissue tokens, and after that the same subscriber reads as a new token.
 A caller who reads addresses in full gets **no** `subscriber_token` at all: the property is simply absent from the row.
 
 **Paging works normally, but hand the cursor back unchanged.** For an admin in access groups `90` ~ `98` the `startKey` of a page comes back sealed, as `{ seal: '...' }` instead of the database's own key, because the raw key names the last row of the page with its address in full. Ordering, page size, `endOfList` and `{ fetchMore: true }` are unchanged, and `fetchMore` replays the sealed cursor for you.
