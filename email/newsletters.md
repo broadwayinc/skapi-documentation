@@ -9,6 +9,12 @@ xxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@mail.skapi.com
 
 Go to `Newsletters` page, select the tab (`Newsletter`, `Service Email` or a named group), and the page will show the email endpoint address to send the newsletter.
 
+:::warning Only the project owner sends newsletters
+A newsletter is sent by the **project owner**, from the **project's email address**, to the endpoint address the `Newsletters` page shows.
+Admins of your project, access group `99` included, cannot send newsletters.
+Mail from any other address is not processed. When that address passes the sender trust check below, Skapi replies to it that only the project owner can send newsletters.
+:::
+
 :::tip Newsletters work on every plan, Trial included
 A Trial project can collect newsletter subscribers and send newsletters to them.
 The Trial plan includes **50 e-mail sends per month**, **50 newsletter subscribers** and **50 MB of e-mail storage**.
@@ -224,9 +230,16 @@ skapi.newsletterGroupEndpoint().then(res => {
 Send your email to that address, and it goes out to every subscriber of that group.
 
 :::warning
-The newsletter has to be sent **from your service's email address**.
+The newsletter has to be sent **from your service's email address**, by the project owner.
 An email that reaches the endpoint from any other address is refused, so knowing the address is not enough to send a newsletter as your service.
 `endpoint` comes back as an empty string when your service has no sender email set.
+:::
+
+:::warning Your address must pass the sender trust check
+Skapi only accepts a newsletter from an address whose mail passes **SPF, DKIM and DMARC**, the checks that prove an email really comes from the address it names.
+Mail that fails any of them, or comes from a domain that publishes none of them, is treated as suspicious and is not processed. Skapi replies to your address with a notice that lists each check and its result.
+If you get that notice, ask your email provider, or whoever manages your domain, to check the trust settings (SPF, DKIM and DMARC) of your address, then send it again.
+Addresses at the large email providers usually pass these checks already.
 :::
 
 ### Deleting a named newsletter group

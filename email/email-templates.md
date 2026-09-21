@@ -6,8 +6,17 @@ You can customize the email template of these automated emails by sending your t
 
 E-Mail endpoints can be found in your `Automated Emails` page in your Skapi admin page.
 
+:::warning Your address must pass the sender trust check
+Skapi only accepts a template from an address whose mail passes **SPF, DKIM and DMARC**, the checks that prove an email really comes from the address it names.
+Mail that fails any of them, or comes from a domain that publishes none of them, is treated as suspicious and is not processed. Skapi replies to your address with a notice that lists each check and its result.
+If you get that notice, ask your email provider, or whoever manages your domain, to check the trust settings (SPF, DKIM and DMARC) of your address, then send it again.
+Addresses at the large email providers usually pass these checks already.
+:::
+
 :::warning Templates and the sending address are project settings
 Setting or deleting a template, and choosing the address your automated emails are sent from, belong to the **project owner's Skapi account**, and to Skapi staff when you ask Skapi for help. An [admin](/admin/permissions.md#project-settings-belong-to-the-project-owner) of your project, access group `99` included, is refused with `INVALID_REQUEST` and `Only the project owner can change project settings.`
+
+A template is set by sending it **from the project's email address**, the project owner's, to the endpoint the `Automated Emails` page shows. Mail from any other address is not processed. When that address passes the sender trust check below, Skapi replies to it that only the project owner can set templates.
 :::
 
 In the `Automated Emails` page, select an email type you want to set the template.
@@ -155,6 +164,8 @@ An **optional** one is filled in wherever you use it.
 - **`${service_name}`**: Name of your project.
 - **`${name}`**: User's name from the profile. If the user has not set their name, it will be replaced with empty string.
 - **`${email}`**: User's email address.
+
+A placeholder's value is always inserted as **text**. A user's name, email address or password can hold any characters, and characters such as `<`, `>` and `&` show exactly as the user typed them, so a value can never add a link, an image or any other markup to your template. In the subject line, a line break in a value becomes a space.
 
 The newsletter subscription confirmation is sent to an email address rather than to a user account, so it has no `${name}` or `${email}`.
 

@@ -191,6 +191,13 @@ Every ticket also still answers on the older long-form routes, which carry the o
 | `POST/GET /publ/consume/<service_id>/<owner_id>/<ticket_id>` | none | `POST /tp/...` and `GET /tg/...` |
 | `POST /auth/consume/<service_id>/<owner_id>/<ticket_id>` | Cognito | `POST /tpa/...` |
 
+## Newsletters sent by admins
+
+Admins in access group `99` could once send newsletters for a project, from their own email address, to an admin newsletter address that the `admin-newsletter-request` API minted for them.
+Since newsletters became owner only, that API refuses every caller with `INVALID_REQUEST` and `Only the project owner can send newsletters.`, and mail to an admin newsletter address is not processed.
+When its sender passes the sender trust check, Skapi replies that admin newsletter addresses are no longer used.
+Send newsletters as the project owner, from the project's email address, to the address the `Newsletters` page shows. See [Sending Newsletters](/email/newsletters.md).
+
 ## The service ID and owner ID pair
 
 A project used to be identified by two values, a service ID and an owner ID. The `Skapi` constructor still accepts that pair in place of the single [project ID](/introduction/getting-started.md), and converts it to the same project ID.

@@ -320,7 +320,8 @@ Everyone else is refused with `Database is frozen. Write access is denied for th
 | Subscribe or unsubscribe any e-mail address to a group | The project owner and admins in access group `99` |
 | Register, list and delete [named newsletter groups](/email/newsletters.md#named-newsletters) | The project owner and admins in access group `99` |
 | Send push notifications to all users, or to chosen users | The project owner and admins (access groups `90` ~ `99`) |
-| Send a newsletter, and read its delivery statistics | The project owner and admins in access group `99`. The SDK has no method for sending one, and the project owner sends from the Skapi dashboard. |
+| Send a newsletter, and set an e-mail template | The project owner only, from the project's email address. Admins in any access group, `99` included, cannot. The SDK has no method for either: the owner sends the email to the address the Skapi dashboard shows. |
+| Read a sent newsletter's delivery statistics | The project owner and admins in access group `99` |
 
 [`getNewsletters()`](/api-reference/email/README.md#getnewsletters) returns a sent newsletter's read, bounce and complaint counts only to the project owner and admins in access group `99`. Everyone else who may read that group gets the message id, the timestamp and the subject.
 

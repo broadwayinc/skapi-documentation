@@ -40,7 +40,6 @@ Admins use high access groups (`90` ~ `99`) and can perform the following action
 Admins in access group `99` can also:
 
 - Read the subscriber list with the addresses **in full**, and search it by e-mail address.
-- Send newsletters to newsletter subscribers.
 - View the delivery statistics of sent newsletters: reads, bounces and complaints.
 - Register, list and delete named newsletter groups.
 - Subscribe or unsubscribe any e-mail address to a newsletter group.
@@ -61,6 +60,7 @@ Admins cannot perform the following actions:
 - Change a login `username`. It is permanent.
 - In access groups `90` ~ `98`, read subscriber addresses in full. The subscriber list comes back masked, as `j**@**.com`, and a masked address cannot be mailed and is not unique, so rows are told apart by their `subscriber_token` instead.
 - In access groups `90` ~ `98`, search the subscriber list by e-mail address. The search matches the stored address, so it would give the mask back one letter at a time, and it is refused with `No access.`
+- Send newsletters or set e-mail templates, in **any** access group, `99` included. Only the project owner does, from the project's email address. See [Sending Newsletters](/email/newsletters.md).
 - Change project settings, in **any** access group, `99` included.
 
 Project settings are available only to the project owner's Skapi account, through the Skapi project pages, and to Skapi staff when you ask Skapi for help.

@@ -24,6 +24,10 @@ Registering a subdomain, moving it and dropping it belong to the **project owner
 Uploading and deleting the hosted **files** is different: admins do that as usual, so a project stays deployable without the owner.
 :::
 
+:::danger A temporarily banned subdomain
+Skapi can temporarily ban a subdomain, for example one reported for abuse. While it is banned the site is offline, and the subdomain of the project cannot be changed or removed: every request is refused with `INVALID_REQUEST` and `Current subdomain "<name>" is temporarily banned.` The name stays reserved to the project during the ban.
+:::
+
 <!-- 
 ![subdomain register](/hosting.png)
  -->
