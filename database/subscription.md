@@ -18,9 +18,9 @@ The `table.subscription` object controls how a record behaves for subscribers.
 
 -   `is_subscription_record`: Marks the record as subscription-scoped. Subscribed users can retrieve these records with [`getRecords()`](/api-reference/database/README.md#getrecords) (using `table.subscription`).
 -   `upload_to_feed`: Publishes the record to subscriber feeds so it can appear in [`getFeed()`](/api-reference/database/README.md#getfeed). Off unless set to `true`.
--   `notify_subscribers`: Stored with the record, but currently has no effect.
--   `feed_referencing_records`: Includes records that reference this record in subscriber feeds.
--   `notify_referencing_records`: Stored with the record, but currently has no effect.
+-   `notify_subscribers`: When the record is created, sends a push notification to the uploader's subscribers who subscribed with `get_notified: true`. See [Notifications](#notifications).
+-   `feed_referencing_records`: Adds records that reference this record to the feed of this record's uploader.
+-   `notify_referencing_records`: Every time a new record references this record, sends a push notification to this record's uploader's subscribers who subscribed with `get_notified: true`. See [Notifications](#notifications).
 
 You can enable these options independently or combine them depending on your product behavior.
 
@@ -28,6 +28,7 @@ For example:
 
 -   Use `is_subscription_record: true` without `upload_to_feed` when records should be accessible to subscribers but not appear in feed timelines.
 -   Use `upload_to_feed: true` for timeline-style content.
+-   Use `notify_subscribers: true` to tell subscribers about a new post as it happens, and `notify_referencing_records: true` to tell them about new comments on it.
 
 This is useful for social apps where users follow each other, consume feed content, and track subscriber counts.
 
@@ -122,6 +123,16 @@ To use the [`getFeed()`](/database/subscription.html#getting-feed) method later,
 
 `table.subscription.upload_to_feed` must be set to `true` for records to appear in subscriber feeds.
 :::
+
+A new subscription starts with every option off: `get_feed` and `get_notified` are only on when you set them. Calling [`subscribe()`](/api-reference/database/README.md#subscribe) again for the same user changes only the options you pass and keeps the others, so a subscriber can turn notifications on or off later without losing their feed:
+
+```js
+// User B turns notifications on. get_feed stays as it is.
+skapi.subscribe({
+    user_id: "user_id_of_user_A",
+    get_notified: true,
+});
+```
 
 :::warning
 Subscribers will not get feeds that are posted prior to the subscription.
@@ -220,9 +231,115 @@ skapi
     });
 ```
 
+An unblocked subscriber gets their subscription back with the options they had. Unblocking a user who was blocked without ever subscribing does not subscribe them.
+
 For full parameter and option details, see the API reference below:
 
 ### [`unblockSubscriber(option): Promise<string>`](/api-reference/database/README.md#unblocksubscriber)
+
+## Notifications
+
+A user's subscribers can get a push notification when the user posts a record, and when someone references one of the user's records (for example, a comment on a post). Both are turned on per record by the uploader, and each subscriber decides whether they want them.
+
+### What the subscriber needs
+
+1. Subscribe with `get_notified: true`:
+
+    ```js
+    // User B wants notifications from user A.
+    skapi.subscribe({
+        user_id: "user_id_of_user_A",
+        get_notified: true,
+    });
+    ```
+
+2. Register the device for push notifications with [`subscribeNotification()`](/api-reference/realtime/README.md#subscribenotification). Notifications are delivered to every device the subscriber registered. See [Notifications](/notification/send-notifications.md) for the service worker and the registration steps.
+
+To stop the notifications, subscribe again with `get_notified: false`. Their other options stay as they are.
+
+### Notifying subscribers of a new record
+
+Set `table.subscription.notify_subscribers` to `true` when you create the record. Pass `notification` to choose the text the subscribers see:
+
+```js
+// User A posts, and user A's subscribers are told.
+skapi.postRecord({
+    title: "New post",
+    body: "Hello subscribers!"
+}, {
+    table: {
+        name: "Posts",
+        access_group: "authorized",
+        subscription: {
+            notify_subscribers: true
+        }
+    },
+    notification: {
+        title: "User A posted",
+        body: "Hello subscribers!"
+    }
+});
+```
+
+`notification.title` and `notification.body` are both required, and together they must fit 3072 bytes. Without `notification`, subscribers see the title `New post` and the body `A user you subscribed to posted in "Posts".`
+
+Only creating the record sends the notification. Updating a record, even to turn `notify_subscribers` on, does not.
+
+### Notifying subscribers of a new reference
+
+Set `table.subscription.notify_referencing_records` to `true` on a record. From then on, every new record that references it notifies the record uploader's subscribers:
+
+```js
+// User A's post: new comments on it notify user A's subscribers.
+skapi.postRecord({ title: "New post" }, {
+    table: {
+        name: "Posts",
+        access_group: "authorized",
+        subscription: {
+            notify_referencing_records: true
+        }
+    }
+});
+
+// User C comments. User A's subscribers who set get_notified are told.
+skapi.postRecord({ comment: "Nice!" }, {
+    table: {
+        name: "Comments",
+        access_group: "authorized"
+    },
+    reference: "record_id_of_user_A_post"
+});
+```
+
+These notifications always show the title `New reference` and the body `A post by a user you subscribed to was referenced in "Comments".` (with the referencing record's table name). The user who references cannot choose the text, because it goes to someone else's subscribers.
+
+A record notifies only when it gains the reference, when it is created or updated to reference a different record. Saving it again with the same reference does not notify again.
+
+### Who is notified
+
+-   Subscribers who set `get_notified: true` and are not blocked.
+-   Only subscribers who can read the record: every subscriber for a `public` or `authorized` record, and for a higher access group, only subscribers whose own access group is at least that high. A reference is checked against the higher access group of the two records.
+-   Never for a `private` record, on either side of a reference.
+-   Never the user who posted the record, even if they subscribe to the uploader.
+-   Only references made by signed-in users notify.
+
+### What the service worker receives
+
+The push message is a JSON object. Besides `title` and `body`, it says which record it is about, so your service worker can open the right page:
+
+```ts
+{
+    title: string;
+    body: string;
+    type: "record" | "reference"; // "record": a new record. "reference": a new record referencing one of the user's records.
+    record_id: string; // The new record.
+    table: string; // Table name of the new record.
+    user_id: string; // User who posted the new record.
+    reference?: string; // Only for "reference": the record that was referenced.
+}
+```
+
+See [Notifications](/notification/send-notifications.md#notifications-from-records) for a service worker that opens the record when the notification is clicked.
 
 ## Listing Subscriptions
 

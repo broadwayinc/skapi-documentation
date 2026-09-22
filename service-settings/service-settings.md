@@ -3,6 +3,7 @@
 Go to your project page and click on the **Project Settings** menu.
 
 On this page, you can configure settings for your project.
+The button that deletes the project is at the bottom of the page. See [Deleting a Project](/service-settings/deleteservice.md).
 
 :::warning Only the project owner can change these
 Every setting on this page belongs to the **project owner's Skapi account**, and to Skapi staff when you ask Skapi for help. An [admin](/admin/permissions.md#project-settings-belong-to-the-project-owner) of your project, access group `99` included, is refused with `INVALID_REQUEST` and `Only the project owner can change project settings.`

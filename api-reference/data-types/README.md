@@ -347,11 +347,17 @@ type PostRecordConfig = {
         subscription?: {
             is_subscription_record?: boolean; // When true, this record is a subscription record.
             upload_to_feed?: boolean; // When true, record will be uploaded to the feed of the subscribers. Off unless set.
-            notify_subscribers?: boolean; // Stored with the record, but currently has no effect.
-            feed_referencing_records?: boolean; // When true, records referencing this record will be included to the subscribers feed.
-            notify_referencing_records?: boolean; // Stored with the record, but currently has no effect.
+            notify_subscribers?: boolean; // When true, creating the record sends a push notification to the uploader's subscribers who subscribed with get_notified. See "notification".
+            feed_referencing_records?: boolean; // When true, records referencing this record are added to the feed of this record's uploader.
+            notify_referencing_records?: boolean; // When true, every new record referencing this one sends a push notification to this record's uploader's subscribers who subscribed with get_notified.
         } | null;
     };
+
+    /** Text of the push notification sent when the record is created with table.subscription.notify_subscribers. Both required, together at most 3072 bytes. Without it, subscribers see a default text. Ignored on updates. */
+    notification?: {
+        title: string;
+        body: string;
+    } | null;
 
     source?: {
         referencing_limit?: number; // Default: null (Infinite)
@@ -426,9 +432,9 @@ type RecordData = {
         subscription?: {
             is_subscription_record: boolean; // When true, this record is a subscription record.
             upload_to_feed: boolean; // When true, record will be uploaded to the feed of the subscribers.
-            notify_subscribers: boolean; // Stored with the record, but currently has no effect.
-            feed_referencing_records: boolean; // When true, records referencing this record will be included to the subscribers feed.
-            notify_referencing_records: boolean; // Stored with the record, but currently has no effect.
+            notify_subscribers: boolean; // When true, creating the record sent a push notification to the uploader's subscribers who subscribed with get_notified.
+            feed_referencing_records: boolean; // When true, records referencing this record are added to the feed of this record's uploader.
+            notify_referencing_records: boolean; // When true, every new record referencing this one sends a push notification to the uploader's subscribers who subscribed with get_notified.
         };
     };
     source: {
@@ -635,12 +641,12 @@ See [Streaming Request](/api-bridge/streaming-request.html)
 
 ```ts
 type Subscription = {
-    subscriber: string;
-    subscription: string;
+    subscriber: string; // User ID of the subscriber.
+    subscription: string; // User ID of the user subscribed to.
     timestamp: number;
     blocked: boolean;
-    get_feed: boolean;
-    get_notified: boolean;
+    get_feed: boolean; // Records the user posts with upload_to_feed appear in the subscriber's getFeed().
+    get_notified: boolean; // The subscriber gets push notifications for records the user posts with notify_subscribers, and for new references to the user's records with notify_referencing_records.
     get_email: boolean;
 }
 ```

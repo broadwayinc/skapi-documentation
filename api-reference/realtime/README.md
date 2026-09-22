@@ -181,8 +181,8 @@ unsubscribeNotification(
 pushNotification(
   params: {
     title: string;
-    body: string;
+    body: string; // title and body together at most 3072 bytes.
   },
-  user_ids?: string | string[]
+  user_ids?: string | string[] // Up to 1000 users. Each gets it on every device they registered. Without it, every registered device of the project gets it.
 ): Promise<"SUCCESS: Notification sent.">
 ```

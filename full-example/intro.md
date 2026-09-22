@@ -124,6 +124,8 @@ All the code in this tutorial is heavily commented, and the comments are written
 
 ## Read Order
 
+Each part also has its own walkthrough page: [Authentication and User Profile](/full-example/auth-profile.md), [Instaclone](/full-example/instaclone.md), [Chat Room](/full-example/chatroom.md) and [AI Image Generator](/full-example/image-generator.md).
+
 For easier understanding, the tutorial is written in a way that you can read the code files in the following order:
 
 #### Main Page, Login, Logout

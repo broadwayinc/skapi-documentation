@@ -174,17 +174,138 @@ The SDK's TypeScript still declares `'response'` among the values of `responseTy
 
 ## Tickets
 
+### Tickets saved before this release
+
+Tickets registered before this release keep running by the rules below until they are registered again, apart from the platform rules listed under [What applies to these tickets now](#what-applies-to-these-tickets-now). The dashboard's **Tickets** page marks them **previous rules**, their form says **Saved under the previous rules**, and `getTickets()` returns them to the project owner with `legacy: true`. Saving one applies the current rules; what that changes is listed under [Saving one again](#saving-one-again).
+
+#### The previous format
+
+A ticket had one `condition`, a `placeholder` map and a single `action` object:
+
+```json
+{
+  "ticket_id": "order-paid",
+  "description": "Order paid",
+  "count": 100,
+  "limit_per_user": true,
+  "condition": {
+    "return200": true,
+    "method": "POST",
+    "headers": [ { "key": "x-webhook-source", "operator": "=", "value": "shop" } ],
+    "data": [ { "key": "type", "operator": "=", "value": "order.paid" } ]
+  },
+  "placeholder": { "ORDER": "order[id]" },
+  "action": {
+    "request": { "url": "https://api.example.com/orders/$ORDER/ship", "method": "POST",
+                 "headers": { "content-type": "application/json" },
+                 "data": { "event": "${type}" } }
+  }
+}
+```
+
+- `condition` held `return200`, `method` (`"GET"` or `"POST"`), `ip` and `user_agent` (`{ operator, value }` with one text value), rows in `headers`, `data`, `params` and `user` (`{ key, operator, value }`, plus `setValueWhenMatch` on `data` and `params`), `record_access`, and the check-time [`request`](#the-request-condition).
+- `placeholder` mapped a name to a path in the request data.
+- `action` held any of `request` (`{ url, method, headers, data, params }`), `access_group` (a number) and `record_access` (a record id).
+
+#### How a request was checked
+
+1. The ticket itself: the issuer cannot consume it, then `time_to_live`, `count` and, for a signed-in consumer, `limit_per_user`.
+2. On the long-form endpoints, the placeholders (below).
+3. The condition, in the order `method`, `headers`, `ip`, `user_agent`, `data`, `params`, `user`, `request`. The first part that fails is answered.
+
+The rows already combined by key, as they do now: every key must match, and rows on the same key are alternatives. What differed:
+
+- **A missing field is an error.** A row whose path is not in the request answers `INVALID_MATCH: Path not found: <key>.` at once. A `data` row on a body that is not JSON, or a `params` row on a request without a query string, answers `INVALID_MATCH: Invalid path provided for the data.`
+- **Header names are lower case.** Headers are read with lower-case names, so a `headers` row whose key has a capital letter answers `Path not found`.
+- **The data.** `data` rows read the POST body and `params` rows the query string, on either method. Query values are the strings as received, never JSON-parsed.
+- **Comparisons are loose.** `=` treats `true` as equal to `1`. On a string field, `>=` means starts with, but `<=` compares in character order. An ordering operator between a string and a number answers 500.
+- **A list is one value in a row.** A row whose `value` is a list compares the field with the whole list, not with each member, so `= ["a", "b"]` matches only a field that is that list. Only `ip` and `user_agent` pass when any member matches.
+- **`record_access` in the condition was never checked.**
+- **`setValueWhenMatch`** rewrote the value in the request data, which the request action then read.
+
+A mismatch answers `INVALID_MATCH` with the part named, such as `INVALID_MATCH: Invalid post data in key: type.`, `Invalid get parameter in key: code.`, `Invalid header in key: x-webhook-source.`, `Invalid user data in key: email_verified.`, `Invalid IP: 203.0.113.7` or `Invalid user agent: ...`. A wrong method answers `INVALID_REQUEST: Method not allowed for this ticket.` (`Method "get" is not allowed for this ticket.` on the short endpoints). A `user` row on an anonymous consumption answers `INVALID_REQUEST: User authentication required.`
+
+#### Placeholders and templating
+
+On the long-form endpoints (`/publ/consume/...` and `/auth/consume/...`), each entry of the `placeholder` map read its path from the request data (the POST body, or the query string on a GET) before the condition was checked, and every `$NAME` anywhere in the ticket's text, condition and action alike, was replaced by that value. A value that was missing or empty (`""`, `0`, `false`, `null`) left `$NAME` as written, and a value that was not text answered 500. The short endpoints (`/tp/`, `/tg/`, `/tpa/`) and the dry run applied no placeholders.
+
+The request action had one more kind of value: `${key}`, the top-level `key` of the request data, as text. It was filled in the request's `headers`, in its `params` on a GET, and in its `data` and `url` on a POST. A `${...}` naming no key was sent as written, and nothing was percent-encoded. `${CLIENT_SECRET}` was an ordinary key: it read the request's own `CLIENT_SECRET` field.
+
+#### Actions
+
+The action object ran in a fixed order, and only when the condition passed:
+
+1. `request`: one HTTP call. Its `data` is sent as JSON when the `content-type` header is exactly `application/json`, otherwise form encoded. A status of 400 or more answers `REQUEST_FAILED: Request failed with status code <status>`.
+2. `access_group`: meant to set the signed-in consumer's access group. On an anonymous consumption it answers `INVALID_REQUEST: User authentication required.` before any action runs. On a signed-in one it never completes: the group is refused when it is written, and the consumption answers 500 after the request has run.
+3. `record_access`: did nothing.
+
+#### Answers
+
+A success answers `{ "tkid", "hash" }`, as now. A failure answers plain text, `<CODE>: <message>`, such as `INVALID_REQUEST: Ticket expired.`, with status 400, or 200 when `return200` is on. An unexpected error answers 500 with `Internal server error`. There is no JSON error body and no `stage`, so [`consumeTicket()`](/api-reference/tickets/README.md#consumeticket) rejects with a `SkapiError` whose `code` is `INVALID_REQUEST` (`ERROR` for the other codes, such as `INVALID_MATCH`), whose `message` is the text after the code, and which has no `cause`. With `return200` on, it resolves with the text.
+
+#### What applies to these tickets now
+
+A few platform rules apply to every ticket, these included:
+
+- The project must exist and be active, and a signed-in caller must belong to the project. These are checked before the ticket is read, and answered with the current [JSON error body](/tickets/errors.md#the-error-body).
+- A request sent by a ticket, which carries an `X-Skapi-Ticket` header, is refused.
+- A ticket id that starts with `#` or `!`, which the previous register accepted, answers `TICKET_NOT_FOUND`: those prefixes name the consumption log and the per-user usage rows.
+- Outbound calls go through the same vetted client as a [`req` action](/tickets/actions.md#url-and-address-rules): no private or Skapi addresses, redirects are not followed, each call has 10 seconds within the 25-second budget of a consumption, and the engine sets `Host` to the URL's host and `X-Skapi-Ticket` itself, dropping a copy of either that the ticket's headers carry. A call that is refused or cannot complete, a header value it cannot send included, answers 500.
+- A dry run never uses up a count. Consumptions are written to the Log tab in the [current format](/tickets/errors.md#the-log-row), with `"legacy": true` in `outcome`, by the [current rules of what gets logged](/tickets/errors.md#what-gets-logged).
+
+#### Saving one again
+
+The form shows the ticket converted to the current format: each `placeholder` entry becomes a capture-only row (in `data`, or in `params` when the method is GET), every `$NAME` becomes `${placeholder[NAME]}`, the request becomes a `req` action whose `${key}` values become `${data[key]}` (`${params[key]}` on a GET ticket) in the parts that filled them in (its headers, its `params` on a GET, its `data` and `url` on a POST), `access_group` becomes an `acsg` action and `record_access` an `acsr` action. A `${...}` anywhere else in the request was sent as written, so it becomes `$${...}`, which still sends it as written. `${CLIENT_SECRET}` is left as written, so saving asks you to name a [Secret Key](/tickets/actions.md#sending-a-secret-key) for it.
+
+Saving asks you to confirm, and from then on the ticket runs by the [current rules](/tickets/conditions.md#how-each-part-decides). Read the converted form before you confirm. What can change:
+
+- **Which requests pass.** A missing field is a mismatch instead of an error, `<=` on two strings means ends with, `=` compares strictly (`true` is not `1`), and header names ignore case. A list `value` in a row passes when any member matches (with `!=`, when none does) instead of being compared as a whole. Query string values are JSON-parsed, so `?qty=2` is the number `2` and no longer equals the text `"2"`. A `record_access` in the condition starts being checked, and passes only for a signed-in consumer who holds that record.
+- **`$NAME` in a condition row.** The form shows it as `${placeholder[NAME]}`, but a row's `value` is literal under the current rules, so the row compares the field with that text and stops matching. Rewrite such a row before you save.
+- **The check-time `request` condition is removed.** Saving drops it; see [The request condition](#the-request-condition) for the `req` action that replaces it.
+- **Placeholders are captured on every endpoint,** not only on the long-form routes.
+- **What the actions send.** A request action's values are percent-encoded in its URL, and `${CLIENT_SECRET}` only means the Secret Key the action names. A record access action, which did nothing before, now grants access, and an access group action, which always failed before, now sets the group.
+- **The answers.** Failures are answered with the [JSON error body](/tickets/errors.md#the-error-body) instead of plain text.
+
+Once it is saved, the [dry run](/tickets/introduction.md#dry-run) tries the ticket under the current rules.
+
+### The request condition
+
+A ticket's condition could carry a `request`: one HTTP call made while the condition was checked, whose `match` rows were compared with the response before the response was thrown away. It also ran on the dry run, which is otherwise meant to run nothing.
+
+```json
+"placeholder": { "LICENCE": "licence" },
+"condition": {
+    "request": {
+        "url": "https://api.example.com/licences/$LICENCE",
+        "method": "GET",
+        "match": [ { "key": "status", "operator": "=", "value": "active" } ]
+    }
+}
+```
+
+It can no longer be registered, at the ticket level or inside a `req` action's condition: registration refuses it with `the "request" condition was removed. Call the URL with a req action and check its answer with that action's "condition" instead.`, and drops a blank one (`null`, `{}`, `""`). A ticket saved before this release keeps running its `request` until it is saved again; the dashboard then removes it, after you confirm.
+
+The same check is a [`req` action](/tickets/actions.md#req-http-request-with-its-own-condition-and-chain) placed first, with its answer checked by its [response check](/tickets/actions.md#checking-the-response):
+
+```json
+{ "act": "req",
+  "exe": { "url": "https://api.example.com/licences/${data[licence]}", "method": "GET",
+           "condition": { "data": [ { "key": "status", "operator": "=", "value": "active" } ] } } }
+```
+
+The actions that should run only when the check passes go after it in the chain, or into its `actions`. Unlike the condition, it can also carry a [Secret Key](/tickets/actions.md#sending-a-secret-key), capture from the answer, and act on it.
+
 ### signature.secret is now secretName
 
 A ticket's `condition.signature.secretName`, the name of the Secret Key that signs the sender's requests, was called `secret` before 2026-09-18. That name is still accepted when you register a ticket and is converted to `secretName`, which is what gets stored. It is still read on tickets stored earlier, so no registered ticket breaks.
 
-### Tickets with a placeholder map
+### match on a req action
 
-Tickets registered before the current ticket format stored a `placeholder` map (`{ "NAME": "path" }`) and a single `action` object. They keep working and are converted when read: each map entry becomes a capture-only row (in `data`, or in `params` when the method is GET), the action object becomes an `actions` list in the order request, update service, access group, record access, and every `$NAME` inside the condition and the converted actions becomes `${placeholder[NAME]}`. Opening such a ticket in the dashboard shows the converted form, and saving it stores that form. Until you save it, the old `$NAME` replacement still runs on every consumption as it always did.
+A `req` action's `match` rows were checked against the response like `data` rows. They are the response check's `data` rows now: registering a `match` puts its rows at the end of `condition.data`.
 
 ### The long-form consume endpoints
 
-Every ticket also still answers on the older long-form routes, which carry the owner ID beside the project's service ID. They behave exactly like the [current endpoints](/tickets/introduction.md#endpoints):
+Every ticket also still answers on the older long-form routes, which carry the owner ID beside the project's service ID. They behave exactly like the [current endpoints](/tickets/introduction.md#endpoints), with one exception: for a [ticket saved before this release](#tickets-saved-before-this-release), only the long-form routes apply its `placeholder` map.
 
 | route | auth | same as |
 |---|---|---|

@@ -29,7 +29,7 @@ The user profile's access group is set by the project owner, and by admins with 
 ::: tip
 Unless the user is referencing a private access granted record, the user cannot upload a record with `access_group` set to a higher level than their own access level. Admins and the project owner can.
 
-You can read more about referencing records [here](/database/referencing.md).
+You can read more about [referencing records](/database/referencing.md).
 :::
 
 ::: warning
@@ -186,7 +186,7 @@ When the user is granted access to the record, they will be able to fetch the re
 
 Access granted users can also see all the records that is referencing this record at all access groups including private records.
 
-You can read more about referencing records [here](/database/referencing.md).
+You can read more about [referencing records](/database/referencing.md).
 
 ## Remove Private Access
 

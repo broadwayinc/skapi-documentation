@@ -2,6 +2,8 @@
 
 A consumption either succeeds, and answers `{ tkid, hash }`, or fails at one of three stages: `ticket` (the service and the ticket itself), `condition`, or `action`. Every failure is answered with the same flat JSON body, and most failures are written to the ticket's log.
 
+A ticket the **Tickets** page marks **previous rules** answers differently until it is saved again: see [Tickets saved before this release](/deprecated/deprecated.md#tickets-saved-before-this-release).
+
 ## The Error Body
 
 ```json
@@ -32,20 +34,26 @@ The status is `400`, or `200` when the ticket's `return200` is on. `INTERNAL_ERR
 | `TICKET_EXHAUSTED` | ticket | `count <= 0` | |
 | `USER_LIMIT_REACHED` | ticket | per-user limit hit | `{ "limit": <limit_per_user>, "used": <consumptions by this user> }` |
 | `ISSUER_CANNOT_CONSUME` | ticket | consumer is the ticket issuer | |
-| `AUTH_REQUIRED` | ticket, condition or action | a user is needed and the route is anonymous, or the token is from another project | |
+| `AUTH_REQUIRED` | ticket, condition or action | a user is needed and the route is anonymous (a `user` or `record_access` condition, which a webhook can never pass, an action with no `user_id`, or a `${user}` reference), or the token is from another project | |
 | `METHOD_NOT_ALLOWED` | condition | `condition.method` mismatch | `{ "expected": "POST", "received": "GET" }` |
-| `CONDITION_FAILED` | condition | any matcher mismatch | `{ "field": "signature"\|"headers"\|"ip"\|"user_agent"\|"data"\|"params"\|"user"\|"record_access"\|"request", "keys": [ ...unmatched keys ] }` (`keys` empty for signature/ip/user_agent/record_access) |
-| `PATH_NOT_FOUND` | condition or action | a path could not be resolved | `{ "path": "data[object][id]" }` |
-| `PLACEHOLDER_MISSING` | action | `placeholder[NAME]` referenced but never captured | `{ "placeholder": "NAME" }` |
-| `REQUEST_FAILED` | condition (`condition.request`) or action (`req`) | HTTP status >= 300, refused address, connection error, or per-call timeout | `{ "status": 502, "body": <parsed or text, truncated to 4 KB> }` or `{ "reason": "timeout" \| "refused_address" \| "connection" }` |
-| `TIMEOUT` | action | the 25 s consumption budget ran out before an action (or request) could start; its `err` chain is skipped | `{ "elapsed_ms": n }` |
+| `CONDITION_FAILED` | condition, or action for a `req` response check | a part of the condition did not pass | `{ "field": "signature"\|"ip"\|"user_agent"\|"headers"\|"data"\|"params"\|"user"\|"record_access"\|"loop", "keys": [ ...keys that failed ] }` (`keys` empty for signature/ip/user_agent/record_access/loop). See [below](#condition-failed-fields) |
+| `PATH_NOT_FOUND` | action | a [reference](/tickets/conditions.md#references) in an action value could not be resolved | `{ "path": "data[payment][id]" }`, the reference without `${ }` |
+| `PLACEHOLDER_MISSING` | action | `${placeholder[NAME]}` referenced but never captured | `{ "placeholder": "NAME" }` |
+| `REQUEST_FAILED` | action (`req`) | HTTP status >= 300, refused address, connection error, per-call timeout, a header that cannot be sent, or a Secret Key that no longer exists | `{ "status": 502, "body": <the parsed answer, or the first 4 KB of its text when longer> }`, `{ "reason": "timeout" \| "refused_address" \| "connection" }`, `{ "reason": "invalid_header", "header": "<name>" }` (see [the req action](/tickets/actions.md#req-http-request-with-its-own-condition-and-chain)), or `{ "reason": "secret_missing", "secretName": "<name>" }` |
+| `TIMEOUT` | action | the 25 s consumption budget ran out before an action (or its HTTP call) could start; its `err` chain is skipped | `{ "elapsed_ms": n }` |
 | `ACTION_FAILED` | action | the underlying Skapi operation refused (record post, access grant, group update) | `{ "code": "<the operation's code>", "message": "<its message>" }` |
-| `ACTION_FORBIDDEN` | action | `srvc` outside a skapi-owned service | |
+| `ACTION_FORBIDDEN` | action | the action is not available to this project | |
 | `INTERNAL_ERROR` | any | unexpected exception (reported to Skapi) | |
 
 The ticket-stage codes are the checks of [step 1 of a consumption](/tickets/introduction.md), the condition-stage codes come from [Conditions and Placeholders](/tickets/conditions.md), and the action-stage codes from [Actions](/tickets/actions.md).
 
-A code raised inside a `req` action, by its HTTP call, its response condition or its nested chain, is reported with `stage: "action"` and, in `action`, the innermost action that failed: the `req` itself when its HTTP call or its response condition failed, the nested action when its nested chain failed. A `CONDITION_FAILED` from a response condition therefore carries `action: { "act": "req", "path": "actions[2]" }`, while a record post failing inside the nested chain carries `action: { "act": "pstr", "path": "actions[2].actions[0]" }`.
+A code raised inside a `req` action, by its HTTP call, its response check or its nested chain, is reported with `stage: "action"` and, in `action`, the innermost action that failed: the `req` itself when its HTTP call or its response check failed, the nested action when its nested chain failed. A `CONDITION_FAILED` from a response check therefore carries `action: { "act": "req", "path": "actions[2]" }`, while a record post failing inside the nested chain carries `action: { "act": "pstr", "path": "actions[2].actions[0]" }`.
+
+### `CONDITION_FAILED` fields
+
+`detail.field` names the part of the condition that failed, and `detail.keys` the keys of that part that did not pass: header names for `headers`, paths for `data` and `params`, attribute names for `user`. A path the request does not carry is one of those keys; it is never a separate error.
+
+One value is not a part you write: `"loop"`. The request carried an `X-Skapi-Ticket` header, so it was sent by a ticket, and a ticket cannot consume a ticket. The message is `Requests sent by a ticket cannot consume a ticket.` See [URL and address rules](/tickets/actions.md#url-and-address-rules).
 
 ## What `consumeTicket()` Rejects With
 
@@ -83,7 +91,7 @@ Every successful consumption is logged, and so is every dry run once the ticket 
 
 - every action-stage failure,
 - every condition failure on the signed-in endpoint,
-- on an anonymous endpoint, a condition failure only when the request passed `method`, `signature`, `ip`, `user_agent` and `headers` and failed on `data`, `params`, `user`, `record_access` or `request` (except the `X-Skapi-Ticket` loop-guard refusal, which is never logged on a real consumption). Such a request came from a caller that already looks like the intended sender.
+- on an anonymous endpoint, a condition failure only when the request passed `method`, `signature`, `ip`, `user_agent` and `headers` and failed on a later part: `data`, `params`, `user` or `record_access` (except the `X-Skapi-Ticket` loop-guard refusal, which is never logged on a real consumption). Such a request came from a caller that already looks like the intended sender.
 
 Ticket-stage failures of a real consumption (`TICKET_NOT_FOUND`, `TICKET_EXPIRED`, `TICKET_EXHAUSTED` and the rest) and failures of `method`, `signature`, `ip`, `user_agent` and `headers` on an anonymous endpoint are not logged, so a scanner hitting your endpoints does not fill the log.
 
@@ -96,6 +104,7 @@ A log row's `description` is a JSON string of this shape:
 ```json
 {
   "data": <query string (raw strings) or POST body as received>,
+  "query": { ... },                   // POST only, when the URL had a query string (raw strings)
   "method": "post" | "get",
   "headers": { ... },                 // as received, lowercase names; authorization and cookie replaced by "<redacted>"
   "user_agent": "...", "ip": "...", "timestamp": <ms>,
@@ -115,9 +124,9 @@ A log row's `description` is a JSON string of this shape:
 
 `note` is the `description` key of the request data (the POST body, or the query string on a GET), when it is a string, cut to 500 characters. It is kept for you to read and replaces nothing.
 
-`headers` never holds a credential: `authorization` and `cookie` are stored as `"<redacted>"`, and `consumer[headers][...]` reads the same redacted values.
+`headers` never holds a credential: `authorization` and `cookie` are stored as `"<redacted>"`, and `${headers[...]}` reads the same redacted values. Nor does an action: in the result or the error of a `req` that sends a Secret Key, every copy of the key's value, as sent or escaped up to three times over, is replaced by the text `${CLIENT_SECRET}`. See [Sending a Secret Key](/tickets/actions.md#sending-a-secret-key).
 
-`data` holds the query string values as the raw strings they arrived as, before the JSON parsing described in [What the request carries](/tickets/introduction.md#what-the-request-carries).
+`data` holds the query string values of a GET as the raw strings they arrived as, before the JSON parsing described in [What the request carries](/tickets/introduction.md#what-the-request-carries). On a POST, `data` is the body, and the query string, which `params` rows read, is in `query` the same way.
 
 ## Reading the Log in the Dashboard
 

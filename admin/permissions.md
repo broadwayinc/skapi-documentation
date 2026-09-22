@@ -320,6 +320,7 @@ Everyone else is refused with `Database is frozen. Write access is denied for th
 | Subscribe or unsubscribe any e-mail address to a group | The project owner and admins in access group `99` |
 | Register, list and delete [named newsletter groups](/email/newsletters.md#named-newsletters) | The project owner and admins in access group `99` |
 | Send push notifications to all users, or to chosen users | The project owner and admins (access groups `90` ~ `99`) |
+| Notify one's own subscribers of a new record or reference (`notify_subscribers`, `notify_referencing_records`) | Any signed-in user, for their own records. Only subscribers who set `get_notified` and can read the record are notified. See [Subscription notifications](/database/subscription.md#notifications) |
 | Send a newsletter, and set an e-mail template | The project owner only, from the project's email address. Admins in any access group, `99` included, cannot. The SDK has no method for either: the owner sends the email to the address the Skapi dashboard shows. |
 | Read a sent newsletter's delivery statistics | The project owner and admins in access group `99` |
 
@@ -487,6 +488,7 @@ Every message below is the exact text the server returns, and every code is the 
 | `INVALID_PARAMETER` | `"email" cannot be used with "user_id".` | `getNewsletterSubscription()` |
 | `INVALID_PARAMETER` | `"email" should be 1 ~ 255 characters.` | `getNewsletterSubscription()`, before the access check above |
 | `INVALID_REQUEST` | `User has no access to send notifications` | `pushNotification()` from an account that is not an admin |
+| `INVALID_PARAMETER` | `"user_ids" can name up to 1000 users.` | `pushNotification()` with more than 1000 user IDs |
 
 ### Project settings
 

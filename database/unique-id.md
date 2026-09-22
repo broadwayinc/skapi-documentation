@@ -8,7 +8,7 @@ This feature is useful when you want to create a record with a unique identifier
 Unique ID can be used to fetch the record using the [`getRecords()`](/api-reference/database/README.md#getrecords) method.
 
 Unique ID can be also used when fetching references of a record.
-More on referencing can be found [here](/database/referencing.md).
+More on referencing can be found in [Referencing](/database/referencing.md).
 
 :::warning
 Anonymous (unsigned) users cannot create records using unique ID.

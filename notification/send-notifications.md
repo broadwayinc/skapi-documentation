@@ -176,11 +176,62 @@ skapi.postRealtime(
 ).then(res => console.log(res));
 ```
 
+## Notifications from Records
+
+Users can also be notified about records: when a user they subscribed to posts a record with `table.subscription.notify_subscribers`, or when someone references a record posted with `table.subscription.notify_referencing_records`. The subscriber turns these on with `get_notified: true` in [`subscribe()`](/api-reference/database/README.md#subscribe) and registers the device as shown above. See [Subscription notifications](/database/subscription.md#notifications) for who is notified and when.
+
+These push messages carry the record beside `title` and `body`:
+
+```ts
+{
+    title: string;
+    body: string;
+    type: "record" | "reference"; // "record": a new record. "reference": a new record referencing one of the user's records.
+    record_id: string; // The new record.
+    table: string; // Table name of the new record.
+    user_id: string; // User who posted the new record.
+    reference?: string; // Only for "reference": the record that was referenced.
+}
+```
+
+Your service worker can use them to open the record when the notification is clicked. For example, with a page `/record.html?id=...` in your app:
+
+### sw.js
+```js
+self.addEventListener('push', function(event) {
+    const data = event.data.json();
+    const options = {
+        body: data.body,
+        icon: 'icon-192x192.png',
+        badge: 'icon-192x192.png',
+        // Kept on the notification for the click handler below.
+        data: { record_id: data.record_id || null, reference: data.reference || null }
+    };
+
+    event.waitUntil(
+        self.registration.showNotification(data.title, options)
+    );
+});
+
+self.addEventListener('notificationclick', function(event) {
+    event.notification.close();
+    const record = event.notification.data || {};
+    // A reference opens the record that was referenced (the post that got a comment).
+    const id = record.reference || record.record_id;
+    const url = id
+        ? self.location.origin + '/record.html?id=' + encodeURIComponent(id)
+        : self.location.origin;
+    event.waitUntil(
+        clients.openWindow(url)
+    );
+});
+```
+
 ## Sending Notifications (For Admins)
 
 Admins can use the [`pushNotification()`](/api-reference/realtime/README.md#pushnotification) method to send notifications to users.
 **Only admins** can use this method to send notifications to **all** users.
-You can also target a specific user or multiple users by providing their IDs. If no user IDs are specified, the notification will be sent to all users who have subscribed to notifications in your system.
+You can also target a specific user or multiple users by providing their IDs, up to 1000 per call. Each of them gets the notification on every device they registered. If no user IDs are specified, the notification will be sent to all users who have subscribed to notifications in your system.
 
 ### Steps:
 1. Call [`pushNotification()`](/api-reference/realtime/README.md#pushnotification) with the title and body.

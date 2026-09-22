@@ -133,7 +133,7 @@ console.log('Done:', result);
 
 ### Resuming
 
-There is nothing to resume, as such — just poll again. Fetch the request from
+There is nothing to resume, as such: just poll again. Fetch the request from
 [`forwardRequestHistory()`](/api-reference/api-bridge/README.md#forwardrequesthistory) and call
 `poll()` on it. If it finished while you were not watching, the history entry already carries the result.
 
@@ -174,7 +174,7 @@ Provide `queue` when the original request was submitted with a queue name. This 
 
 :::info
 `cancelForwardRequest()` cancels the **request**. [`stopForwardRequestPolling()`](#stopping-polling)
-only stops **watching** it — the request carries on and its result stays available. Use cancel when the
+only stops **watching** it: the request carries on, and its result stays available. Use cancel when the
 work is no longer wanted, and stop-polling when only the traffic is.
 :::
 

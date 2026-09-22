@@ -74,7 +74,7 @@ When deleting records by database query, user will not delete records that they 
 
 However, if the user is an admin, they can delete any records in the database, private and read-only records included. So be cafeful when admin is using this method.
 
-Read more about admin access [here](/admin/permissions.md#deleting-records).
+Read more about [admin access to deleting records](/admin/permissions.md#deleting-records).
 :::
 
 For more detailed information on all the parameters and options available with the [`deleteRecords()`](/api-reference/database/README.md#deleterecords) method,

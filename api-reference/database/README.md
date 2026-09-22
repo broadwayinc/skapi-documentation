@@ -24,11 +24,16 @@ postRecord(
             subscription?: {
                 is_subscription_record?: boolean; // When true, record will be uploaded to subscription table.
                 upload_to_feed?: boolean; // When true, record will be shown in the subscribers feeds that is retrieved via getFeed() method. Off unless set.
-                notify_subscribers?: boolean; // Stored with the record, but currently has no effect.
-                feed_referencing_records?: boolean; // When true, records referencing this record will be included to the subscribers feed.
-                notify_referencing_records?: boolean; // Stored with the record, but currently has no effect.
+                notify_subscribers?: boolean; // When true, creating the record sends a push notification to the uploader's subscribers who subscribed with get_notified. See "notification".
+                feed_referencing_records?: boolean; // When true, records referencing this record are added to the feed of this record's uploader.
+                notify_referencing_records?: boolean; // When true, every new record referencing this one sends a push notification to this record's uploader's subscribers who subscribed with get_notified.
             } | null;
         };
+        /** Text of the push notification sent when the record is created with table.subscription.notify_subscribers. Both required, together at most 3072 bytes. Without it, subscribers see a default text. Ignored on updates. See [Notifications](/database/subscription.md#notifications) */
+        notification?: {
+            title: string;
+            body: string;
+        } | null;
         readonly?: boolean; // Default: false. When true, the record cannot be updated. (Not available to anonymous users)
         index?: {
             name: string; // Custom index name: 1..256 characters, where / ! * # % each count as 3. Blocks control chars and sentinel U+10FFFF, and cannot start with '$'.
@@ -504,9 +509,16 @@ See [UniqueId](/api-reference/data-types/README.md#uniqueid)
 ## subscribe
 ```ts
 subscribe(
-    { user_id: string; get_feed?: boolean; get_notified?: boolean; get_email?: boolean; }
+    {
+        user_id: string; // User to subscribe to.
+        get_feed?: boolean; // Records the user posts with upload_to_feed appear in getFeed().
+        get_notified?: boolean; // Push notifications for the user's records posted with notify_subscribers, and for new references to their records with notify_referencing_records. The device also needs subscribeNotification().
+        get_email?: boolean;
+    }
 ): Promise<Subscription>
 ```
+
+A new subscription starts with every option off. Calling `subscribe()` again for the same user changes only the options given and keeps the rest. See [Notifications](/database/subscription.md#notifications)
 
 See [Subscription](/api-reference/data-types/README.md#subscription)
 

@@ -98,7 +98,7 @@ let method_ref = [
     {
         text: 'Tickets',
         items: [
-            { text: 'Introduction', link: '/tickets/introduction.md' },
+            { text: 'Registering a Ticket', link: '/tickets/introduction.md' },
             { text: 'Conditions and Placeholders', link: '/tickets/conditions.md' },
             { text: 'Actions', link: '/tickets/actions.md' },
             { text: 'Errors and Logs', link: '/tickets/errors.md' },
@@ -168,8 +168,10 @@ let all_files = [
     },
 
     {
+        // An absolute url on purpose: VitePress rewrites a site link ending in .md to .html,
+        // and /SKAPI.html does not exist. SKAPI.md is served as the raw markdown file.
         text: 'One Pager',
-        link: '/SKAPI.md'
+        link: 'https://docs.skapi.com/SKAPI.md'
     }
 ]
 
@@ -196,6 +198,7 @@ let all_files = [
 // ---------------------------------------------------------------------------------
 import fs from 'fs';
 import path from 'path';
+import { PAGES, DEFAULT_DESCRIPTION } from './.vitepress/seo-pages.mjs';
 
 const DOCS_ORIGIN = 'https://docs.skapi.com';
 
@@ -277,9 +280,14 @@ function eachProseLine(lines, onLine) {
  */
 const REFERENCE = { title: api_reference[0].text, id: slugifyHeading(api_reference[0].text) };
 
+/** A page's frontmatter (`title:`, `description:` ...) is for the website, not for a bundle. */
+function stripFrontmatter(text) {
+    return text.replace(/^---\r?\n[\s\S]*?\r?\n---[ \t]*(\r?\n|$)/, '');
+}
+
 function loadPage(sitePath, text) {
     let key = pageKey(sitePath);
-    let lines = (text === undefined ? fs.readFileSync('.' + sitePath, 'utf-8') : text).split(/\r?\n/);
+    let lines = stripFrontmatter(text === undefined ? fs.readFileSync('.' + sitePath, 'utf-8') : text).split(/\r?\n/);
     let headings = [];      // { line, slug }
     let taken = {};
     eachProseLine(lines, (line, i) => {
@@ -461,8 +469,69 @@ function build() {
     for (let w of report.warnings) console.warn('  link warning:', w);
 }
 
+/** The text of a page's first "# " heading, which is what VitePress titles the page. */
+function h1Of(sitePath) {
+    try {
+        let found = null;
+        eachProseLine(stripFrontmatter(fs.readFileSync('.' + sitePath, 'utf-8')).split(/\r?\n/), (line) => {
+            let m = !found && line.match(/^ {0,3}#[ \t]+(.*)$/);
+            if (m) found = headingText(m[1]).trim();
+        });
+        return found;
+    } catch (err) {
+        return null;
+    }
+}
+
+/**
+ * public/llms.txt (https://llmstxt.org): the documentation as a list an AI agent can read.
+ * The one-file bundles first, then every sidebar page as its absolute .html url, with the
+ * title and description from .vitepress/seo-pages.mjs. Generated, like public/SKAPI.md.
+ */
+function writeLlmsTxt(sidebar) {
+    let pageLine = (link) => {
+        let rel = link.replace(/^\/+/, '');
+        let seo = PAGES[rel] || {};
+        let title = seo.title || h1Of(link) || rel;
+        let url = DOCS_ORIGIN + '/' + rel.replace(/\.md$/i, '.html');
+        return `- [${title}](${url})` + (seo.description ? `: ${seo.description}` : '');
+    };
+    let isSitePage = (link) => link && !/^[a-z][a-z0-9+.-]*:/i.test(link);
+
+    let out = [
+        '# Skapi Docs',
+        '',
+        '> ' + DEFAULT_DESCRIPTION,
+        '',
+        'Skapi is a serverless backend API for web applications. Sign up at https://www.skapi.com, create a project, '
+        + 'and connect a plain HTML page, a single-page app or Node.js to it with the skapi-js library and the project ID.',
+        '',
+        '## The whole documentation in one file',
+        '',
+        `- [SKAPI.md](${DOCS_ORIGIN}/SKAPI.md): the system prompt for AI agents, every guide and the full API reference in one markdown file. Read this one to build with Skapi.`,
+        `- [skapi-docs.md](${DOCS_ORIGIN}/skapi-docs.md): every guide page in one markdown file`,
+        `- [skapi-types.md](${DOCS_ORIGIN}/skapi-types.md): the API reference in one markdown file`,
+    ];
+    let optional = [];
+    for (let node of sidebar) {
+        if (node.items) {
+            out.push('', `## ${node.text}`, '', ...node.items.filter((i) => isSitePage(i.link)).map((i) => pageLine(i.link)));
+        } else if (isSitePage(node.link)) {
+            if (/^\/(versionlog|deprecated)\//.test(node.link)) optional.push(pageLine(node.link));
+            else out.push('', `## ${node.text}`, '', pageLine(node.link));
+        }
+    }
+    if (optional.length) out.push('', '## Optional', '', ...optional);
+    out.push('');
+
+    fs.mkdirSync('./public', { recursive: true });
+    fs.writeFileSync('./public/llms.txt', out.join('\n'));
+}
+
 build();
 
 all_files[0].items.splice(1, 0, working_with_ai);
+
+writeLlmsTxt(all_files);
 
 export default all_files;

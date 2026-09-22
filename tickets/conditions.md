@@ -12,35 +12,103 @@ The condition is one object. Every key is optional, and an empty condition passe
     ip?:         { operator, value: string | string[] },
     user_agent?: { operator, value: string | string[] },
     headers?: [ { key, operator, value } ],                                  // key = header name, matched case-insensitively
-    data?:    [ { key, operator?, value?, setValueWhenMatch?, placeholder? } ], // rows against the POST body
-    params?:  [ { key, operator?, value?, setValueWhenMatch?, placeholder? } ], // rows against the GET query string
-    user?:    [ { key, operator, value } ],                                  // rows against the consumer's attributes (signed-in only)
-    record_access?: string,              // record id the consumer must own or have been granted (signed-in only)
-    request?: { url, method?, headers?, data?, params?, match?: [ { key, operator, value } ] }   // an outbound request that must succeed
+    data?:    [ { key, operator?, value?, setValueWhenMatch?, placeholder? } ], // rows against the POST body; key = a path in it
+    params?:  [ { key, operator?, value?, setValueWhenMatch?, placeholder? } ], // rows against the query string, on GET and POST
+    user?:    [ { key, operator, value } ],                                  // signed requests only: the consumer's attributes
+    record_access?: string               // signed requests only: a record the consumer must own or have been granted
 }
 ```
 
-The parts are evaluated in this order, and the first failure is the one reported: `method`, `signature`, `ip`, `user_agent`, `headers`, `data`, `params`, `user`, `record_access`, `request`.
+## How Each Part Decides
+
+The parts are evaluated in this order: `method`, `signature`, `ip`, `user_agent`, `headers`, `data`, `params`, `user`, `record_access`. The **first part that fails** stops the consumption and is the one reported; the parts after it are not evaluated. A part that is empty or absent is not checked.
+
+| part | passes when | empty or absent |
+|---|---|---|
+| `method` | the request uses that method | both methods pass |
+| `signature` | the HMAC verifies | no signature check |
+| `ip` | the caller's IP address matches **any** listed value | every address passes |
+| `user_agent` | the caller's user agent matches **any** listed value | not checked |
+| `headers` | **every** header listed is sent and matches | not checked |
+| `data` | **every** key listed in the POST body passes | not checked |
+| `params` | **every** key listed in the query string passes | not checked |
+| `user` | **every** key listed passes, read from the signed-in consumer's account | not checked |
+| `record_access` | the signed-in consumer owns the record or holds a grant on it | not checked |
+
+`headers`, `data`, `params` and `user` share one rule for their rows, described below: rows on the same key are alternatives, every different key must pass, and a missing field is a mismatch.
+
+`return200` never decides whether a ticket fails. It only changes the HTTP status a failure is answered with. See [`return200` and `method`](#return200-and-method).
+
+:::warning `user` and `record_access` work only for signed requests
+They read the account of the user who consumes the ticket, so they only pass for an app user of this project calling [`consumeTicket()`](/api-reference/tickets/README.md#consumeticket) with `auth: true`, which uses the signed-in endpoint. A third-party webhook has no session: a ticket that uses either of them **always fails for webhooks**, with `AUTH_REQUIRED`.
+:::
 
 ## Operators and Rows
 
 `operator` is one of `=`, `!=`, `>`, `>=`, `<`, `<=`. The word forms `eq`, `ne`, `gt`, `gte`, `lt`, `lte` are accepted and stored as the symbols.
 
-- `value` may be a list. The row passes when any member of the list matches.
-- On a string, `>=` means **starts with**, as it does in a record index query.
-- Comparing values of different types (a number against a string, say) is a mismatch, never an error.
+| operator | on two strings | on two numbers | anything else |
+|---|---|---|---|
+| `=` | the same text | the same number | the same value, compared strictly |
+| `!=` | different text | a different number | a different value, compared strictly |
+| `>=` | **starts with** | greater than or equal | never passes |
+| `<=` | **ends with** | less than or equal | never passes |
+| `>` | after, in character order | greater than | never passes |
+| `<` | before, in character order | less than | never passes |
 
-Rows in `headers`, `data`, `params` and `user` combine by key. Rows with the **same** `key` are alternatives: one of them matching satisfies that key. Rows with **different** keys must all match.
+- `=` and `!=` compare strictly, as JavaScript's `===` does: the number `1` is not the text `"1"`, and `true` is not `1`.
+- The ordering operators compare two strings or two numbers. A string against a number, a boolean, `null` or a missing field never passes, and is never an error.
+- A field the request does not carry fails every operator, `!=` included, unless the row compares with `null` or `undefined` (see [below](#null-and-undefined)).
+- `value` may be a list. With `=` and the ordering operators the row passes when **any** member matches. With `!=` it passes when the field is **none** of them.
+
+```json
+"ip": { "operator": "!=", "value": ["203.0.113.7", "198.51.100.23"] }
+```
+
+This one lets every address through except those two.
+
+### Rows on the same key
+
+Rows in `headers`, `data`, `params` and `user` combine by key. Rows with the **same** `key` are alternatives: one of them matching satisfies that key. Rows with **different** keys must all be satisfied.
 
 ```json
 "data": [
     { "key": "type", "operator": "=", "value": "payment.completed" },
     { "key": "type", "operator": "=", "value": "payment.captured" },
-    { "key": "live", "operator": "=", "value": true }
+    { "key": "amount", "operator": ">", "value": 100 }
 ]
 ```
 
-Here `type` may be either event, and `live` must be `true` as well.
+Here `type` may be either event, **and** `amount` must be above `100` as well. A body without `amount` fails on `amount`: a field that is not there does not match.
+
+When a key is not satisfied, the answer is `CONDITION_FAILED` with the part in `detail.field` and every key that failed in `detail.keys`, such as `{ "field": "data", "keys": ["amount"] }`.
+
+### Null and undefined
+
+Rows of `data` and `params`, and the `data` rows of a [`req` action's response check](/tickets/actions.md#checking-the-response), can also compare with `null` and `undefined`, with their strict JavaScript meaning. A field that is not in the request is `undefined`, never `null`.
+
+| row | passes when |
+|---|---|
+| `key = null` | the field is there and is `null` |
+| `key != null` | anything else, a missing field included |
+| `key = undefined` | the field is missing: "must be absent" |
+| `key != undefined` | the field is there, `null` included: "must exist" |
+| `>`, `>=`, `<`, `<=` with `null` or `undefined` | never |
+
+In JSON, `null` is written as `"value": null`, and may also be a member of a value list, such as `[null, "none"]`. JSON has no `undefined`: a row with an `operator` and **no `value` key** compares with `undefined`, which is exactly what a JavaScript object with `value: undefined` becomes when it is sent. An `undefined` row takes a single value, never a list.
+
+```json
+"data": [
+    { "key": "coupon", "operator": "=" },
+    { "key": "customer[email]", "operator": "!=" }
+]
+```
+
+The first row passes only when the body has no `coupon`. The second passes only when `customer[email]` is there. On the dashboard every value has an explicit type (text, number, true/false, null, undefined), so an `undefined` row never comes from a field left blank.
+
+`= undefined` and `!= null` are the only rows a missing field can pass, because that is what they ask for. Against any other value a missing field is a mismatch, `!=` included.
+
+`headers` and `user` rows always compare with a value: a row with `null`, or with no `value`, is refused when you register. `ip` and `user_agent` are not rows: a `null` or missing `value` there means no check, exactly like an empty list (see [IP, User Agent and Headers](#ip-user-agent-and-headers)).
 
 ## `return200` and `method`
 
@@ -67,7 +135,7 @@ This one reads a header such as `x-signature: t=1757721600,v1=<hex>`, signs `<ti
 
 | field | default | meaning |
 |---|---|---|
-| `secretName` | required | The **name** of a Secret Key of your project, never the secret itself. Save the sender's signing secret on the dashboard's **Secret Keys** page, the same store [`forwardRequest()`](/api-bridge/client-secret-request.md#registering-secret-keys) resolves `$CLIENT_SECRET` from, and write its name here. See also [Where a signature secret may be sent](#where-a-signature-secret-may-be-sent). |
+| `secretName` | required | The **name** of a Secret Key of your project, never the secret itself. Save the sender's signing secret on the dashboard's **Secret Keys** page, the same store [`forwardRequest()`](/api-bridge/client-secret-request.md#registering-secret-keys) resolves `$CLIENT_SECRET` from, and write its name here. |
 | `header` | required | The request header that carries the signature, matched case-insensitively. Up to 256 characters. |
 | `algorithm` | `"sha256"` | The HMAC hash: `"sha256"`, `"sha1"` or `"sha512"`. |
 | `encoding` | `"hex"` | How the signature in the header is written: `"hex"` or `"base64"`. |
@@ -100,7 +168,7 @@ With `"separator": ","` and `"parts": ["t=${timestamp}", "v1=${signature}"]`, th
 | `${header:Name}` | the value of the request header `Name`, matched case-insensitively. An absent header fails the verification |
 | `${name}` | a capture from `parts` (not `${signature}`) |
 
-Everything else is copied as is. A token that is none of these is refused when you register.
+Everything else is copied as is. A token that is none of these is refused when you register. These tokens belong to `signed` and `timestamp` only: they are not the [references](#templating) that actions use.
 
 ### How verification works
 
@@ -156,19 +224,7 @@ Public-key signatures (RSA, ECDSA, Ed25519) are not supported: this condition on
 
 ### Where a signature secret may be sent
 
-A Secret Key can carry **Destinations**, the per-key URL allowlist described under [Restricting Where a Key Can Be Sent](/api-bridge/client-secret-request.md#restricting-where-a-key-can-be-sent). When the key named in `signature.secretName` has one, **this ticket may only call URLs on that list**, on every outbound call it makes: `req` actions, a `request` condition, the nested actions of a `req`, and `err` chains alike.
-
-A key with no destinations is unrestricted, exactly as everywhere else, and so is a ticket with no `signature`.
-
-:::warning Restricting a signature secret restricts the whole ticket
-This is deliberately broader than "the one call that carries the secret", because no action can inject a secret value: there is no token for it, and the stored secret is read by the verifier alone. The rule is therefore about the ticket, not about one call.
-
-The consequence to plan for: restricting a signature key to the sender's own domain also stops that ticket calling **anything else**, including your own alert webhook. Either leave the key unrestricted, or list every address the ticket calls.
-:::
-
-A refused address is an ordinary action failure and never a server error: `REQUEST_FAILED` with `detail: { "reason": "refused_address" }`, raised before the address is resolved or dialled. Every call a ticket makes has redirects turned off already, which is the other half of the rule the [forwardRequest](/api-bridge/forward-request.md) path applies to a restricted key.
-
-The list is read with the key itself, on consumption, from a lookup held for at most 60 seconds, so narrowing a key's Destinations changes where its tickets may call within a minute.
+Nowhere. The verifier reads the signature secret on the server and nothing puts it into a request, so its **Destinations** do not restrict what the ticket calls. Each call a ticket makes is held only to the Destinations of the Secret Key that call carries itself, named by a `req` action's `secretName`. See [Sending a Secret Key](/tickets/actions.md#sending-a-secret-key).
 
 :::warning
 `headers`, `ip` and `user_agent` rows are **not authentication**. Anyone can send any header, and addresses and user agents are trivially forged or shared. Use them to filter noise. Use `signature`, or the signed-in endpoint with `user` rows, to decide who gets to run your actions.
@@ -176,47 +232,83 @@ The list is read with the key itself, on consumption, from a lookup held for at 
 
 ## IP, User Agent and Headers
 
-`ip` and `user_agent` each take one `operator` and a `value` or list of values. With `>=` meaning starts with, an address range or a user-agent family is one row:
+`ip` and `user_agent` each take one `operator` and a `value` or list of values, all text. The part passes when the caller matches **any** listed value, and with `!=` when it is **none** of them. A `value` that is an empty list, `""`, `null` or missing is no check: every caller passes, and registration drops the part. With `>=` meaning starts with and `<=` meaning ends with, an address range or a user-agent family is one row:
 
 ```json
 "ip": { "operator": ">=", "value": ["203.0.113.", "198.51.100."] },
 "user_agent": { "operator": ">=", "value": "MyService/" }
 ```
 
-`headers` rows match request headers. `key` is the header name, compared case-insensitively.
+`headers` rows match request headers. `key` is the header name, compared case-insensitively, so `X-Source` and `x-source` rows are the same key. **Every** header listed must be sent and match; rows on the same header are alternatives, and a header the request does not carry fails its key.
 
 ```json
 "headers": [ { "key": "x-webhook-source", "operator": "=", "value": "inventory" } ]
 ```
 
+Header rows always compare with a value, and capture nothing. An action that needs a header's value reads it as `${headers[<name>]}` (see [References](#references)).
+
 A mismatch is `CONDITION_FAILED` with `field` set to `"ip"`, `"user_agent"` or `"headers"`; for headers, `detail.keys` lists the header names that did not match.
 
 ## Data and Params
 
-`data` rows read the POST body and `params` rows read the query string. That is fixed whatever `method` says: on a GET request the body root is `{}`, and on a POST the query root is `{}`, so a `data` row on a GET ticket finds nothing. A row's `key` is a **path** into that data (see [Paths](#paths) below), and is never templated. Its `value` is a literal, and is never templated either. A row key always reads its own root: `placeholder[...]`, `consumer[...]` and the other [reserved roots](#reserved-roots) exist only for action values and `${...}`, so a row key `ticket[id]` reads the request's own `ticket` key. A key that is not a path is refused when you register.
+`data` rows read the POST body and `params` rows read the query string. The query string is read on **both** methods, so a POST ticket can check a token or an id in its URL as well as its body.
 
-A row with `operator` and `value` is a **match row**. A mismatch raises `CONDITION_FAILED` with `field: "data"` (or `"params"`) and the keys that did not match in `detail.keys`. A path that does not exist in the request raises `PATH_NOT_FOUND` with the path in `detail.path`.
+A GET request has no body. Registering `data` rows on a ticket whose `method` is `GET` is refused with `"condition.data": a GET request has no body. Use "params" for the query string.`, and on a ticket that allows both methods, the body of a GET request is `{}`, so every `data` key fails for it.
 
-Two more keys turn a row into more than a check:
+A row's `key` is a **path** into that data, written without `${ }`: `id` is the body's `id`, and `order[id]` the body's `order.id` (see [Row Keys](#row-keys)). It is never templated, and neither is its `value`, which is a literal. A key that is not a path is refused when you register.
 
-- `setValueWhenMatch`: when the row matches, the value at `key` in the data root is **replaced** by this value before anything else reads it. The actions then see the replacement.
-- `placeholder`: a name. After the row is evaluated, the value at `key` (after any replacement) is stored under that name for the actions to read.
+### Match rows and capture rows
 
-A row with `placeholder` but no `operator` and `value` is a **capture-only row**. It never fails: when the path is missing, the placeholder simply stays unset.
+A row with an `operator` is a **match row**. It compares the field at `key` with its `value`, or with `undefined` when it has no `value` (see [Null and undefined](#null-and-undefined)). Match rows follow [the key rule](#rows-on-the-same-key): every key that has one must be satisfied, and a path that does not exist in the request is a mismatch for its key. A key that is not satisfied raises `CONDITION_FAILED` with `field: "data"` (or `"params"`) and that key in `detail.keys`.
+
+A row with a `placeholder` and no `operator` is a **capture-only row**. It never passes or fails anything, and captures the field whenever it is there. When the path is missing, the placeholder simply stays unset.
+
+Two more keys turn a match row into more than a check:
+
+- `setValueWhenMatch`: when the row matches, the field at `key` is **replaced** by this value in the request before anything else reads it, so an action reading `${data[...]}` sees the replacement. `null` replaces nothing.
+- `placeholder`: a name. When the row matches, the field (after any replacement) is stored under that name for the actions to read. A match row that does **not** match captures nothing.
+
+### How the rows are read
+
+Every row is read, in order, before the part decides, so every capture is filled:
+
+1. For each key, the **first** match row that matches wins. Its `setValueWhenMatch` applies and its `placeholder` captures. Later match rows on that key are skipped.
+2. A match row that does not match captures nothing.
+3. A capture-only row captures the field as it is at that point, after any replacement an earlier row made.
+
+Then every key that has match rows and no matching one fails the part.
 
 ```json
 "data": [
     { "key": "type", "operator": "=", "value": "payment.completed" },
-    { "key": "data[object][metadata][user_id]", "placeholder": "BUYER" },
-    { "key": "data[object][mode]", "operator": "=", "value": "payment", "setValueWhenMatch": "one-time" }
+    { "key": "payment[metadata][user_id]", "placeholder": "BUYER" },
+    { "key": "payment[method]", "operator": "=", "value": "card", "setValueWhenMatch": "Card payment" }
 ]
 ```
 
-The first row is a match row. The second captures the buyer's user id as `BUYER` and never fails. The third, when it matches, rewrites `data[object][mode]` to `"one-time"` for the actions.
+The first row is a match row: `type` must be `payment.completed`. The second captures the buyer's user id as `BUYER` and never fails. The third is a match row too, so `payment[method]` must be `card`, and when it is, it is rewritten to `"Card payment"`, which is what `${data[payment][method]}` then reads.
+
+### Lookup tables
+
+Because the first matching row of a key wins, and a row that does not match captures nothing, several rows on one key can map a value to another:
+
+```json
+"data": [
+    { "key": "plan", "operator": "=", "value": "basic", "setValueWhenMatch": 2, "placeholder": "GROUP" },
+    { "key": "plan", "operator": "=", "value": ["pro", "team"], "setValueWhenMatch": 3, "placeholder": "GROUP" },
+    { "key": "plan", "operator": "!=", "value": null, "setValueWhenMatch": 1, "placeholder": "GROUP" }
+]
+```
+
+`basic` captures `GROUP` = `2`, and `pro` or `team` capture `3`. The last row is the catch-all: every other plan, and a body without one, captures `1`, so this key never fails the ticket (only a `plan` that is `null` would). Leave the catch-all out, and a plan you did not list fails the ticket with `CONDITION_FAILED` and `keys: ["plan"]`.
+
+An action reads the result as `${placeholder[GROUP]}`, for instance `{ "act": "acsg", "exe": { "group": "${placeholder[GROUP]}", "user_id": "${placeholder[BUYER]}" } }`. The replacement also rewrites `plan` in the request, so `${data[plan]}` reads the number as well.
 
 ## User
 
-`user` rows read the consumer's account, so they only work on the signed-in endpoint. On an anonymous endpoint they raise `AUTH_REQUIRED`.
+:::warning Signed requests only
+`user` rows read the account of the signed-in consumer, so they only pass for an app user of this project calling [`consumeTicket()`](/api-reference/tickets/README.md#consumeticket) with `auth: true`. A third-party webhook has no session: a ticket with `user` rows always fails for webhooks, with `AUTH_REQUIRED`.
+:::
 
 ```json
 "user": [
@@ -227,92 +319,127 @@ The first row is a match row. The second captures the buyer's user id as `BUYER`
 
 The keys are the consumer's [`UserProfile`](/api-reference/data-types/README.md#userprofile) attributes (`user_id`, `email`, `name`, `locale`, `email_verified`, `email_public` and so on; the verified and public flags are booleans), plus `access_group` as a number and `timestamp` (the approval time in milliseconds, taken from the account's `approved` attribute). Two more, `records` (how many records the user uploaded) and `subscribers`, are looked up only when a row names them.
 
+`user` rows follow [the key rule](#rows-on-the-same-key), and an attribute the account does not have is a mismatch. They always compare with a value, and capture nothing: an action reads an attribute as `${user[<key>]}`, and all of them as `${user}`.
+
 ## Record Access
 
-`record_access` names a record id. The consumer must be the record's uploader, or have been granted private access to it with [`grantPrivateRecordAccess()`](/database/access-restrictions.md#grant-private-access). Signed-in only; on an anonymous endpoint it raises `AUTH_REQUIRED`.
+:::warning Signed requests only
+`record_access` checks the signed-in consumer, so it only passes for an app user of this project calling [`consumeTicket()`](/api-reference/tickets/README.md#consumeticket) with `auth: true`. A third-party webhook has no session: a ticket with `record_access` always fails for webhooks, with `AUTH_REQUIRED`.
+:::
+
+`record_access` names a record id. The consumer must be the record's uploader, or have been granted private access to it with [`grantPrivateRecordAccess()`](/database/access-restrictions.md#grant-private-access). A consumer who is neither fails with `CONDITION_FAILED` and `field: "record_access"`.
 
 ```json
 "record_access": "9x2K4mQ1pL8vB3nR6tW5yZ0cA7dF"
 ```
 
-## Request
+The id is a literal, never templated: a `${...}` written there is plain text, not a reference, so the record id must be exactly that text; the dashboard warns when the field holds one. An action reads the id as `${record_access}`.
 
-`request` sends an HTTP request of its own and fails the condition when it does not succeed. It is the older way to check something on another server before acting, and is kept as it was. A [`req` action](/tickets/actions.md#req-http-request-with-its-own-condition-and-chain) does the same with a response condition and a nested chain, and is the better fit for a new ticket.
+## Row Keys
 
-```json
-"request": {
-    "url": "https://api.example.com/licences/${licence}",
-    "method": "GET",
-    "headers": { "x-api-key": "k_4f9a1c" },
-    "match": [ { "key": "status", "operator": "=", "value": "active" } ]
-}
-```
+A condition row's `key` says where the row looks, **relative to its own list**, and is written without `${ }`. It is never templated.
 
-`url`, `headers`, `data` and `params` are templated with the placeholders captured so far (see [Templating](#templating)). `match` rows are not; they are evaluated against the response body like `data` rows. The URL follows the [address rules](/tickets/actions.md#url-and-address-rules) of the `req` action. A status of 300 or above, a refused address, a connection error or a 10 second timeout raises `REQUEST_FAILED`; a `match` mismatch raises `CONDITION_FAILED` with `field: "request"`.
-
-## Paths
-
-A condition row names a path into the request, such as `data[object][id]`; the leading `data` there is the request's own key (many webhook senders wrap the event's object in `data`), not the row list. Give the row a `placeholder` name and the value at that path is remembered under that name; leave out operator and value and the row only captures. In an action, write the path itself, `placeholder[NAME]`, or embed either in text with `${...}`. A whole-value path keeps the value's type; inside text it becomes a string. Bare words are literal text; to read a top-level key write `${code}`. You need a placeholder only when the value must survive into a request action, whose paths read the response instead.
-
-| you write | where | reads |
+| list | `key` | reads |
 |---|---|---|
-| `type` | a row `key` | the top-level key `type` of the request |
-| `data[object][id]` | a row `key` or an action value | the request's `data`, then its `object`, then its `id` |
-| `items[data][0][price][id]` | a row `key` or an action value | the first element of the `data` list, then deeper |
-| `placeholder[BUYER]` | an action value | what a row captured as `BUYER` |
-| `${type}` | an action value | the top-level key `type`, as a whole value |
-| `order-${data[object][id]}` | an action value | the text `order-` followed by the id |
-| `orders` | an action value | the literal text `orders` |
+| `data` | `type` | the request body's `type` |
+| `data` | `payment[metadata][user_id]` | the body's `payment`, then its `metadata`, then its `user_id` |
+| `data` | `items[0][price]` | the `price` of the first element of the body's `items` list |
+| `params` | `code` | the query string's `code` |
+| `headers` | `x-webhook-source` | that request header, whatever its case |
+| `user` | `email_verified` | that attribute of the signed-in consumer |
+| `data` of a [response check](/tickets/actions.md#checking-the-response) | `status` | the response body's `status` |
 
-:::warning
-Paths start at the **received JSON body**, not at the condition. When the body is an event such as `{ "type": ..., "data": { "object": { ... } } }`, everything about the object is addressed as `data[object][...]`. A `data` row whose key is `data[object][id]` is reading the body's `data` key, not the row list it sits in.
-:::
+A key of a `data` or `params` row is a root segment followed by zero or more bracketed segments. Segments are literal keys, with no escaping and no reserved names: a `data` row keyed `ticket[id]` or `placeholder[x]` reads the body's own `ticket` or `placeholder` key. A segment that is all digits indexes a list when the value is a list, and is a key when the value is an object. The root segment may hold letters, digits, `_`, `.` and `-` (`[A-Za-z0-9_][A-Za-z0-9_.\-]*`); a key that does not fit is refused when you register. A `headers` key is the header name, and a `user` key the attribute name.
 
-A **path** is a bare root segment followed by zero or more bracketed segments: `type`, `data[object][id]`, `items[data][0][price][id]`, `placeholder[SERVICE_ID]`. Segments are literal keys. A segment that is all digits indexes a list when the value is a list, and is a key when the value is an object. There is no escaping inside segments. The root segment may hold letters, digits, `_`, `.` and `-` (`[A-Za-z0-9_][A-Za-z0-9_.\-]*`); a row key that does not fit this grammar is refused at registration.
-
-### The data root
-
-The **data root** is the received data at the ticket level: the POST body parsed as JSON, or the query string for a GET. A POST body that is not JSON is kept as the raw string, and every path into it fails. Inside a `req` action's nested `condition` and `actions`, the data root is that request's **response body** (parsed JSON when possible, else the raw text).
-
-### Reserved roots
-
-In an action value or a `${...}`, the root segment of a path is first checked against the reserved roots below; otherwise it is a key of the data root. Reserved names are always reserved there: a request key with a reserved name is unreachable, and a reserved root used where it is not available raises `PATH_NOT_FOUND` (`result`, `error`) or `AUTH_REQUIRED` (`consumer` user attributes on an anonymous endpoint). Condition row keys never see the reserved roots: a `data` or `params` row key reads the data root and a `user` row key reads the consumer's attributes, whatever the root segment is called.
-
-| reserved root | available | value |
-|---|---|---|
-| `placeholder[NAME]` | everywhere | the placeholder pool (captures from every condition evaluated so far, including nested `req` conditions) |
-| `consumer[...]` | everywhere | `consumer[ip]`, `consumer[user_agent]`, `consumer[method]`, `consumer[headers][<name>]` (lowercase header names; `authorization` and `cookie` read `<redacted>`), and on the signed-in endpoint every consumer attribute of the [`user` rows](#user) (`consumer[user_id]`, `consumer[email]`, ...) |
-| `ticket[...]` | everywhere | `ticket[id]`, `ticket[service]`, `ticket[owner]`, `ticket[consume_id]`, `ticket[timestamp]` |
-| `result[...]` | inside action chains | the result object of the PREVIOUS action in the same chain. Unset before the first action |
-| `error[...]` | inside `err` chains | `error[code]`, `error[message]`, `error[detail]`, `error[action]` (the `act` that failed), `error[path]` (its chain path) |
+Only action values use `${ }` [references](#templating). A row key never does, and neither does a row's `value` or `setValueWhenMatch`: both are literals.
 
 ## Placeholders
 
-The **placeholder pool** is where captures go. It starts empty, every row with a `placeholder` adds to it (rows in a `req` action's response condition included), and every action can read it as `placeholder[NAME]`. A name must match `^[A-Za-z_][A-Za-z0-9_]*$`.
+The **placeholder pool** is where captures go. It starts empty, every capture-only row and every matching row with a `placeholder` adds to it (rows in a `req` action's response check included), and every action can read it as `${placeholder[NAME]}`. A name must match `^[A-Za-z_][A-Za-z0-9_]*$`. Keys after the name read into a captured object or list: `${placeholder[ORDER][id]}`.
 
-Reading a name that was never captured raises `PLACEHOLDER_MISSING` with `detail: { "placeholder": "NAME" }`. A capture-only row whose path was missing leaves the name unset, so the error surfaces at the action that needs the value, not at the row.
+Reading a name that was never captured raises `PLACEHOLDER_MISSING` with `detail: { "placeholder": "NAME" }`. A capture-only row whose path was missing, or a match row that did not match, leaves the name unset, so the error surfaces at the action that needs the value, not at the row.
 
-You need a placeholder in two cases. The first is a `req` action: inside its response condition and its nested actions, paths read the response, so a value from the original request must have been captured first. The second is readability: `placeholder[BUYER]` says more than `data[object][metadata][user_id]` when the same value is used in several actions.
+An action can read the request itself with `${data[...]}`, so a placeholder is for three things:
+
+- a value a row **chose or rewrote**, such as the result of a [lookup table](#lookup-tables);
+- a value from a `req` action's **response** that an action outside that `req` needs: `${response}` exists only in the `req`'s own nested actions, while the pool is shared by the whole consumption;
+- **readability**: `${placeholder[BUYER]}` says more than `${data[payment][metadata][user_id]}` when the same value is used in several actions.
 
 At the end of a consumption the pool is written to the log row, so the Log tab shows what was captured.
 
 ## Templating
 
-Action parameters are templated right before the action runs, over every **string value** (never a key) of that action's templated keys. Three rules apply:
+Action values are templated right before the action runs. **Only text inside `${ }` is a reference**, and everything outside it is used exactly as written, whatever it looks like: `orders`, `order[id]` and a URL with brackets are all plain text. That is what keeps ordinary text from being read as a reference by accident, and it is why every reference starts with its root: a key of the request body can never be hidden behind a reference name.
 
-1. **Whole-value substitution**. A string that is entirely one path with at least one bracket segment (`data[object][amount_total]`, `placeholder[COUNTRY]`), or entirely `${<path>}` (`${type}`), is replaced by the resolved value **with its type kept**: number, boolean, object, list or null.
-2. **Interpolation**. Every `${<path>}` inside a longer string is replaced by the value's string form: strings as they are; `null`, `true`, `false`, numbers, objects and lists as compact JSON.
-3. **Errors and escapes**. A path that does not resolve raises `PATH_NOT_FOUND`; an unset placeholder raises `PLACEHOLDER_MISSING`. `$${...}` emits a literal `${...}`, and a leading backslash makes a whole-value string literal: `\items[0]` emits `items[0]`. In a JSON ticket the backslash itself is escaped, so the document spells it `"\\items[0]"`.
+On the dashboard you rarely type one yourself: the **`${ }`** button next to an action field opens a picker. Choose what to read, type a key when it takes one, and **Insert** writes the reference.
 
-| action value | request | becomes |
+### References
+
+| reference | reads |
+|---|---|
+| `${data}` | the whole request body: the parsed JSON, or the text of a body that is not JSON. `{}` on a GET, which has no body |
+| `${data[key]}`, `${data[k1][k2]}` | a key of the request body: `${data[id]}` is the body's `id`, `${data[payment][id]}` its `payment.id` |
+| `${params}`, `${params[key]}` | the query string, whole or one key, on GET and POST |
+| `${headers[name]}` | a request header, the name matched case-insensitively. `authorization` and `cookie` read `<redacted>` |
+| `${placeholder[NAME]}` | a value a condition row [captured](#placeholders) |
+| `${user}`, `${user[key]}` | the signed-in consumer's attributes, the ones [`user` rows](#user) read. Signed requests only |
+| `${ip}`, `${user_agent}`, `${method}` | the caller's IP address, its user agent, and the HTTP method |
+| `${record_access}` | the record id the condition's [`record_access`](#record-access) names. Signed requests only |
+| `${response}`, `${response[key]}` | the parsed body of the enclosing `req` action's response. Only in that action's nested `actions` |
+| `${result}`, `${result[key]}` | the result of the previous action in the same chain. See [Chaining](/tickets/actions.md#chaining-with-result) |
+| `${error}`, `${error[key]}` | in an `err` chain, the failure it handles: `code`, `message`, `detail`, `action`, `path`. See [Error chains](/tickets/actions.md#error-chains-with-error) |
+| `${ticket}`, `${ticket[key]}` | this consumption: `id`, `service`, `owner`, `consume_id` and `timestamp` |
+| `${CLIENT_SECRET}` | reserved: the value of a Secret Key, only in the `headers`, `data` and `params` values of a `req` action that names a `secretName`. See [Sending a Secret Key](/tickets/actions.md#sending-a-secret-key) |
+
+`${data}` is always the request the ticket received, at every depth: in a `req` action's nested actions and in `err` chains as well. The answer of a `req` is `${response}`.
+
+The root always comes first. A body with a `data` key of its own, as many webhook events have (`{ "data": { "object": { "id": "evt_1" } } }`), reads as `${data[data][object][id]}`: the first `data` is the root, the second is the body's key.
+
+### How a value is filled in
+
+1. A string that is **exactly one** `${...}` becomes the value **with its type kept**: a number, a boolean, an object, a list or `null`.
+2. Inside longer text, each `${...}` is replaced by the value as text: a string as it is, and `null`, `true`, `false`, numbers, objects and lists as compact JSON.
+3. `$${...}` writes a literal `${...}`. Spaces just inside the braces are ignored, so `${ data[id] }` is `${data[id]}`.
+4. Templating runs once. A value that arrives in the request is never read again, so a body field holding the text `${CLIENT_SECRET}` stays that text.
+5. Only values are templated, never object keys.
+
+| action value | request body | becomes |
 |---|---|---|
-| `"data[object][amount_total]"` | `{ "data": { "object": { "amount_total": 4200 } } }` | `4200`, a number |
-| `"${type}"` | `{ "type": "payment.completed" }` | `"payment.completed"` |
-| `"order-${data[object][id]}"` | `{ "data": { "object": { "id": "pay_a1B2c3" } } }` | `"order-pay_a1B2c3"` |
-| `"items: ${items}"` | `{ "items": [1, 2] }` | `"items: [1,2]"` |
-| `"orders"` | anything | `"orders"`, bare words are literal |
-| `"type"` | anything | `"type"`, no bracket and no `${}` means literal |
+| `"${data[payment][amount_total]}"` | `{ "payment": { "amount_total": 4200 } }` | `4200`, a number |
+| `"${data[type]}"` | `{ "type": "payment.completed" }` | `"payment.completed"` |
+| `"order-${data[payment][id]}"` | `{ "payment": { "id": "pay_a1B2c3" } }` | `"order-pay_a1B2c3"` |
+| `"items: ${data[items]}"` | `{ "items": [1, 2] }` | `"items: [1,2]"` |
+| `"${data}"` | `{ "a": 1 }` | `{ "a": 1 }`, the whole body |
+| `"orders"` | anything | `"orders"`: text outside `${ }` is literal |
+| `"data[type]"` | anything | `"data[type]"`: without `${ }` it is not a reference |
 | `"$${price}"` | anything | `"${price}"` |
-| `"\\items[0]"` (the JSON spelling of `\items[0]`) | anything | `"items[0]"` |
 
-Which keys are templated depends on the action. See [What is Templated](/tickets/actions.md#what-is-templated).
+Which keys of each action are templated is listed under [What is Templated](/tickets/actions.md#what-is-templated).
+
+### What registration refuses
+
+Inside `${ }`, only the forms in the table above are accepted. Registering anything else is refused with `INVALID_PARAMETER`, a message that says where it was found, and the list of valid forms:
+
+- a root that does not exist, such as `${id}` or `${code}`: write `${data[id]}` or `${params[code]}`;
+- keys under a root that takes none, such as `${ip[x]}`;
+- a root that is only read with a key, `${placeholder}` or `${headers}`, and `${headers[a][b]}`;
+- a bracketed root such as `${[ip]}`, broken brackets such as `${data[id}`, and an empty `${}`;
+- a placeholder name that is not a name, such as `${placeholder[1x]}`.
+
+```
+"actions[0].exe.data.order": "${id}" is not a valid reference. Use one of: ${data}, ${data[key]}, ${params}, ${params[key]}, ${headers[name]}, ${placeholder[NAME]}, ${user}, ${user[key]}, ${ip}, ${user_agent}, ${method}, ${record_access}, ${response}, ${response[key]}, ${result}, ${result[key]}, ${error}, ${error[key]}, ${ticket}, ${ticket[key]} and ${CLIENT_SECRET}.
+```
+
+A reference written where it can never resolve is refused as well: `${response}` outside a `req` action's nested actions, `${error}` outside an `err` chain, and `${record_access}` when the condition names no record. So is `${CLIENT_SECRET}` anywhere but where [Sending a Secret Key](/tickets/actions.md#sending-a-secret-key) allows it.
+
+### When a reference does not resolve
+
+A reference is resolved when its action runs, and one that does not resolve fails that action **before it does anything**:
+
+| case | code | detail |
+|---|---|---|
+| the key is not there, such as `${data[coupon]}` on a body without `coupon`, or `${result}` before any action ran | `PATH_NOT_FOUND` | `{ "path": "data[coupon]" }`, the reference without `${ }` |
+| a placeholder that was never captured | `PLACEHOLDER_MISSING` | `{ "placeholder": "NAME" }` |
+| `${user}` or `${user[key]}` on a request that is not signed in | `AUTH_REQUIRED` | |
+
+The failure is the action's: its `err` chain runs, the consumption stops, and it is answered with `stage: "action"` (400, or 200 with `return200`) and logged. See [How a Chain Runs](/tickets/actions.md#how-a-chain-runs).

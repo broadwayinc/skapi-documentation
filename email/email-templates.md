@@ -198,11 +198,11 @@ The placeholder URL **`https://link.skapi.com`** will be replaced with the actua
 Example below shows how to set the link URL in gmail.
 Any other email service should have similar way to set the link.
 
-![gmail link](/linkexam.png)
+![Gmail Edit Link dialog with the web address set to the Skapi confirmation link](/linkexam.png)
 
 Below shows an example of signup confirmation template. In this example we included **`${service_name}`** in the subject, and **`${name}`** with link in the content.
 
-![signup confirmation template](/conftempexamp.png)
+![Gmail draft of a signup confirmation e-mail with the service name in the subject and a confirmation link in the body](/conftempexamp.png)
 
 
 ## Required Placeholders for verification email

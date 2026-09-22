@@ -54,7 +54,7 @@ The above example is equivalent to the following code:
 </script>
 ```
 
-When a submit event is passed, the method automatically converts form input values into key–value pairs. Each input `name` becomes the object key; the value depends on the input type.
+When a submit event is passed, the method automatically converts form input values into key-value pairs. Each input `name` becomes the object key; the value depends on the input type.
 
 ### Nested Values and Arrays
 

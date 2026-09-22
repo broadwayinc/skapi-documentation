@@ -98,7 +98,7 @@ skapi.getRecords({
 });
 ```
 
-More on unique ID can be found [here](/database/unique-id.md).
+More on unique ID can be found in [Unique ID](/database/unique-id.md).
 
 
 ## Using reference to fetch certain user's post

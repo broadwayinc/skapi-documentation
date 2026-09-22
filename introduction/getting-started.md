@@ -41,6 +41,8 @@ const skapi = new Skapi("abc123defg456hij78-9klmnop012qrstu345vwxyz");
 ```
 
 Every example in this documentation uses the same `"<Project ID>"` placeholder. Replace it wherever you copy an example.
+
+If you run code that still has the placeholder, Skapi asks for your Project ID instead of stopping: a web browser shows a prompt, and Node.js asks in the terminal. Nothing is sent until you answer, and calls made in the meantime wait for it. The ID you enter is kept for the session (until the browser tab is closed, or until the Node.js process exits) and is used again wherever the placeholder appears. Where nobody can answer, such as a Node.js server or CI job with no terminal, Skapi throws `Project ID is required.` This is a shortcut for trying examples, so put your Project ID in your code before you publish.
 :::
 
 The Project ID uniquely identifies your Skapi project.

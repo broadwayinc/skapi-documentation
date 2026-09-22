@@ -52,7 +52,7 @@ The **Edit as JSON** toggle shows the same ticket as one JSON document, which is
   "limit_per_user": 1,
   "time_to_live": null,
   "condition": { "method": "GET", "params": [ { "key": "code", "operator": "=", "value": "LAUNCH24" } ] },
-  "actions": [ { "act": "pstr", "exe": { "table": "coupons", "data": { "code": "${code}", "ip": "consumer[ip]" } } } ]
+  "actions": [ { "act": "pstr", "exe": { "table": "coupons", "data": { "code": "${params[code]}", "ip": "${ip}" } } } ]
 }
 ```
 
@@ -75,10 +75,11 @@ On the anonymous endpoints the consumer is identified by IP address and user age
 
 ### What the request carries
 
-- A POST body is parsed as JSON. A body that is not JSON is kept as a raw string, and every path into it fails.
-- A GET query string is the data. Each value is JSON-parsed on its own when it parses (`1` becomes the number `1`, `true` becomes `true`, `{"a":1}` becomes an object), otherwise it stays a string. `?code=LAUNCH24&qty=2` is read as `{ "code": "LAUNCH24", "qty": 2 }`. A GET without a query string has the data `{}`.
+- **The body.** A POST body is parsed as JSON. A body that is not JSON is kept as its text, so no row key finds anything in it, but an action can still read the whole text as `${data}`. A GET has no body, and reads it as `{}`. `data` rows read the body, and actions read it as `${data}` or `${data[key]}`.
+- **The query string**, on both methods. Each value is JSON-parsed on its own when it parses (`1` becomes the number `1`, `true` becomes `true`, `{"a":1}` becomes an object), otherwise it stays a string: `?code=LAUNCH24&qty=2` is read as `{ "code": "LAUNCH24", "qty": 2 }`. A request without a query string reads it as `{}`. `params` rows read the query string, and actions read it as `${params}` or `${params[key]}`.
+- **The caller**: its headers, IP address, user agent and method, and on the signed-in endpoint the user. See [References](/tickets/conditions.md#references).
 
-The received data is the **data root** that condition rows and action parameters read. See [Paths](/tickets/conditions.md#paths).
+A GET ticket's data is its query string: use `params` rows and `${params[...]}` there.
 
 ## Consuming From a Browser
 
@@ -127,7 +128,7 @@ A webhook sender only needs the URL. Paste the POST endpoint into the sender's s
 ```sh
 curl -X POST https://eu73.skapi.dev/tp/eu73kXm2PqA9vLb4/order-paid \
   -H 'content-type: application/json' \
-  -d '{ "type": "payment.completed", "data": { "object": { "id": "pay_a1B2c3" } } }'
+  -d '{ "type": "payment.completed", "payment": { "id": "pay_a1B2c3" } }'
 ```
 
 Success answers `200` with `application/json`:
@@ -161,7 +162,7 @@ curl 'https://eu73.skapi.dev/publ/check/eu73kXm2PqA9vLb4/f2b6c9e1-3a4d-4c8b-9e0f
 # a POST ticket: the body is the data
 curl -X POST https://eu73.skapi.dev/publ/check/eu73kXm2PqA9vLb4/f2b6c9e1-3a4d-4c8b-9e0f-1a2b3c4d5e6f/order-paid \
   -H 'content-type: application/json' \
-  -d '{ "type": "payment.completed", "data": { "object": { "id": "pay_a1B2c3" } } }'
+  -d '{ "type": "payment.completed", "payment": { "id": "pay_a1B2c3" } }'
 ```
 
 A passing dry run answers the JSON string `"SUCCESS: Ticket check passed. No action taken."`. A failing one answers the same error body a real consumption would. Once the ticket has been read, a dry run is always logged, whatever fails after that: a passing one shows as `check` in the Log tab, with the captured placeholders in its details before an action ever runs, and a failing one shows as `failed: <code>` with `"check": true` in its details, an expired ticket or a signature that does not verify included. Only a dry run that never reaches the ticket (`INVALID_SERVICE`, `SERVICE_DISABLED`, `TICKET_NOT_FOUND`) leaves no row.
@@ -170,7 +171,7 @@ A passing dry run answers the JSON string `"SUCCESS: Ticket check passed. No act
 The dry run evaluates the whole condition, a signature included. To try a signed webhook, point the sender's test mode, or its "send test event" feature, at the check URL and read the Log tab. You can also sign a request yourself. For a ticket with the signature of the [payment webhook example](/tickets/examples.md#a-payment-webhook):
 
 ```sh
-body='{ "type": "payment.completed", "data": { "object": { "id": "pay_a1B2c3" } } }'
+body='{ "type": "payment.completed", "payment": { "id": "pay_a1B2c3" } }'
 ts=$(date +%s)
 sig=$(printf '%s.%s' "$ts" "$body" | openssl dgst -sha256 -hmac "$SIGNING_SECRET" | sed 's/^.* //')
 curl -X POST https://eu73.skapi.dev/publ/check/eu73kXm2PqA9vLb4/f2b6c9e1-3a4d-4c8b-9e0f-1a2b3c4d5e6f/order-paid \
@@ -182,9 +183,13 @@ curl -X POST https://eu73.skapi.dev/publ/check/eu73kXm2PqA9vLb4/f2b6c9e1-3a4d-4c
 A row marked `failed: CONDITION_FAILED` whose details say `"field": "signature"` means the secret name, the secret itself, or the way the signature fields describe the header is wrong; a `check` row means the signature verified and the placeholders were captured.
 :::
 
+## Tickets Saved Before This Release
+
+The **Tickets** page marks a ticket saved before this release **previous rules**, and [`getTickets()`](/api-reference/tickets/README.md#gettickets) returns it with `legacy: true`. It keeps running by the rules it was saved with until you save it again. Its form shows it converted to the current format, and saving asks you to confirm, then applies the current rules described in this guide. What those tickets do and what saving changes are listed under [Deprecated](/deprecated/deprecated.md#tickets-saved-before-this-release).
+
 ## Next
 
 - [Conditions and Placeholders](/tickets/conditions.md): what a request must look like, and how values are read out of it.
 - [Actions](/tickets/actions.md): what a ticket does, chaining and error chains.
 - [Errors and Logs](/tickets/errors.md): every error code, and the consumption log.
-- [Examples](/tickets/examples.md): a payment webhook, a coupon link, and a signed-in unlock.
+- [Examples](/tickets/examples.md): a payment webhook, a coupon link, a signed-in unlock, and a call to an API with your Secret Key.

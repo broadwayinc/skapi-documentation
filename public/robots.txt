@@ -1,0 +1,14 @@
+# docs.skapi.com
+#
+# Everything is public documentation, so nothing is disallowed. The pages kept out of
+# search (SYSTEM.html, admin/project-settings.html, the not-found page) carry a robots
+# noindex tag instead: a disallowed URL is never fetched, so a crawler would never see
+# the noindex and could still list the URL.
+#
+# SKAPI.md, skapi-docs.md, skapi-types.md and llms.txt are the documentation as plain
+# markdown for AI agents, and are meant to be fetched.
+
+User-agent: *
+Allow: /
+
+Sitemap: https://docs.skapi.com/sitemap.xml
