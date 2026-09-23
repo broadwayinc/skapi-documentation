@@ -79,7 +79,7 @@ Result: `{ user_id, group }`.
 exe: { record_id: string, user_id?: string | string[] }
 ```
 
-The targets are `user_id` (one id or a list), or the consumer. `record_id` must be a record id, not a unique id.
+The targets are `user_id` (one id or a list; on the dashboard, ids separated by commas), or the consumer. `record_id` must be a record id, not a unique id.
 
 The grant is made on behalf of the record's uploader, so the rules of [`grantPrivateRecordAccess()`](/api-reference/database/README.md#grantprivateaccess) apply: a grantee must be an approved user or an invitation, and the project owner cannot be a grantee. The uploader must be a user of the project or the project owner; a record uploaded anonymously fails with `ACTION_FAILED` and `Record uploader is not a user.`. When none of the targets could be granted, the action fails with `No eligible user.`.
 
@@ -103,7 +103,9 @@ exe: {
 
 Everything except `user_id` is exactly what [`postRecord()`](/database/create.md) sends: `data` plus the [`PostRecordConfig`](/api-reference/data-types/README.md#postrecordconfig) keys, validated as if the SDK had sent them. So the rules you already know apply. `table` is a name or an object with an `access_group`, `record_id` updates instead of creating, `unique_id` names the record, and what the posting identity may not upload is refused here too, as `ACTION_FAILED` with the operation's `code` and `message` in `detail`.
 
-By default the record is posted **as the project owner**. Set `user_id` to post it as that user instead; the user must exist in the project and be active, otherwise the action fails with `User does not exist.` or `User is not active.`. Keep in mind [what the project owner cannot upload](/admin/intro.md#what-project-owners-cannot-do): a private, subscription or read-only record needs a `user_id`.
+By default the record is posted **as the project owner**. Set `user_id` to post it as that user instead (`${user[user_id]}` posts as the signed-in consumer, on [signed requests](/tickets/conditions.md#user) only); the user must exist in the project and be active, otherwise the action fails with `User does not exist.` or `User is not active.`. Keep in mind [what the project owner cannot upload](/admin/intro.md#what-project-owners-cannot-do): a private, subscription or read-only record needs a `user_id`.
+
+On the dashboard, `reference`, `readonly`, `source` and the table's `subscription` are entered under **Show advanced (JSON)** of a Post record action: the first three go into the post, `subscription` into the table.
 
 Records posted by a ticket are written on the server, so they are never client-side [encrypted](/database/encryption.md), even into `private`.
 
@@ -135,7 +137,7 @@ exe: {
 
 `req` sends a request and then checks its answer: `condition` against the response, then `actions`, which read the response body as `${response}` and `${response[key]}`. `${data}` is still the request the ticket received.
 
-`data` is sent as JSON when a `content-type` header says `application/json`, otherwise form encoded. Every request carries `X-Skapi-Ticket: <service_id>/<ticket_id>`, so your server can tell which ticket is calling.
+`data` is the body, sent on POST and PUT only, as JSON when a `content-type` header says `application/json` and otherwise form encoded. `params` is added to the URL's query string on every method. Every request carries `X-Skapi-Ticket: <service_id>/<ticket_id>`, so your server can tell which ticket is calling.
 
 `headers` are sent as written, their values templated. Two headers are the engine's own, and a ticket cannot set either: registration refuses them whatever their case or surrounding spaces.
 

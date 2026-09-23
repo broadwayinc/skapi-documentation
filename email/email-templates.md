@@ -6,6 +6,10 @@ You can customize the email template of these automated emails by sending your t
 
 E-Mail endpoints can be found in your `Automated Emails` page in your Skapi admin page.
 
+:::warning Register an email alias first
+Automated emails are sent from your project's **email alias**, so a template can only be set once the project has one. Register it in your project's `Settings` page. Until then the `Automated Emails` page asks you to register it, and a template sent to an endpoint is not saved: Skapi replies to your address with a notice saying that an email alias is needed. Templates you already set keep being sent.
+:::
+
 :::warning Your address must pass the sender trust check
 Skapi only accepts a template from an address whose mail passes **SPF, DKIM and DMARC**, the checks that prove an email really comes from the address it names.
 Mail that fails any of them, or comes from a domain that publishes none of them, is treated as suspicious and is not processed. Skapi replies to your address with a notice that lists each check and its result.

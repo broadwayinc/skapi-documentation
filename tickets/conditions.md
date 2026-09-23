@@ -59,7 +59,7 @@ They read the account of the user who consumes the ticket, so they only pass for
 - `=` and `!=` compare strictly, as JavaScript's `===` does: the number `1` is not the text `"1"`, and `true` is not `1`.
 - The ordering operators compare two strings or two numbers. A string against a number, a boolean, `null` or a missing field never passes, and is never an error.
 - A field the request does not carry fails every operator, `!=` included, unless the row compares with `null` or `undefined` (see [below](#null-and-undefined)).
-- `value` may be a list. With `=` and the ordering operators the row passes when **any** member matches. With `!=` it passes when the field is **none** of them.
+- `value` may be a list. With `=` and the ordering operators the row passes when **any** member matches. With `!=` it passes when the field is **none** of them. See [Lists, objects and arrays](#lists-objects-and-arrays).
 
 ```json
 "ip": { "operator": "!=", "value": ["203.0.113.7", "198.51.100.23"] }
@@ -82,6 +82,52 @@ Rows in `headers`, `data`, `params` and `user` combine by key. Rows with the **s
 Here `type` may be either event, **and** `amount` must be above `100` as well. A body without `amount` fails on `amount`: a field that is not there does not match.
 
 When a key is not satisfied, the answer is `CONDITION_FAILED` with the part in `detail.field` and every key that failed in `detail.keys`, such as `{ "field": "data", "keys": ["amount"] }`.
+
+### Lists, objects and arrays
+
+A row's `value` can be any JSON value. On the dashboard, pick the **JSON** type to enter one. How it is compared depends on its shape.
+
+**A list at the top of `value` is a set of alternatives, not a value to compare.** The field is compared with each member on its own:
+
+| row | passes when the field is |
+|---|---|
+| `status = ["paid", "complete"]` | `"paid"` or `"complete"` |
+| `status != ["paid", "complete"]` | neither of them |
+| `code >= ["ch_", "pi_"]` | text starting with `ch_` or with `pi_` |
+
+**An object is compared whole.** `=` passes only when the field is an object with exactly the same keys, and every value is the same, compared strictly and all the way down. A field with an extra key, a missing key, or `1` where the row has `"1"` does not match. `!=` passes for any other value, and fails on a missing field like every operator. The ordering operators never pass on an object.
+
+```json
+"data": [
+    { "key": "metadata", "operator": "=", "value": { "plan": "pro", "seats": 5 } }
+]
+```
+
+This passes for `{ "plan": "pro", "seats": 5 }` and for nothing else, not `{ "plan": "pro", "seats": "5" }` and not `{ "plan": "pro", "seats": 5, "trial": true }`. To check one value inside an object, write a row for its path instead, such as `metadata[plan] = "pro"`.
+
+**To compare with a whole array, put it inside a list.** A top-level list is always read as alternatives, so `[1, 2]` means "`1` or `2`". Wrap the array to make it the one alternative: `[[1, 2]]` passes only when the field is the array `[1, 2]`, with the same members in the same order. `[[1, 2], [2, 1]]` accepts either order.
+
+```json
+"data": [
+    { "key": "tags", "operator": "=", "value": [["a", "b"]] }
+]
+```
+
+**A list and rows on the same key.** For `=` and the ordering operators, one row with a list passes for the same requests as one row per member, since [rows on the same key](#rows-on-the-same-key) are alternatives too. They differ in two ways:
+
+- **`!=`**: `status != ["paid", "complete"]` means none of them. Two rows, `status != "paid"` and `status != "complete"`, are alternatives, so every status passes one of them, and `"paid"` gets through. To exclude several values, use one row with a list.
+- **Replacements and placeholders**: `setValueWhenMatch` and `placeholder` belong to a row. A list row gives every member the same replacement. Separate rows give each value its own, since the first row that matches sets its replacement, which makes a lookup table:
+
+```json
+"data": [
+    { "key": "price", "operator": "=", "value": "price_basic", "setValueWhenMatch": 2, "placeholder": "GROUP" },
+    { "key": "price", "operator": "=", "value": "price_pro", "setValueWhenMatch": 3, "placeholder": "GROUP" }
+]
+```
+
+`${placeholder[GROUP]}` is `2` for the basic price and `3` for the pro price, and any other price fails the condition.
+
+A list may hold `null` as a member, such as `[null, "none"]`. It cannot hold `undefined`, which JSON has no way to write: a row that checks for a missing field has no `value` key (see [Null and undefined](#null-and-undefined)). `ip` and `user_agent` lists must hold text only, or the ticket is refused when you register. A header's value is always text, so in a `headers` row only text members can match.
 
 ### Null and undefined
 
@@ -132,6 +178,8 @@ The first row passes only when the body has no `coupon`. The second passes only 
 ```
 
 This one reads a header such as `x-signature: t=1757721600,v1=<hex>`, signs `<timestamp>.<raw body>` with HMAC-SHA256, and refuses a timestamp more than 300 seconds away from now.
+
+On the dashboard, pick the key under **Secret key** and type the **Signature header**; `separator`, `parts` (one pattern per line), `signed`, `timestamp`, `tolerance`, `secret_encoding` and `secret_prefix` are under **Show advanced**. Leave Secret key at **None** and the header blank for no signature check.
 
 | field | default | meaning |
 |---|---|---|

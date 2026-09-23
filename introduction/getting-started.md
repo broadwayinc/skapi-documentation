@@ -9,7 +9,10 @@ To build a full-stack web application, create a project and connect it to your H
 ## Creating a Project
 
 1. Sign up for an account at [skapi.com](https://www.skapi.com/signup).
-2. Log in, create a new project. Give your project a name, choose a region, and click Create.
+2. Log in and click **+ New Project**. Give your project a name, an optional description and a region, and click **Continue**.
+3. Choose a plan. **Free** (the [Trial plan](/introduction/plans.md)) creates the project right away. **Standard** and **Premium** open checkout: the first payment is taken there, with no trial period, and the project is created once the payment is confirmed. The page waits and opens the new project as soon as it is ready, which usually takes a few seconds.
+
+A plan chosen on the pricing section of [skapi.com](https://www.skapi.com) is kept: after you name the project, it goes straight to that plan. Change it with **[Change]** next to the plan.
 
 :::tip For BunnyQuery users
 BunnyQuery projects are fully compatible with Skapi. Your project will appear in both your BunnyQuery and Skapi project lists.

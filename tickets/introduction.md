@@ -34,9 +34,9 @@ The detail view has these sections:
 - **Description**: up to 500 characters, shown in the list.
 - **Remaining consumptions** (`count`): every successful consumption takes one. At `0` the ticket answers `TICKET_EXHAUSTED`. Blank keeps the current value when you update a ticket, and means unlimited on a new one. `0` exhausts the ticket. Tick **Unlimited** to remove the count from an existing ticket.
 - **Limit per user** (`limit_per_user`): how many times one user may consume the ticket. `1` means once. Blank means unlimited. Only signed-in consumptions are counted, so it has no effect on the anonymous endpoints.
-- **Expires** (`time_to_live`): a date and time after which the ticket answers `TICKET_EXPIRED`. Blank means never. When set it must be in the future.
+- **Expires** (`time_to_live`): a date and time after which the ticket answers `TICKET_EXPIRED`, entered in your local time. Blank means never. When set it must be in the future.
 - **Always answer 200** (`return200`): answer HTTP 200 even when the consumption fails, for webhooks that retry on errors.
-- **Method**: Any, GET or POST.
+- **Method**: Any, GET or POST. Any accepts both; with GET or POST, a request with the other method fails with `METHOD_NOT_ALLOWED`. See [`return200` and `method`](/tickets/conditions.md#return200-and-method).
 
 Updating a ticket replaces its whole definition, but the per-user usage counters survive an update, so editing the count does not hand every user a fresh allowance. Deleting a ticket deletes the counters and keeps the log.
 
@@ -57,6 +57,8 @@ The **Edit as JSON** toggle shows the same ticket as one JSON document, which is
 ```
 
 `count`, `limit_per_user` and `time_to_live` are optional. `count: null` means unlimited and `time_to_live: null` means never; `time_to_live` is otherwise an absolute time in milliseconds since the epoch. Paste a document, click **Apply**, and the builder fills in from it.
+
+Each action card in the builder also has **Show other fields (JSON)**. It holds the keys of that action the card has no control for, or could not load, and they are merged into the action when you save. When a control above fills the same key, the control wins.
 
 ## Endpoints
 
