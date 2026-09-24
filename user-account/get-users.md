@@ -74,7 +74,57 @@ skapi.getUsers(birthdateParams).then(u=>{
 });
 ```
 
+#### Search for a single user whose `user_id` falls in a range
+
+```js
+let userIdParams = {
+  searchFor: 'user_id',
+  value: '00000000-0000-0000-0000-000000000000',
+  range: 'ffffffff-ffff-ffff-ffff-ffffffffffff'
+}
+
+skapi.getUsers(userIdParams).then(u=>{
+  console.log(u.list); // List of users whose user_id falls between the value and range
+});
+```
+
+#### Fetch multiple users by their `user_id`
+
+```js
+let multipleIdParams = {
+  searchFor: 'user_id',
+  value: [
+    '00000000-0000-0000-0000-000000000000',
+    '11111111-1111-1111-1111-111111111111'
+  ]
+  // condition defaults to '=', and each id is looked up directly. This is not a range search.
+}
+
+skapi.getUsers(multipleIdParams).then(u=>{
+  console.log(u.list); // The users matching either id, if they exist
+});
+```
+
+#### Fetch multiple users by a list of e-mails
+
+```js
+let multipleEmailParams = {
+  searchFor: 'email',
+  value: ['alice@example.com', 'bob@example.com']
+  // condition defaults to '=', and each e-mail is looked up directly. This is not a range search.
+}
+
+skapi.getUsers(multipleEmailParams).then(u=>{
+  console.log(u.list); // The users matching either e-mail, if they exist and are public
+});
+```
+
 The `searchFor` parameter specifies the attribute to search for, and the value parameter specifies the search value.
+
+:::info
+- Passing a `value` array (fetching several known values at once, e.g. several `user_id`s or `email`s) only works with the default `=` condition and does not accept `range`, whichever attribute you search for. It looks up each value directly instead of running a range query.
+- Users cannot search for attributes that are not set to public.
+:::
 
 #### The following attributes can be used in `searchFor` to search for users:
 
@@ -97,14 +147,28 @@ The `searchFor` parameter specifies the attribute to search for, and the value p
 - `>=`: Greater or equal to the given value. When the value is `string`, it works as 'starts with' condition.
 - `=`: Equal to the given value. (default)
 - `<`: Lesser than the given value.
-- `<=`: Lesser or equal to the given value.
+- `<=`: Lesser or equal to the given value. On `email`, `phone_number`, `name`, `address`, `gender` and `locale`, it works as 'ends with' instead.
 
 When searching for a `string` attribute, `>` and `<` will search for strings that are higher or lower in the lexicographical order, respectively. And `>=` operator works as 'start with' condition.
 
+#### Search for users whose e-mail ends with '@company.com'
+
+```js
+let endsWithParams = {
+  searchFor: 'email',
+  condition: '<=',
+  value: '@company.com'
+}
+
+skapi.getUsers(endsWithParams).then(u=>{
+  console.log(u.list); // List of users whose e-mail ends with '@company.com'
+});
+```
+
 :::info
-- Conditional query does not work on `user_id`, `email`, `phone_number`. It must be searched with the '=' condition.
-- Users cannot search for attributes that are not set to public.
+`email`, `phone_number`, `name`, `address`, `gender` and `locale` are the only attributes that support the 'ends with' (`<=`) condition. It is served from a separate reverse-index that skapi keeps in sync with your user data, so it is as fast as any other condition search.
 :::
+
 
 :::tip What an admin sees
 Admins (access groups `90` ~ `99`) and the project owner get more from the same call: the `email` of every account, whether or not the user made it public, its `email_verified` state, and the `misc` field, which is otherwise visible only to the account itself. `searchFor: 'email'` searches those addresses too, so an admin can find an account by an address that is not public. Everything else follows the rules above. See [What an admin can see about a user](/admin/permissions.md#what-an-admin-can-see-about-a-user).

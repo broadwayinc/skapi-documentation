@@ -186,13 +186,15 @@ login ID another account was granted, including the email that account was creat
 `EXISTS` errors of [`inviteUser()`](/api-reference/admin/README.md#inviteuser) and
 [`createAccount()`](/api-reference/admin/README.md#createaccount).
 
-:::warning An account can lose its email login without anyone touching it
-Only a login ID an account was **granted** refuses a request. An email login an account holds without
-having verified the address grants nothing: it is removed, and the address goes to the account that proves it.
+:::warning Your permanent login ID is never taken away
+The account's permanent login ID is fixed:
+- if the account was created with a username, that username is the permanent login ID;
+- if the account was created without a username, the original email is the permanent login ID.
 
-So an account of your project can lose its email login when another account signs up with that address,
-is created or invited with it, has an admin change its email to it, logs in with OpenID under it, or
-simply verifies it. The account that loses it keeps logging in with the login ID it was created with.
-See [Login IDs](/admin/permissions.md#login-ids).
+That permanent login ID stays with the account and is never reassigned to another account.
+
+What can be taken away is a separate email login that is not the account's permanent login ID. If another
+account proves it owns the same email and verifies it, that separate email login can be reassigned to the
+other account. See [Login IDs](/admin/permissions.md#login-ids).
 :::
 

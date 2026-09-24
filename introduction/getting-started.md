@@ -9,13 +9,12 @@ To build a full-stack web application, create a project and connect it to your H
 ## Creating a Project
 
 1. Sign up for an account at [skapi.com](https://www.skapi.com/signup).
-2. Log in and click **+ New Project**. Give your project a name, an optional description and a region, and click **Continue**.
-3. Choose a plan. **Free** (the [Trial plan](/introduction/plans.md)) creates the project right away. **Standard** and **Premium** open checkout: the first payment is taken there, with no trial period, and the project is created once the payment is confirmed. The page waits and opens the new project as soon as it is ready, which usually takes a few seconds.
-
-A plan chosen on the pricing section of [skapi.com](https://www.skapi.com) is kept: after you name the project, it goes straight to that plan. Change it with **[Change]** next to the plan.
+2. Log in and click **+ New Project**.
+3. Give your project a name, an optional description and a region, and click **Continue**.
+4. Choose a plan and proceed.
 
 :::tip For BunnyQuery users
-BunnyQuery projects are fully compatible with Skapi. Your project will appear in both your BunnyQuery and Skapi project lists.
+[BunnyQuery](https://www.bunnyquery.com) projects are fully compatible with Skapi. Your project will appear in both your BunnyQuery and Skapi project lists.
 :::
 
 ### For HTML Projects
@@ -44,8 +43,6 @@ const skapi = new Skapi("abc123defg456hij78-9klmnop012qrstu345vwxyz");
 ```
 
 Every example in this documentation uses the same `"<Project ID>"` placeholder. Replace it wherever you copy an example.
-
-If you run code that still has the placeholder, Skapi asks for your Project ID instead of stopping: a web browser shows a prompt, and Node.js asks in the terminal. Nothing is sent until you answer, and calls made in the meantime wait for it. The ID you enter is kept for the session (until the browser tab is closed, or until the Node.js process exits) and is used again wherever the placeholder appears. Where nobody can answer, such as a Node.js server or CI job with no terminal, Skapi throws `Project ID is required.` This is a shortcut for trying examples, so put your Project ID in your code before you publish.
 :::
 
 The Project ID uniquely identifies your Skapi project.
@@ -82,6 +79,8 @@ import type { RecordData, DatabaseResponse } from 'skapi-js';
 const skapi = new Skapi("<Project ID>");
 let databaseRecords: DatabaseResponse<RecordData>;
 ```
+
+For lists of types, refer [Data Types](/api-reference/data-types/README.md).
 
 ### Node.js (CommonJS)
 
@@ -184,7 +183,7 @@ class Skapi {
     options?: {
         autoLogin?: boolean;        // Default: true
         refetchServiceInfo?: boolean;// Default: false. Bypasses cached project information and fetches fresh information on every load.
-        requestBatchSize?: number;  // Default: 30. Maximum number of requests processed per batch.
+        requestBatchSize?: number;  // Default: 50. Maximum number of requests processed per batch.
         encryption?: boolean | { // Default: false. Encrypts private record data in the browser. Can only be set during initialization. HTTPS is required.
             iterations?: number;             // Default: 600000. PBKDF2 cost. Minimum: 100000.
             minPasswordLength?: number;      // Default: 0 (off). Rejects passwords shorter than this value.
@@ -216,7 +215,7 @@ Options overview:
     - Automatically restores the user's session when the page loads.
     - See: [Auto Login](/authentication/login-logout.html#auto-login)
 
-- `requestBatchSize` (number, default: 30)
+- `requestBatchSize` (number, default: 50)
     - Maximum number of requests processed in each batch.
 
 - `encryption` (boolean | object, default: false)

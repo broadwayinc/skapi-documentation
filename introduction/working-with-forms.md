@@ -125,8 +125,8 @@ For this example, create these two HTML files in the same directory.
 </script>
 
 <form onsubmit="skapi.mock(event)" action="welcome.html">
-  <input name="name">
-  <input name="msg">
+  <input name="name" placeholder="What is your name?">
+  <input name="msg" placeholder="Write message">
   <input type="submit">
 </form>
 
@@ -137,7 +137,7 @@ For this example, create these two HTML files in the same directory.
 <script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
 
 <h1>Welcome <span id='your_name'></span></h1>
-<p id='message'></p>
+<p>Your message: <span id='message'></span></p>
 
 <script>
     // Replace 'project_id' with your project ID from your Skapi dashboard.
@@ -154,9 +154,7 @@ For this example, create these two HTML files in the same directory.
 :::
 
 ::: tip
-When building a static website, you can use the `action` attribute to redirect users to a new page after a successful request.
-
-Each page should have the Skapi library imported and initialized.
+When building a static website, you can use the `action` attribute to redirect users to a new page after a successful request. Each page should have the Skapi library imported and initialized.
 
 In a single-page application, redirecting to another page is often unnecessary.
 :::

@@ -203,7 +203,7 @@ A user disabling their **own** account is a different thing: the account is disa
 - The `misc` field of every account. For everyone else, `misc` is visible only to the account itself.
 - `searchFor: 'email'` searches those addresses, so an admin can find an account by an address that is not public.
 
-Everything else follows the normal rules: an attribute a user has not made public is not returned to other users, and `user_id`, `email` and `phone_number` are searched with the `=` condition only.
+Everything else follows the normal rules: an attribute a user has not made public is not returned to other users, and `user_id` searched with a `value` array (looking up several known ids at once) requires the `=` condition.
 
 ## Records
 
