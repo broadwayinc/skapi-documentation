@@ -59,19 +59,21 @@ In `index.html`, load and initialize Skapi:
 
 ## Third-Party API Integration (Secret Keys)
 
-A secret such as a third-party API key must never appear in frontend code. The project owner registers it on the **Secret Keys** page of the Skapi dashboard, and the app refers to it by name. See [Secret Keys](/api-bridge/client-secret-request.md) and [Forwarding Requests](/api-bridge/forward-request.md).
+A secret, such as a third-party API key, must never appear in frontend code. The project owner registers it on the **Secret Keys** page in the Skapi dashboard, and the app refers to it by name. See [Secret Keys](/api-bridge/client-secret-request.md) and [Forwarding Requests](/api-bridge/forward-request.md). If the integration must receive webhooks or trigger actions, use Skapi's Ticket system. See [Tickets](/tickets/introduction.md) for details.
 
-When integrating third-party APIs that require secrets:
+When integrating a third-party API that requires a secret:
 
-1. Ask for the name of the Skapi Secret Key if missing.
+1. Ask for the Skapi Secret Key name if it has not been provided.
 2. Confirm whether the key is **Locked**:
-  - Locked: only a logged-in user can use it, so the feature needs login.
-  - Not locked: any visitor can use it, logged in or not.
-3. Use `skapi.forwardRequest(form, options)` for requests, naming the key as `secretName`. Pass the request body as the first argument, or `null` when there is none.
-4. Put the placeholder `$CLIENT_SECRET` where the secret value belongs, in `headers`, `url`, `params` or the body. Skapi substitutes the real value on the server. A request that names a `secretName` must contain the placeholder at least once.
-5. If the key has **Destinations** set, it can only be sent to those URLs. Tell the user which URL the app calls so they can allow it.
-6. If the user is unsure, direct them to:
-  https://docs.skapi.com/api-bridge/forward-request.html
+   - A locked key can be used only by a logged-in user, so the feature requires authentication.
+   - An unlocked key can be used by anyone, including signed-out visitors.
+3. Use `skapi.forwardRequest(form, options)`, setting `secretName` to the registered key name. Pass the request body as the first argument, or `null` when the request has no body.
+4. Put the `$CLIENT_SECRET` placeholder wherever the secret belongs, such as in `headers`, `url`, `params`, or the request body. Skapi substitutes the real value on the server, so the secret never reaches the browser. A request that specifies `secretName` must contain the placeholder at least once.
+5. If the key has **Destinations** configured, it can be sent only to those URLs. Tell the user which destination URL the app calls so they can allow it.
+6. If the user is unsure how to use `forwardRequest`, direct them to [Forwarding Requests](https://docs.skapi.com/api-bridge/forward-request.html).
+7. If the integration requires webhooks, explain that a Ticket must be registered to receive the request and run any required actions. If the user is unsure how Tickets work, direct them to [Tickets](https://docs.skapi.com/tickets/introduction.html).
+8. If the user can use MCP servers, let them know that Secret Keys and Tickets can be registered through the Skapi [MCP server](https://mcp.broadwayinc.com).
+
 
 ## Third-Party OAuth Integration
 
@@ -82,6 +84,7 @@ When implementing Google/Facebook/GitHub-style login:
 3. Ask for OpenID logger IDs if missing.
 4. Note that provider-specific OAuth flows vary. Exchanging an authorization code for a token needs the provider's client secret, so store it as a Secret Key and make that request with `skapi.forwardRequest()`. See [OpenID Login](/authentication/openid-login.md).
 5. Inform the user HTTPS may be required by the provider for auth to work.
+6. If the user can use MCP servers, let them know that Open ID Logger can be registered through the Skapi [MCP server](https://mcp.broadwayinc.com).
 
 If the user is unsure, direct them to:
 https://docs.skapi.com/authentication/openid-login.html
