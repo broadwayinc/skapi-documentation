@@ -1,158 +1,34 @@
-# Skapi Complete Tutorial
+# Full Examples
 
-Welcome to the complete tutorial project for Skapi.
+The full example is a plain HTML and JavaScript template that shows every Skapi feature working, one page per feature. There is no framework and no build step: each page loads `skapi-js` from a CDN, describes what it demonstrates, and runs the real thing against your project. Open a page, try it, then view its source to see how it is done.
 
-The tutorial features a web application that provides:
-  - Full authentication system
-  - Realtime chat
-  - Upload posts, and comment
-  - Use an AI image generating service via 3rd party API service.
+| Example | What it demonstrates |
+| --- | --- |
+| [User Account](/full-example/user-account.md) | Sign up, log in, verify an email address, reset or change a password, update a profile, remove and recover an account. |
+| [Newsletter](/full-example/newsletter.md) | Let visitors subscribe to your newsletter with their email address. |
+| [Send Inquiry](/full-example/inquiry.md) | A contact form that sends a message to you, the project owner. |
+| [Database](/full-example/database.md) | A photo gallery: upload posts with files, like, comment, subscribe to other users and query posts in different ways. |
+| [Realtime Chat](/full-example/realtime.md) | Group chat and private messages over a WebSocket connection. |
+| [RTC Video Chat](/full-example/webrtc.md) | Video calls and a data channel between two users with WebRTC. |
 
-The tutorial is designed to help you understand how to build a full-fledged application using Skapi.
+## Have your project ID ready
 
-The emphasis is on functionality over aesthetics.
+The demos run against **your** Skapi project: the accounts, posts and messages you create in them land in your project's users and database. Every demo page takes the project ID from its address, as `?pid=<Project ID>`.
 
-## Demo
+Enter your project ID below once. It is kept in this browser, and the demo links on these pages carry it from then on. You can find the project ID on your project's page at [skapi.com](https://www.skapi.com), where the Application Examples section also offers these links with the ID already filled in.
 
-Check out the [live demo](https://tutorial.skapi.com) of the project.
+<FullExampleDemo page="index.html" label="Open the example index" />
 
-## Downloading the Source Code
+Pages that need a logged-in user (Database, Realtime Chat, RTC Video Chat and the account pages) send you to the login page first and bring you back afterwards. Newsletter and Send Inquiry work without an account.
 
-Visit the [GitHub repository](https://github.com/broadwayinc/skapi-tutorial.git)
+## Download
 
-Or clone the repository using the following command:
+Download every page of the template as one ZIP file: [skapi-templates.zip](https://cdn.broadwayinc.com/temp/v2/skapi-templates.zip)
 
-```bash
-git clone https://github.com/broadwayinc/skapi-tutorial.git
-```
+Unzip it, then either open a page with `?pid=<Project ID>` in the address or set the project ID in `service.js`. The files are plain HTML and JavaScript, so they run from any web server, or straight from the file system for everything except the video chat, which needs HTTPS or `localhost`.
 
-## Pre Requisites
+## What is shared by every page
 
-Create an account on [Skapi](https://skapi.com) and create a new project.
-
-The **project ID** is set in the `service.js` file.
-
-Currently, the example connects to the project:
-  - Project ID: **"5fRHl9Cw2Qq3eFEc0w-7Zd6TgdLUaFxseKMT1qveY"**
-
-Replace the value with your own project ID from your Skapi dashboard.
-
-You can retrieve your own project ID from your Skapi project dashboard.
-
-## Opening the Project
-
-In the project directory, you will find the following files:
-
-```
-.
-├─ authentication
-│  ├─ change_password.html
-│  ├─ create-account.html
-│  ├─ email-verification.html
-│  ├─ forgot-password.html
-│  ├─ profile-pic.html
-│  ├─ recover-account.html
-│  ├─ remove-account.html
-│  ├─ reset-password.html
-│  └─ update-profile.html
-├─ chatroom
-│  └─ chatroom.html
-├─ image-generator
-│  └─ image-generator.html
-├─ instaclone
-│  └─ instaclone.html
-├─ custom.css
-├─ index.html
-└─ service.js
-```
-
-This project does not require any build tools. Simply open the `index.html` file in your browser, and it will just work.
-
-If you are on remote server, run the following command to host the project:
-
-```bash
-npm run start 3000
-```
-*The number 3000 is the port number. You can change it to any port number you want.*
-
-You will be able to access the project at `http://[your remote server url]:3000`.
-
-## Key Points of This Tutorial
-
-### Built with Pure Static HTML, CSS and JavaScript
-
-While Skapi is compatible with various frameworks, this tutorial utilizes pure static HTML, CSS, and JavaScript.
-It showcases how even basic static HTML can be used with Skapi to create a complete web application.
-
-The CSS stylings are intentionally minimalistic, yet the application remains fully responsive across different devices.
-
-### Building a Full-Scale Application
-
-This tutorial encompasses all aspects of heavy lifting in production-level application, including:
-
-- Authentication
-  - Account creation
-  - Login/Logout functionalities
-  - Account removal
-  - Password reset and recovery options
-  - Profile updates
-  - Account recovery
-  - E-Mail verification
-  - Profile picture uploads
-
-- Instaclone (Instagram Clone) Features
-  - Post creation
-  - Post private posts
-  - Commenting on posts
-  - Liking and unliking posts
-  - Tagging and searching posts by tag
-  - Indexing posts by likes, comments, users
-  - Post deletion
-
-- Simple Chat Room Application
-  - broadcast text message in chat room
-  - Send/Receive private text message between users
-  - List all users in chat room
-
-- AI Image Generator
-  - Generate images using AI with given text
-  - Making a request to 3rd party API with a Secret Key
-  
-### Detailed Documentation
-
-All the code in this tutorial is heavily commented, and the comments are written to help you understand the code and the logic behind it.
-
-## Read Order
-
-Each part also has its own walkthrough page: [Authentication and User Profile](/full-example/auth-profile.md), [Instaclone](/full-example/instaclone.md), [Chat Room](/full-example/chatroom.md) and [AI Image Generator](/full-example/image-generator.md).
-
-For easier understanding, the tutorial is written in a way that you can read the code files in the following order:
-
-#### Main Page, Login, Logout
-
-1. `service.js`
-2. `index.html`
-
-#### Authentication and User Profile
-
-3. `authentication/create-account.html`
-4. `authentication/forgot-password.html`
-5. `authentication/reset-password.html`
-6. `authentication/recover-account.html`
-7. `authentication/update-profile.html`
-8. `authentication/email-verification.html`
-9.  `authentication/change-password.html`
-10. `authentication/remove-account.html`
-11. `authentication/profile-pic.html`
-
-#### Instaclone
-
-12. `instaclone/instaclone.html`
-
-#### Chat Room
-
-13. `chatroom/chatroom.html`
-
-#### AI Image Generator
-
-14.  `image-generator/image-generator.html`
+- `service.js` creates the `skapi` object every page uses. It reads the project ID from `?pid=`, keeps it in `sessionStorage`, adds it to every link and form action, and sends a visitor who is not logged in from the pages that need a user to `login.html` and back. Its `userReady` promise resolves to the logged-in user's profile, or `null`.
+- `main.css` is one small stylesheet shared by every page.
+- Each page is a short HTML file with the form or demo, a few lines of script, and comments that say which Skapi method does what.

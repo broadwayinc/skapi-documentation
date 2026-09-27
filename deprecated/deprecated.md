@@ -323,7 +323,7 @@ Send newsletters as the project owner, from the project's email address, to the 
 
 A project used to be identified by two values, a service ID and an owner ID. The `Skapi` constructor still accepts that pair in place of the single [project ID](/introduction/getting-started.md), and converts it to the same project ID.
 
-The [full example](/full-example/intro.md) tutorial's `service.js` still passes the pair. It connects to the same project as the project ID shown on that page.
+The [full example](/full-example/intro.md) template's `service.js` uses the single project ID.
 
 ## E-mail templates
 

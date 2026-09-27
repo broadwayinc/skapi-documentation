@@ -32,12 +32,34 @@ export const DEFAULT_DESCRIPTION =
 export const OG_IMAGE = ORIGIN + '/og-image.jpg';
 
 /** The company behind Skapi, described the same way www.skapi.com describes it. */
+/**
+ * The same entity www.skapi.com describes (its @id), so the two sites' structured data
+ * name one organization. The logo and the profiles match skapi-rebrand
+ * src/code/seo-meta.ts (LOGO, SAME_AS); keep them in step. The logo is served from
+ * this host, so it resolves whatever the state of www.skapi.com.
+ */
 export const ORGANIZATION = {
     '@type': 'Organization',
     '@id': 'https://www.skapi.com/#organization',
     name: 'Skapi',
     legalName: 'BROADWAYINC PTE. LTD.',
     url: 'https://www.skapi.com/',
+    logo: {
+        '@type': 'ImageObject',
+        url: ORIGIN + '/skapi-logo-512.png',
+        width: 512,
+        height: 512,
+    },
+    sameAs: [
+        'https://github.com/broadwayinc/skapi-js',
+        'https://x.com/skapi_api',
+        'https://www.linkedin.com/company/skapi-backend-api/',
+        'https://www.youtube.com/@skapi_official',
+        'https://www.instagram.com/skapi_api',
+        'https://www.tiktok.com/@skapi_api',
+        'https://www.facebook.com/profile.php?id=61577236221327',
+        'https://dev.to/skapi_api',
+    ],
 };
 
 /**
@@ -45,7 +67,20 @@ export const ORGANIZATION = {
  *   SYSTEM.md: the AI agent system prompt, only meaningful inside SKAPI.md
  *   admin/project-settings.md: an unlinked older copy of service-settings/service-settings.md
  */
-export const NOINDEX = new Set(['SYSTEM.md', 'admin/project-settings.md']);
+export const NOINDEX = new Set([
+    'SYSTEM.md',
+    'admin/project-settings.md',
+    // Old full-example pages, kept as redirect stubs so links to them still land somewhere.
+    'authentication/full-example.md',
+    'user-account/full-example.md',
+    'database/full-example.md',
+    'realtime/chat-example.md',
+    'realtime/rtc-example.md',
+    'full-example/auth-profile.md',
+    'full-example/instaclone.md',
+    'full-example/chatroom.md',
+    'full-example/image-generator.md',
+]);
 
 /**
  * Near duplicates whose canonical URL is another page. They stay indexable by that page
@@ -117,9 +152,6 @@ export const PAGES = {
     'authentication/openid-login.md': {
         description: 'Sign users in with an OpenID identity provider such as Google through Skapi OpenID Loggers, and merge an OpenID account with an existing account.',
     },
-    'authentication/full-example.md': {
-        description: 'A plain HTML template with every Skapi authentication feature: signup, login, password reset, profile updates and account recovery. Download it and run it.',
-    },
 
     // User account
     'user-account/introduction.md': {
@@ -141,9 +173,6 @@ export const PAGES = {
     },
     'user-account/get-users.md': {
         description: 'Search the users of your Skapi project with getUsers(), list them from the most recent signup, and filter them with search conditions.',
-    },
-    'user-account/full-example.md': {
-        description: 'Full HTML example of a user account page built with Skapi, where users view and edit their profile, change their password and remove their account.',
     },
 
     // Database
@@ -197,9 +226,6 @@ export const PAGES = {
     'database/subscription.md': {
         title: 'User Subscriptions and Feeds',
         description: 'Let users subscribe to other users in Skapi, post feed records, read their feed, list subscriptions, and block or unblock subscribers.',
-    },
-    'database/full-example.md': {
-        description: 'A full HTML photo sharing app built on the Skapi database, with private posts, comments, likes, hashtag search, paging and feeds. Download it and run it.',
     },
 
     // Third-party APIs
@@ -276,12 +302,6 @@ export const PAGES = {
         title: 'Push Notifications',
         description: 'Add web push notifications to your app with Skapi: set up a service worker, subscribe and unsubscribe users, and send notifications to them.',
     },
-    'realtime/chat-example.md': {
-        description: 'A complete HTML chat app built on Skapi realtime messaging, where logged-in users post and receive messages. Download the project and run it.',
-    },
-    'realtime/rtc-example.md': {
-        description: 'A complete HTML video call app built on Skapi WebRTC, where logged-in users request and receive video calls. Download the project and run it.',
-    },
 
     // E-mail
     'email/introduction.md': {
@@ -336,25 +356,28 @@ export const PAGES = {
         description: 'How to delete a Skapi project from the project settings page, which plans allow it, who may delete it, and why deleting it is permanent.',
     },
 
-    // Tutorial
+    // Full examples
     'full-example/intro.md': {
-        description: 'The complete Skapi tutorial: one web app with authentication, an Instagram clone, a chat room and an AI image generator, with a live demo and the source.',
+        title: 'Full Examples',
+        description: 'The Skapi full example: plain HTML pages that demonstrate accounts, newsletters, inquiries, the database, realtime chat and video chat against your own project.',
     },
-    'full-example/auth-profile.md': {
-        title: 'Tutorial: Authentication and User Profile',
-        description: 'Tutorial walkthrough of authentication in the Skapi sample app: signup, password recovery, profile updates, e-mail verification and profile pictures.',
+    'full-example/user-account.md': {
+        description: 'The User Account example pages: sign up, log in, verify an email, reset or change a password, update a profile, remove and recover an account with Skapi.',
     },
-    'full-example/instaclone.md': {
-        title: 'Tutorial: Instaclone (Instagram Clone)',
-        description: 'Tutorial walkthrough of Instaclone, an Instagram-like app built with the Skapi database and file storage, part of the complete Skapi tutorial.',
+    'full-example/newsletter.md': {
+        description: 'The Newsletter example page: a form that subscribes a visitor to your public newsletter with subscribeNewsletter(), with no account needed.',
     },
-    'full-example/chatroom.md': {
-        title: 'Tutorial: Realtime Chat Room',
-        description: 'Tutorial walkthrough of a realtime chat room built with Skapi WebSocket messaging, part of the complete Skapi tutorial project.',
+    'full-example/inquiry.md': {
+        description: 'The Send Inquiry example page: a contact form that emails a visitor\'s message to the project owner with sendInquiry(), with no account needed.',
     },
-    'full-example/image-generator.md': {
-        title: 'Tutorial: AI Image Generator',
-        description: 'Tutorial walkthrough of an AI image generator that calls a third-party API through the Skapi API Bridge without exposing your API key.',
+    'full-example/database.md': {
+        description: 'The Database example page: a photo gallery on the Skapi database with file uploads, private posts, likes, comments, tags, subscriptions and a feed.',
+    },
+    'full-example/realtime.md': {
+        description: 'The Realtime Chat example page: group chat and private messages over the Skapi realtime connection, with groups, participants and join notices.',
+    },
+    'full-example/webrtc.md': {
+        description: 'The RTC Video Chat example page: video calls and a text data channel between two users with WebRTC, signaled over the Skapi realtime connection.',
     },
 
     // Reference

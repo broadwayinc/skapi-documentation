@@ -28,37 +28,42 @@ let method_ref = [
         items: [
             // { text: 'What is Skapi?', link: '/introduction/what-is-skapi.md' },
             { text: 'Getting Started', link: '/introduction/getting-started.md' },
-            { text: 'Working with HTML forms', link: '/introduction/working-with-forms.md' }
+            { text: 'Working with HTML Forms', link: '/introduction/working-with-forms.md' }
         ]
     },
+    // {
+    //     text: 'Authentication',
+    //     items: [
+    //         // { text: 'What is Authentication?', link: '/authentication/introduction.md' },
+    //         { text: 'Creating an account', link: '/authentication/create-account.md' },
+    //         { text: 'Signup Confirmation', link: '/authentication/signup-confirmation.md' },
+    //         { text: 'Login / Logout', link: '/authentication/login-logout.md' },
+    //         { text: 'User Profile', link: '/authentication/user-info.md' },
+    //         { text: 'Forgot Password', link: '/authentication/forgot-password.md' },
+    //         { text: 'OpenID Login', link: '/authentication/openid-login.md' },
+    //     ]
+    // },
     {
-        text: 'Authentication',
+        text: 'User Account',
         items: [
-            // { text: 'What is Authentication?', link: '/authentication/introduction.md' },
-            { text: 'Creating an account', link: '/authentication/create-account.md' },
+            { text: 'Signing Up Users', link: '/authentication/create-account.md' },
             { text: 'Signup Confirmation', link: '/authentication/signup-confirmation.md' },
             { text: 'Login / Logout', link: '/authentication/login-logout.md' },
             { text: 'User Profile', link: '/authentication/user-info.md' },
             { text: 'Forgot Password', link: '/authentication/forgot-password.md' },
             { text: 'OpenID Login', link: '/authentication/openid-login.md' },
-        ]
-    },
-    {
-        text: 'User Account',
-        items: [
             { text: 'Updating User Profile', link: '/user-account/update-account.md' },
-            { text: 'Email verification', link: '/user-account/email-verification.md' },
+            { text: 'Email Verification', link: '/user-account/email-verification.md' },
             { text: 'Changing Password', link: '/user-account/change-password.md' },
             { text: 'Disable / Recover Account', link: '/user-account/disable-recover-account.md' },
             { text: 'Searching Users', link: '/user-account/get-users.md' },
         ]
     },
-    {
-        text: 'Templates: Authentication',
-        items: [
-            { text: 'HTML', link: '/authentication/full-example.md' },
-        ]
-    },
+    // {
+    //     text: 'Templates: Authentication',
+    //     items: [
+    //     ]
+    // },
     {
         text: 'Database',
         items: [
@@ -75,15 +80,14 @@ let method_ref = [
             { text: 'Indexing', link: '/database/indexing.md' },
             { text: 'Tags', link: '/database/tags.md' },
             { text: 'Referencing', link: '/database/referencing.md' },
-            { text: 'Subscription', link: '/database/subscription.md' }
+            { text: 'Subscription', link: '/database/subscription.md' },
         ]
     },
-    {
-        text: 'Full Example: Database',
-        items: [
-            { text: 'HTML', link: '/database/full-example.md' },
-        ]
-    },
+    // {
+    //     text: 'Full Example: Database',
+    //     items: [
+    //     ]
+    // },
     {
         text: 'Using Third-Party APIs',
         items: [
@@ -113,21 +117,19 @@ let method_ref = [
             { text: 'Sending Realtime Data', link: '/realtime/post.md' },
             { text: 'Realtime Groups', link: '/realtime/group.md' },
             { text: 'WebRTC', link: '/realtime/webRTC.md' },
-            { text: 'Notifications', link: '/notification/send-notifications.md' }
+            { text: 'Notifications', link: '/notification/send-notifications.md' },
         ]
     },
-    {
-        text: 'Full Example: Websocket Chat',
-        items: [
-            { text: 'HTML', link: '/realtime/chat-example.md' },
-        ]
-    },
-    {
-        text: 'Full Example: Video Call',
-        items: [
-            { text: 'HTML', link: '/realtime/rtc-example.md' },
-        ]
-    },
+    // {
+    //     text: 'Full Example: Websocket Chat',
+    //     items: [
+    //     ]
+    // },
+    // {
+    //     text: 'Full Example: Video Call',
+    //     items: [
+    //     ]
+    // },
     {
         text: 'Email Service',
         items: [
@@ -146,17 +148,35 @@ let method_ref = [
             { text: 'Inviting Users', link: '/admin/invite.md' },
             { text: 'Managing Users', link: '/admin/account.md' },
             { text: 'Newsletter Subscribers', link: '/admin/newsletters.md' },
-            { text: 'Plans and Limits', link: '/introduction/plans.md' }
+            {
+                text: 'Website Hosting',
+                link: '/hosting/hosting.md'
+            },
+            { text: 'Plans and Limits', link: '/introduction/plans.md' },
         ]
     },
-    {
-        text: 'Website Hosting',
-        link: '/hosting/hosting.md'
-    }
 ];
 
+// The full example on the CDN (examples/template): one demo page per feature, hosted at
+// https://cdn.broadwayinc.com/temp/v2/. Sidebar only: the pages hold a Vue component
+// (the demo link with the reader's project id), so they stay out of the bundles.
+let full_examples = {
+    text: 'Full Examples',
+    items: [
+        { text: 'Introduction', link: '/full-example/intro.md' },
+        { text: 'User Account', link: '/full-example/user-account.md' },
+        { text: 'Newsletter', link: '/full-example/newsletter.md' },
+        { text: 'Send Inquiry', link: '/full-example/inquiry.md' },
+        { text: 'Database', link: '/full-example/database.md' },
+        { text: 'Realtime Chat', link: '/full-example/realtime.md' },
+        { text: 'RTC Video Chat', link: '/full-example/webrtc.md' },
+    ]
+};
+
 let all_files = [
-    ...method_ref,
+    method_ref[0],
+    ...method_ref.slice(1),
+    full_examples,
     api_reference[0],
     {
         text: 'Version History',
@@ -167,12 +187,12 @@ let all_files = [
         link: '/deprecated/deprecated.md'
     },
 
-    {
-        // An absolute url on purpose: VitePress rewrites a site link ending in .md to .html,
-        // and /SKAPI.html does not exist. SKAPI.md is served as the raw markdown file.
-        text: 'One Pager',
-        link: 'https://docs.skapi.com/SKAPI.md'
-    }
+    // {
+    //     // An absolute url on purpose: VitePress rewrites a site link ending in .md to .html,
+    //     // and /SKAPI.html does not exist. SKAPI.md is served as the raw markdown file.
+    //     text: 'Raw Markdown',
+    //     link: 'https://docs.skapi.com/SKAPI.md'
+    // }
 ]
 
 // ---------------------------------------------------------------------------------

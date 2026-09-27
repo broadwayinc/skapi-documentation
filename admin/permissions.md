@@ -367,16 +367,15 @@ Owner only, everything that configures the project itself:
 - The project **name** and description, and the **CORS** list.
 - **Freeze Database**, **Allow Signup**, **Allow Inquiries**, **Allow Anonymous Posts to Database**, **Require Login**, and the AI agent option.
 - The project's [**secret key**](/service-settings/additional.md#secret-key) and API key, and the keys on the [**Secret Keys**](/api-bridge/client-secret-request.md#registering-secret-keys) page. Listing those keys answers with their stored values, so reading them is owner only as well.
-- The **subdomain**: registering it, moving it and dropping it, and the **404 page** of the hosted site.
+- **Website hosting**: the subdomain, the files of the hosted site, its 404 page and its CDN refresh. See [Hosting your website](/hosting/hosting.md).
 - The **OpenID loggers**, registering, updating, deleting and listing them, since a logger's stored URL, headers and parameters come back with the listing.
 - The **sender e-mail address** the project's mail is sent from, and the [automated e-mail templates](/email/email-templates.md), which decide what the project's verification, welcome, invitation and confirmation mail says.
 - **Creating, disabling, enabling and deleting the project**, and its plan and billing.
 
-Unchanged, and still normal admin work: users, invitations, records and files, newsletters and [named newsletter groups](/email/newsletters.md#named-newsletters), notifications, and reading analytics. [Tickets](/tickets/introduction.md) were already the project owner's alone, with their own message: `Only the project owner can register tickets.`
+Unchanged, and still normal admin work: users, invitations, records and their files, newsletters and [named newsletter groups](/email/newsletters.md#named-newsletters), notifications, and reading analytics. [Tickets](/tickets/introduction.md) were already the project owner's alone, with their own message: `Only the project owner can register tickets.`
 
-:::info Hosting files and hosting settings are different things
-An admin in access group `99` still uploads and deletes the files of your hosted site and refreshes its CDN cache, so a project stays deployable without the project owner signing in. Deploying is an access group `99` right, not a general admin right: an admin in access groups `90` ~ `98` is refused with `No access.` on all three.
-What no admin can do, access group `99` included, is register or move the **subdomain** those files are served on, or choose which file answers as the **404 page**. Those are project settings, and they belong to the project owner.
+:::info Website hosting is the project owner's
+The files of the hosted site are uploaded and deleted on the project's **Web Hosting** page by the project owner, as are its **404 page** and its **CDN refresh**, and the **subdomain** they are served on is registered, moved and dropped on the project's **Settings** page. No admin does any of it, access group `99` included. See [Hosting your website](/hosting/hosting.md).
 :::
 
 ## What admins cannot do

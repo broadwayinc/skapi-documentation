@@ -1,9 +1,9 @@
 
-# Creating an Account
+# Signing Up Users
 
 To let users create a new account in your project, you can use the [`signup()`](/api-reference/authentication/README.md#signup) method. 
 
-### Example: Creating an Account
+### Example: Signing Up Users
 
 ::: code-group
 

@@ -9,6 +9,10 @@ The button that deletes the project is at the bottom of the page. See [Deleting 
 Every setting on this page belongs to the **project owner's Skapi account**, and to Skapi staff when you ask Skapi for help. An [admin](/admin/permissions.md#project-settings-belong-to-the-project-owner) of your project, access group `99` included, is refused with `INVALID_REQUEST` and `Only the project owner can change project settings.`
 :::
 
+## Web Hosting Address
+
+The **Web Hosting** card registers the subdomain your hosted website is served on, as `https://<name>.skapi.com`, and changes or removes it later. The files themselves are uploaded on the project's **Web Hosting** page. See [Hosting your website](/hosting/hosting.md).
+
 ## Project Name
 
 You can set the project name in your project settings.

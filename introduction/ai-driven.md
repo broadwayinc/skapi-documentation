@@ -4,24 +4,17 @@ Skapi works smoothly with CLI-based AI coding tools, such as Claude Code, OpenAI
 
 If you are building your project with an AI coding agent, use the system prompt file below to help it understand how to integrate the Skapi API.
 
-### 1. Download the system prompt file
+### 1. Download the system prompt file for your tool
 
-<a href="https://docs.skapi.com/SKAPI.md" download="SKAPI.md">⬇️ SKAPI.md (Click to Download)</a>
+Every tool reads the same file under its own name. Pick your tool, and the file downloads with the name it expects. Put it in the root of your project.
 
-Your project settings page at [skapi.com](https://www.skapi.com) also offers the same file, already named for each tool, next to a prompt that has your project ID filled in.
+<AgentPromptDownloads />
 
-### 2. Rename and add it to your project folder
+Browsers drop the leading dot from a download name, so `.cursorrules` and `.windsurfrules` are saved as `cursorrules` and `windsurfrules`. Add the dot back after saving.
 
-Rename the downloaded `SKAPI.md` file to the filename your tool expects, then place it in your project root.
+You can also download the plain <a href="/SKAPI.md" download="SKAPI.md">SKAPI.md</a> and rename it yourself. Your project's page at [skapi.com](https://www.skapi.com) offers the same downloads, next to a prompt with your project ID filled in.
 
-- `CLAUDE.md` for Claude Code
-- `AGENTS.md` for Codex CLI and OpenCode
-- `GEMINI.md` for Gemini CLI
-- `copilot-instructions.md` for GitHub Copilot
-- `.cursorrules` for Cursor
-- `.windsurfrules` for Windsurf
-
-### 3. Start writing prompts
+### 2. Start writing prompts
 
 When you run your AI coding agent, start with a prompt like this:
 
@@ -30,4 +23,4 @@ My Skapi project ID is: "<Project ID>".
 Build me a [describe what you want].
 ```
 
-Replace the placeholder `Project ID` with your actual project ID before running your prompt.
+Replace the placeholder `<Project ID>` with your actual project ID before running your prompt.

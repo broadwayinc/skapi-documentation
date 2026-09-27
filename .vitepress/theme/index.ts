@@ -1,6 +1,9 @@
 import DefaultTheme from 'vitepress/theme'
 import { inBrowser, useData } from 'vitepress'
 import { defineComponent, h, watchEffect } from 'vue'
+import type { Theme } from 'vitepress'
+import AgentPromptDownloads from './AgentPromptDownloads.vue'
+import FullExampleDemo from './FullExampleDemo.vue'
 
 /**
  * CloudFront answers any URL that has no file with index.html and status 200, so a
@@ -54,7 +57,15 @@ const Layout = defineComponent({
   },
 })
 
-export default {
+const theme: Theme = {
   extends: DefaultTheme,
   Layout,
+  enhanceApp({ app }) {
+    // Used by introduction/ai-driven.md: the prompt file under each tool's filename.
+    app.component('AgentPromptDownloads', AgentPromptDownloads)
+    // Used by the full-example pages: a demo link carrying the reader's project id.
+    app.component('FullExampleDemo', FullExampleDemo)
+  },
 }
+
+export default theme
