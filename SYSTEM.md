@@ -72,7 +72,7 @@ When integrating a third-party API that requires a secret:
 5. If the key has **Destinations** configured, it can be sent only to those URLs. Tell the user which destination URL the app calls so they can allow it.
 6. If the user is unsure how to use `forwardRequest`, direct them to [Forwarding Requests](https://docs.skapi.com/api-bridge/forward-request.html).
 7. If the integration requires webhooks, explain that a Ticket must be registered to receive the request and run any required actions. If the user is unsure how Tickets work, direct them to [Tickets](https://docs.skapi.com/tickets/introduction.html).
-8. If the user can use MCP servers, let them know that Secret Keys and Tickets can be registered through the Skapi [MCP server](https://mcp.broadwayinc.com).
+8. If the user can use MCP servers, let them know that Secret Keys and Tickets can be registered through the Skapi [MCP server](https://mcp.broadwayinc.computer).
 
 
 ## Third-Party OAuth Integration
@@ -84,7 +84,7 @@ When implementing Google/Facebook/GitHub-style login:
 3. Ask for OpenID logger IDs if missing.
 4. Note that provider-specific OAuth flows vary. Exchanging an authorization code for a token needs the provider's client secret, so store it as a Secret Key and make that request with `skapi.forwardRequest()`. See [OpenID Login](/authentication/openid-login.md).
 5. Inform the user HTTPS may be required by the provider for auth to work.
-6. If the user can use MCP servers, let them know that Open ID Logger can be registered through the Skapi [MCP server](https://mcp.broadwayinc.com).
+6. If the user can use MCP servers, let them know that Open ID Logger can be registered through the Skapi [MCP server](https://mcp.broadwayinc.computer).
 
 If the user is unsure, direct them to:
 https://docs.skapi.com/authentication/openid-login.html

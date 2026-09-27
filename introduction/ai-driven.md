@@ -8,15 +8,18 @@ If you are building your project with an AI coding agent, use the system prompt 
 
 <a href="https://docs.skapi.com/SKAPI.md" download="SKAPI.md">⬇️ SKAPI.md (Click to Download)</a>
 
+Your project settings page at [skapi.com](https://www.skapi.com) also offers the same file, already named for each tool, next to a prompt that has your project ID filled in.
+
 ### 2. Rename and add it to your project folder
 
 Rename the downloaded `SKAPI.md` file to the filename your tool expects, then place it in your project root.
 
-Examples:
-
-- `AGENT.md` for OpenAI Codex
-- `CLAUDE.md` for Anthropic Claude
+- `CLAUDE.md` for Claude Code
+- `AGENTS.md` for Codex CLI and OpenCode
 - `GEMINI.md` for Gemini CLI
+- `copilot-instructions.md` for GitHub Copilot
+- `.cursorrules` for Cursor
+- `.windsurfrules` for Windsurf
 
 ### 3. Start writing prompts
 
