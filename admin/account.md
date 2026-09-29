@@ -2,6 +2,12 @@
 
 Admins can manage user accounts by creating, deleting, blocking, and unblocking accounts. Admins can also grant access to users and cancel invitations.
 
+Every action on this page can also be done without code, from the **Users** page of your project in the Skapi dashboard. You are the project owner there, so the owner's rules on this page apply.
+
+![The Users page of the Skapi dashboard: a table of accounts with Email, Name, Approval and Misc columns, a search bar, and the selection icons for grant access, unblock, block and delete](/screenshots/users-list.webp)
+
+*The Users page. Tick accounts with the checkboxes, then use the icons at the top right of the table: **Grant access**, **Unblock users**, **Block users** and **Delete users**. Clicking a row opens the account's own form.*
+
 ## Assigning Access Group to Users
 
 Users that have admin access can grant access to other users by using the [`grantAccess()`](/api-reference/admin/README.md#grantaccess) method.
@@ -47,6 +53,20 @@ skapi.grantAccess(
 ```
 :::
 
+
+### In the dashboard
+
+Open the **Users** page, tick the accounts to change, and click the **Grant access** icon at the top right of the table. Enter the access group, from `1` to `99`, and click **Grant**. Every selected account gets the same group.
+
+![The Grant Access dialog over the Users page, asking for an access group between 1 and 99 for the two selected users](/screenshots/users-grant-access.webp)
+
+*Grant Access sets one access group on every selected account.*
+
+To change one account, click its row instead. The **Access** section of the form has an **Access Group** field, from `0` to `99`. Change it and click **Update**.
+
+![An account's form on the Users page, with User Info at the top and an Access section holding the Access Group field and the Blocked checkbox](/screenshots/users-detail.webp)
+
+*An account's form. Access Group and Blocked sit in the Access section, and Delete is at the bottom.*
 
 ## Creating User Accounts
 
@@ -123,6 +143,14 @@ through.
 
 For more detailed information on all the parameters and options available with the [`createAccount()`](/api-reference/admin/README.md#createaccount) method.
 
+
+### In the dashboard
+
+Click **+ Add User** on the **Users** page and keep **Create Account** selected. **Email** and **Password** (at least 6 characters) are required. **Username** is optional and permanent once set. The other sections fill in the profile, and the **Public Visibility** checkboxes decide which of those attributes other users can see. Click **Create**, and the account can log in right away.
+
+![The Add User form in Create Account mode, with the Email, Password and Username fields, then the Identity, Contact, Profile, Public Visibility and Misc sections](/screenshots/users-create.webp)
+
+*Create Account. The account exists as soon as you click Create, with the password you typed.*
 
 ## Updating User Attributes
 
@@ -205,6 +233,10 @@ sends this same request, so it follows the same rules and gives the same errors.
 `user_id` it drops the ID and updates your own profile instead, which is the call every user makes.
 
 
+### In the dashboard
+
+Click the account's row on the **Users** page, edit the fields of the form, and click **Update**.
+
 ## Deleting User Accounts
 
 Admins can delete user accounts by using the [`deleteAccount()`](/api-reference/admin/README.md#deleteaccount) method.
@@ -241,6 +273,14 @@ of the project. See [The rank rule](/admin/permissions.md#the-rank-rule).
 Passing your own `user_id` deletes your own account, and is not ranked.
 
 
+### In the dashboard
+
+Tick the accounts on the **Users** page and click the **Delete users** icon, or click **Delete** at the bottom of an account's form. The dialog says how many accounts will be deleted. Click **Delete** to confirm.
+
+![The Delete Users dialog: two users will be permanently deleted, all of their data will be removed, and the action cannot be undone](/screenshots/users-delete.webp)
+
+*Delete Users. There is no undo.*
+
 ## Blocking User Accounts
 
 Admins can block user accounts by using the [`blockAccount()`](/api-reference/admin/README.md#blockaccount) method.
@@ -270,6 +310,14 @@ Any other account is refused with `INVALID_REQUEST` and `No access to modify adm
 changed. Your own `user_id` is refused with `User cannot block self.` See
 [The rank rule](/admin/permissions.md#the-rank-rule).
 
+### In the dashboard
+
+Tick the accounts on the **Users** page, click the **Block users** icon, then **Block**. A blocked account shows **Suspended** in the **Approval** column. For one account, ticking the **Blocked** checkbox in the **Access** section of its form and clicking **Update** does the same.
+
+![The Block Users dialog: two users will be blocked and will not be able to access your service](/screenshots/users-block.webp)
+
+*Block Users.*
+
 ## Unblocking User Accounts
 
 Admins can unblock user accounts by using the [`unblockAccount()`](/api-reference/admin/README.md#unblockaccount) method.
@@ -297,6 +345,14 @@ Unblocking follows the same rule as blocking: an admin in access groups `90` ~ `
 account in the same access group as their own or a higher one with `No access to modify admin.`, so a
 lower admin cannot let back in an account a higher admin blocked. Your own `user_id` is refused with
 `User cannot unblock self.`
+
+### In the dashboard
+
+Tick the blocked accounts, click the **Unblock users** icon, then **Unblock**. For one account, clear the **Blocked** checkbox in its form and click **Update**.
+
+![The Unblock Users dialog: two users will be unblocked](/screenshots/users-unblock.webp)
+
+*Unblock Users.*
 
 For the full policy, including what neither admins nor the project owner can do, see
 [Admin Permissions](/admin/permissions.md).

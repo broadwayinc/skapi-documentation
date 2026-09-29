@@ -10,6 +10,8 @@ Project owners can grant the `admin` role to other users.
 Before using admin methods, create an admin user from your Skapi project Users page. Then use that account to access admin methods, or grant admin access to other users.
 :::
 
+The **Users** page of your project in the Skapi dashboard does the same work without code: create or invite accounts, grant access groups, block, unblock and delete accounts. [Managing Users](/admin/account.md) shows the dashboard steps next to each method.
+
 The lists below are the summary. [Admin Permissions](/admin/permissions.md) is the full policy: the access group rules that apply to every action on another account, the record, file, newsletter and notification rights in detail, and the exact message every refusal returns.
 
 ## What Admins Can Do
@@ -33,7 +35,7 @@ Admins use high access groups (`90` ~ `99`) and can perform the following action
 - Delete any record, including private and read-only records.
 - Attach files to records of other users, and delete their files with [`deleteFiles()`](/api-reference/database/README.md#deletefiles). Files on a private record are locked to its user. See [Files on Records of Other Users](/database/handling-files.md#files-on-records-of-other-users).
 - Upload private, subscription and read-only records, like every user of the project.
-- Fetch the list of newsletter subscribers. Admins in access groups `90` ~ `98` read those addresses **masked**, as `j**@**.com`, with an opaque `subscriber_token` beside each one to tell two rows apart, and the list pages as usual on a sealed cursor they hand back unchanged. Searching the list by e-mail address is not theirs: it belongs to the project owner, Skapi staff and access group `99`. See [Managing Newsletter Subscribers](/admin/newsletters.md) and [Newsletters, subscribers and notifications](/admin/permissions.md#newsletters-subscribers-and-notifications).
+- Fetch the list of newsletter subscribers. Admins in access groups `90` ~ `98` read those addresses **masked**, as `j**@**.com`, with an opaque `subscriber_token` beside each one to tell two rows apart, and the list pages as usual on a sealed cursor they hand back unchanged. Searching the list by e-mail address is not theirs: it belongs to the project owner, Skapi staff and access group `99`. See [Managing Newsletter Subscribers](/email/newsletters.md#managing-subscribers) and [Newsletters, subscribers and notifications](/admin/permissions.md#newsletters-subscribers-and-notifications).
 - Send notifications to users.
 - Change the [subscription settings](/database/subscription.md#who-can-change-subscription-settings) of records uploaded by other users. Private records are excluded, and so are read-only records for admins below access group `99`. On records posted by anonymous users, settings can only be kept or turned off.
 

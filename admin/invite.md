@@ -65,6 +65,14 @@ please refer to the API Reference below:
 
 ### [`inviteUser(params, options?): Promise<'SUCCESS: Invitation has been sent. (User ID: xxx...)'>`](/api-reference/admin/README.md#inviteuser)
 
+## Inviting from the dashboard
+
+Click **+ Add User** on the **Users** page of your project and choose **Send Invitation**. Enter the **Email**, and optionally a **Redirect URL** to open after the user accepts, a permanent **Username**, and any profile fields. Click **Send Invitation**. The account appears in the list once the invitation is accepted.
+
+![The Add User form in Send Invitation mode, with Email, Redirect URL and Username fields above the profile sections, and a Send Invitation button](/screenshots/users-invite.webp)
+
+*Send Invitation. Skapi emails a temporary password and an acceptance link, and the user has 7 days to accept.*
+
 ## Setting the Invited User's Profile
 
 You can fill in the invited user's profile as part of the invitation. Every attribute you pass is
@@ -119,7 +127,7 @@ your template. See [Optional placeholders](/email/email-templates.md#optional-pl
 ## Redirecting After Acceptance
 
 Pass `confirmation_url` to send the user to a page of your own once they accept the invitation.
-Setting it also lets you subscribe them to [Service Email](/email/newsletters.md#sending-service-email) at the same time with `email_subscription`,
+Setting it also lets you subscribe them to [Service Email](/email/newsletters.md#subscribing-users-to-service-email) at the same time with `email_subscription`,
 which is only accepted together with `confirmation_url`.
 
 :::code-group

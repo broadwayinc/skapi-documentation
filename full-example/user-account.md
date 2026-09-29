@@ -6,6 +6,18 @@ The User Account pages demonstrate Skapi's account system end to end. Every step
 
 You need your [project ID](/full-example/intro.md#have-your-project-id-ready) to open the demo.
 
+![The User Account page of the template: a description of each account feature with a link to its page, and the logged-in user's name with a Logout button](/screenshots/template-account.webp)
+
+*`account.html`, the hub of the account pages, with a user logged in.*
+
+![The Login page of the template: an email address field, a password field and a Login button](/screenshots/template-login.webp)
+
+*`login.html`. The form is passed to `login()` as it is.*
+
+![The Sign up page of the template: email address, password, name and the other optional fields, and a Sign up button](/screenshots/template-signup.webp)
+
+*`signup.html`. Email address and password are required; the other fields are optional.*
+
 ## What it demonstrates
 
 | Page | Method | What happens |

@@ -6,6 +6,10 @@ The Newsletter page lets a visitor subscribe to your project's newsletter with t
 
 You need your [project ID](/full-example/intro.md#have-your-project-id-ready) to open the demo.
 
+![The Newsletter page of the template: a short explanation, an email address field and a Subscribe button](/screenshots/template-newsletter.webp)
+
+*`newsletter.html`. One email field, and the group `public` in a hidden field.*
+
 ## What it demonstrates
 
 - `newsletter.html` is one form with an email field and a hidden `group` field set to `public`, the newsletter for everyone. The submit event is passed straight to [subscribeNewsletter()](/email/newsletters.md): the `name` of each field is the name of the parameter.

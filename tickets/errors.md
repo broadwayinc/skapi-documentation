@@ -130,7 +130,17 @@ A log row's `description` is a JSON string of this shape:
 
 ## Reading the Log in the Dashboard
 
-Open the ticket on the **Tickets** page and switch to the **Log** tab. Each row shows the time, the consumer (the user id, or the address of an anonymous caller) and the result: `ok`, `failed: <code>`, or `check` for a dry run. **Details** opens the full JSON above, with the `note` in its header when there is one. Rows are newest first; **Load more** pages further back.
+Open the ticket on the **Tickets** page and switch to the **Log** tab.
+
+![The Log tab of a ticket: four consumptions with their time, consumer and result, one ok, two failed with their error code in red, one dry run marked check, each with a Details link](/screenshots/tickets-logs.webp)
+
+*The Log tab, newest first. A failed consumption names its error code, and a dry run reads check.*
+
+Each row shows the **Time**, the **Consumer** (the user id on the signed-in endpoint, otherwise the caller's IP address; the user agent is in the details) and the **Result**: `ok`, `failed: <code>`, or `check` for a dry run. Hovering a failed result shows what its code means. **[Details]** opens the full log row described above, with the `note` under its header when the request carried one. **Load more** fetches the next page, and the refresh icon reloads the log.
+
+![The Consumption dialog for a failed row: the row key with the ticket id, consume id and caller, then the JSON log with the request data and headers and an outcome whose first action succeeded and whose second failed](/screenshots/tickets-log-details.webp)
+
+*Details of a failed consumption. The outcome lists every action that ran, so you can see that the order was posted and that the access group change is what failed.*
 
 Only the project owner sees the log, in the dashboard or by calling [`getTickets()`](#who-may-call-gettickets) with `ticket_id: '#<id>#'`.
 

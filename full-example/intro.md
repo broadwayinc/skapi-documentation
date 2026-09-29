@@ -19,6 +19,16 @@ Enter your project ID below once. It is kept in this browser, and the demo links
 
 <FullExampleDemo page="index.html" label="Open the example index" />
 
+![The index page of the Skapi HTML template: a short introduction and a menu with one entry per feature page](/screenshots/template-index.webp)
+
+*The index page. Every entry opens one feature page, and the project ID travels with every link.*
+
+You can also open every page from your project's `Settings` page at [skapi.com](https://www.skapi.com): the **Application Examples** card has an **[Open]** link per page, already carrying your project ID, and a **[Download]** link for the ZIP.
+
+![The Application Examples card on a project's Settings page, one row per example page with an Open link, and a Download row for the ZIP](/screenshots/settings-examples.webp)
+
+*Application Examples on the Settings page.*
+
 Pages that need a logged-in user (Database, Realtime Chat, RTC Video Chat and the account pages) send you to the login page first and bring you back afterwards. Newsletter and Send Inquiry work without an account.
 
 ## Download

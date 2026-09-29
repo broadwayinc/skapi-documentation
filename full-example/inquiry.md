@@ -6,6 +6,10 @@ The Send Inquiry page is a contact form. What a visitor writes in it is emailed 
 
 You need your [project ID](/full-example/intro.md#have-your-project-id-ready) to open the demo.
 
+![The Send Inquiry page of the template: name, email address, subject and message fields, and a Send Inquiry button](/screenshots/template-inquiry.webp)
+
+*`inquiry.html`. The four fields are read from the form by `sendInquiry()`.*
+
 ## What it demonstrates
 
 - `inquiry.html` is one form with the visitor's name, email address, a subject and a message. The submit event is passed to [sendInquiry()](/email/inquiries.md), which reads the four fields from the form.

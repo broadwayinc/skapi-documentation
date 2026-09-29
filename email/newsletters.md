@@ -4,10 +4,17 @@ You can send public newsletters or Service Email to your users by sending your e
 The following example shows the format for email endpoints for sending newsletters:
 
 ```
-xxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@mail.skapi.com
+nl00xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxx@mail.skapi.com
 ```
 
+Every newsletter endpoint starts with `nl`, followed by the group number (`00` for Newsletter, `01` for Service Email) and the address code, with your project ID after the dot.
+Endpoints in the older `xxxxxxxxxxxxxxxxxxxx-00xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@mail.skapi.com` format keep working, so a saved address does not need to be updated.
+
 Go to `Newsletters` page, select the tab (`Newsletter`, `Service Email` or a named group), and the page will show the email endpoint address to send the newsletter.
+
+![The Newsletters page of a Skapi project: one tab per list, the sending address with a Send link, monthly sends, subscribers with View and Add links, and the table of sent newsletters](/screenshots/newsletter-page.webp)
+
+*The Newsletters page. Every list has its own sending address, its own subscriber count and its own history of sent mail.*
 
 :::warning Only the project owner sends newsletters
 A newsletter is sent by the **project owner**, from the **project's email address**, to the endpoint address the `Newsletters` page shows.
@@ -35,7 +42,34 @@ On the Trial and Standard plans, a send past the monthly limit is refused with `
 Sending also stops on every plan once a project collects too many spam complaints, and a refused newsletter is always answered by a reply from the endpoint address. See [Sending limits](#sending-limits) below.
 :::
 
-## Sending Public Newsletters
+## The Newsletters page
+
+Everything about sending happens on the `Newsletters` page of your project in the Skapi dashboard.
+
+- **Tabs.** `Newsletter` is the public list anyone can join with an email address, `Service Email` is the list of your signed-in users, and every [named group](#named-newsletters) you create gets a tab of its own. **+ New group** creates one.
+- **Send Newsletter.** The sending address of the selected list. Click the address to copy it, or click **[Send]** to open a new message to it in your mail app. Write the newsletter there, send it from your project's email address, and it goes out to every subscriber of that list with an unsubscribe link at the bottom.
+- **Monthly sends.** How many sends this month have used out of the plan's allowance, and the rules that can stop a send.
+- **Subscribers.** How many addresses are on this list and on all lists together. **[View]** opens the list, **[Add]** adds addresses by hand. See [Managing subscribers](#managing-subscribers).
+- **Access.** On a named group's tab, who may subscribe, and **[Delete group]**.
+- **Sent newsletters.** Every newsletter sent to this list with its subject, the date, and how many subscribers read it, complained about it or bounced. Select rows and use the trash icon to delete them from your email storage. Copies already delivered stay in subscribers' inboxes.
+
+The page needs an **email alias**, the address your project sends from. Register it on your project's `Settings` page first: until then the page shows a notice and sends you there.
+
+### Writing and sending a newsletter
+
+A newsletter is an ordinary email. Write it in your own mail app and send it to the list's sending address:
+
+1. Put the sending address of the list in **To**. **[Send]** on the `Newsletters` page opens a new message with it filled in.
+2. Write the **subject** and the **body** as you would write any email. Formatting, links and images are delivered as they are.
+3. Send it **from your project's email address**, the address your Skapi account is registered with.
+
+![A mail compose window: From the project owner's address, To the newsletter sending address, a subject reading Spring menu is here, a short newsletter with a list of items, a link and an attached image, and a Send button](/screenshots/newsletter-compose.webp)
+
+*Composing a newsletter. Any mail app works the same way; there is no editor to learn.*
+
+Skapi forwards the email to every subscriber of that list, adds an unsubscribe link at the bottom, and the newsletter appears under **Sent newsletters** with its subject, the date, and how many subscribers read it, complained or bounced. A newsletter that cannot be sent is answered by a reply from the sending address that says why.
+
+## Subscribing Users To Public Newsletters
 
 You can send public newsletters to your users by sending your email to the endpoint email.
 
@@ -69,6 +103,10 @@ If the confirmation is successful, the user will be redirected to the redirect u
 All the public newsletters will have unsubscribe link at the bottom of the email.
 When the user clicks the unsubscribe link, they will no longer receive your public newsletters.
 
+:::tip A ready-made subscription form
+The [Newsletter example](/full-example/newsletter.md) of the full template is this form as a working page, already pointed at your project. Open it from **Application Examples** on your project's `Settings` page and link it, or copy its form into your own page.
+:::
+
 For more detailed information on all the parameters and options available with the [`subscribeNewsletter()`](/api-reference/email/README.md#subscribenewsletter) method, 
 please refer to the API Reference below:
 
@@ -79,7 +117,7 @@ If the user is logged in, they will not be asked to confirm their email address.
 Instead, they must have their [`email verifed`](/user-account/email-verification).
 :::
 
-## Sending Service Email
+## Subscribing Users To Service Email
 
 Service Email (group `1`, `authorized`) is the mailing list for your users with an account. To subscribe to Service Email the user must be logged in.
 Service Email can be useful to send information, notifications, and other project-related emails.
@@ -112,46 +150,43 @@ The example above shows how to let your users subscribe to Service Email by call
 ## Named Newsletters
 
 Your service is not limited to a single mailing list.
-You can register **named newsletter groups**, and each group keeps its own subscribers, its own sending address, and its own sent mail history.
+You can create **named newsletter groups** on the `Newsletters` page, and each group keeps its own subscribers, its own sending address, and its own sent mail history.
 For example, one service can run a `bunnyquery` list next to a `skapi` list, and a subscriber of one never receives the other.
 
 A group name is 2 ~ 20 lowercase alphanumeric characters, has to contain at least one letter, and cannot be one of the reserved names: `tp`, `admin`, `public`, `authorized`, `newsletter`, `forward`, `all`, `true`, `false`, `null`.
 A name that reads as a number in exponent notation, such as `1e5`, is refused as well.
 
-Every group is registered with a `restriction`, which decides who may subscribe to it, and who may read its sent mail:
+Every group is created with a `restriction`, which decides who may subscribe to it, and who may read its sent mail:
 
-| `restriction` | Type | Who can subscribe |
-| --- | --- | --- |
-| `0` | Named public newsletter | Anyone. Visitors subscribe with their email address and confirm it by email, exactly like the public newsletter. |
-| `1` | Named service newsletter | Any logged in user with a verified email, exactly like Service Email. |
-| `2` ~ `99` | Named service newsletter | Logged in users with a verified email, whose access group is equal to or higher than the value. |
+| `restriction` | In the dashboard | Type | Who can subscribe |
+| --- | --- | --- | --- |
+| `0` | Anyone | Named public newsletter | Anyone. Visitors subscribe with their email address and confirm it by email, exactly like the public newsletter. |
+| `1` | Any signed in user | Named service newsletter | Any logged in user with a verified email, exactly like Service Email. |
+| `2` ~ `99` | Access group and above | Named service newsletter | Logged in users with a verified email, whose access group is equal to or higher than the value. |
 
 In short, a named **public** newsletter is open to your visitors, and a named **service** newsletter is open only to the users of your service.
 That is the same difference as the one between the public newsletter and Service Email above, and the only thing that changes is that the list is addressed by name instead of by number.
 
-The numeric groups are untouched by any group you register: `public` (group `0`), `authorized` (group `1`) and the access groups `2` ~ `99` keep working exactly as they do today.
+The numeric groups are untouched by any group you create: `public` (group `0`), `authorized` (group `1`) and the access groups `2` ~ `99` keep working exactly as they do today.
 
-### Registering a named newsletter group
+### Creating a named group
 
-Only the project owner and admins in access group `99` can register a group, and a service can hold up to 20 of them. Every other account, admins in access groups `90` ~ `98` included, gets `No access.`
+Groups are created by the project owner on the `Newsletters` page. Click **+ New group**.
 
-```js
-skapi.registerNewsletterGroup({
-    group: 'bunnyquery',
-    restriction: 0, // defaults to 0
-    name: 'BunnyQuery news' // optional display label, 60 characters max
-}).then(res => alert(res)); // SUCCESS: Group registered successfully.
-```
+![The New Group dialog: a Name field, an optional Label field and a Subscribers choice of Anyone, Any signed in user or Access group and above](/screenshots/newsletter-group.webp)
+
+*A named group: the name becomes part of its sending address, the label is what the tab shows, and Subscribers is the group's restriction.*
+
+- **Name** is the group name described above. It becomes part of the group's sending address.
+- **Label** is an optional display name, 60 characters at most, shown on the tab instead of the name.
+- **Subscribers** is the restriction: **Anyone**, **Any signed in user**, or **Access group and above** with the access group number a user needs.
+
+A service can hold up to 20 named groups.
 
 :::warning
-A group's name and restriction are fixed once it is registered.
-Registering a name that already exists fails with `Group already exists.`, and changing a restriction means deleting the group and registering it again, which also deletes its subscribers.
+A group's name and restriction are fixed once it is created.
+A name that already exists is refused, and changing a restriction means deleting the group and creating it again, which also deletes its subscribers.
 :::
-
-For more detailed information on all the parameters and options available with the [`registerNewsletterGroup()`](/api-reference/email/README.md#registernewslettergroup) method, 
-please refer to the API Reference below:
-
-### [`registerNewsletterGroup(params):Promise<string>`](/api-reference/email/README.md#registernewslettergroup)
 
 ### Subscribing to a named newsletter
 
@@ -201,38 +236,28 @@ skapi.getNewsletters({ searchFor: 'timestamp', value: Date.now(), condition: '<'
 });
 ```
 
-### Getting the sending address of a named newsletter
+### The sending address of a named group
 
-A named group has an endpoint address of its own, carrying the group name in the middle:
+A named group has an endpoint address of its own, starting with `nl.` and the group name:
 
 ```
-xxxxxxxxxxxxxxxxxxxx-bunnyquery-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@mail.skapi.com
+nl.bunnyquery-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxx@mail.skapi.com
 ```
 
-Call [`newsletterGroupEndpoint()`](/api-reference/email/README.md#newslettergroupendpoint) to list every named group of your service with its endpoint address and its subscriber count.
-Only the project owner and admins in access group `99` can call it, like the other named group methods.
+The older `xxxxxxxxxxxxxxxxxxxx-bunnyquery-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@mail.skapi.com` format keeps working too.
 
-```js
-skapi.newsletterGroupEndpoint().then(res => {
-    // res.groups is an array of the named newsletter groups
-    /*
-    [{
-        group: 'bunnyquery', // Name of the group
-        restriction: 0, // Access group required to subscribe
-        name: 'BunnyQuery news', // Display label of the group
-        subscribers: 1204, // Number of subscribers of the group
-        endpoint: 'xxxxxxxxxxxxxxxxxxxx-bunnyquery-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@mail.skapi.com' // Address to send the newsletter to
-    }]
-    */
-})
-```
+Select the group's tab on the `Newsletters` page. The **Send Newsletter** row shows the address, the **Subscribers** row shows how many addresses the group holds, and the **Access** row shows who may subscribe.
+
+![A named group's tab on the Newsletters page: its own sending address, its subscriber count, an Access row reading Anyone can subscribe, and a Delete group link](/screenshots/newsletter-named-group.webp)
+
+*A named group has its own address, its own count and an Access row.*
 
 Send your email to that address, and it goes out to every subscriber of that group.
 
 :::warning
 The newsletter has to be sent **from your service's email address**, by the project owner.
 An email that reaches the endpoint from any other address is refused, so knowing the address is not enough to send a newsletter as your service.
-`endpoint` comes back as an empty string when your service has no sender email set.
+The address is shown once your project has an email alias.
 :::
 
 :::warning Your address must pass the sender trust check
@@ -242,20 +267,17 @@ If you get that notice, ask your email provider, or whoever manages your domain,
 Addresses at the large email providers usually pass these checks already.
 :::
 
-### Deleting a named newsletter group
+### Deleting a named group
 
-Only the project owner and admins in access group `99` can delete a group.
+Only the project owner deletes a group. On the group's tab, click **[Delete group]** on the **Access** row and confirm.
 
-```js
-skapi.deleteNewsletterGroup({
-    group: 'bunnyquery'
-}).then(res => alert(res)); // SUCCESS: Group has been deleted along with 1204 subscription(s).
-```
+![The Delete Group confirmation: the group will be permanently deleted along with its subscribers and its sending address](/screenshots/newsletter-delete-group.webp)
+
+*Deleting a group removes its subscribers and its sending address with it.*
 
 :::warning
 Deleting a group deletes every subscription of that group with it.
-Those subscribers are gone for good, and registering the same name again starts from an empty list.
-A group with a very large number of subscribers may take more than one call: the response tells you how many subscriptions were removed, and the group is only gone once the call succeeds.
+Those subscribers are gone for good, and creating the same name again starts from an empty list.
 :::
 
 ### Subscriber limit
@@ -300,6 +322,134 @@ A project that moves to the Trial plan with more than 50 MB of sent newsletters 
 The Premium plan never deletes a newsletter to make room.
 See [Plans and Limits](/introduction/plans.md) for what a suspended project can and cannot do.
 
+## Managing subscribers
+
+This section is for the project owner and admins.
+The users of your app only subscribe, check and unsubscribe their own address, as the sections above describe.
+
+The project owner reads, searches and adds the subscribers of a list from the `Newsletters` page of the Skapi dashboard.
+An admin reads them with [`getNewsletterSubscription()`](/api-reference/email/README.md#getnewslettersubscription), and what an admin gets back depends on their access group.
+
+### Viewing and searching subscribers
+
+Select the list's tab and click **[View]** on the **Subscribers** row.
+
+![The Subscribers dialog: the count for this group and for all groups, a search field, the list of addresses and Prev and Next paging](/screenshots/newsletter-subscribers.webp)
+
+*The subscriber list of a group, sorted by e-mail address.*
+
+The list is sorted by e-mail address and paged with **Prev** and **Next**.
+The search field finds the subscribers whose e-mail address **starts with** what you type: `john` finds `john@example.com` and `johnny@example.org`, but not `bigjohn@example.com`.
+
+![The Subscribers dialog after searching for "ana": only the addresses that start with ana are listed](/screenshots/newsletter-search.webp)
+
+*Searching matches the start of the address.*
+
+### Adding subscribers by hand
+
+Not every subscriber comes through a form. To move a list from another tool, or to add customers who asked in person, click **[Add]** on the **Subscribers** row.
+
+![The Add Subscribers dialog with three pasted addresses staged and a button reading Add 3 subscribers](/screenshots/newsletter-add.webp)
+
+*Paste addresses, check the staged list, then add them.*
+
+Paste the addresses, one per line or separated by commas, and click **Add to list**.
+Malformed addresses are set aside and shown, duplicates are folded together, and the addresses that remain are listed so you can remove one before you click **Add**.
+
+Addresses added this way are subscribed **right away, without a confirmation mail**, so add only people who have asked to hear from you.
+Everyone else should come in through the subscription form, which confirms the address first.
+
+The `Service Email` tab has no **[Add]**: its subscribers are your users, who subscribe and unsubscribe with their own account.
+
+### Who can read the subscriber list
+
+The **whole subscriber list** of a newsletter is available to the **project owner** and to **admins** (access groups `90` ~ `99`).
+
+The project owner opens it on the `Newsletters` page, as shown above.
+
+An admin gets the same list by calling [`getNewsletterSubscription()`](/api-reference/email/README.md#getnewslettersubscription) with a `group` and no `user_id`.
+The result is sorted by e-mail address and paginated like any `DatabaseResponse`:
+
+```js
+// signed in as an admin (access group 90 ~ 99)
+skapi.getNewsletterSubscription({
+    group: 'public'
+}, { limit: 100 }).then(res => {
+    const list = Array.isArray(res) ? res : res.list;
+    // subscribers of the public newsletter
+    // in access groups 90 ~ 98 a row comes back masked, with a token beside the mask:
+    // { timestamp: 1000, group: 0, active: true,
+    //   subscribed_email: "j**@**.com",
+    //   subscriber_token: "2eUY7PRYvgv3sTKMoO2BuupbnS2o_6jDlU2p2o95lxXvgQsTpSFN4c5zfBfS" }
+    if (!Array.isArray(res) && !res.endOfList) {
+        // call again with { fetchMore: true } for the next page
+    }
+})
+```
+
+Every other user gets **their own** subscriptions from the same call and cannot list the subscribers of a newsletter.
+
+:::warning Admins in access groups 90 ~ 98 read masked addresses
+The subscriber list of a group returns every `subscribed_email` **masked**, as `j**@**.com`, to an admin in access groups `90` ~ `98`.
+The **project owner**, **Skapi staff** and admins in access group **`99`** read the addresses in full, so grant access group `99` only to accounts you trust with every subscriber address. Every user reading their own subscriptions reads their own address in full.
+
+**A masked address is not an address.** You cannot send mail to it, and it is not unique: `john@example.com` and `jane@example.com` both come back as `j**@**.com`. Never key a list, a `Set`, a selection or a distinct count on it.
+
+**`subscriber_token` is what tells two masked rows apart.** Every masked row of a group listing carries one, beside the masked address. It is **stable**, so the same subscriber gives the same token on every call and on every page, and it is **distinct**, so two different addresses never give the same one. Key your rows on it, and your list stops losing the subscribers the mask reads alike.
+
+The token is opaque: it is not a readable address, your code cannot turn it back into one, and it is not something to display or to mail. It is **scoped** to the project, the project owner and the newsletter group, so the same subscriber carries a different token in another group, and a token from one group or project means nothing in another. Its length varies with the address, so keep it as a plain string.
+
+Use the token to key rows, selections and counts while you work with a listing, across its calls and pages. **Do not store it as a lasting id for a subscriber**: the platform can reissue tokens, and after that the same subscriber reads as a new token.
+A caller who reads addresses in full gets **no** `subscriber_token` at all: the property is simply absent from the row.
+
+**Paging works normally, but hand the cursor back unchanged.** For an admin in access groups `90` ~ `98` the `startKey` of a page comes back sealed, as `{ seal: '...' }` instead of the database's own key, because the raw key names the last row of the page with its address in full. Ordering, page size, `endOfList` and `{ fetchMore: true }` are unchanged, and `fetchMore` replays the sealed cursor for you.
+If you pass a `startKey` yourself, pass back **exactly** the object the previous page returned. Rebuilding it, editing it, adding a key to it, or carrying it to another project, group or account is refused with `INVALID_PARAMETER` and `"startKey" does not belong to this request.`
+
+Reading **another user's own subscriptions** by `user_id` is masked for admins in access groups `90` ~ `98` as well, as it always has been. That call answers with one subscriber's rows and no cursor, so it carries no `subscriber_token`: there is nothing to tell apart. See [Newsletters, subscribers and notifications](/admin/permissions.md#newsletters-subscribers-and-notifications).
+:::
+
+An admin can also pass another user's `user_id` to read that user's own subscriptions, masked in access groups `90` ~ `98`. Everyone else gets `No access.` for a `user_id` that is not their own.
+An admin reading their **own** subscriptions passes their own `user_id`, which comes back unmasked, because a `group` with no `user_id` is the group listing for any admin.
+
+### Searching subscribers by e-mail
+
+Pass `email` together with `group` to get only the subscribers whose e-mail address **starts with** that text, the same search the dashboard runs.
+`john` finds `john@example.com` and `johnny@example.org`, but not `bigjohn@example.com`.
+The text is trimmed and matched in lowercase, the results come back sorted by e-mail address, and they page with `fetchMore` like the full list.
+
+The search belongs to the **project owner**, **Skapi staff** and admins in access group **`99`**, the three that read addresses in full:
+
+```js
+// signed in as the project owner, as Skapi staff, or as an admin in access group 99
+skapi.getNewsletterSubscription({
+    group: 'public',
+    email: 'john'
+}, { limit: 100 }).then(res => {
+    const list = Array.isArray(res) ? res : res.list;
+    // subscribers of the public newsletter whose e-mail address starts with "john"
+    if (!Array.isArray(res) && !res.endOfList) {
+        // call again with { fetchMore: true } for more matches
+    }
+})
+```
+
+`email` works on the numeric groups and on [named newsletters](#named-newsletters) alike.
+It requires `group`, and it cannot be combined with `user_id`.
+
+:::danger The e-mail search is closed to admins in access groups 90 ~ 98
+The search matches the **stored** address, never the mask, so an open search hands back a masked address one letter at a time: ask for `j`, then `jo`, then `joh`, and each answer says whether the guess was right. That is exactly the caller the mask exists for, so the search is refused for them, before anything is queried:
+
+```ts
+{
+    code: "INVALID_REQUEST";
+    message: "No access.";
+}
+```
+
+It is the same refusal an account that is not an admin already gets for `email`, so nothing new has to be handled in your code.
+An admin below access group `99` who needs to find a subscriber pages the group listing instead, and keeps track of the row with its `subscriber_token`.
+:::
+
 ## Checking if the user is subscribed to Service Email
 
 You can let the user check if they have subscribed to Service Email by calling [`getNewsletterSubscription()`](/api-reference/email/README.md#getnewslettersubscription).
@@ -320,9 +470,9 @@ skapi.getNewsletterSubscription({
 })
 ```
 
-:::tip Reading every subscriber is an admin feature
+:::tip Reading every subscriber is an owner and admin feature
 Called by a user of your app, [`getNewsletterSubscription()`](/api-reference/email/README.md#getnewslettersubscription) returns that user's own subscriptions only.
-Listing and searching the whole subscriber list of a newsletter belongs to the project owner, from the `Newsletters` page of the Skapi dashboard, and to admins. See [Managing Newsletter Subscribers](/admin/newsletters.md).
+Listing and searching the whole subscriber list of a newsletter belongs to the project owner, from the `Newsletters` page, and to admins. See [Managing subscribers](#managing-subscribers).
 :::
 
 ## Unsubscribing from Service Email

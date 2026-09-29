@@ -46,14 +46,57 @@ In the `Automated Emails` page, select an email type you want to set the templat
   
   Sent when a visitor who is not logged in subscribes to your public newsletter, with a link to confirm the subscription.
 
-Once you select the email type, the page shows:
+The tabs on the page are named **Signup**, **Welcome**, **Verification**, **Invitation** and **Newsletter**. Once you select one, the page shows:
 
-- **Sending address**: the address your automated emails go out from.
-- **Template address**: the email endpoint that takes templates for the selected type. Click it to copy it.
-- **Placeholders**: the placeholders the selected type fills in, split into required and optional ones. Hover over a placeholder to see what it turns into, and click it to copy it.
-- **Current template**: the template in use, or `Built-in default`, and when this type of email is sent.
+- **Set Template**: the template setter, the email endpoint that takes templates for the selected type. Click the address to copy it, or click **[Compose]** to open a new message to it in your mail app. Every type has its own address.
+- **Placeholders**: the placeholders the selected type fills in, split into **Required** and **Optional**.
+- **Current template**: the subject of the template in use, or `Built-in default`, and when this type of email is sent. **[Preview]** opens it.
 
 Below them is the list of the templates you have sent for that type.
+
+![The Automated Emails page on the Signup tab: the Set Template address with a Compose link, the required and optional placeholders, the current template with a Preview link, and the list of uploaded templates with an In use column](/screenshots/mail-page.webp)
+
+*The Automated Emails page. The Set Template address takes templates for the selected tab.*
+
+### Placeholder information
+
+Hover over a placeholder, or move to it with the keyboard, to see what it turns into for the selected type. Click it to copy it, then paste it into your template.
+
+![A tooltip over the ${name} placeholder: the user's name from their profile, or empty when they have not set one, with Click to copy under it](/screenshots/mail-placeholders.webp)
+
+*Every placeholder explains itself and copies with one click.*
+
+See [Template Placeholders](#template-placeholders) for the full list per type.
+
+### Choosing the template in use
+
+Every template you send is added to the list of its type, newest first, with its subject and when it was received. The filled circle in the **In use** column marks the one your project sends. To switch, click the empty circle of another template and click **Confirm**.
+
+![The Set as template confirmation: use "Welcome to ${service_name}! Confirm your email" as the Signup Confirmation template, with Cancel and Confirm buttons](/screenshots/mail-set-template.webp)
+
+*New emails of this type use the chosen template right away. The template it replaces stays in the list.*
+
+![The template list after the change: the newest template is marked In use and Current template shows its subject](/screenshots/mail-in-use.webp)
+
+*The chosen template is marked In use, and Current template shows its subject.*
+
+To remove templates, tick their rows and click the trash icon. Deleting the template in use sends that type back to the built-in default.
+
+### Opening a template
+
+Click a row of the list, or **[Preview]** on the **Current template** row, to open the template the way a recipient sees it. **Fill placeholders** is on when the preview opens, and swaps every placeholder, in the subject and in the body, for a sample value taken from your own account and project.
+
+![The template preview with Fill placeholders on: the subject reads Welcome to Padaria Aurora, and the body greets Marina by name with her email address](/screenshots/mail-preview-filled.webp)
+
+*Fill placeholders on: the email as a user would receive it.*
+
+Turn **Fill placeholders** off to see the template as you wrote it, with every placeholder in place. This is the quickest way to check that a template carries the placeholders its type needs.
+
+![The same preview with Fill placeholders off: ${service_name}, ${name} and ${email} appear as written](/screenshots/mail-preview-raw.webp)
+
+*Fill placeholders off: the raw template.*
+
+### Sending a template
 
 Following example shows the format for email endpoints:
 
@@ -63,9 +106,19 @@ tpxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxx@mail.skapi.com
 
 Endpoints in the older `xxxxxxxxxxxxxxxxxxxx-tpxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@mail.skapi.com` format keep working, so a saved address does not need to be updated.
 
-To customize the email template, just send your customized template via your e-mail to the endpoint address.
+To customize the email template, write it as an ordinary email in your own mail app and send it to the endpoint address:
+
+1. Put the **Set Template** address of the type in **To**. **[Compose]** fills it in for you.
+2. Write the **subject** and the **body**. The subject of your email becomes the subject of the automated email, and both can hold placeholders.
+3. For the types that carry a link, select the link text and set its URL to **`https://link.skapi.com`**, using your mail app's insert link or edit link tool.
+4. Send it **from your project's email address**.
+
+![A mail compose window: From the project owner's address, To the Set Template address, a subject with ${service_name}, a body with ${name} and ${email}, and an Edit link dialog setting the link URL to https://link.skapi.com](/screenshots/mail-compose-template.webp)
+
+*Composing a signup confirmation template. Any mail app with a link tool works the same way.*
+
 Skapi checks the template when it arrives (see [When a template is rejected](#when-a-template-is-rejected)) and replies to you by email.
-A template that passes is added to the list for its type: select it there to use it.
+A template that passes is added to the list for its type: choose it there to use it.
 
 :::danger
 - **DO NOT** share your email endpoint address with anyone. This endpoint is unique to your project and should be kept private.
@@ -173,7 +226,7 @@ A placeholder's value is always inserted as **text**. A user's name, email addre
 
 The newsletter subscription confirmation is sent to an email address rather than to a user account, so it has no `${name}` or `${email}`.
 
-In the `Automated Emails` page, hover over a placeholder to see what it turns into for the selected type, and click it to copy it.
+In the `Automated Emails` page, hover over a placeholder to see what it turns into for the selected type, and click it to copy it. See [Placeholder information](#placeholder-information).
 
 ## The link placeholder
 
@@ -199,14 +252,7 @@ A template that passes gets a reply saying it has been uploaded. It is not used 
 When sending signup confirmation email, you must include a link with **`https://link.skapi.com`** as its URL in your email content.
 The placeholder URL **`https://link.skapi.com`** will be replaced with the actual link that confirms the user's signup.
 
-Example below shows how to set the link URL in gmail.
-Any other email service should have similar way to set the link.
-
-![Gmail Edit Link dialog with the web address set to the Skapi confirmation link](/linkexam.png)
-
-Below shows an example of signup confirmation template. In this example we included **`${service_name}`** in the subject, and **`${name}`** with link in the content.
-
-![Gmail draft of a signup confirmation e-mail with the service name in the subject and a confirmation link in the body](/conftempexamp.png)
+Select the link text in your mail app, open its insert link or edit link tool, and set the web address to **`https://link.skapi.com`**. The example in [Sending a template](#sending-a-template) does exactly this, with **`${service_name}`** in the subject and **`${name}`** and **`${email}`** in the body.
 
 
 ## Required Placeholders for verification email

@@ -19,6 +19,20 @@ There are four actions:
 | `pstr` | post a record |
 | `req` | send an HTTP request, check its response, and run a nested chain on it |
 
+## Actions in the Dashboard
+
+The **Actions** section of a ticket is the chain as cards, one per action, in the order they run.
+
+![The Actions section of a ticket: a Post record card with its table, data, index, tags and unique id fields, its open error chain holding a second Post record card, and a Set access group card below](/screenshots/tickets-actions.webp)
+
+*Two actions and one error chain. The first card posts the order and, when that fails, its On error chain writes the failure to a second table. The second card lifts the buyer's access group.*
+
+- The select at the top of a card picks the action: **Post record** (`pstr`), **HTTP request** (`req`), **Set access group** (`acsg`) or **Grant record access** (`acsr`). The arrows reorder cards, the cross removes one, and **+ Add action** appends one. The label on the card, such as `actions[0]`, is the path the log and the error body use for it.
+- Each field is one key of `exe`. The **${ }** button next to a field writes a reference for you, and **[Show every reference]** at the top of the section lists every root and what it reads.
+- **[Show advanced (JSON)]** holds the keys a card groups together, such as a `pstr`'s reference, readonly, source and subscription. **[Show other fields (JSON)]** holds keys the card has no control for; they are merged into the action on save.
+- **[Show on error]** opens the card's error chain, labelled **On error** with its level. It is a chain like any other, and its cards read the failure as `${error[...]}`. An **HTTP request** card also has **[Check the response]** for its response condition and **[Show then]** for the nested chain that reads the answer as `${response[...]}`.
+- The line under the section title counts the actions used of the fifty a ticket may hold, and nesting stops at eight levels.
+
 ## How a Chain Runs
 
 Actions run in order. Each produces a **result** object, which the next action in the same chain can read as `${result[...]}`.

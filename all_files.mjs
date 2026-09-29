@@ -147,7 +147,6 @@ let method_ref = [
             // { text: 'Project Settings', link: '/admin/project-settings.md' },
             { text: 'Inviting Users', link: '/admin/invite.md' },
             { text: 'Managing Users', link: '/admin/account.md' },
-            { text: 'Newsletter Subscribers', link: '/admin/newsletters.md' },
             {
                 text: 'Website Hosting',
                 link: '/hosting/hosting.md'

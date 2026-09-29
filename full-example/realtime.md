@@ -6,6 +6,10 @@ The Realtime Chat page is a group chat with private messages, built on Skapi's r
 
 You need your [project ID](/full-example/intro.md#have-your-project-id-ready) to open the demo.
 
+![The Realtime Chat page of the template: an explanation of the realtime API, a form to create a group and the table of chat groups](/screenshots/template-realtime.webp)
+
+*`realtime.html` before a group is joined: create a group, or pick one from the table.*
+
 ## What it demonstrates
 
 | Feature | How the page does it |

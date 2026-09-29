@@ -8,15 +8,26 @@ Because client secrets must never be exposed in frontend code, register each sec
 
 ## Registering Secret Keys
 
-1. In your Skapi project dashboard, click **Secret Keys**.
-2. Click **+ Register Secret**.
-3. In the form, enter:
-  - **Name:** A label for this key. You will use this value as `secretName` in [`forwardRequest()`](/api-reference/api-bridge/README.md#forwardrequest).
-  - **Secret Value:** The actual secret value. Use `$CLIENT_SECRET` in your `data`, `params`, `headers`, or `url` fields where the real secret should be inserted.
-  - **Locked:** Controls access to this key. If **Locked** is enabled, only logged-in users can use it. If disabled, any user can use it.
-  - **Destinations:** Optional. Comma-separated URLs this key may be sent to, such as `https://api.example.com/v1`. Leave it empty to allow any URL. See [Restricting Where a Key Can Be Sent](#restricting-where-a-key-can-be-sent).
+Open your project in the dashboard and click **Secret Keys** in the project menu.
 
-4. Click **Register**.
+![The Secret Keys page: the Register Secret button, a search box, and a table of keys with their name, masked secret, a lock icon and their destinations](/screenshots/secrets-list.webp)
+
+*The Secret Keys page. The Secret column shows the first two characters and hides the rest, the eye icon reveals a value to the project owner, and the lock says whether the key is locked to signed-in users.*
+
+Click **+ Register Secret** and fill in the form:
+
+![The Register Secret form: Name, Secret Value hidden behind bullets with an eye icon, a Locked checkbox and a Destinations field, with Cancel and Register buttons](/screenshots/secrets-register.webp)
+
+*Registering a key. The value is typed hidden and can be revealed while you check it.*
+
+- **Name**: the label your client passes as `secretName` in [`forwardRequest()`](/api-reference/api-bridge/README.md#forwardrequest). Up to 16 characters.
+- **Secret Value**: the key itself. It is kept on the server and your client never receives it. Skapi puts it in place of `$CLIENT_SECRET` in the `data`, `params`, `headers` or `url` of a forwarded request.
+- **Locked**: when ticked, only signed-in users can call `forwardRequest()` with this key. Unticked, any visitor of your app can.
+- **Destinations**: optional. Comma-separated URLs this key may be sent to, such as `https://api.example.com/v1`. A request to any other URL is refused. Leave it empty to allow any URL. See [Restricting Where a Key Can Be Sent](#restricting-where-a-key-can-be-sent).
+
+Click **Register**. Click a row to change a key's value, lock or destinations, or to delete it, and tick rows to delete several at once. Requests that use a deleted key start failing.
+
+An AI agent can do this for you. The Skapi MCP server saves, lists and deletes secret keys from a prompt, and the list it reads is masked, so the values never reach the agent. See [Connecting the Skapi MCP server](/introduction/ai-driven.md#connecting-the-skapi-mcp-server).
 
 :::warning Secret keys are a project setting
 Registering, listing, replacing and deleting them belong to the **project owner's Skapi account**, and to Skapi staff when you ask Skapi for help. Listing them answers with the stored secret values, so it is owner only as well. An [admin](/admin/permissions.md#project-settings-belong-to-the-project-owner) of your project, access group `99` included, is refused with `INVALID_REQUEST` and `Only the project owner can change project settings.`

@@ -6,6 +6,10 @@ The RTC Video Chat page connects two browsers directly for video, audio and text
 
 You need your [project ID](/full-example/intro.md#have-your-project-id-ready) to open the demo.
 
+![The RTC Video Chat page of the template: an explanation of the signaling, Video and Audio checkboxes, and the table of users online with a call button per user](/screenshots/template-webrtc.webp)
+
+*`webrtc.html` before a call: the other users on the page, each with a call button.*
+
 ## What it demonstrates
 
 | Feature | How the page does it |

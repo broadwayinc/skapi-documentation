@@ -6,6 +6,10 @@ The Database page is a photo gallery built on the Skapi database. Every post is 
 
 You need your [project ID](/full-example/intro.md#have-your-project-id-ready) to open the demo.
 
+![The Database page of the template: an explanation of the gallery, the Post a photo form with a file input, a description, tags and a Private post checkbox, and the Posts section below](/screenshots/template-database.webp)
+
+*`database.html`. The form uploads a post with its photo; the Posts section lists them four at a time.*
+
 ## What it demonstrates
 
 | Feature | How the page does it |

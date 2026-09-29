@@ -13,6 +13,14 @@ To build a full-stack web application, create a project and connect it to your H
 3. Give your project a name, an optional description and a region, and click **Continue**.
 4. Choose a plan and proceed.
 
+Your new project opens on its `Settings` page. The **Information** card holds the **Project ID**, the value every example in this documentation calls `<Project ID>`. Click it to copy it.
+
+![The Settings page of a Skapi project: the Project card with its name and description, the Information card with the Project ID, Owner ID, Service ID, Region and creation date, and the Application Examples card below](/screenshots/settings-page.webp)
+
+*The Settings page of a project. The Project ID is on the Information card.*
+
+The same page has two shortcuts worth knowing from day one: **Application Examples** opens ready-made HTML pages that already run against your project (see [Full Examples](/full-example/intro.md)), and **For AI Agents** downloads the prompt file for your AI coding tool (see [Working with AI Agents](/introduction/ai-driven.md)).
+
 :::tip For BunnyQuery users
 [BunnyQuery](https://www.bunnyquery.com) projects are fully compatible with Skapi. Your project will appear in both your BunnyQuery and Skapi project lists.
 :::

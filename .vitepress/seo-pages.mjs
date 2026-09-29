@@ -332,9 +332,6 @@ export const PAGES = {
         title: 'Managing User Accounts as an Admin',
         description: 'Create, update, delete, block and unblock user accounts as a Skapi admin, and assign access groups to users with the grantAccess() method.',
     },
-    'admin/newsletters.md': {
-        description: 'How the project owner and admins read and search the newsletter subscriber lists of a Skapi project, and who is allowed to read them.',
-    },
     'admin/project-settings.md': {
         description: 'The settings of a Skapi project: name, CORS, signup, inquiries, database freeze, anonymous posts and disabling, all changed by the project owner only.',
     },

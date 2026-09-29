@@ -110,29 +110,21 @@ To log users into your Skapi project with the token, you must register an OpenID
 
 The logger configuration tells Skapi how to request user profile attributes from the OAuth provider and which attribute to use as the unique account identifier.
 
-1. Log in to [skapi.com](https://www.skapi.com).
-2. Open the project where you want to register an OpenID logger.
-3. From the side menu, click on **OpenID Logger**.
-4. Click **+** at the top-right of the table.
-5. Fill in the logger form:
+1. Log in to [skapi.com](https://www.skapi.com) and open the project.
+2. From the side menu, click **Open ID**. The page lists the loggers the project has, with their Logger ID, Username Key, Request URL and Method.
 
-    - **Logger ID:**
-        This value is used when calling [`openIdLogin()`](/api-reference/authentication/README.md#openidlogin). You can use any name. For this guide, use **google**.
+![The Open ID page of a Skapi project, listing two loggers with their Logger ID, Username Key, Request URL and Method, and a Register Logger button](/screenshots/openid-list.webp)
 
-    - **Username Key:** An OpenID attribute that uniquely identifies the user. For this example, use **email**.
-    - **Request URL:** The profile API URL. For this example, use `https://www.googleapis.com/oauth2/v3/userinfo`.
-    
-    - **Request Method:** Use the method required by the API. For this example, use `GET`.
+*The Open ID page. Click a row to open a logger. Tick rows and use the delete icon to remove them.*
 
-    - **Condition**
+3. Click **+ Register Logger**.
+4. Fill in the form:
 
-        You can set conditions to allow login only when profile values match your rules.
-
-        - **Profile Attribute Name:** The profile attribute to compare. Leave blank for this example.
-        - **Profile Attribute Value:** The value to compare against. Leave blank for this example.
-        - **Condition:** Comparison rule. Leave default for this example.
-    
-    - **Header [JSON]:** Request headers as JSON. Use:
+    - **Logger ID:** The name your app passes to [`openIdLogin()`](/api-reference/authentication/README.md#openidlogin). You can use any name, and it cannot change later. For this guide, use **google**.
+    - **Username Key:** The attribute of the provider's profile response that becomes the user's unique username. It cannot change later. For this example, use **email**.
+    - **Request URL:** The endpoint that returns the user's profile. `$TOKEN` in the URL is replaced by the OpenID token at sign-in. For this example, use `https://www.googleapis.com/oauth2/v3/userinfo`.
+    - **Method:** `GET` or `POST`, as the API requires. For this example, use `GET`.
+    - **Header [JSON]:** Request headers as JSON. `$TOKEN` is replaced here too. Use:
 
         ```
         {
@@ -140,11 +132,20 @@ The logger configuration tells Skapi how to request user profile attributes from
         }
         ```
 
-    - **Get Parameter [JSON] | Post Body [JSON]**
+    - **Get Parameters [JSON]** or **Post Body [JSON]:** Query parameters for `GET`, or the request body for `POST`, as JSON. Leave it blank for this example.
+    - **Condition:** Optional. Only users whose profile attribute meets the condition can sign in through this logger. **Attribute** is the profile attribute to compare, **Condition** is the comparison, and **Value** is what it is compared with. Leave them blank for this example.
 
-      You can define query parameters or a request body in JSON format. Leave blank for this example.
+![The Register Logger form filled in for Google: Logger ID google, Username Key email, the userinfo Request URL, Method GET, an Authorization header in the Header JSON field, and an empty Condition section](/screenshots/openid-register.webp)
 
-6. Click **Save**.
+*The logger form filled in for this example.*
+
+5. Click **Register**.
+
+To change a logger later, click its row on the **Open ID** page, edit the request fields and click **Update**. The Logger ID and the Username Key are fixed once registered. **Delete** at the bottom of the form removes the logger, and users who signed in through it lose access to the project.
+
+:::tip Let an AI agent do it
+The Skapi MCP server can register, update and delete OpenID loggers for you from an AI agent, along with the secret key the token exchange uses. See [Connecting the Skapi MCP server](/introduction/ai-driven.md#connecting-the-skapi-mcp-server).
+:::
 
 Now call [`openIdLogin()`](/api-reference/authentication/README.md#openidlogin) with the logger ID and the access token to sign in (or create) the user.
 

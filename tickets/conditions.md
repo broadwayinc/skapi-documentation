@@ -19,6 +19,23 @@ The condition is one object. Every key is optional, and an empty condition passe
 }
 ```
 
+## The Condition in the Dashboard
+
+Open a ticket on the **Tickets** page and scroll to **Condition**. Every key of the object above is one part of the form, and a part you leave empty is not checked.
+
+![The Condition section of a ticket in the dashboard: Signature with its secret key, header, algorithm and encoding, the Allowed IPs and User agent matchers, a Headers row, three Body rows with capture only and placeholder fields, and the Query string, User and Record access parts](/screenshots/tickets-conditions.webp)
+
+*The Condition section of a payment webhook ticket. The Body rows check the event type, capture the order id and the buyer as placeholders, and require a positive amount.*
+
+- **Signature**: pick the **Secret key** that holds the sender's signing secret (a key from the Secret Keys page; **None** turns the check off), type the **Signature header** the sender writes, and pick the **Algorithm** and the **Signature encoding**. **[Show advanced]** opens the header separator, header parts, signed payload template, timestamp template, tolerance, secret encoding and secret prefix. See [Signature](#signature).
+- **Allowed IPs** and **User agent**: one operator and a list of values. **[+ Add another]** adds a value, and the part passes when any value matches.
+- **Headers**: one row per header name, with an operator, a value type and a value. Every header listed must match.
+- **Body** and **Query string**: the `data` and `params` rows. A row is a key path, an operator, a value type and a value. Choosing **capture only** as the operator makes a [capture-only row](#match-rows-and-capture-rows); a match row can also carry **replace with** (`setValueWhenMatch`) and a **placeholder** name. **[+ Add row]** adds a row. On a GET ticket the Body part collapses, because a GET has no body.
+- **User**: rows against the signed-in consumer's attributes, such as `access_group`.
+- **Record access**: the id of a record the signed-in consumer must own or be granted.
+
+The operator list reads differently with the value type: on text, `>=` is **starts with** and `<=` is **ends with**; on a number they are **at least** and **at most**. A `${ }` typed into a row value is compared as text, never filled in, and the form says so under the row.
+
 ## How Each Part Decides
 
 The parts are evaluated in this order: `method`, `signature`, `ip`, `user_agent`, `headers`, `data`, `params`, `user`, `record_access`. The **first part that fails** stops the consumption and is the one reported; the parts after it are not evaluated. A part that is empty or absent is not checked.

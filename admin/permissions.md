@@ -128,6 +128,12 @@ Besides [the ceiling](#the-access-group-ceiling), [the rank rule](#the-rank-rule
 - A blocked account is refused with `Cannot grant access to suspended user.` Unblock it first.
 - An account that has not confirmed its signup is refused with `User signup is not confirmed.`
 
+In the dashboard, this is the **Grant Access** dialog on the **Users** page: it takes one group from `1` to `99` for every selected account, and an account's own form takes `0` to `99`. The same refusals apply.
+
+![The Grant Access dialog on the Users page, asking for an access group between 1 and 99](/screenshots/users-grant-access.webp)
+
+*Grant Access on the Users page.*
+
 :::tip
 An access group is a number your own code reads as well. Records, tables and named newsletter groups are gated by it, so moving an account to `90` or above gives it the admin methods **and** read and write access to every access group in the database, with one exception for a single record fetched by its `record_id`. See [Reading and uploading](#reading-and-uploading) and [Access Restrictions](/database/access-restrictions.md).
 :::
@@ -326,7 +332,7 @@ Everyone else is refused with `Database is frozen. Write access is denied for th
 
 [`getNewsletters()`](/api-reference/email/README.md#getnewsletters) returns a sent newsletter's read, bounce and complaint counts only to the project owner and admins in access group `99`. Everyone else who may read that group gets the message id, the timestamp and the subject.
 
-[`getNewsletterSubscription({ group })`](/admin/newsletters.md#who-can-read-the-subscriber-list) returns the whole list to an admin. Anyone else gets their own subscriptions. `email` narrows the list to the addresses that start with what you type, and it belongs to the project owner, Skapi staff and admins in access group `99`: everyone else is refused with `No access.`
+[`getNewsletterSubscription({ group })`](/email/newsletters.md#who-can-read-the-subscriber-list) returns the whole list to an admin. Anyone else gets their own subscriptions. `email` narrows the list to the addresses that start with what you type, and it belongs to the project owner, Skapi staff and admins in access group `99`: everyone else is refused with `No access.`
 
 :::warning Admins in access groups 90 ~ 98 read masked addresses
 The subscriber list of a group returns the `subscribed_email` of every row **masked**, as `j**@**.com`, to an admin in access groups `90` ~ `98`.

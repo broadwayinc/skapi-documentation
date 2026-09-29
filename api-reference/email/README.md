@@ -67,7 +67,7 @@ getNewsletterSubscription(
 - A masked address cannot be mailed and is not unique, so it is never a key. `subscriber_token` is what tells two masked rows apart: it comes with every masked row of a **group's subscriber list**, is the same string for the same subscriber on every call and every page, and is a different string for a different address. It is opaque, it is scoped to this project, owner and group, and it is **absent** for a caller who reads addresses in full. The single user path read with `user_id` carries none. Do not store it as a lasting id: the platform can reissue tokens.
 - Paging is unchanged, but for an admin in access groups `90` ~ `98` the `startKey` of a page is sealed, `{ seal: '...' }` rather than the database's own key. `fetchMore` replays it; a `startKey` you pass yourself has to be the previous page's object unchanged, or the request is refused with `INVALID_PARAMETER` and `"startKey" does not belong to this request.`
 
-See [Searching subscribers by e-mail](/admin/newsletters.md#searching-subscribers-by-e-mail) and [Who can read the subscriber list](/admin/newsletters.md#who-can-read-the-subscriber-list).
+See [Searching subscribers by e-mail](/email/newsletters.md#searching-subscribers-by-e-mail) and [Who can read the subscriber list](/email/newsletters.md#who-can-read-the-subscriber-list).
 
 ## getNewsletters
 
@@ -100,48 +100,9 @@ See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
 See [Newsletter](/api-reference/data-types/README.md#newsletter)
 
 
-## registerNewsletterGroup
-
-Project owner and admins in access group `99` only.
-
-```ts
-registerNewsletterGroup(
-    params: SubmitEvent | {
-        /**
-         * Name of the newsletter group.
-         * 2 ~ 20 lowercase alphanumeric characters, at least one letter,
-         * not a number in exponent notation such as '1e5',
-         * and not one of the reserved names:
-         * 'tp', 'admin', 'public', 'authorized', 'newsletter', 'forward', 'all', 'true', 'false', 'null'.
-         */
-        group: string;
-        /**
-         * Access group required to subscribe to the group, and to read its sent mail. Defaults to 0.
-         * 0 is anyone, 1 is any logged in user, 2 ~ 99 is that access group.
-         */
-        restriction?: number;
-        /** Display label of the group. 60 characters max. */
-        name?: string;
-    }
-): Promise<'SUCCESS: Group registered successfully.'>
-```
-
-A service can hold up to 20 named newsletter groups.
-
-## deleteNewsletterGroup
-
-Project owner and admins in access group `99` only. Deletes the group along with every subscription of that group.
-
-```ts
-deleteNewsletterGroup(
-    params: SubmitEvent | {
-        /** Name of the newsletter group to delete. */
-        group: string;
-    }
-): Promise<string> // 'SUCCESS: Group has been deleted along with N subscription(s).'
-```
-
 ## newsletterGroupEndpoint
+
+Named newsletter groups are created and deleted by the project owner on the `Newsletters` page of the Skapi dashboard. See [Named Newsletters](/email/newsletters.md#named-newsletters).
 
 Project owner and admins in access group `99` only.
 
