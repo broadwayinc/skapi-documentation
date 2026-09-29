@@ -25,7 +25,7 @@ Your project's `Settings` page at [skapi.com](https://www.skapi.com) offers the 
 
 Your project ID is on the same page, under **Information**. Click it to copy it.
 
-![The Information card on a project's Settings page, with the Project ID, Owner ID, Service ID, Region and creation date](/screenshots/settings-information.webp)
+![The Information card on a project's Settings page, with the Project ID, Owner ID, Service ID, Region, creation date and a link to the documentation](/screenshots/settings-information.webp)
 
 *The Information card. The Project ID is what `new Skapi()` takes.*
 

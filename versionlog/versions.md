@@ -1,9 +1,26 @@
 # Version History
 
-### Current version: 2.2.0
+### Current version: 2.2.2
+
+**2.2.2**
+
+- `getUsers()` takes a **list in `value` for every attribute** it can search, not only `user_id`. `{ searchFor: 'email', value: ['alice@example.com', 'bob@example.com'] }` looks each address up directly and returns the accounts that exist, in one call. Every item of the list is checked the way the single value is, so a wrong type is refused with `INVALID_PARAMETER` before the request is sent. See [Fetch multiple users by a list of e-mails](/user-account/get-users.html#fetch-multiple-users-by-a-list-of-e-mails).
+- A list is a set of exact values, not a range: it works with the default `=` condition only and takes no `range`. Anything else is refused with `INVALID_PARAMETER` and `Conditions are not allowed on a list of "<attribute>" values. Search for a single value to use a condition or range.`
+- A single `user_id` is no longer refused a `condition` or a `range` by the SDK. Only a list is.
+
+**2.2.1**
+
+- `postRecord()` takes **`notification: { title, body }`**, the text of the push notification a new record sends to the uploader's subscribers when it is posted with `table.subscription.notify_subscribers`. Both fields are required, and together they must fit 3072 bytes. Without it, subscribers see a default title and body. It is read only when a record is created: an update ignores it, and so does a record posted without `notify_subscribers`. A value that is not an object, or is missing `title` or `body`, is refused with `INVALID_PARAMETER` before the request is sent. See [Notifying subscribers of a new record](/database/subscription.html#notifying-subscribers-of-a-new-record).
+- `subscribe()` called again for a user you already subscribe to **changes only the options you pass** and keeps the rest, so `get_notified` can be turned on or off without touching `get_feed`. Before, an option left out was sent as `false`, which switched it off. A new subscription still starts with every option off. See [Subscribing](/database/subscription.html#subscribing).
+- Fixed: `subscribe()` with `get_email: false` was refused with `User has no verified email address.` for a user without a verified e-mail. Only `get_email: true` needs one.
+- `requestBatchSize` defaults to `50`, up from `30`. See [Advanced Settings](/introduction/getting-started.html#advanced-settings).
+- The `subscription` of a returned record carries `is_subscription_record`, and the `Subscription` and `PostRecordConfig` types document what each option does.
+- Backend (ships with the API, not the SDK): `notify_subscribers` and `notify_referencing_records` send push notifications. A record created with `notify_subscribers` notifies the uploader's subscribers who subscribed with `get_notified`, and every new reference to a record posted with `notify_referencing_records` notifies that record's uploader's subscribers. Only subscribers who can read the record are told, a `private` record never notifies, the user who posted is never told, and only references made by signed-in users notify. The push message carries `type`, `record_id`, `table` and `user_id` beside `title` and `body`, and `reference` for a reference. See [Notifications](/database/subscription.html#notifications) and [Notifications from Records](/notification/send-notifications.html#notifications-from-records).
+- Backend (ships with the API, not the SDK): `pushNotification()` with a list of user IDs reaches every one of them, on every device each registered, up to 1000 users per call. See [Sending Notifications (For Admins)](/notification/send-notifications.html#sending-notifications-for-admins).
 
 **2.2.0**
 
+- `new Skapi("<Project ID>")` written with the placeholder of the documentation, angle brackets included, **asks for the project ID** instead of refusing to start: with a prompt in a browser, and with a question on the terminal in Node. The answer is kept for the session, the browser tab or the Node process, so it is asked once. A copied example runs before you have edited it. Replace the placeholder with your project ID before you publish.
 - The ticket types follow the current ticket rules. This is a type break: code that sets `request` on a ticket condition, or `secret` on a signature, no longer compiles.
   - `TicketRequestCondition` is gone, and so is `request` on `TicketCondition` and `TicketResponseCondition`: call the URL with a `req` action and check its answer with that action's `condition`. See [Checking the response](/tickets/actions.html#checking-the-response).
   - `TicketSignatureCondition` names its Secret Key `secretName`, not `secret`.
