@@ -80,11 +80,20 @@ type BinaryFile = {
 type Condition = 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '=';
 ```
 
-In a record index query ([`getRecords()`](/api-reference/database/README.md#getrecords) and [`deleteRecords()`](/api-reference/database/README.md#deleterecords)), a `string` index value gives `>=` and `<=` a search meaning: `>=` matches values that **start with** the given value, and `<=` matches values that **end with** it.
-`>` and `<` remain lexicographic, and `number` / `boolean` values compare normally.
-See [Indexing](/database/indexing.html#ends-with-string-values).
+On a `string`, `>=` and `<=` are searches: `>=` matches what **starts with** the given value, and `<=` matches what **ends with** it.
+`>` and `<` remain lexicographic, and `number` / `boolean` values compare normally, so `<=` on a number is a plain 'lesser or equal' comparison.
 
-The 'ends with' behavior is specific to the record index query. On the other methods that accept a `Condition` ([`getTables()`](/api-reference/database/README.md#gettables), [`getTags()`](/api-reference/database/README.md#gettags), [`getIndexes()`](/api-reference/database/README.md#getindex), and [`getUniqueId()`](/api-reference/database/README.md#getuniqueid)), `<=` is never an 'ends with' search: on a `string` value it falls back to an exact match, and on a `number` value it is a plain 'lesser or equal' comparison.
+That holds wherever a `Condition` is compared with text:
+
+| Method | `>=` starts with, `<=` ends with |
+| --- | --- |
+| [`getRecords()`](/api-reference/database/README.md#getrecords), [`deleteRecords()`](/api-reference/database/README.md#deleterecords) | A `string` index value. With a compound index name ending in a period, the child name segment. See [Indexing](/database/indexing.html#ends-with-string-values). |
+| [`getTables()`](/api-reference/database/README.md#gettables) | The table name. See [Table Information](/database/table-info.html). |
+| [`getTags()`](/api-reference/database/README.md#gettags) | The tag, in `table`, or in every table when `table` is omitted. See [Tags](/database/tags.html#querying-tags). |
+| [`getUniqueId()`](/api-reference/database/README.md#getuniqueid) | The unique ID. See [Unique ID](/database/unique-id.html#fetching-unique-id-list). |
+| [`getIndexes()`](/api-reference/database/README.md#getindex) | The index name, when `order.by` is `index_name`. See [Searching index names](/database/indexing.html#searching-index-names). Ordered by anything else, `order.value` is a number and compares normally. |
+
+An 'ends with' search returns its matches in the order of the text read from its last character backwards, not in the order of the text itself.
 
 `condition` is optional, and the SDK never fills in a value for it: an omitted `condition` is simply absent from the request and the backend decides what it means.
 The default is not the same on every method:
@@ -93,7 +102,7 @@ The default is not the same on every method:
 | --- | --- |
 | [`getTables()`](/api-reference/database/README.md#gettables) | Exact match on `table`. With `table` omitted as well, every table. |
 | [`getTags()`](/api-reference/database/README.md#gettags) | Exact match on `tag` when **both** `table` and `tag` are given. With only `table` given, `>=` (prefix), so every tag in the table. With neither, every tag in the project, ordered by record count, descending. |
-| [`getIndexes()`](/api-reference/database/README.md#getindex) | No top level `condition` exists. `order.condition` omitted is an exact match against `order.value`, and `order.condition` requires `order.value`. |
+| [`getIndexes()`](/api-reference/database/README.md#getindex) | No top level `condition` exists. `order.condition` omitted is an exact match against `order.value`, and `order.condition` requires `order.value`. With `order.value` omitted as well, every index, in the order of `order.by`. |
 
 Omit the key, do not blank it out. Passing `condition` explicitly as `undefined` or `null` is rejected with `INVALID_PARAMETER`, while leaving the key out works.
 When you assemble a query object programmatically, `delete` the key rather than setting it to `undefined`.

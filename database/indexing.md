@@ -481,7 +481,23 @@ skapi.getIndexes(query, config).then(response => {
 When `order.value` is given and `order.condition` is omitted, the value is matched **exactly**.
 With `order.by` alone and no `order.value`, nothing is matched at all: the whole partition comes back, ordered by that attribute, as in the `average_bool` example above.
 
-When you are looking for an index by name rather than listing every one, order by `index_name` and pass `>=` instead of a bare value:
+### Searching index names
+
+When you are looking for an index by name rather than listing every one, order by `index_name`.
+`order.value` is then a piece of the name, and `order.condition` decides how it is matched:
+
+| `order.condition` | Result |
+| --- | --- |
+| Omitted, with an `order.value` | The index whose name is exactly the value. |
+| `>=` | Names that **start with** the value. |
+| `<=` | Names that **end with** the value. |
+| `>` | Names that come after the value, in character order. |
+| `<` | Names that come before the value, in character order. |
+| Omitted, with no `order.value` | Every index name, ordered by name. |
+
+The search covers the whole table, or the children of a compound index when you give its parent in `index`.
+
+Pass `>=` instead of a bare value to search from the start of the name:
 
 ```js
 skapi.getIndexes({
@@ -498,3 +514,25 @@ skapi.getIndexes({
 
 A bare `order.value` is an exact match on the name, and in real data an index name very often carries a leading name shared with the rest of its data set, such as a source or dataset prefix or a series name.
 The exact match finds one spelling and silently misses its siblings, while the prefix finds the whole family.
+
+Pass `<=` to search from the end of the name:
+
+```js
+skapi.getIndexes({
+    table: 'VoteBoard',
+    index: 'Vote.',
+    order: {
+        by: 'index_name',
+        value: 'er',
+        condition: '<=' // Ends with
+    }
+}).then(response => {
+    console.log(response.list); // "Vote.Beer", "Vote.Water", and so on
+});
+```
+
+'Ends with' matches one segment of a [compound index name](#compound-index-names): the one right under `index`, or the first segment of the name when `index` is omitted.
+Here `index` is "Vote." and the value is "er", so "Vote.Beer" and "Vote.Water" are returned and "Vote.Wine" is not.
+Names nested under a match come back with it: "Vote.Beer.Lager" is returned as well, the same way a `>=` search for "Vote.B" returns it.
+
+An 'ends with' search reads each name segment from its last character backwards, and the results come back in that order. `fetchOptions.ascending` still applies, but it orders by that reversed reading rather than by the name itself, so sort the returned list yourself if you need it ordered by name.

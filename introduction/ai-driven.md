@@ -130,18 +130,18 @@ You can also ask it to list your projects and pick one.
 Everything below runs with the permissions of your signed-in Skapi account, so the agent can only reach what you can, and every change it makes is one you could have made on the dashboard yourself.
 
 - **Tickets.** Register the endpoints that accept a webhook from your payment provider, a link, or a signed-in request, with their conditions, placeholders, actions and error handling, and read their logs afterwards. See [Registering a Ticket](/tickets/introduction.md).
-- **Secret keys.** Store the API keys of the third-party services your project calls, so your front end never holds them. See [Secret Keys](/api-bridge/client-secret-request.md).
-- **OpenID loggers.** Set up sign-in through an external identity provider, including the profile request and the header it needs. See [OpenID Login](/authentication/openid-login.md).
-- **Database.** Read, search, create, update and delete records. List tables, tags and indexes.
+- **Secret keys.** Store the API keys of the third-party services your project calls, so your front end never holds them, and limit the URLs each key may be sent to. See [Secret Keys](/api-bridge/client-secret-request.md).
+- **OpenID loggers.** Set up sign-in through an external identity provider, including the profile request, the header it needs and a condition on who may sign in, such as one e-mail domain. See [OpenID Login](/authentication/openid-login.md).
+- **Database.** Read, search, create, update and delete records. List tables, tags, indexes and unique IDs, and find any of them by how its name starts or ends.
 - **Project settings.** Turn sign-ups or inquiries on and off, restrict anonymous writes, and change the other settings of the project.
 - **Hosting.** Register a web address, then upload, edit and delete the files of your project's website.
 
 The ticket, secret key and OpenID logger pages of this documentation each show the dashboard forms these tools fill in for you. A few prompts to start with:
 
 ```text
-Save this API key as a secret named "weather_api": <your key>.
-Create a ticket that saves each incoming webhook payload to the "orders" table.
-Register a Google OpenID logger for this project.
+Save this API key as a secret named "weather_api", usable only for https://api.weather.example: <your key>.
+Create a ticket that saves each incoming webhook payload to the "orders" table, readable by admins only.
+Register a Google OpenID logger for this project, and let in only addresses that end with "@mycompany.com".
 Show me what my "orders" ticket received today.
 Make every record in the "posts" table private.
 ```

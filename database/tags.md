@@ -137,6 +137,8 @@ So the combinations are:
 - `tag` alone: that tag across all tables.
 - `table` and `tag`: an exact match on that tag in that table.
 - `table`, `tag` and `condition: '>='`: every tag in that table whose name starts with the value.
+- `table`, `tag` and `condition: '<='`: every tag in that table whose name ends with the value.
+- `tag` and `condition: '<='`, with no `table`: every tag whose name ends with the value, in every table.
 - `condition` with neither `table` nor `tag`: rejected with `"table" or "tag" is required for condition.`
 
 ```js
@@ -184,3 +186,19 @@ While you are exploring and do not know the exact spelling, pass `>=`.
 Because it is a prefix search it surfaces related entries: in real data a tag very often carries a leading name shared with the rest of its data set, a series name for example, or an entity recorded once plainly and once with a parenthesised alias, such as a tag `Asian Spice House` and a tag `Asian Spice House (alias)`.
 An exact match finds one spelling and silently misses its siblings, while the prefix finds the whole family.
 When you already know the exact name, give both `table` and `tag` and omit `condition`: that is the exact match you want.
+
+To list the tags whose name **ends with** a value, set `condition` to `<=`:
+
+```js
+skapi.getTags({
+    table: 'MyTable',
+    tag: 'Rock',
+    condition: '<='
+}).then(response=>{
+    console.log(response); // Tags of 'MyTable' ending with 'Rock', such as 'Rock', 'PunkRock' and 'IndieRock'
+})
+```
+
+Leave `table` out to search every table at once: the call then returns the tags that end with the value, in each table they appear in.
+
+An 'ends with' search reads each tag from its last character backwards, and the results come back in that order. `fetchOptions.ascending` still applies, but it orders by that reversed reading rather than by the tag itself, so sort the returned list yourself if you need it ordered by tag.

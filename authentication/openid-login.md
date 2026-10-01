@@ -133,7 +133,7 @@ The logger configuration tells Skapi how to request user profile attributes from
         ```
 
     - **Get Parameters [JSON]** or **Post Body [JSON]:** Query parameters for `GET`, or the request body for `POST`, as JSON. Leave it blank for this example.
-    - **Condition:** Optional. Only users whose profile attribute meets the condition can sign in through this logger. **Attribute** is the profile attribute to compare, **Condition** is the comparison, and **Value** is what it is compared with. Leave them blank for this example.
+    - **Condition:** Optional. Only users whose profile attribute meets the condition can sign in through this logger. **Attribute** is the profile attribute to compare, **Condition** is the comparison, and **Value** is what it is compared with. On text, `>=` means the attribute **starts with** the value and `<=` means it **ends with** it, so `email` `<=` `@mycompany.com` lets in only that e-mail domain. Leave them blank for this example.
 
 ![The Register Logger form filled in for Google: Logger ID google, Username Key email, the userinfo Request URL, Method GET, an Authorization header in the Header JSON field, and an empty Condition section](/screenshots/openid-register.webp)
 

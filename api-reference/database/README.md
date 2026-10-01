@@ -354,6 +354,7 @@ getTables(
         table?: string; // If omitted, fetches the full list of tables.
         /** Default when omitted: EXACT match on the given table name. */
         /** 'gte' / '>=' is a prefix search: table names starting with the given value. */
+        /** 'lte' / '<=' is a suffix search: table names ending with the given value. */
         /** 'gt' / '>' is lexicographic, so it spills past the prefix into every later table name. */
         condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '=';
     },
@@ -369,6 +370,7 @@ When `table` is omitted as well, every table is returned.
 | `getTables()`, `getTables({})` | Every table in the project. |
 | `getTables({ table: 'x' })` | Exact match on `'x'`. |
 | `getTables({ table: 'x', condition: 'gte' })` | Prefix: every table name starting with `'x'`. |
+| `getTables({ table: 'x', condition: 'lte' })` | Suffix: every table name ending with `'x'`. |
 | `getTables({ table: '' })` | Error: `"table" should not be empty.` |
 | `getTables({ condition: 'gte' })`, with no `table` | Error: `"table" is required for condition.` |
 
@@ -401,8 +403,9 @@ getIndexes(
         index?: string; // 1..256 characters for custom names, where / ! * # % each count as 3; blocks control chars and sentinel U+10FFFF, cannot start with '$'.
         order?: {
             by: 'average_number' | 'total_number' | 'number_count' | 'average_bool' | 'total_bool' | 'bool_count' | 'string_count' | 'index_name' | 'number_of_records';
-            value?: number | boolean | string; // Required when 'order.condition' is given.
+            value?: number | boolean | string; // Required when 'order.condition' is given. A string when 'order.by' is 'index_name'.
             /** Default when omitted: EXACT match against 'order.value'. */
+            /** When 'order.by' is 'index_name': 'gte' / '>=' is 'starts with' and 'lte' / '<=' is 'ends with' on the index name. */
             condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '=';
         };
     },
@@ -420,11 +423,15 @@ The only condition is `order.condition`, and it **requires** `order.value`: a qu
 | `getIndexes({ table: 't', index: 'Band' })` | Exact match on index `'Band'`. |
 | `getIndexes({ table: 't', index: 'Band.' })` | Prefix: the children of the compound index, so `Band.name` and `Band.year`. |
 | `getIndexes({ table: 't', order: { by: 'index_name', value: 'B' } })` | Exact match against the value. |
+| `getIndexes({ table: 't', order: { by: 'index_name', value: 'B', condition: 'gte' } })` | Prefix: every index whose name starts with `'B'`. |
+| `getIndexes({ table: 't', order: { by: 'index_name', value: 'e', condition: 'lte' } })` | Suffix: every index whose name ends with `'e'`. |
+| `getIndexes({ table: 't', order: { by: 'index_name' } })` | Every index of table `'t'`, ordered by name. |
 | `getIndexes({ table: 't', order: { by: 'total_number' } })` | The whole partition, ordered by that attribute. |
 | `order.condition` without `order.value` | Error. |
 | No `table` | Error: `"table" is required.` |
 
 While you are hunting for an index whose exact spelling you do not know, order by `index_name` and pass `gte` instead of a bare `order.value`: it is a prefix search, so it also surfaces the related entries an exact match would silently miss.
+`lte` searches from the other end: it matches the name segment right under `index`, or the first segment when `index` is omitted, by how it **ends**. See [Searching index names](/database/indexing.html#searching-index-names).
 
 **Requires a signed in user** when the project's [Require Login](/service-settings/service-settings.md#require-login) setting is on, and a project that has never set that option counts as **on**.
 The SDK throws `REQUIRE_LOGIN` before the request leaves, and the backend refuses the same call with `INVALID_REQUEST`, so a direct API call is refused as well.
@@ -447,6 +454,7 @@ getTags(
         tag?: string; // 1..256 characters, where / ! * # % each count as 3. Blocks control chars and sentinel U+10FFFF.
         /** Default when omitted: EXACT match on the tag when BOTH 'table' and 'tag' are given, otherwise '>=' (prefix). */
         /** 'gte' / '>=' is a prefix search. */
+        /** 'lte' / '<=' is a suffix search: tags ending with the given value, in 'table', or in every table when 'table' is omitted. */
         condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '=';
     },
     fetchOptions?: FetchOptions;
@@ -465,6 +473,8 @@ When neither `table` nor `tag` is given, every tag in the project is returned, o
 | `getTags({ table: 't', tag: 'g' })` | Exact match on tag `'g'` in table `'t'`. |
 | `getTags({ tag: 'g' })`, with no `table` | Tag `'g'` across all tables. |
 | `getTags({ table: 't', tag: 'g', condition: 'gte' })` | Prefix: every tag in `'t'` starting with `'g'`. |
+| `getTags({ table: 't', tag: 'g', condition: 'lte' })` | Suffix: every tag in `'t'` ending with `'g'`. |
+| `getTags({ tag: 'g', condition: 'lte' })`, with no `table` | Suffix: every tag ending with `'g'`, in every table. |
 | `getTags({ condition: 'gte' })`, with neither `table` nor `tag` | Error: `"table" or "tag" is required for condition.` |
 
 While you are exploring and do not know the exact spelling, pass `gte`: it is a prefix search, so it also surfaces related entries.
@@ -489,11 +499,22 @@ See [Tag](/api-reference/data-types/README.md#tag)
 getUniqueId(
     query: {
         unique_id?: string;
+        /** Default when omitted: EXACT match on the unique ID. */
+        /** 'gte' / '>=' is a prefix search: unique IDs starting with the given value. */
+        /** 'lte' / '<=' is a suffix search: unique IDs ending with the given value. */
         condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!=';
     },
     fetchOptions?: FetchOptions;
 ): Promise<DatabaseResponse<UniqueId>>
 ```
+
+| Call | Result |
+| --- | --- |
+| `getUniqueId()`, `getUniqueId({})` | Every unique ID in the project. |
+| `getUniqueId({ unique_id: 'x' })` | Exact match on `'x'`. |
+| `getUniqueId({ unique_id: 'x', condition: 'gte' })` | Prefix: every unique ID starting with `'x'`. |
+| `getUniqueId({ unique_id: 'x', condition: 'lte' })` | Suffix: every unique ID ending with `'x'`. |
+| `getUniqueId({ condition: 'gte' })`, with no `unique_id` | Error: `"unique_id" is required for condition.` |
 
 **Requires a signed in user** when the project's [Require Login](/service-settings/service-settings.md#require-login) setting is on, and a project that has never set that option counts as **on**.
 The SDK throws `REQUIRE_LOGIN` before the request leaves, and the backend refuses the same call with `INVALID_REQUEST`, so a direct API call is refused as well.

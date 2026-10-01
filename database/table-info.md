@@ -89,11 +89,25 @@ It is a prefix search, so it also surfaces related entries: in real data a table
 An exact match finds one spelling and silently misses its siblings.
 When you already know the exact name, omitting `condition` is the exact match you want.
 
-So there are five ways the call can land:
+To fetch table names that **end with** a value, set `condition` to `<=`:
+
+```js
+skapi.getTables({
+    table: '_archive',
+    condition: '<='
+}).then(response => {
+    console.log(response); // Table names ending with '_archive' (for example, 'my_collection_archive')
+})
+```
+
+An 'ends with' search reads each table name from its last character backwards, and the results come back in that order. `fetchOptions.ascending` still applies, but it orders by that reversed reading rather than by the table name itself, so sort the returned list yourself if you need it ordered by name.
+
+So there are six ways the call can land:
 
 - no argument, or an empty query object: every table in the project.
 - `table` alone: an exact match on that name.
 - `table` with `condition: '>='`: every table name starting with that value.
+- `table` with `condition: '<='`: every table name ending with that value.
 - `table` as an empty string: rejected with `"table" should not be empty.`
 - `condition` with no `table`: rejected with `"table" is required for condition.`
 

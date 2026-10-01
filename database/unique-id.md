@@ -73,3 +73,41 @@ skapi.getUniqueId(params).then(response => {
     console.log(response.list);  // [{unique_id: "...", record_id: "..."}, ...]
 });
 ```
+
+With `condition` omitted, the unique ID is matched exactly.
+`>=` fetches the unique IDs that **start with** the value, as above, and `<=` fetches the ones that **end with** it:
+
+```js
+skapi.getUniqueId({
+    unique_id: '_acoustic',
+    condition: '<='
+}).then(response => {
+    console.log(response.list);  // Unique IDs ending with "_acoustic", such as "guitar_acoustic"
+});
+```
+
+An 'ends with' search reads each unique ID from its last character backwards, and the results come back in that order. `fetchOptions.ascending` still applies, but it orders by that reversed reading rather than by the unique ID itself, so sort the returned list yourself if you need it ordered by unique ID.
+
+## Reserved Prefix: `src::`
+
+Unique IDs that start with `src::` identify the files in your project's file storage.
+A file stored at `folder/report.pdf` is identified by the unique ID `src::folder/report.pdf`.
+Records that describe a part of that file can extend its ID with `#` or `::`, for example `src::folder/report.pdf#page-3`.
+
+Deleting a file also deletes the records under its ID, so the prefix is reserved:
+
+- The project owner and admins can set any unique ID that starts with `src::`.
+- A signed in user who is not an admin can only set `src::<their user ID>/...`, which names a file in their own upload folder.
+- Any other unique ID that starts with `src::` is refused with an `INVALID_REQUEST` error.
+
+A record that already has a `src::` unique ID can be updated by anyone who is allowed to write it, as long as the unique ID is left unchanged.
+
+When a file is deleted from the project's file storage, these records are deleted with it:
+
+- The record whose unique ID is `src::<file path>`.
+- Every record whose unique ID extends that ID with `#` or `::`.
+- Every record that references one of the records above, at any depth.
+
+:::warning
+Do not use the `src::` prefix for your own identifiers. Records under a `src::` unique ID are removed when the file with that path is deleted.
+:::
