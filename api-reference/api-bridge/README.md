@@ -243,7 +243,9 @@ See [RequestHistory](/api-reference/data-types/README.md#requesthistory)
 
 Each history item carries two timestamps, both in milliseconds: `created`, the time the
 request was made (set once, never changes), and `updated`, the time of the most recent
-status change (for a settled request, when its response arrived).
+status change (for a settled request, when its response arrived). An item whose response
+arrived also carries `responded`, the time that response finished arriving. It is set once
+and, unlike `updated`, does not move when a streamed request is finalized.
 
 Listing modifiers:
 

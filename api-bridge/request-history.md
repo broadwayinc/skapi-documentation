@@ -16,10 +16,11 @@ console.log(history.list); // RequestHistory[]
 
 ## Timestamps
 
-Every [`RequestHistory`](/api-reference/data-types/README.md#requesthistory) item carries two timestamps, both in milliseconds:
+Every [`RequestHistory`](/api-reference/data-types/README.md#requesthistory) item carries these timestamps, all in milliseconds:
 
 - `created`: when the request was made. It is set once and never changes, so it is the value to sort or display a request list by.
 - `updated`: when the request status last changed. For a request that has settled (`resolved` or `failed`) this is when its response arrived, so `updated - created` is how long the third-party API took.
+- `responded`: when the third-party API's response finished arriving. It is recorded once and never changes. Use it, rather than `updated`, to show when an answer came back for a [streamed request](/api-bridge/streaming-request.md): finalizing a streamed request stores its response afterwards and moves `updated` to that moment, while `responded` stays where it was. It is absent on a request that has not settled, on one that failed before any response arrived, and on requests made before this value was recorded, so fall back to `updated` when it is missing.
 
 ```js
 const history = await skapi.forwardRequestHistory({
@@ -28,7 +29,8 @@ const history = await skapi.forwardRequestHistory({
 });
 
 for (const item of history.list) {
-    console.log(new Date(item.created), item.status, item.updated - item.created + 'ms');
+    const answered = item.responded ?? item.updated;
+    console.log(new Date(item.created), item.status, answered - item.created + 'ms');
 }
 ```
 

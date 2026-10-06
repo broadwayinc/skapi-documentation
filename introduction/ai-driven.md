@@ -132,7 +132,7 @@ Everything below runs with the permissions of your signed-in Skapi account, so t
 - **Tickets.** Register the endpoints that accept a webhook from your payment provider, a link, or a signed-in request, with their conditions, placeholders, actions and error handling, and read their logs afterwards. See [Registering a Ticket](/tickets/introduction.md).
 - **Secret keys.** Store the API keys of the third-party services your project calls, so your front end never holds them, and limit the URLs each key may be sent to. See [Secret Keys](/api-bridge/client-secret-request.md).
 - **OpenID loggers.** Set up sign-in through an external identity provider, including the profile request, the header it needs and a condition on who may sign in, such as one e-mail domain. See [OpenID Login](/authentication/openid-login.md).
-- **Database.** Read, search, create, update and delete records. List tables, tags, indexes and unique IDs, and find any of them by how its name starts or ends.
+- **Database.** Read, search, create, update and delete records. List tables, tags, indexes and unique IDs, and find any of them by how its name starts or ends. Files attached to a record are the one thing it does not touch: an agent cannot attach a file to a record or remove one, and a request that tries is refused without saving the record. Attach and remove a record's files in the Skapi dashboard (Database page) or with the SDK.
 - **Project settings.** Turn sign-ups or inquiries on and off, restrict anonymous writes, and change the other settings of the project.
 - **Hosting.** Register a web address, then upload, edit and delete the files of your project's website.
 

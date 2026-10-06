@@ -1,6 +1,11 @@
 # Version History
 
-### Current version: 2.2.2
+### Current version: 2.2.3
+
+**2.2.3**
+
+- `forwardRequestHistory()` and `clientSecretRequestHistory()` items carry **`responded`**, the time the third-party API's response finished arriving, in milliseconds. It is recorded once and never changes. `updated` is the time of the last status change, and for a streamed request `forwardRequestFinalize()` moves it to the moment the response was stored, so `responded` is the value to show as the time of an answer. `responded - executed` is how long the call took. Absent on a request that has not settled, on one that failed before any response arrived, and on requests made before this release. See [Timestamps](/api-bridge/request-history.html#timestamps).
+- Backend (ships with the API, not the SDK): the status answer that settles a poll on a streamed request carries `responded` too, so a reader has the time before it finalizes the request.
 
 **2.2.2**
 
