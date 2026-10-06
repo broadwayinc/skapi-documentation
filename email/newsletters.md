@@ -102,6 +102,7 @@ If the confirmation is successful, the user will be redirected to the redirect u
 
 All the public newsletters will have unsubscribe link at the bottom of the email.
 When the user clicks the unsubscribe link, they will no longer receive your public newsletters.
+Each link is signed for the address it was sent to, so it cannot be edited to unsubscribe someone else.
 
 :::tip A ready-made subscription form
 The [Newsletter example](/full-example/newsletter.md) of the full template is this form as a working page, already pointed at your project. Open it from **Application Examples** on your project's `Settings` page and link it, or copy its form into your own page.
