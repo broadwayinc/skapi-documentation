@@ -152,7 +152,7 @@ The example above shows how to let your users subscribe to Service Email by call
 
 Your service is not limited to a single mailing list.
 You can create **named newsletter groups** on the `Newsletters` page, and each group keeps its own subscribers, its own sending address, and its own sent mail history.
-For example, one service can run a `bunnyquery` list next to a `skapi` list, and a subscriber of one never receives the other.
+For example, one service can run a `launch` list next to a `promo` list, and a subscriber of one never receives the other.
 
 A group name is 2 ~ 20 lowercase alphanumeric characters, has to contain at least one letter, and cannot be one of the reserved names: `tp`, `admin`, `public`, `authorized`, `newsletter`, `forward`, `all`, `true`, `false`, `null`.
 A name that reads as a number in exponent notation, such as `1e5`, is refused as well.
@@ -198,7 +198,7 @@ Subscribing works exactly as it does for the public newsletter and Service Email
 <form onsubmit="skapi.subscribeNewsletter(event).then(res => alert(res))">
     <input type="email" name="email" placeholder='your@email.com'/>
     <input hidden name="redirect" value="https://your.domain.com/successpage"/>
-    <input hidden name="group" value="bunnyquery"/>
+    <input hidden name="group" value="launch"/>
     <input type="submit" value="Subscribe"/>
 </form>
 ```
@@ -207,7 +207,7 @@ Subscribing works exactly as it does for the public newsletter and Service Email
 skapi.subscribeNewsletter({
     email: 'users@email.com',
     redirect: 'https://your.domain.com/successpage',
-    group: 'bunnyquery'
+    group: 'launch'
 }).then(res => alert(res));
 ```
 :::
@@ -218,22 +218,22 @@ Named newsletters always carry an unsubscribe link at the bottom of the email.
 :::warning
 `email` and `redirect` are only for groups with `restriction: 0`.
 To subscribe to a group with a higher restriction, the user must be logged in, must have their [`email verified`](/user-account/email-verification), and their access group must be equal to or higher than the group's restriction.
-Otherwise the request fails with `Access denied. Your access group is insufficient to subscribe to group "bunnyquery".`
+Otherwise the request fails with `Access denied. Your access group is insufficient to subscribe to group "launch".`
 :::
 
 [`getNewsletterSubscription()`](/api-reference/email/README.md#getnewslettersubscription), [`unsubscribeNewsletter()`](/api-reference/email/README.md#unsubscribenewsletter) and [`getNewsletters()`](/api-reference/email/README.md#getnewsletters) all take a group name in the same place:
 
 ```js
-skapi.getNewsletterSubscription({ group: 'bunnyquery' }).then(subs => {
-    // subscriptions of the 'bunnyquery' group
+skapi.getNewsletterSubscription({ group: 'launch' }).then(subs => {
+    // subscriptions of the 'launch' group
 });
 
-skapi.unsubscribeNewsletter({ group: 'bunnyquery' }).then(res => {
-    // user is unsubscribed from the 'bunnyquery' newsletter
+skapi.unsubscribeNewsletter({ group: 'launch' }).then(res => {
+    // user is unsubscribed from the 'launch' newsletter
 });
 
-skapi.getNewsletters({ searchFor: 'timestamp', value: Date.now(), condition: '<', group: 'bunnyquery' }).then(newsletters => {
-    // newsletters.list is an array of newsletters sent to the 'bunnyquery' group
+skapi.getNewsletters({ searchFor: 'timestamp', value: Date.now(), condition: '<', group: 'launch' }).then(newsletters => {
+    // newsletters.list is an array of newsletters sent to the 'launch' group
 });
 ```
 
@@ -242,10 +242,10 @@ skapi.getNewsletters({ searchFor: 'timestamp', value: Date.now(), condition: '<'
 A named group has an endpoint address of its own, starting with `nl.` and the group name:
 
 ```
-nl.bunnyquery-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxx@mail.skapi.com
+nl.launch-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxx@mail.skapi.com
 ```
 
-The older `xxxxxxxxxxxxxxxxxxxx-bunnyquery-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@mail.skapi.com` format keeps working too.
+The older `xxxxxxxxxxxxxxxxxxxx-launch-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@mail.skapi.com` format keeps working too.
 
 Select the group's tab on the `Newsletters` page. The **Send Newsletter** row shows the address, the **Subscribers** row shows how many addresses the group holds, and the **Access** row shows who may subscribe.
 
