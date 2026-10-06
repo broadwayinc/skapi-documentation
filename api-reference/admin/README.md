@@ -356,6 +356,8 @@ updateUserAttributes(
 
 At least one attribute must be provided in addition to the required `user_id`.
 
+The update is stored on the account at once and reaches the user's record, which `getUsers()`, the dashboard's Users page and the user's own session read, when the user next logs in or their session next renews its token. `misc` reaches the record at once. See [When the change takes effect](/admin/account.md#when-the-change-takes-effect).
+
 #### Errors
 ```ts
 {

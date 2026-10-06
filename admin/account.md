@@ -189,6 +189,35 @@ skapi.updateUserAttributes(
 
 The updatable attributes are the same profile attributes used in [`createAccount()`](/api-reference/admin/README.md#createaccount): `name`, `email`, `phone_number`, `address`, `gender`, `birthdate`, `misc`, `picture`, `profile`, `website`, `nickname`, and the `*_public` visibility flags.
 
+### When the change takes effect
+
+An admin's update is written to the user's **account** right away: the attributes the request carries
+are stored on the login account the moment the request returns.
+
+What your app reads, though, is the user's **record**: the profile that
+[`getUsers()`](/api-reference/user/README.md#getusers) returns, that the dashboard's **Users** page
+lists, and that other users see when they look the user up. The record is a copy of the account that
+is rewritten each time the user is issued a token, and an admin's update does not issue one. So the
+record keeps the previous values until the user next **logs in**, or until the session the user already
+has renews its token. A token lasts up to a day, and a session renews it on its first request after it
+expires. From that moment the record carries the new values everywhere.
+
+Until then:
+
+- The **Users** page shows the new values on the row you edited, but shows the previous values again
+  after a reload, because a reload reads the record.
+- `getUsers()`, and every other user's view of the profile, return the previous values.
+- The user's own session is in the same position: [`getProfile()`](/api-reference/authentication/README.md#getprofile)
+  answers from the token the user holds, so the user sees the previous values until that login or
+  renewal, and their own `updateProfile()` in the meantime starts from them.
+
+`misc` is the one exception: it is written to the record in the same request, so `getUsers()` and the
+Users page show the new value at once. The user's own session still catches up at the next login or
+renewal.
+
+Nothing is lost in between: the account holds the new values, and the next token carries them into
+the record. When a user has to see an update right away, ask them to log out and log in again.
+
 :::warning Changing a user's email takes their email login away
 The new address is written **unverified**, whoever sends the request, the project owner and admins in
 access group `99` included: this method cannot mark an e-mail address verified. The account's email
@@ -235,7 +264,9 @@ sends this same request, so it follows the same rules and gives the same errors.
 
 ### In the dashboard
 
-Click the account's row on the **Users** page, edit the fields of the form, and click **Update**.
+Click the account's row on the **Users** page, edit the fields of the form, and click **Update**. The
+row shows the new values at once, and a notice at the bottom of the page reminds you that the change
+takes effect when the user next logs in: see [When the change takes effect](#when-the-change-takes-effect).
 
 ## Deleting User Accounts
 
