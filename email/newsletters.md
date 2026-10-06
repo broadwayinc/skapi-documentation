@@ -148,33 +148,6 @@ skapi.subscribeNewsletter({
 
 The example above shows how to let your users subscribe to Service Email by calling [`subscribeNewsletter()`](/api-reference/email/README.md#subscribenewsletter).
 
-### Subscribing at signup
-
-A user can be subscribed to a newsletter the moment they confirm their e-mail, by giving `email_subscription` to [`signup()`](/api-reference/authentication/README.md#signup).
-It takes the newsletter to subscribe to:
-
-| `email_subscription` | Subscribes the user to |
-| --- | --- |
-| `0` or `'public'` | The public newsletter (group `0`) |
-| `1` or `'authorized'` or `true` | Service Email (group `1`) |
-| The name of a named group, such as `'promo'` | That named newsletter group |
-| `false` or left out | Nothing |
-
-```js
-skapi.signup(
-    { email: 'user@email.com', password: 'password' },
-    { signup_confirmation: true, email_subscription: 'promo' }
-).then(res => alert(res));
-```
-
-The subscription is made when the user opens the signup confirmation link, which also verifies their e-mail. No separate newsletter confirmation e-mail is sent: the signup confirmation is the confirmation.
-
-:::warning
-- `signup_confirmation` is required. A user whose e-mail is never confirmed is never subscribed.
-- A named group has to exist when `signup()` is called, otherwise the call fails with `Newsletter group "promo" does not exist for this service.` If the group is deleted before the user confirms, or its restriction asks for an access group the new account does not have, the user is created without the subscription.
-- Only `0` and `1` are accepted as numbers. The access groups `2` ~ `99` are not newsletters a signup can choose; create a named group with that restriction instead.
-:::
-
 ## Named Newsletters
 
 Your service is not limited to a single mailing list.
@@ -264,6 +237,46 @@ skapi.getNewsletters({ searchFor: 'timestamp', value: Date.now(), condition: '<'
     // newsletters.list is an array of newsletters sent to the 'promo' group
 });
 ```
+
+### Subscribing at signup
+
+A user can be subscribed to a newsletter the moment they confirm their e-mail, by giving `email_subscription` to [`signup()`](/api-reference/authentication/README.md#signup).
+It takes the newsletter to subscribe to:
+
+| `email_subscription` | Subscribes the user to |
+| --- | --- |
+| `0` or `'public'` | The public newsletter (group `0`) |
+| `1` or `'authorized'` or `true` | Service Email (group `1`) |
+| The name of a named group, such as `'promo'` | That named newsletter group |
+| `false` or left out | Nothing |
+
+```js
+skapi.signup(
+    { email: 'user@email.com', password: 'password' },
+    { signup_confirmation: true, email_subscription: 'promo' }
+).then(res => alert(res));
+```
+
+The subscription is made when the user opens the signup confirmation link, which also verifies their e-mail. No separate newsletter confirmation e-mail is sent: the signup confirmation is the confirmation.
+
+:::warning
+- `signup_confirmation` is required. A user whose e-mail is never confirmed is never subscribed.
+- A named group has to exist when `signup()` is called, otherwise the call fails with `Newsletter group "promo" does not exist for this service.` If the group is deleted before the user confirms, or its restriction asks for an access group the new account does not have, the user is created without the subscription.
+- Only `0` and `1` are accepted as numbers. The access groups `2` ~ `99` are not newsletters a signup can choose; create a named group with that restriction instead.
+:::
+
+### When a confirmation e-mail is sent
+
+Whether a subscriber gets a newsletter confirmation e-mail depends on how they subscribe, not on the group:
+
+| How the subscription is made | Confirmation e-mail |
+| --- | --- |
+| A visitor subscribes with their e-mail address, to the public newsletter or to a named group whose restriction is `0` | **Sent.** The subscription starts when the link in it is clicked, and the visitor is then taken to the `redirect` url. |
+| A logged in user subscribes, to Service Email, to a named group or to the public newsletter | **Not sent.** The account's e-mail has to be [verified](/user-account/email-verification) already. |
+| `email_subscription` at signup | **Not sent.** The signup confirmation link is the confirmation: the subscription is made when it is opened. |
+| The project owner adds addresses on the `Newsletters` page | **Not sent.** The addresses are subscribed right away. |
+
+The confirmation e-mail is the newsletter subscription template of the [Automated Emails](/email/email-templates.md) page.
 
 ### The sending address of a named group
 
