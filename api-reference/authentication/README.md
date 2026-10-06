@@ -40,8 +40,13 @@ signup(
          */
         signup_confirmation?: boolean | string;
 
-        /** When true, user is subscribed to Service Email (group 1) and can receive it from the admin. (Default = false) */
-        email_subscription?: boolean;
+        /**
+         * The newsletter the user is subscribed to once they confirm their e-mail, with no newsletter
+         * confirmation e-mail of its own: 0 or 'public' (the public newsletter), 1 or 'authorized' or true
+         * (Service Email), or the name of a named newsletter group of the service. Requires
+         * 'signup_confirmation'; a user whose e-mail is never confirmed is never subscribed. (Default = false)
+         */
+        email_subscription?: boolean | number | string;
 
         /** When true, user is logged in soon as the signup process is sucessful.
          * Cannot use with 'signup_confirmation'. (Default = false)

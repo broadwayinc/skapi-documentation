@@ -12,7 +12,7 @@ Endpoints in the older `xxxxxxxxxxxxxxxxxxxx-00xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@
 
 Go to `Newsletters` page, select the tab (`Newsletter`, `Service Email` or a named group), and the page will show the email endpoint address to send the newsletter.
 
-![The Newsletters page of a Skapi project: one tab per list, the sending address with a Send link, monthly sends, subscribers with View and Add links, and the table of sent newsletters](/screenshots/newsletter-page.webp)
+![The Newsletters page of a Skapi project: one tab per list, the group's name as code gives it, the sending address with a Send link, monthly sends, subscribers with View and Add links, and the table of sent newsletters](/screenshots/newsletter-page.webp)
 
 *The Newsletters page. Every list has its own sending address, its own subscriber count and its own history of sent mail.*
 
@@ -148,14 +148,42 @@ skapi.subscribeNewsletter({
 
 The example above shows how to let your users subscribe to Service Email by calling [`subscribeNewsletter()`](/api-reference/email/README.md#subscribenewsletter).
 
+### Subscribing at signup
+
+A user can be subscribed to a newsletter the moment they confirm their e-mail, by giving `email_subscription` to [`signup()`](/api-reference/authentication/README.md#signup).
+It takes the newsletter to subscribe to:
+
+| `email_subscription` | Subscribes the user to |
+| --- | --- |
+| `0` or `'public'` | The public newsletter (group `0`) |
+| `1` or `'authorized'` or `true` | Service Email (group `1`) |
+| The name of a named group, such as `'promo'` | That named newsletter group |
+| `false` or left out | Nothing |
+
+```js
+skapi.signup(
+    { email: 'user@email.com', password: 'password' },
+    { signup_confirmation: true, email_subscription: 'promo' }
+).then(res => alert(res));
+```
+
+The subscription is made when the user opens the signup confirmation link, which also verifies their e-mail. No separate newsletter confirmation e-mail is sent: the signup confirmation is the confirmation.
+
+:::warning
+- `signup_confirmation` is required. A user whose e-mail is never confirmed is never subscribed.
+- A named group has to exist when `signup()` is called, otherwise the call fails with `Newsletter group "promo" does not exist for this service.` If the group is deleted before the user confirms, or its restriction asks for an access group the new account does not have, the user is created without the subscription.
+- Only `0` and `1` are accepted as numbers. The access groups `2` ~ `99` are not newsletters a signup can choose; create a named group with that restriction instead.
+:::
+
 ## Named Newsletters
 
 Your service is not limited to a single mailing list.
 You can create **named newsletter groups** on the `Newsletters` page, and each group keeps its own subscribers, its own sending address, and its own sent mail history.
-For example, one service can run a `launch` list next to a `promo` list, and a subscriber of one never receives the other.
+For example, one service can run a `promo` list next to a `news` list, and a subscriber of one never receives the other.
 
 A group name is 2 ~ 20 lowercase alphanumeric characters, has to contain at least one letter, and cannot be one of the reserved names: `tp`, `admin`, `public`, `authorized`, `newsletter`, `forward`, `all`, `true`, `false`, `null`.
 A name that reads as a number in exponent notation, such as `1e5`, is refused as well.
+`public` and `authorized` are reserved because they are the names of the two numeric groups: everywhere a group is given, including `email_subscription` at signup, `public` means group `0` and `authorized` means group `1`, so no named group can take them.
 
 Every group is created with a `restriction`, which decides who may subscribe to it, and who may read its sent mail:
 
@@ -198,7 +226,7 @@ Subscribing works exactly as it does for the public newsletter and Service Email
 <form onsubmit="skapi.subscribeNewsletter(event).then(res => alert(res))">
     <input type="email" name="email" placeholder='your@email.com'/>
     <input hidden name="redirect" value="https://your.domain.com/successpage"/>
-    <input hidden name="group" value="launch"/>
+    <input hidden name="group" value="promo"/>
     <input type="submit" value="Subscribe"/>
 </form>
 ```
@@ -207,7 +235,7 @@ Subscribing works exactly as it does for the public newsletter and Service Email
 skapi.subscribeNewsletter({
     email: 'users@email.com',
     redirect: 'https://your.domain.com/successpage',
-    group: 'launch'
+    group: 'promo'
 }).then(res => alert(res));
 ```
 :::
@@ -218,22 +246,22 @@ Named newsletters always carry an unsubscribe link at the bottom of the email.
 :::warning
 `email` and `redirect` are only for groups with `restriction: 0`.
 To subscribe to a group with a higher restriction, the user must be logged in, must have their [`email verified`](/user-account/email-verification), and their access group must be equal to or higher than the group's restriction.
-Otherwise the request fails with `Access denied. Your access group is insufficient to subscribe to group "launch".`
+Otherwise the request fails with `Access denied. Your access group is insufficient to subscribe to group "promo".`
 :::
 
 [`getNewsletterSubscription()`](/api-reference/email/README.md#getnewslettersubscription), [`unsubscribeNewsletter()`](/api-reference/email/README.md#unsubscribenewsletter) and [`getNewsletters()`](/api-reference/email/README.md#getnewsletters) all take a group name in the same place:
 
 ```js
-skapi.getNewsletterSubscription({ group: 'launch' }).then(subs => {
-    // subscriptions of the 'launch' group
+skapi.getNewsletterSubscription({ group: 'promo' }).then(subs => {
+    // subscriptions of the 'promo' group
 });
 
-skapi.unsubscribeNewsletter({ group: 'launch' }).then(res => {
-    // user is unsubscribed from the 'launch' newsletter
+skapi.unsubscribeNewsletter({ group: 'promo' }).then(res => {
+    // user is unsubscribed from the 'promo' newsletter
 });
 
-skapi.getNewsletters({ searchFor: 'timestamp', value: Date.now(), condition: '<', group: 'launch' }).then(newsletters => {
-    // newsletters.list is an array of newsletters sent to the 'launch' group
+skapi.getNewsletters({ searchFor: 'timestamp', value: Date.now(), condition: '<', group: 'promo' }).then(newsletters => {
+    // newsletters.list is an array of newsletters sent to the 'promo' group
 });
 ```
 
@@ -242,14 +270,14 @@ skapi.getNewsletters({ searchFor: 'timestamp', value: Date.now(), condition: '<'
 A named group has an endpoint address of its own, starting with `nl.` and the group name:
 
 ```
-nl.launch-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxx@mail.skapi.com
+nl.promo-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxx@mail.skapi.com
 ```
 
-The older `xxxxxxxxxxxxxxxxxxxx-launch-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@mail.skapi.com` format keeps working too.
+The older `xxxxxxxxxxxxxxxxxxxx-promo-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@mail.skapi.com` format keeps working too.
 
 Select the group's tab on the `Newsletters` page. The **Send Newsletter** row shows the address, the **Subscribers** row shows how many addresses the group holds, and the **Access** row shows who may subscribe.
 
-![A named group's tab on the Newsletters page: its own sending address, its subscriber count, an Access row reading Anyone can subscribe, and a Delete group link](/screenshots/newsletter-named-group.webp)
+![A named group's tab on the Newsletters page: its name as code gives it, its own sending address, its subscriber count, an Access row reading Anyone can subscribe, and a Delete group link](/screenshots/newsletter-named-group.webp)
 
 *A named group has its own address, its own count and an Access row.*
 
@@ -272,13 +300,13 @@ Addresses at the large email providers usually pass these checks already.
 
 Only the project owner deletes a group. On the group's tab, click **[Delete group]** on the **Access** row and confirm.
 
-![The Delete Group confirmation: the group will be permanently deleted along with its subscribers and its sending address](/screenshots/newsletter-delete-group.webp)
+![The Delete Group confirmation: the group will be permanently deleted along with its subscribers, the newsletters sent to it and its sending address](/screenshots/newsletter-delete-group.webp)
 
-*Deleting a group removes its subscribers and its sending address with it.*
+*Deleting a group removes its subscribers, the newsletters sent to it and its sending address with it.*
 
 :::warning
-Deleting a group deletes every subscription of that group with it.
-Those subscribers are gone for good, and creating the same name again starts from an empty list.
+Deleting a group deletes every subscription of that group and every newsletter sent to it.
+Those subscribers and that sent mail are gone for good, and creating the same name again starts from an empty list.
 :::
 
 ### Subscriber limit

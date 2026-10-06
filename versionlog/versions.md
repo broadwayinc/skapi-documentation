@@ -1,6 +1,12 @@
 # Version History
 
-### Current version: 2.2.3
+### Current version: 2.2.4
+
+**2.2.4**
+
+- `signup()` option **`email_subscription`** takes the newsletter to subscribe the user to once they confirm their e-mail: `0` or `'public'` (the public newsletter), `1` or `'authorized'` (Service Email), or the **name of a named newsletter group**. `true` still means Service Email. The subscription is made when the signup confirmation link is opened, with no newsletter confirmation e-mail of its own; a user whose e-mail is never confirmed is never subscribed. A named group has to exist when `signup()` is called. See [Subscribing at signup](/email/newsletters.md#subscribing-at-signup).
+- Backend (ships with the API, not the SDK): `adminSignup()` and `inviteUser()` take the same values for `email_subscription`.
+- `public` and `authorized` stay reserved as group names: they are the names of the numeric groups `0` and `1` wherever a group is given.
 
 **2.2.3**
 

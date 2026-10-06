@@ -57,6 +57,7 @@ user's signup will be automatically invalidated.
 
 The second argument takes additional options when creating an account.
 You can also automatically login the user right after successful signup by setting `options.login` to `true` in options argument.
+With `options.email_subscription` the user is subscribed to a newsletter once they confirm their e-mail: `0` or `'public'` for the public newsletter, `1` or `'authorized'` for Service Email, or the name of a named newsletter group. It requires `signup_confirmation`. See [Subscribing at signup](/email/newsletters.md#subscribing-at-signup).
 
 ::: code-group
 
