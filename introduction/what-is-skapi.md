@@ -8,8 +8,8 @@ Everything you build lives in a **Project**. A project is the complete backend f
 
 ## Creating a Project
 
-1. Sign up for an account at [skapi.com](https://www.skapi.com/signup).
-2. Log in, Name your project and choose a region. Hit **Create**.
+1. Open [skapi.com/new-project](https://www.skapi.com/new-project). If you are not signed in, it sends you to log in or sign up first and brings you back.
+2. Name your project and choose a region, click **Continue**, then choose a plan.
 
 :::tip For BunnyQuery users
 BunnyQuery projects are fully compatible with Skapi. Each project shows up in both your BunnyQuery and Skapi project lists.

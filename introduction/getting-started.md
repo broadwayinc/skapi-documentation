@@ -8,10 +8,12 @@ To build a full-stack web application, create a project and connect it to your H
 
 ## Creating a Project
 
-1. Sign up for an account at [skapi.com](https://www.skapi.com/signup).
-2. Log in and click **+ New Project**.
+1. Sign up at [skapi.com](https://www.skapi.com) if you do not have an account yet.
+2. Log in and [Create a new Project](https://www.skapi.com/new-project). If you are not signed in, the page sends you to log in first and brings you back to the project form once you are in.
 3. Give your project a name, an optional description and a region, and click **Continue**.
 4. Choose a plan and proceed.
+
+An account that already has projects can also click **+ New Project** on its project list.
 
 Your new project opens on its `Settings` page. The **Information** card holds the **Project ID**, the value every example in this documentation calls `<Project ID>`. Click it to copy it.
 
@@ -19,7 +21,7 @@ Your new project opens on its `Settings` page. The **Information** card holds th
 
 *The Settings page of a project. The Project ID is on the Information card.*
 
-The same page has two shortcuts worth knowing from day one: **Application Examples** opens ready-made HTML pages that already run against your project (see [Full Examples](/full-example/intro.md)), and **For AI Agents** downloads the prompt file for your AI coding tool (see [Setting up AI Agents](#setting-up-ai-agents) below).
+The same page has two shortcuts worth knowing from day one: **Application Examples** opens ready-made HTML pages that already run against your project (see [Full Examples](/full-example/intro.md)), and **For AI Agents** downloads the base prompt for your AI coding tool (see [Setting up AI Agents](#setting-up-ai-agents) below).
 
 :::tip For BunnyQuery users
 [BunnyQuery](https://www.bunnyquery.com) projects are fully compatible with Skapi. Your project will appear in both your BunnyQuery and Skapi project lists.
@@ -34,10 +36,10 @@ Skapi works smoothly with AI coding tools, such as Claude Code, Codex CLI, Gemin
 
 There are two ways an AI agent can help you build on Skapi, and they work well together:
 
-- A **prompt file** in your project teaches the agent how to write code against the Skapi API.
+- A **base prompt** in your project teaches the agent how to write code against the Skapi API.
 - The **Skapi MCP server** lets the agent work on your project itself: your database, your settings, your tickets, your secret keys and more, signed in as you.
 
-### Download the prompt file for your tool
+### Download the base prompt for your tool
 
 Every tool reads the same file under its own name. Pick your tool, and the file downloads with the name it expects. Put it in the root of your project.
 
@@ -68,7 +70,7 @@ Replace the placeholder `<Project ID>` with your actual project ID before runnin
 
 ## Connecting the Skapi MCP server
 
-**Connecting the MCP server is optional.** The prompt file above is all an agent needs to write your application's code, and your application never talks to the MCP server.
+**Connecting the MCP server is optional.** The base prompt above is all an agent needs to write your application's code, and your application never talks to the MCP server.
 
 What the server adds is the **administrative side** of a project, the work you would otherwise do by hand on the Skapi dashboard: it connects the agent to your Skapi projects, signed in as you, so it can register the tickets and secret keys an integration needs, set up OpenID sign-in, change the project's settings, publish the website, read and fix records, and manage the project's users, from invitations to access groups. Each of those becomes a sentence in a prompt instead of a form. Skip this section if you only want help writing code, and come back when a feature needs something set up on the project.
 
@@ -78,7 +80,7 @@ What the server adds is the **administrative side** of a project, the work you w
 
 2. Choose OAuth. No client ID or client secret is needed.
 
-3. Sign in with your Skapi account when the platform asks.
+3. Sign in with your Skapi account when the platform asks. The server answers nothing until you have signed in, so a platform that lists it as needing authentication is waiting for that sign-in; see [Signing in](#signing-in).
 
 Any platform that speaks MCP works. The endpoint is the same everywhere; only the place you put it differs.
 
@@ -129,7 +131,7 @@ gemini mcp add --transport http skapi https://mcp.broadwayinc.computer
 
 | Platform | Where it goes | Signing in |
 | --- | --- | --- |
-| Claude Code | The command above. Add `--scope user` to have the server in every project. | Automatic. Run `/mcp` in a session, or `claude mcp login skapi`, if it has not asked yet. |
+| Claude Code | The command above. Add `--scope user` to have the server in every project. | `claude mcp list` shows the server as **Needs authentication** until you sign in. Run `claude mcp login skapi`, or `/mcp` in a session, pick **skapi** and choose **Authenticate**. |
 | Codex CLI | The command above writes `[mcp_servers.skapi]` with `url` into `~/.codex/config.toml`. | `codex mcp login skapi` |
 | Gemini CLI | The command above writes `httpUrl` into `.gemini/settings.json`. Add `-s user` to have the server in every project. | Automatic. `/mcp auth skapi` in a session starts it again. |
 | Cursor | `.cursor/mcp.json` in the project, or `~/.cursor/mcp.json` for every project. The Customize page manages the same list. | Prompted in the browser |
@@ -152,6 +154,39 @@ Use my Skapi project "<Project ID>".
 ```
 
 You can also ask it to list your projects and pick one. If you have no project yet, the agent will tell you so and give you the link to the project form on [skapi.com](https://www.skapi.com/new-project); the MCP server does not create projects.
+
+### Signing in
+
+The server signs you in with OAuth, using your Skapi account. Your platform registers itself with the server and proves each sign-in with PKCE, so there is no client ID or client secret to enter anywhere.
+
+- **Nothing works before you sign in.** The server refuses every request that carries no sign-in, the first connection included. That refusal is what makes a platform open the sign-in page, and until you finish it the platform shows the server as needing authentication and the agent sees none of its tools.
+- **The sign-in renews itself.** The platform refreshes it in the background while you use it. If the agent has not used the server for about 30 days, the platform asks you to sign in again.
+- **The agent acts as you.** It reaches only the projects and data your account can reach; see [What the MCP server can do for you](#what-the-mcp-server-can-do-for-you).
+
+If a tool answers **Unauthorized**, or the platform reports an incompatible authorization server, it is holding a connection made before the current sign-in. Sign in again: in Claude Code run `claude mcp login skapi`, elsewhere use the platform's reconnect or authenticate option, or remove the server and add it again.
+
+### Signing in without a browser
+
+The sign-in above opens a browser. On a machine that has none, over SSH, in a container or in continuous integration, or on a platform that only takes a fixed header, there are two ways in.
+
+**A command-line sign-in that prints a link.** Claude Code and Codex CLI can sign in without opening a browser themselves:
+
+```sh
+claude mcp login skapi --no-browser
+codex mcp login skapi
+```
+
+Each prints a URL. Open it on any device where you can sign in to Skapi, finish, and paste the address it returns back into the terminal. Claude Code needs a real terminal for this, so over SSH connect with `ssh -t`.
+
+**An access token you set as a header.** For anything else, including a script, a scheduled job, or a platform that offers only a header field, sign in once at **https://www.skapi.com/mcp** and create an access token. The page shows the token once and gives you the exact line to add for each platform. The token acts as you, for as long as that sign-in lasts or until you revoke it on the same page, and it needs no browser afterward. Keep it as secret as a password.
+
+```sh
+# Claude Code: add the server with the token as a header
+claude mcp add --transport http skapi https://mcp.broadwayinc.computer \
+  --header "Authorization: Bearer skmcp_YOUR_TOKEN"
+```
+
+In a config file, the token goes in a `headers` entry (`Authorization: Bearer skmcp_YOUR_TOKEN`) on the server, or, for Codex CLI, in `bearer_token_env_var`. The https://www.skapi.com/mcp page prints the whole entry for Claude Code, Codex CLI, Gemini CLI, Cursor, VS Code and Windsurf. A platform set up with a token never opens the sign-in page; when you revoke the token it reports the server as unauthorized until you give it a new one.
 
 ### What the MCP server can do for you
 

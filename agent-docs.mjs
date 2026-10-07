@@ -159,7 +159,7 @@ function stripFrontmatter(text) {
 }
 
 /**
- * The prompt file names the dashboard and the docs page offer, read from the component that
+ * The base prompt's file names the dashboard and the docs page offer, read from the component that
  * renders them, so the list exists once. Fails the build if the component changes shape.
  */
 function promptPlatforms() {
@@ -174,7 +174,7 @@ function promptPlatforms() {
  * The Vue components a page may hold are rendered for the website only. Written out as
  * plain markdown here, so the agent reads what the visitor sees:
  *   <FullExampleDemo page="x.html" label="..." />   the demo link with the project id to fill in
- *   <AgentPromptDownloads />                        the prompt file under each tool's name
+ *   <AgentPromptDownloads />                        the base prompt under each tool's name
  * Any other self-closing capitalised tag is reported, since it would reach the agent as a bare tag.
  */
 function renderComponents(text, sitePath, report) {

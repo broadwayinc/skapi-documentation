@@ -64,7 +64,7 @@ export const ORGANIZATION = {
 
 /**
  * Built and published, but kept out of search and out of sitemap.xml.
- *   SYSTEM.md: the AI agent system prompt; the built version with the map and method index is SKAPI.md
+ *   SYSTEM.md: the AI agent base prompt; the built version with the map and method index is SKAPI.md
  *   admin/project-settings.md: an unlinked older copy of service-settings/service-settings.md
  */
 export const NOINDEX = new Set([
@@ -105,8 +105,8 @@ export const PAGES = {
         description: DEFAULT_DESCRIPTION,
     },
     'SYSTEM.md': {
-        title: 'System Prompt for AI Agents',
-        description: 'The system prompt an AI coding agent reads before building with Skapi. SKAPI.md is the built version with the documentation map and the method index; SKAPI-full.md adds every page.',
+        title: 'Base Prompt for AI Agents',
+        description: 'The base prompt an AI coding agent loads before building with Skapi. SKAPI.md is the built version with the documentation map and the method index; SKAPI-full.md adds every page.',
     },
 
     // Introduction
@@ -115,7 +115,7 @@ export const PAGES = {
     },
     'introduction/getting-started.md': {
         title: 'Getting Started with Skapi',
-        description: 'Get started with Skapi, the serverless backend API for web apps: create a project, then set up your AI coding agent with the prompt file and the MCP server.',
+        description: 'Get started with Skapi, the serverless backend API for web apps: create a project, then set up your AI coding agent with the base prompt and the MCP server.',
     },
     'introduction/codebase.md': {
         title: 'Working on the Codebase with Skapi',

@@ -1,4 +1,4 @@
-# System Prompt: Skapi Web App Builder
+# Skapi Base Prompt: Web App Builder
 
 Use this prompt when building or coding an application.
 
