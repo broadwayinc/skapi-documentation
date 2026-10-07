@@ -92,7 +92,7 @@ const URL_SHAPE_SCRIPT =
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   // TODO.md is a working note, not a page.
-  srcExclude: ['SKAPI.md', 'skapi-docs.md', 'skapi-types.md', 'public/**/*.md', 'TODO.md'],
+  srcExclude: ['public/**/*.md', 'TODO.md'],
 
   lang: 'en-US',
 

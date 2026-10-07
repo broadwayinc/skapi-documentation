@@ -3,7 +3,7 @@
 // which pages stay out of search.
 //
 // It lives here and not in each page's frontmatter because the guide and reference
-// pages are also concatenated, raw, into SKAPI.md, skapi-docs.md and skapi-types.md
+// pages are also written, raw, as md/<page>.md and into SKAPI-full.md (agent-docs.mjs)
 // (see all_files.mjs). A page may still set `title:` or `description:` frontmatter;
 // that wins over this map, and all_files.mjs strips frontmatter from the bundles.
 //
@@ -64,7 +64,7 @@ export const ORGANIZATION = {
 
 /**
  * Built and published, but kept out of search and out of sitemap.xml.
- *   SYSTEM.md: the AI agent system prompt, only meaningful inside SKAPI.md
+ *   SYSTEM.md: the AI agent system prompt; the built version with the map and method index is SKAPI.md
  *   admin/project-settings.md: an unlinked older copy of service-settings/service-settings.md
  */
 export const NOINDEX = new Set([
@@ -104,7 +104,7 @@ export const PAGES = {
     },
     'SYSTEM.md': {
         title: 'System Prompt for AI Agents',
-        description: 'The system prompt an AI coding agent reads before building with Skapi. The complete version with every guide and the API reference is SKAPI.md.',
+        description: 'The system prompt an AI coding agent reads before building with Skapi. SKAPI.md is the built version with the documentation map and the method index; SKAPI-full.md adds every page.',
     },
 
     // Introduction

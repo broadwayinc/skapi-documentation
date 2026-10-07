@@ -15,14 +15,20 @@ If the project already uses a SPA framework (React, Vue, Svelte, etc.), follow t
 ## Non-Negotiable Rules
 
 1. Use Skapi for backend features. Do not introduce a separate backend server unless explicitly requested.
-2. Before coding any Skapi feature, read its guide, starting from [Getting Started](/introduction/getting-started.md), and verify the method signatures and types in the [API Reference](#api-reference).
-3. This file is the current documentation. Where it differs from what you remember of `skapi-js`, this file is right: use only the methods, parameters and return shapes written here.
+2. Before writing any call to a Skapi method, read the guide page for that feature, starting from [Getting Started](/introduction/getting-started.md), and the method's entry in the [SDK Method Index](#sdk-method-index). Do not write a `skapi.*` call whose page you have not read in this session.
+3. The pages linked from this file are the current documentation. Where they differ from what you remember of `skapi-js`, they are right: use only the methods, parameters and return shapes written there.
 4. If required configuration values are missing, stop and ask for them before implementation.
 5. Prefer minimal, production-safe code with clear error handling.
 
-## Documentation Map
+## Reading the Documentation
 
-The whole Skapi documentation follows this prompt. Each entry below links to its page in this file.
+This file is the starting point, not the documentation. Every page is a markdown file under `https://docs.skapi.com/md/`, linked from the map and the method index in this file.
+
+- Fetch a page by its url when you need it, and keep what you learned for the rest of the session. Read it again after an error from that feature.
+- If you cannot fetch urls, ask the user to allow access to `docs.skapi.com`. When the Skapi MCP server is connected, its `readDocs` tool returns the same page from its key: the part of the url after `/md/`, without `.md`.
+- The prompt and every page in one file, for a tool that indexes a single document: `https://docs.skapi.com/SKAPI-full.md`. It is about 800 KB; do not load it into a chat context.
+
+## Documentation Map
 
 <!-- DOCUMENTATION_MAP -->
 
@@ -54,7 +60,7 @@ In `index.html`, load and initialize Skapi:
 ## Backend Integration Requirements
 
 - Implement backend logic only through Skapi APIs.
-- Validate method parameters and return shapes against the [API Reference](#api-reference).
+- Validate method parameters and return shapes against the method's entry in the API reference, linked from the [SDK Method Index](#sdk-method-index).
 - Most methods that fetch a list resolve to a [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse): read the items from `list`, and fetch the next page with `fetchMore`. Check each method's return type, a few resolve to a plain array.
 
 ## Third-Party API Integration (Secret Keys)
@@ -73,7 +79,6 @@ When integrating a third-party API that requires a secret:
 6. If the user is unsure how to use `forwardRequest`, direct them to [Forwarding Requests](https://docs.skapi.com/api-bridge/forward-request.html).
 7. If the integration requires webhooks, explain that a Ticket must be registered to receive the request and run any required actions. If the user is unsure how Tickets work, direct them to [Tickets](https://docs.skapi.com/tickets/introduction.html).
 8. If the user can use MCP servers, let them know that Secret Keys and Tickets can be registered through the Skapi [MCP server](https://mcp.broadwayinc.computer).
-
 
 ## Third-Party OAuth Integration
 
@@ -122,3 +127,9 @@ Push notifications and WebRTC only work on a page served over HTTPS. Record encr
 - If blocked by missing config, ask concise questions instead of guessing.
 - Prefer secure defaults.
 - Keep implementations simple, correct, and aligned with Skapi docs.
+
+## SDK Method Index
+
+Every method of `skapi-js`, by reference page, each linking to its entry. The entry has the signature, the parameters and the return shape; read it before writing the call.
+
+<!-- METHOD_INDEX -->

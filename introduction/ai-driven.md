@@ -17,6 +17,8 @@ Browsers drop the leading dot from a download name, so `.cursorrules` and `.wind
 
 You can also download the plain <a href="/SKAPI.md" download="SKAPI.md">SKAPI.md</a> and rename it yourself.
 
+The file is small on purpose, about 25 KB: the rules, a map of this documentation and an index of every SDK method, each linking to its page. The agent reads a page when it builds the feature, from `https://docs.skapi.com/md/` (every page of this site is there as raw markdown, at the same path), so a session carries only the pages it needs. If your agent cannot fetch urls, allow it access to `docs.skapi.com`, or connect the [Skapi MCP server](#connecting-the-skapi-mcp-server): its `readDocs` tool returns the same pages. A tool that indexes one document can take the whole documentation as a single file, [SKAPI-full.md](https://docs.skapi.com/SKAPI-full.md); it is too large to paste into a chat.
+
 Your project's `Settings` page at [skapi.com](https://www.skapi.com) offers the same downloads under **For AI Agents**, next to the opening prompt with your project ID already filled in. Click **[Download]** on the row of your tool, and click the prompt to copy it.
 
 ![The For AI Agents card on a project's Settings page: the opening prompt with the project ID filled in, and one Download row per tool, from Claude Code to Windsurf](/screenshots/settings-agents.webp)
