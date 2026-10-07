@@ -16,8 +16,6 @@ forwardRequest(
         params?: { [key: string]: string }; // Query parameters as a key-value object, and the merge target of the form for GET, DELETE and HEAD.
         multipart?: boolean; // Relay the form's own bytes, the way a browser would send them, files included, instead of flattening it to fields. Keep the encoded body under 2 MB minus 64 KB. Defaults to false.
         skapiHeaders?: boolean | { user?: boolean; service?: boolean }; // Which of "x-skapi-user" and "x-skapi-service" the destination is told. Both values are written server side from the VERIFIED identity of the request. Defaults to false.
-        service?: string; // Optional project ID override.
-        owner?: string; // Optional owner ID override.
         poll?: number; // Optional polling interval in milliseconds. When > 0, the promise resolves immediately with the initial status object and the final result is delivered via onResponse/onError. When omitted or 0, the status object is returned with a poll() method to start polling manually. Must be a non-negative number.
         queue?: string; // Optional queue name. Requests sharing the same queue are processed sequentially on the server side.
         expires?: number; // Optional expiration time in seconds for the request record.
@@ -148,8 +146,6 @@ forwardRequestStream(
         poll?: number; // Polling interval in milliseconds while the request is still running. Default 1000. Must be a finite, non-negative number.
         onResponse?: (res: any) => void; // Called once with whatever this resolves with.
         onError?: (err: any) => void; // Called if the read itself fails.
-        service?: string; // Optional project ID override.
-        owner?: string; // Optional owner ID override.
     }
 ): Promise<any> & { stop: () => void } // The request's terminal status, or the stored body when it was finalized.
 ```
@@ -189,8 +185,6 @@ forwardRequestFinalize(
     options?: {
         url?: string;  // The URL the request was sent to. Required unless requestId is a full ID.
         method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD'; // The method it was sent with. Required unless requestId is a full ID.
-        service?: string; // Optional project ID override.
-        owner?: string;   // Optional owner ID override.
     }
 ): Promise<{
     finalized: boolean; // false when the request is unknown, has not finished yet, or was never streamed.
@@ -289,8 +283,6 @@ stopForwardRequestPolling(
         method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD'; // The HTTP method of the request. Required when identifying by id.
         id?: string; // The request ID whose poll should stop. Pair with url and method.
         queue?: string; // Stop every poll started with this queue name instead of a single request.
-        service?: string; // Optional project ID override.
-        owner?: string; // Optional owner ID override.
     }
 ): number // How many live polls were stopped.
 ```
@@ -329,8 +321,6 @@ Distinguishes a stopped poll from a real API result, so a handler can ignore it 
 forwardRequestQueueCount(
     params: {
         queue: string; // The queue name to check.
-        service?: string; // Optional project ID override.
-        owner?: string; // Optional owner ID override.
     }
 ): Promise<{
     queue_name: string; // The queue name.
