@@ -36,7 +36,7 @@ One newsletter to a full list of 50 subscribers therefore uses all 50 sends of a
 | Premium | 50,000 per project, and past that billed as overage at $1.00 per 1,000 sends |
 
 The per-project number is shown as **Monthly Email Sends** on your project's plan card in the Skapi dashboard.
-Automated e-mails, such as the signup confirmation and the newsletter subscription confirmation, are not newsletter sends and do not count against this limit.
+Automated e-mails, such as the signup confirmation and the newsletter subscription confirmation, are not newsletter sends and do not count against this limit. **Invitation e-mails do count**: every invitation an admin sends or resends is one send, because it is mail the project chooses to send. See [Inviting Users](/admin/invite.md).
 On the Trial and Standard plans, a send past the monthly limit is refused with `Monthly email send limit reached. Consider upgrading your plan.`
 
 Sending also stops on every plan once a project collects too many spam complaints, and a refused newsletter is always answered by a reply from the endpoint address. See [Sending limits](#sending-limits) below.
@@ -347,7 +347,7 @@ Three things can stop a newsletter, whatever plan the project is on.
 
 **The per-owner Trial cap.** On top of each Trial project's own 50 sends, one owner can send **200 newsletter mails per calendar month (UTC) in total across every Trial project they have**. The counter is the same per-recipient count, added up over all of the owner's Trial projects. Standard and Premium projects are always counted per project and have no owner cap, so moving a project to a paid plan takes it out of the shared pool.
 
-**The complaint shutoff, on every plan.** A project stops sending newsletters when, in the current UTC month, it reaches **5 spam complaints**, or a **complaint rate of 0.5 percent** once at least 100 mails have gone out, whichever comes first. Only newsletter sending stops: the project keeps working, every other e-mail it sends keeps working, and nothing about it is suspended or deleted. The block is not lifted by an upgrade and does not clear itself at the start of the next month. Skapi staff clear it after looking at the project, so [contact Skapi](mailto:support@broadwayinc.com) if your project is blocked.
+**The complaint shutoff, on every plan.** A project stops sending newsletters, and invitation e-mails with them, when, in the current UTC month, it reaches **5 spam complaints**, or a **complaint rate of 0.5 percent** once at least 100 mails have gone out, whichever comes first. Only newsletter sending stops: the project keeps working, every other e-mail it sends keeps working, and nothing about it is suspended or deleted. The block is not lifted by an upgrade and does not clear itself at the start of the next month. Skapi staff clear it after looking at the project, so [contact Skapi](mailto:support@broadwayinc.com) if your project is blocked.
 
 You can watch this on the `Newsletters` page of the dashboard: every sent newsletter lists its complaints, its bounces and how many subscribers it reached.
 

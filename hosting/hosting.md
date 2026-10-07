@@ -18,7 +18,7 @@ Everything about hosting is done on your project's pages at [skapi.com](https://
 If your site is a single-page app, also set `index.html` as the [404 page](#setting-the-404-page).
 
 :::tip Let an AI agent do it
-The Skapi MCP server can register a project's first address and upload, edit and delete the files of its site from a prompt. See [Connecting the Skapi MCP server](/introduction/ai-driven.md#connecting-the-skapi-mcp-server).
+The Skapi MCP server can register a project's first address and upload, edit and delete the files of its site from a prompt. See [Connecting the Skapi MCP server](/introduction/getting-started.md#connecting-the-skapi-mcp-server).
 :::
 
 ## Registering your subdomain

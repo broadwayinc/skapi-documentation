@@ -15,7 +15,7 @@ If the project already uses a SPA framework (React, Vue, Svelte, etc.), follow t
 ## Non-Negotiable Rules
 
 1. Use Skapi for backend features. Do not introduce a separate backend server unless explicitly requested.
-2. Before writing any call to a Skapi method, read the guide page for that feature, starting from [Getting Started](/introduction/getting-started.md), and the method's entry in the [SDK Method Index](#sdk-method-index). Do not write a `skapi.*` call whose page you have not read in this session.
+2. Before writing any call to a Skapi method, read the guide page for that feature, starting from [Working on the Codebase](/introduction/codebase.md), and the method's entry in the [SDK Method Index](#sdk-method-index). Do not write a `skapi.*` call whose page you have not read in this session.
 3. The pages linked from this file are the current documentation. Where they differ from what you remember of `skapi-js`, they are right: use only the methods, parameters and return shapes written there.
 4. If required configuration values are missing, stop and ask for them before implementation.
 5. Prefer minimal, production-safe code with clear error handling.
@@ -40,7 +40,7 @@ Before implementing features, confirm these values are available:
 2. Any required Secret Key names
 3. Any required OpenID logger IDs
 
-If any of these are missing, ask for them first.
+If any of these are missing, ask for them first. If the user has no Skapi project yet, they create one at https://www.skapi.com/new-project (the project form on its own page; see [Creating a Project](/introduction/getting-started.md#creating-a-project)) and read the Project ID off the project's Settings page; neither an AI agent nor the Skapi MCP server can create one. A pasted `<Project ID>` is this documentation's placeholder, not an id: ask for the real one.
 
 ## Skapi Initialization
 
@@ -54,7 +54,7 @@ In `index.html`, load and initialize Skapi:
 ```
 
 - Replace `"<Project ID>"` with the actual project ID provided by the user.
-- In SPA projects, install `skapi-js` with npm when that is available, create the instance once in a module, export it, and import it wherever it is used. See [Getting Started](/introduction/getting-started.md).
+- In SPA projects, install `skapi-js` with npm when that is available, create the instance once in a module, export it, and import it wherever it is used. See [Working on the Codebase](/introduction/codebase.md).
 - In SPA projects, an inline `onsubmit="skapi.login(event)"` attribute only works if the instance is also reachable as `window.skapi`. Prefer the framework's own submit handler calling the imported instance.
 
 ## Backend Integration Requirements

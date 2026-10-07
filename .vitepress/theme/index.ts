@@ -61,7 +61,7 @@ const theme: Theme = {
   extends: DefaultTheme,
   Layout,
   enhanceApp({ app }) {
-    // Used by introduction/ai-driven.md: the prompt file under each tool's filename.
+    // Used by introduction/getting-started.md (Setting up AI Agents): the prompt file under each tool's filename.
     app.component('AgentPromptDownloads', AgentPromptDownloads)
     // Used by the full-example pages: a demo link carrying the reader's project id.
     app.component('FullExampleDemo', FullExampleDemo)

@@ -452,6 +452,8 @@ Every message below is the exact text the server returns, and every code is the 
 | `EXISTS` | `User is already invited.` | `inviteUser()` while an invitation to that address is pending |
 | `NOT_EXISTS` | `No invitation found for: user@email.com.` | `resendInvitation()`, `cancelInvitation()` |
 | `INVALID_REQUEST` | `User limit exceeded.` | `createAccount()`, `inviteUser()` |
+| `INVALID_REQUEST` | `Monthly email send limit reached. Consider upgrading your plan.` | `inviteUser()`, `resendInvitation()`: an invitation e-mail counts as one of the project's monthly e-mail sends. See [Inviting Users](/admin/invite.md) |
+| `INVALID_REQUEST` | `E-mail sending is turned off for this project because of spam complaints.` | `inviteUser()`, `resendInvitation()`, while the project's newsletter sending is turned off for complaints |
 | `INVALID_REQUEST` | `User cannot block self.` | `blockAccount()` with your own `user_id` |
 | `INVALID_REQUEST` | `User cannot unblock self.` | `unblockAccount()` with your own `user_id` |
 | `INVALID_REQUEST` | `Admin access only.` | `deleteAccount()` on another account, from an account that is not an admin |

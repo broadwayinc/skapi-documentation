@@ -95,7 +95,7 @@ initialized. There is no method that turns it on later: an instance built withou
 option saves the `data` of every record as plain text for its entire lifetime, and enabling
 it afterwards does not go back and encrypt what was already saved. It is listed with the
 rest of the initialization options in
-[Advanced Settings](/introduction/getting-started.html#advanced-settings).
+[Advanced Settings](/introduction/codebase.html#advanced-settings).
 
 With options:
 

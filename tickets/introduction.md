@@ -22,7 +22,7 @@ Tickets are registered from the dashboard. Open your project, click **Tickets** 
 
 *The Tickets page. Every registered ticket is one row. Click a row to open it, search by id or description, and tick rows to delete several at once.*
 
-An AI agent can do this for you. The Skapi MCP server registers, updates and deletes tickets and reads their logs from a prompt, so a webhook endpoint is one sentence away. See [Connecting the Skapi MCP server](/introduction/ai-driven.md#connecting-the-skapi-mcp-server).
+An AI agent can do this for you. The Skapi MCP server registers, updates and deletes tickets and reads their logs from a prompt, so a webhook endpoint is one sentence away. See [Connecting the Skapi MCP server](/introduction/getting-started.md#connecting-the-skapi-mcp-server).
 
 Only the project owner can register, update or delete a ticket. An admin of your project (access group `99`) is refused with `INVALID_REQUEST: Only the project owner can register tickets.`, and the SDK has no public register method.
 

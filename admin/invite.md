@@ -8,6 +8,12 @@ In the invitation email, the user will see the login email and randomly generate
 
 User should click on the link to accept the invitation within 7 days and they will be able to login to the project using the email and password provided in the invitation email. Accepting the invitation verifies the email address, so for an invitation created with a `username` both the username and the email log the account in from that moment, unless that address is already a login ID another account was granted; see [Setting the Invited User's Profile](#setting-the-invited-user-s-profile).
 
+:::warning Invitations are e-mail sends
+Every invitation e-mail counts as **one of the project's monthly e-mail sends**, the same count a newsletter uses, and a resent invitation counts again. Past the plan's monthly limit an invitation is refused with `Monthly email send limit reached. Consider upgrading your plan.`, and no account is created. A project whose e-mail sending is turned off for spam complaints is refused with `E-mail sending is turned off for this project because of spam complaints.` The limits per plan are in [Sending Newsletters](/email/newsletters.md#sending-limits) and [Plans and Limits](/introduction/plans.md).
+:::
+
+An AI agent can do this for you. The Skapi MCP server sends, resends, cancels and lists invitations from a prompt, for the project owner and for admins of the project. See [Connecting the Skapi MCP server](/introduction/getting-started.md#connecting-the-skapi-mcp-server).
+
 This example demonstrates using the [`inviteUser()`](/api-reference/admin/README.md#inviteuser) method to invite a user to the project.
 When the request is successful, the string "SUCCESS: Invitation has been sent. (User ID: xxx...)" is returned.
 
@@ -215,6 +221,8 @@ address otherwise. A resent invitation renders the same value as the first e-mai
 ## Resending Invitations
 
 Admins can resend invitations to users who have not accepted the invitation by using the [`resendInvitation()`](/api-reference/admin/README.md#resendinvitation) method.
+
+A resent invitation is an e-mail too: it counts as one more of the project's monthly e-mail sends, and past the plan's limit it is refused with the same `Monthly email send limit reached. Consider upgrading your plan.`
 
 This example demonstrates using the [`resendInvitation()`](/api-reference/admin/README.md#resendinvitation) method to resend an invitation to a user.
 When the request is successful, the string "SUCCESS: Invitation has been re-sent. (User ID: xxx...)" is returned.

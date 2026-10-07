@@ -74,6 +74,11 @@ unchanged when the user accepts. Accepting only activates the account and marks 
 }
 |
 {
+  code: 'INVALID_REQUEST';
+  message: "Monthly email send limit reached. Consider upgrading your plan." | "E-mail sending is turned off for this project because of spam complaints."; // An invitation is an e-mail: it counts as one of the project's monthly e-mail sends, and is refused like a newsletter past the plan's limit or while sending is turned off for complaints. No account is created. See "Inviting Users".
+}
+|
+{
   code: 'EXISTS';
   message: "User is already invited."; // The email already has a pending invitation, whatever the 'username' of either invitation. Or the login ID this invitation would be created with ('username', or the email when there is none) is the one another account was already created or invited with, for example the same 'username' again, whatever the email. See "Inviting the same email again" below.
 }
@@ -164,6 +169,11 @@ when it has a `username`, although that email does not log the invitee in until 
 {
   code: 'EXISTS';
   message: "User already exists."; // The account found for the email is not a pending invitation, for example an invitation made WITHOUT a 'username' that has already been accepted.
+}
+|
+{
+  code: 'INVALID_REQUEST';
+  message: "Monthly email send limit reached. Consider upgrading your plan." | "E-mail sending is turned off for this project because of spam complaints."; // A resent invitation counts as one more monthly e-mail send, like the first one.
 }
 ```
 

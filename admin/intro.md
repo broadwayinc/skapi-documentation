@@ -12,6 +12,8 @@ Before using admin methods, create an admin user from your Skapi project Users p
 
 The **Users** page of your project in the Skapi dashboard does the same work without code: create or invite accounts, grant access groups, block, unblock and delete accounts. [Managing Users](/admin/account.md) shows the dashboard steps next to each method.
 
+An AI agent can do it for you as well. The Skapi MCP server searches users, sends, resends and cancels invitations, creates accounts, grants access groups, updates profiles, and blocks, unblocks and deletes accounts from a prompt, for the project owner and for admins of the project, under the rules on this page. See [Connecting the Skapi MCP server](/introduction/getting-started.md#connecting-the-skapi-mcp-server).
+
 The lists below are the summary. [Admin Permissions](/admin/permissions.md) is the full policy: the access group rules that apply to every action on another account, the record, file, newsletter and notification rights in detail, and the exact message every refusal returns.
 
 ## What Admins Can Do

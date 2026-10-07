@@ -4,6 +4,8 @@ Admins can manage user accounts by creating, deleting, blocking, and unblocking 
 
 Every action on this page can also be done without code, from the **Users** page of your project in the Skapi dashboard. You are the project owner there, so the owner's rules on this page apply.
 
+An AI agent can do it for you as well. The Skapi MCP server searches users, creates accounts, grants access groups, updates profiles, and blocks, unblocks and deletes accounts from a prompt, for the project owner and for admins of the project, under the same rules. See [Connecting the Skapi MCP server](/introduction/getting-started.md#connecting-the-skapi-mcp-server).
+
 ![The Users page of the Skapi dashboard: a table of accounts with Email, Name, Approval and Misc columns, a search bar, and the selection icons for grant access, unblock, block and delete](/screenshots/users-list.webp)
 
 *The Users page. Tick accounts with the checkboxes, then use the icons at the top right of the table: **Grant access**, **Unblock users**, **Block users** and **Delete users**. Clicking a row opens the account's own form.*

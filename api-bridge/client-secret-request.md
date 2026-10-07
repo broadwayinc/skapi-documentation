@@ -27,7 +27,7 @@ Click **+ Register Secret** and fill in the form:
 
 Click **Register**. Click a row to change a key's value, lock or destinations, or to delete it, and tick rows to delete several at once. Requests that use a deleted key start failing.
 
-An AI agent can do this for you. The Skapi MCP server saves, lists and deletes secret keys from a prompt, and the list it reads is masked, so the values never reach the agent. See [Connecting the Skapi MCP server](/introduction/ai-driven.md#connecting-the-skapi-mcp-server).
+An AI agent can do this for you. The Skapi MCP server saves, lists and deletes secret keys from a prompt, and the list it reads is masked, so the values never reach the agent. See [Connecting the Skapi MCP server](/introduction/getting-started.md#connecting-the-skapi-mcp-server).
 
 :::warning Secret keys are a project setting
 Registering, listing, replacing and deleting them belong to the **project owner's Skapi account**, and to Skapi staff when you ask Skapi for help. Listing them answers with the stored secret values, so it is owner only as well. An [admin](/admin/permissions.md#project-settings-belong-to-the-project-owner) of your project, access group `99` included, is refused with `INVALID_REQUEST` and `Only the project owner can change project settings.`

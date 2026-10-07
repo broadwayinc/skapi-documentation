@@ -19,6 +19,8 @@ The limits below are per project.
 One Trial limit is counted per owner rather than per project: across every Trial project one owner has, 200 newsletter mails per calendar month, on top of each project's own 50.
 Standard and Premium are always counted per project and have no owner cap.
 
+E-mail sends are the mails a project chooses to send: every recipient of a newsletter, and every invitation e-mail sent or resent to a user. Automated mail, such as the signup confirmation, is not counted. See [Sending Newsletters](/email/newsletters.md#sending-limits) and [Inviting Users](/admin/invite.md).
+
 File storage is one pooled figure covering your web hosting, your record file attachments and your AI indexed files.
 
 A Trial project never expires and needs no card.
@@ -30,7 +32,7 @@ The Trial and Standard plans stop at their limits instead of billing you for the
 - New signups past the user limit are refused.
 - Record writes past the database storage limit are refused.
 - File uploads past the file storage limit are refused.
-- Newsletter sends past the monthly limit are refused, and so are subscriptions past the subscriber limit. One newsletter costs one send per subscriber it goes to, so one send to a full Trial list of 50 subscribers uses all 50 monthly sends. A Trial project is also refused once its owner has used the 200 newsletter mails a month their Trial projects share.
+- Newsletter sends past the monthly limit are refused, and so are subscriptions past the subscriber limit. One newsletter costs one send per subscriber it goes to, so one send to a full Trial list of 50 subscribers uses all 50 monthly sends. A Trial project is also refused once its owner has used the 200 newsletter mails a month their Trial projects share. Invitation e-mails count as sends too, resends included, and are refused past the project's monthly limit; see [Inviting Users](/admin/invite.md).
 - When database storage or file storage goes over the plan limit, the project is suspended. Email storage never suspends a project: the oldest newsletters are deleted to make room instead.
 
 Writes stop at the limit, so a project normally never gets far past one.
@@ -98,7 +100,7 @@ See [Sending Newsletters](/email/newsletters.md) for the send and subscriber lim
 
 On every plan, a project stops sending newsletters when, in the current UTC month, it reaches 5 spam complaints, or a complaint rate of 0.5 percent once at least 100 mails have gone out, whichever comes first.
 
-Only newsletter sending stops.
+Newsletter sending stops, and so do invitation e-mails.
 The project keeps working, its automated e-mails keep going out, and nothing about it is suspended or deleted.
 An upgrade does not lift the block and it does not clear itself when the month rolls over: Skapi staff clear it after looking at the project, so contact us if yours is blocked.
 

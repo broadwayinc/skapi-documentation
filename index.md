@@ -22,11 +22,11 @@ features:
   - title: Works with Any Framework
     icon: 🧩
     details: Works with plain HTML, any JavaScript framework, or Node.js.
-    link: /introduction/getting-started
+    link: /introduction/codebase
   - title: Built for AI Agents
     icon: 🤖
     details: Build faster. Use fewer tokens. Skip the backend.
-    link: /introduction/ai-driven
+    link: /introduction/getting-started#setting-up-ai-agents
   - icon: 🐰
     title: BunnyQuery Compatible
     details: Turn your BunnyQuery project into a full-stack web service.

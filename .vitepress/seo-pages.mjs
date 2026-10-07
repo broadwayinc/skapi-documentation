@@ -70,6 +70,8 @@ export const ORGANIZATION = {
 export const NOINDEX = new Set([
     'SYSTEM.md',
     'admin/project-settings.md',
+    // Working with AI Agents, now the Setting up AI Agents section of Getting Started; a redirect stub.
+    'introduction/ai-driven.md',
     // Old full-example pages, kept as redirect stubs so links to them still land somewhere.
     'authentication/full-example.md',
     'user-account/full-example.md',
@@ -113,10 +115,11 @@ export const PAGES = {
     },
     'introduction/getting-started.md': {
         title: 'Getting Started with Skapi',
-        description: 'Get started with Skapi, the serverless backend API for web apps: create a project and connect it to plain HTML, a Vue or React app, or Node.js.',
+        description: 'Get started with Skapi, the serverless backend API for web apps: create a project, then set up your AI coding agent with the prompt file and the MCP server.',
     },
-    'introduction/ai-driven.md': {
-        description: 'Build with Skapi using AI coding agents such as Claude Code, OpenAI Codex and Gemini CLI: add the Skapi system prompt file to your project and start prompting.',
+    'introduction/codebase.md': {
+        title: 'Working on the Codebase with Skapi',
+        description: 'Connect your code to a Skapi project: load skapi-js in plain HTML, a Vue or React app, TypeScript or Node.js, check the connection and set constructor options.',
     },
     'introduction/working-with-forms.md': {
         description: 'Pass an HTML form submit event straight to Skapi methods to send form data without reading each field, including nested values, arrays and the form action.',

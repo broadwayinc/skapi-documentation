@@ -144,7 +144,7 @@ The logger configuration tells Skapi how to request user profile attributes from
 To change a logger later, click its row on the **Open ID** page, edit the request fields and click **Update**. The Logger ID and the Username Key are fixed once registered. **Delete** at the bottom of the form removes the logger, and users who signed in through it lose access to the project.
 
 :::tip Let an AI agent do it
-The Skapi MCP server can register, update and delete OpenID loggers for you from an AI agent, along with the secret key the token exchange uses. See [Connecting the Skapi MCP server](/introduction/ai-driven.md#connecting-the-skapi-mcp-server).
+The Skapi MCP server can register, update and delete OpenID loggers for you from an AI agent, along with the secret key the token exchange uses. See [Connecting the Skapi MCP server](/introduction/getting-started.md#connecting-the-skapi-mcp-server).
 :::
 
 Now call [`openIdLogin()`](/api-reference/authentication/README.md#openidlogin) with the logger ID and the access token to sign in (or create) the user.

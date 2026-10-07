@@ -264,7 +264,7 @@ export default defineConfig({
   },
   vite: {
     server: {
-      allowedHosts: ['seoul.broadwayinc.computer', 'us.broadwayinc.computer', 'us-dev.broadwayinc.computer'],
+      allowedHosts: ['seoul.broadwayinc.computer', 'us.broadwayinc.computer', 'us-dev.broadwayinc.computer', 'dev.broadwayinc.computer'],
     }
   }
 })
