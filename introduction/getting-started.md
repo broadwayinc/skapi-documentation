@@ -178,15 +178,25 @@ codex mcp login skapi
 
 Each prints a URL. Open it on any device where you can sign in to Skapi, finish, and paste the address it returns back into the terminal. Claude Code needs a real terminal for this, so over SSH connect with `ssh -t`.
 
-**An access token you set as a header.** For anything else, including a script, a scheduled job, or a platform that offers only a header field, sign in once at **https://www.skapi.com/mcp** and create an access token. The page shows the token once and gives you the exact line to add for each platform. The token acts as you, for as long as that sign-in lasts or until you revoke it on the same page, and it needs no browser afterward. Keep it as secret as a password.
+**An access token you set as a header.** For anything else, including a script, a scheduled job, or a platform that offers only a header field, use an access token. The MCP server has a page that issues them:
 
-```sh
-# Claude Code: add the server with the token as a header
-claude mcp add --transport http skapi https://mcp.broadwayinc.computer \
-  --header "Authorization: Bearer skmcp_YOUR_TOKEN"
-```
+**https://mcp.broadwayinc.computer/connect**
 
-In a config file, the token goes in a `headers` entry (`Authorization: Bearer skmcp_YOUR_TOKEN`) on the server, or, for Codex CLI, in `bearer_token_env_var`. The https://www.skapi.com/mcp page prints the whole entry for Claude Code, Codex CLI, Gemini CLI, Cursor, VS Code and Windsurf. A platform set up with a token never opens the sign-in page; when you revoke the token it reports the server as unauthorized until you give it a new one.
+Open it in any browser (`https://www.skapi.com/mcp` is a shortcut to the same page). It runs the same Skapi sign-in a platform would open, then lets you create tokens. The steps:
+
+1. Open the page and sign in with your Skapi account.
+2. Click **Create token**, and optionally label it so you can tell your machines apart.
+3. Copy the token. It starts with `skmcp_` and is shown once, right then, never again.
+4. Give it to your platform as the `Authorization: Bearer` header. For Claude Code:
+
+   ```sh
+   claude mcp add --transport http skapi https://mcp.broadwayinc.computer \
+     --header "Authorization: Bearer skmcp_YOUR_TOKEN"
+   ```
+
+   In a config file the token goes in a `headers` entry (`"Authorization": "Bearer skmcp_YOUR_TOKEN"`) on the server, or, for Codex CLI, in `bearer_token_env_var`. The `/connect` page prints the whole entry for Claude Code, Codex CLI, Gemini CLI, Cursor, VS Code and Windsurf.
+
+The token acts as you, with everything your account can reach, for as long as that sign-in lasts or until you revoke it. Return to the same page any time to see your tokens and revoke one. A platform set up with a token never opens the sign-in page; when you revoke the token it reports the server as unauthorized until you give it a new one. Keep the token as secret as a password.
 
 ### What the MCP server can do for you
 
