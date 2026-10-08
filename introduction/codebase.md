@@ -42,7 +42,7 @@ The Project ID uniquely identifies your Skapi project.
 To use Skapi in a single-page application (SPA) such as Vue, React, or Angular, install `skapi-js` with npm.
 
 ```sh
-$ npm i skapi-js
+$ npm i skapi-js@latest
 ```
 
 Then import the library in your main JavaScript file:
