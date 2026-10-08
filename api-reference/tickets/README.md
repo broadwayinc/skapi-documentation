@@ -225,28 +225,41 @@ type TicketAction =
         err?: TicketAction[];
     }
     | {
-        act: 'pstr'; // Post a record. Everything except user_id is the postRecord() payload.
+        act: 'pstr'; // Post a record. Everything except user_id is the postRecord() payload. Any other key (notification, remove_bin, reference_private_key, progress) is refused at registration.
         exe: {
-            table: string | {
+            table: string | { // A plain name is { name } in the public group.
                 name: string;
-                access_group?: number | 'public' | 'authorized' | 'admin' | 'private';
-                subscription?: {
+                access_group?: number | 'public' | 'authorized' | 'admin' | 'private'; // 0..99. Absent: public on a create, unchanged on an update. The dashboard always writes it. 'private' needs user_id.
+                subscription?: { // Needs user_id. null clears every setting on an update.
                     is_subscription_record?: boolean;
                     upload_to_feed?: boolean;
                     notify_subscribers?: boolean;
                     feed_referencing_records?: boolean;
                     notify_referencing_records?: boolean;
-                };
+                } | null;
             };
             data?: any;
             index?: { name: string; value: string | number | boolean };
             tags?: string[];
             unique_id?: string; // A retried webhook then updates the same record instead of duplicating it.
             record_id?: string; // Update instead of create.
-            reference?: string;
-            readonly?: boolean;
-            source?: PostRecordConfig['source'];
-            user_id?: string; // Post as this user instead of the project owner.
+            reference?: string | null; // The record ID or unique ID of the record this one references.
+            readonly?: boolean; // Needs user_id.
+            source?: {
+                referencing_limit?: number; // Default: null (Infinite)
+                prevent_multiple_referencing?: boolean; // If true, a single user can reference this record only once.
+                can_remove_referencing_records?: boolean; // When true, owner of the record can remove any record that are referencing this record. Also when this record is deleted, all the record referencing this record will be deleted.
+                only_granted_can_reference?: boolean; // When true, only the user who has granted private access to the record can reference this record.
+                /** Index restrictions for referencing records. null removes all restrictions. */
+                referencing_index_restrictions?: {
+                    name: string; // Allowed index name
+                    value?: string | number | boolean; // Allowed index value
+                    range?: string | number | boolean; // Allowed index range
+                    condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // Allowed index value condition. Checked when a referencing record is posted: on a string value '>=' is a 'starts with' check, while '<=' is a plain 'lesser or equal' comparison and is not 'ends with'.
+                }[] | null;
+                allow_granted_to_grant_others?: boolean; // When true, the user who has granted private access to the record can grant access to other users.
+            };
+            user_id?: string; // Post as this user: a user ID (UUID) once its references are filled in, not the project owner's own. Anything else fails the action. Absent = the project owner, who cannot create a private, read-only or subscription record.
         };
         err?: TicketAction[];
     }
@@ -254,11 +267,11 @@ type TicketAction =
         act: 'req'; // HTTP request with its own condition and chain.
         exe: {
             url: string; // Starts with http:// or https:// and a hostname, and resolves to a public address. Values put in with ${...} are percent-encoded. A URL that is one whole reference is refused. Sent as a browser sends it: a tab or line break removed, a hostname outside ASCII IDNA-encoded, a space, another control character or a character outside ASCII in the path or query percent-encoded.
-            method?: 'GET' | 'POST' | 'PUT' | 'DELETE'; // Default GET.
+            method?: 'GET' | 'POST' | 'PUT' | 'DELETE'; // Default GET. Written out, never a reference.
             secretName?: string; // A Secret Key of the project. Must exist at registration. ${CLIENT_SECRET} in the values of headers, data and params is its value. With it, the url's scheme and host must be written out.
             headers?: { [name: string]: string }; // Values templated. A Host or X-Skapi-Ticket header is refused: the engine sets both. A name that is not ASCII or holds ':', a line break or NUL is refused, and so is a value whose text outside ${...} holds a line break, NUL or a character outside Latin-1. A value that breaks that rule once its references are filled in fails the call (REQUEST_FAILED, reason 'invalid_header').
             data?: any; // POST/PUT body. Sent as JSON when a content-type header says application/json, else form encoded.
-            params?: { [key: string]: string }; // Query.
+            params?: { [key: string]: any }; // Added to the query string on every method. A value that is not text is sent as compact JSON.
             condition?: Pick<TicketCondition, 'headers' | 'data' | 'user' | 'record_access'>; // Checks the RESPONSE, under the same rules as the ticket's condition. Row keys are paths in the response body.
             actions?: TicketAction[]; // Nested chain, any action. Reads the response body as ${response} and ${response[key]}; ${data} is still the request the ticket received.
         };
@@ -266,7 +279,7 @@ type TicketAction =
     };
 ```
 
-Every string value of `exe` is templated right before the action runs (for `req`: `url`, `method`, `headers`, `data` and `params`; `secretName`, the nested `condition` and `actions` are not). Only text inside `${ }` is a reference, and everything outside it is used as written: `"orders"` and `"order[id]"` are plain text. A string that is exactly one `${...}` keeps the value's type; inside longer text the value becomes text. `$${...}` writes a literal `${...}`.
+Every string value of `exe` is templated right before the action runs (for `req`: `url`, `headers`, `data` and `params`; `method`, `secretName`, the nested `condition` and `actions` are not). Only text inside `${ }` is a reference, and everything outside it is used as written: `"orders"` and `"order[id]"` are plain text. A string that is exactly one `${...}` keeps the value's type; inside longer text the value becomes text. `$${...}` writes a literal `${...}`.
 
 | reference | reads |
 |---|---|
@@ -288,8 +301,6 @@ Registration refuses anything else inside `${ }` (`${id}`, `${ip[x]}`, `${placeh
 `${CLIENT_SECRET}` is only allowed in the `headers`, `data` and `params` values of a `req` that names a `secretName`, and registration refuses it anywhere else. Each call is held to the Destinations of the Secret Key it carries, and every copy of the key's value in the response, as sent or escaped up to three times over with percent-encoding, backslash escapes and HTML character references (mixed character by character), is replaced by the text `${CLIENT_SECRET}` before it is checked, logged or returned in an error. A copy escaped four times over is not found, and one is not guaranteed to be found when a round of escaping left part of an earlier round's escape readable on its own, such as the `%BA` of `%&#68;0%BA`. The whole response is searched and passed on, never cut. When the 25 second budget runs out while a long one is searched, the action fails with `REQUEST_FAILED` and `detail: { reason: "timeout" }`. A key that no longer exists fails the action with `REQUEST_FAILED` and `detail: { reason: "secret_missing", secretName }`. See [Sending a Secret Key](/tickets/actions.md#sending-a-secret-key).
 
 See [Actions](/tickets/actions.md)
-
-See [PostRecordConfig](/api-reference/data-types/README.md#postrecordconfig)
 
 ## TicketError
 

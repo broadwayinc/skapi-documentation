@@ -103,7 +103,7 @@ More than that, and the file belongs somewhere else: [upload it](/database/handl
 
 `secretName` names one of your project's [Secret Keys](/api-bridge/client-secret-request.md#registering-secret-keys). It is **optional**.
 
-**Named.** `$CLIENT_SECRET` is substituted server side in the `url`, the `headers`, `data` and `params`; the key's access group authorizes the caller; and the key's [Destinations](/api-bridge/client-secret-request.md#restricting-where-a-key-can-be-sent) are enforced before anything is sent. At least one value has to carry the placeholder, or the call is refused with `INVALID_PARAMETER`: there would be nothing for the secret to fill.
+**Named.** `$CLIENT_SECRET` is substituted server side in the `url` and in the values of `headers`, `data` and `params`, at any depth, such as `data: { auth: { key: '$CLIENT_SECRET' } }`; the key's access group authorizes the caller; and the key's [Destinations](/api-bridge/client-secret-request.md#restricting-where-a-key-can-be-sent) are enforced before anything is sent. Nothing is substituted inside a [`multipart`](#sending-the-raw-form-body-with-multipart) body, which is sent byte for byte. When `$CLIENT_SECRET` appears nowhere, there is nothing for the key to fill, so the SDK leaves `secretName` out and sends the request as written, the same as a request that names no key.
 
 **Absent.** Nothing is resolved and no placeholder is required. The request is forwarded with only what you supplied. A literal `$CLIENT_SECRET` in a request that names no secret is just text you typed, and is sent as such.
 
@@ -179,7 +179,7 @@ When a form carries an `action` attribute, the SDK stores the resolved value and
 
 | code | when |
 |---|---|
-| `INVALID_PARAMETER` | a bad `method`, `multipart` with `data`, `multipart` with no form, a header in the `x-skapi-` namespace, a `secretName` with no `$CLIENT_SECRET` anywhere, a multipart body over the size cap, a negative `poll` |
+| `INVALID_PARAMETER` | a bad `method`, `multipart` with `data`, `multipart` with no form, a header in the `x-skapi-` namespace, a multipart body over the size cap, a negative `poll` |
 | `INVALID_REQUEST` | an unknown `secretName`, no access to the named secret, a destination the secret is not allowed to be sent to, a `signal` that was already aborted |
 | `NOT_SUPPORTED` | `multipart: true` in an environment with no `FormData` or `Response` |
 

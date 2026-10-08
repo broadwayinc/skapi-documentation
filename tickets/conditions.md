@@ -90,9 +90,21 @@ Rows in `headers`, `data`, `params` and `user` combine by key. Rows with the **s
 
 ```json
 "data": [
-    { "key": "type", "operator": "=", "value": "payment.completed" },
-    { "key": "type", "operator": "=", "value": "payment.captured" },
-    { "key": "amount", "operator": ">", "value": 100 }
+  {
+    "key": "type",
+    "operator": "=",
+    "value": "payment.completed"
+  },
+  {
+    "key": "type",
+    "operator": "=",
+    "value": "payment.captured"
+  },
+  {
+    "key": "amount",
+    "operator": ">",
+    "value": 100
+  }
 ]
 ```
 
@@ -116,7 +128,14 @@ A row's `value` can be any JSON value. On the dashboard, pick the **JSON** type 
 
 ```json
 "data": [
-    { "key": "metadata", "operator": "=", "value": { "plan": "pro", "seats": 5 } }
+  {
+    "key": "metadata",
+    "operator": "=",
+    "value": {
+      "plan": "pro",
+      "seats": 5
+    }
+  }
 ]
 ```
 
@@ -126,7 +145,16 @@ This passes for `{ "plan": "pro", "seats": 5 }` and for nothing else, not `{ "pl
 
 ```json
 "data": [
-    { "key": "tags", "operator": "=", "value": [["a", "b"]] }
+  {
+    "key": "tags",
+    "operator": "=",
+    "value": [
+      [
+        "a",
+        "b"
+      ]
+    ]
+  }
 ]
 ```
 
@@ -137,8 +165,20 @@ This passes for `{ "plan": "pro", "seats": 5 }` and for nothing else, not `{ "pl
 
 ```json
 "data": [
-    { "key": "price", "operator": "=", "value": "price_basic", "setValueWhenMatch": 2, "placeholder": "GROUP" },
-    { "key": "price", "operator": "=", "value": "price_pro", "setValueWhenMatch": 3, "placeholder": "GROUP" }
+  {
+    "key": "price",
+    "operator": "=",
+    "value": "price_basic",
+    "setValueWhenMatch": 2,
+    "placeholder": "GROUP"
+  },
+  {
+    "key": "price",
+    "operator": "=",
+    "value": "price_pro",
+    "setValueWhenMatch": 3,
+    "placeholder": "GROUP"
+  }
 ]
 ```
 
@@ -162,8 +202,14 @@ In JSON, `null` is written as `"value": null`, and may also be a member of a val
 
 ```json
 "data": [
-    { "key": "coupon", "operator": "=" },
-    { "key": "customer[email]", "operator": "!=" }
+  {
+    "key": "coupon",
+    "operator": "="
+  },
+  {
+    "key": "customer[email]",
+    "operator": "!="
+  }
 ]
 ```
 
@@ -185,12 +231,15 @@ The first row passes only when the body has no `coupon`. The second passes only 
 
 ```json
 "signature": {
-    "secretName": "webhook_secret",
-    "header": "x-signature",
-    "separator": ",",
-    "parts": ["t=${timestamp}", "v1=${signature}"],
-    "signed": "${timestamp}.${body}",
-    "timestamp": "${timestamp}"
+  "secretName": "webhook_secret",
+  "header": "x-signature",
+  "separator": ",",
+  "parts": [
+    "t=${timestamp}",
+    "v1=${signature}"
+  ],
+  "signed": "${timestamp}.${body}",
+  "timestamp": "${timestamp}"
 }
 ```
 
@@ -253,9 +302,17 @@ Look up three things in the sender's documentation: which header carries the sig
 A header carrying `t=<timestamp>,v1=<hex>` pairs over `<timestamp>.<body>`:
 
 ```json
-{ "secretName": "webhook_secret", "header": "x-signature", "separator": ",",
-  "parts": ["t=${timestamp}", "v1=${signature}"],
-  "signed": "${timestamp}.${body}", "timestamp": "${timestamp}" }
+{
+  "secretName": "webhook_secret",
+  "header": "x-signature",
+  "separator": ",",
+  "parts": [
+    "t=${timestamp}",
+    "v1=${signature}"
+  ],
+  "signed": "${timestamp}.${body}",
+  "timestamp": "${timestamp}"
+}
 ```
 
 The hex HMAC of the body, after a `sha256=` prefix:
@@ -273,16 +330,33 @@ The base64 HMAC of the body, alone in the header:
 `v0=<hex>` over `v0:<timestamp>:<body>`, with the timestamp in a header of its own:
 
 ```json
-{ "secretName": "webhook_secret", "header": "x-request-signature", "parts": ["v0=${signature}"],
-  "signed": "v0:${header:X-Request-Timestamp}:${body}", "timestamp": "${header:X-Request-Timestamp}" }
+{
+  "secretName": "webhook_secret",
+  "header": "x-request-signature",
+  "parts": [
+    "v0=${signature}"
+  ],
+  "signed": "v0:${header:X-Request-Timestamp}:${body}",
+  "timestamp": "${header:X-Request-Timestamp}"
+}
 ```
 
 Space-separated `v1,<base64>` items over `<id>.<timestamp>.<body>`, with the id and the timestamp in headers of their own and a base64 secret that starts with a fixed prefix:
 
 ```json
-{ "secretName": "webhook_secret", "header": "x-signature", "separator": " ", "parts": ["v1,${signature}"],
-  "signed": "${header:X-Id}.${header:X-Timestamp}.${body}", "timestamp": "${header:X-Timestamp}",
-  "encoding": "base64", "secret_encoding": "base64", "secret_prefix": "key_" }
+{
+  "secretName": "webhook_secret",
+  "header": "x-signature",
+  "separator": " ",
+  "parts": [
+    "v1,${signature}"
+  ],
+  "signed": "${header:X-Id}.${header:X-Timestamp}.${body}",
+  "timestamp": "${header:X-Timestamp}",
+  "encoding": "base64",
+  "secret_encoding": "base64",
+  "secret_prefix": "key_"
+}
 ```
 
 Public-key signatures (RSA, ECDSA, Ed25519) are not supported: this condition only verifies an HMAC made with a shared secret.
@@ -300,8 +374,17 @@ Nowhere. The verifier reads the signature secret on the server and nothing puts 
 `ip` and `user_agent` each take one `operator` and a `value` or list of values, all text. The part passes when the caller matches **any** listed value, and with `!=` when it is **none** of them. A `value` that is an empty list, `""`, `null` or missing is no check: every caller passes, and registration drops the part. With `>=` meaning starts with and `<=` meaning ends with, an address range or a user-agent family is one row:
 
 ```json
-"ip": { "operator": ">=", "value": ["203.0.113.", "198.51.100."] },
-"user_agent": { "operator": ">=", "value": "MyService/" }
+"ip": {
+  "operator": ">=",
+  "value": [
+    "203.0.113.",
+    "198.51.100."
+  ]
+},
+"user_agent": {
+  "operator": ">=",
+  "value": "MyService/"
+}
 ```
 
 `headers` rows match request headers. `key` is the header name, compared case-insensitively, so `X-Source` and `x-source` rows are the same key. **Every** header listed must be sent and match; rows on the same header are alternatives, and a header the request does not carry fails its key.
@@ -345,9 +428,21 @@ Then every key that has match rows and no matching one fails the part.
 
 ```json
 "data": [
-    { "key": "type", "operator": "=", "value": "payment.completed" },
-    { "key": "payment[metadata][user_id]", "placeholder": "BUYER" },
-    { "key": "payment[method]", "operator": "=", "value": "card", "setValueWhenMatch": "Card payment" }
+  {
+    "key": "type",
+    "operator": "=",
+    "value": "payment.completed"
+  },
+  {
+    "key": "payment[metadata][user_id]",
+    "placeholder": "BUYER"
+  },
+  {
+    "key": "payment[method]",
+    "operator": "=",
+    "value": "card",
+    "setValueWhenMatch": "Card payment"
+  }
 ]
 ```
 
@@ -359,9 +454,30 @@ Because the first matching row of a key wins, and a row that does not match capt
 
 ```json
 "data": [
-    { "key": "plan", "operator": "=", "value": "basic", "setValueWhenMatch": 2, "placeholder": "GROUP" },
-    { "key": "plan", "operator": "=", "value": ["pro", "team"], "setValueWhenMatch": 3, "placeholder": "GROUP" },
-    { "key": "plan", "operator": "!=", "value": null, "setValueWhenMatch": 1, "placeholder": "GROUP" }
+  {
+    "key": "plan",
+    "operator": "=",
+    "value": "basic",
+    "setValueWhenMatch": 2,
+    "placeholder": "GROUP"
+  },
+  {
+    "key": "plan",
+    "operator": "=",
+    "value": [
+      "pro",
+      "team"
+    ],
+    "setValueWhenMatch": 3,
+    "placeholder": "GROUP"
+  },
+  {
+    "key": "plan",
+    "operator": "!=",
+    "value": null,
+    "setValueWhenMatch": 1,
+    "placeholder": "GROUP"
+  }
 ]
 ```
 
@@ -377,8 +493,16 @@ An action reads the result as `${placeholder[GROUP]}`, for instance `{ "act": "a
 
 ```json
 "user": [
-    { "key": "email_verified", "operator": "=", "value": true },
-    { "key": "access_group", "operator": ">=", "value": 2 }
+  {
+    "key": "email_verified",
+    "operator": "=",
+    "value": true
+  },
+  {
+    "key": "access_group",
+    "operator": ">=",
+    "value": 2
+  }
 ]
 ```
 

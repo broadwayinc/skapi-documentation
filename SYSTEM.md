@@ -74,11 +74,10 @@ When integrating a third-party API that requires a secret:
    - A locked key can be used only by a logged-in user, so the feature requires authentication.
    - An unlocked key can be used by anyone, including signed-out visitors.
 3. Use `skapi.forwardRequest(form, options)`, setting `secretName` to the registered key name. Pass the request body as the first argument, or `null` when the request has no body.
-4. Put the `$CLIENT_SECRET` placeholder wherever the secret belongs, such as in `headers`, `url`, `params`, or the request body. Skapi substitutes the real value on the server, so the secret never reaches the browser. A request that specifies `secretName` must contain the placeholder at least once.
+4. Put `$CLIENT_SECRET` where the secret belongs: in the `url`, or in any value of `headers`, `params` or `data`, at any depth. Skapi replaces it with the real value on the server, so the secret never reaches the browser. Nothing is replaced inside a `multipart` body. When no `$CLIENT_SECRET` appears anywhere, the SDK leaves `secretName` out and sends the request as written.
 5. If the key has **Destinations** configured, it can be sent only to those URLs. Tell the user which destination URL the app calls so they can allow it.
-6. If the user is unsure how to use `forwardRequest`, direct them to [Forwarding Requests](https://docs.skapi.com/api-bridge/forward-request.html).
-7. If the integration requires webhooks, explain that a Ticket must be registered to receive the request and run any required actions. If the user is unsure how Tickets work, direct them to [Tickets](https://docs.skapi.com/tickets/introduction.html).
-8. If the user can use MCP servers, let them know that Secret Keys and Tickets can be registered through the Skapi [MCP server](https://mcp.broadwayinc.computer).
+6. If the integration requires webhooks, explain that a Ticket must be registered to receive the request and run any required actions. If the user is unsure how Tickets work, direct them to [Tickets](https://docs.skapi.com/tickets/introduction.html).
+7. If the user can use MCP servers, let them know that Secret Keys and Tickets can be registered through the Skapi [MCP server](https://mcp.broadwayinc.computer).
 
 ## Third-Party OAuth Integration
 

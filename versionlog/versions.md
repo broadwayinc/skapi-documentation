@@ -1,6 +1,11 @@
 # Version History
 
-### Current version: 2.2.4
+### Current version: 2.2.5
+
+**2.2.5**
+
+- `forwardRequest()` and `clientSecretRequest()` find **`$CLIENT_SECRET` at any depth** of `headers`, `data` and `params`, as the server substitutes it, not only in their top-level values. `data: { auth: { key: '$CLIENT_SECRET' } }` now counts.
+- A request that names a secret but carries **no `$CLIENT_SECRET` anywhere is sent without the secret name** instead of being refused with `INVALID_PARAMETER`: there is nothing for the key to fill, so it is forwarded as written, like a request that names none. A `$CLIENT_SECRET` inside a `multipart` body does not count, because that body is never substituted.
 
 **2.2.4**
 

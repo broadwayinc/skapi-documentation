@@ -20,7 +20,6 @@ import type {
     Index,
     Newsletter,
     NewsletterGroup,
-    PostRecordConfig,
     ProgressCallback,
     RTCConnector,
     RTCConnectorParams,
@@ -346,70 +345,6 @@ type Newsletter = {
      * A number for the 0 ~ 99 groups, the group name for a named newsletter group.
      */
     group: number | string;
-}
-```
-
-## PostRecordConfig
-
-```ts
-type PostRecordConfig = {
-    record_id?: string; // when record_id is given, it will update the record with the given record_id. If record_id is not given, it will create a new record.
-    unique_id?: string | null; // You can set unique_id to the record with the given unique_id. null removes unique_id from the record.
-    readonly?: boolean; // When true, record cannot be updated or deleted.
-
-    /** Table name not required when "record_id" is given.*/
-    table?: {
-        /** Max 256 characters, where / ! * # % each count as 3. Blocks control chars and sentinel 􏿿. */
-        name?: string;
-        /** Number range: 0 ~ 99. 'public' = 0, 'authorized' = 1, 'admin' = 99. '*' is shorthand for 'private'. Default: 'public' */
-        access_group?: number | 'private' | '*' | 'public' | 'authorized' | 'admin';
-
-        /** Subscription settings. Never allowed on the project owner's own records. On an update, settings left out keep their stored values, and null removes all subscription settings from the record. */
-        subscription?: {
-            is_subscription_record?: boolean; // When true, this record is a subscription record.
-            upload_to_feed?: boolean; // When true, record will be uploaded to the feed of the subscribers. Off unless set.
-            notify_subscribers?: boolean; // When true, creating the record sends a push notification to the uploader's subscribers who subscribed with get_notified. See "notification".
-            feed_referencing_records?: boolean; // When true, records referencing this record are added to the feed of this record's uploader.
-            notify_referencing_records?: boolean; // When true, every new record referencing this one sends a push notification to this record's uploader's subscribers who subscribed with get_notified.
-        } | null;
-    };
-
-    /** Text of the push notification sent when the record is created with table.subscription.notify_subscribers. Both required, together at most 3072 bytes. Without it, subscribers see a default text. Ignored on updates. */
-    notification?: {
-        title: string;
-        body: string;
-    } | null;
-
-    source?: {
-        referencing_limit?: number; // Default: null (Infinite)
-        prevent_multiple_referencing?: boolean; // If true, a single user can reference this record only once.
-        can_remove_referencing_records?: boolean; // When true, owner of the record can remove any record that are referencing this record. Also when this record is deleted, all the record referencing this record will be deleted.
-        only_granted_can_reference?: boolean; // When true, only the user who has granted private access to the record can reference this record.
-        /** Index restrictions for referencing records. null removes all restrictions. */
-        referencing_index_restrictions?: {
-            name: string; // Allowed index name
-            value?: string | number | boolean; // Allowed index value
-            range?: string | number | boolean; // Allowed index range
-            condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne' | '>' | '>=' | '<' | '<=' | '=' | '!='; // Allowed index value condition. Checked when a referencing record is posted: on a string value '>=' is a 'starts with' check, while '<=' is a plain 'lesser or equal' comparison and is not 'ends with'.
-        }[] | null;
-        allow_granted_to_grant_others?: boolean; // When true, the user who has granted private access to the record can grant access to other users.
-    };
-
-    /** Can be record ID or unique ID */
-    reference?: string | null; // null removes reference from the record.
-
-    /** null removes index */
-    index?: {
-        /** Max 256 characters, where / ! * # % each count as 3. Cannot start with "$". Blocks control chars and sentinel 􏿿. */
-        name: string;
-        /** String value max 256 characters. Any punctuation is allowed and counts as one character, and values compare exactly as written. Blocks control chars and sentinel 􏿿. */
-        value: string | number | boolean;
-    } | null;
-
-    tags?: string[] | null; // null removes all tags. each tag 1..256 characters, where / ! * # % each count as 3. Blocks control chars and sentinel 􏿿.
-    remove_bin?: BinaryFile[] | string[] | null; // Removes bin data from the record. When null, it will remove all bin data.
-    progress?: ProgressCallback; // Callback for database request progress. Useful when building progress bar.
-    reference_private_key?: string; // When referencing a record that has private access, you can provide the private key of the referenced record to pass the access check. This is only required when the referenced record has private access and the user does not have access to the record through subscription or granted access.
 }
 ```
 

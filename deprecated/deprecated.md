@@ -191,14 +191,35 @@ A ticket had one `condition`, a `placeholder` map and a single `action` object:
   "condition": {
     "return200": true,
     "method": "POST",
-    "headers": [ { "key": "x-webhook-source", "operator": "=", "value": "shop" } ],
-    "data": [ { "key": "type", "operator": "=", "value": "order.paid" } ]
+    "headers": [
+      {
+        "key": "x-webhook-source",
+        "operator": "=",
+        "value": "shop"
+      }
+    ],
+    "data": [
+      {
+        "key": "type",
+        "operator": "=",
+        "value": "order.paid"
+      }
+    ]
   },
-  "placeholder": { "ORDER": "order[id]" },
+  "placeholder": {
+    "ORDER": "order[id]"
+  },
   "action": {
-    "request": { "url": "https://api.example.com/orders/$ORDER/ship", "method": "POST",
-                 "headers": { "content-type": "application/json" },
-                 "data": { "event": "${type}" } }
+    "request": {
+      "url": "https://api.example.com/orders/$ORDER/ship",
+      "method": "POST",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "data": {
+        "event": "${type}"
+      }
+    }
   }
 }
 ```
@@ -273,13 +294,21 @@ Once it is saved, the [dry run](/tickets/introduction.md#dry-run) tries the tick
 A ticket's condition could carry a `request`: one HTTP call made while the condition was checked, whose `match` rows were compared with the response before the response was thrown away. It also ran on the dry run, which is otherwise meant to run nothing.
 
 ```json
-"placeholder": { "LICENCE": "licence" },
+"placeholder": {
+  "LICENCE": "licence"
+},
 "condition": {
-    "request": {
-        "url": "https://api.example.com/licences/$LICENCE",
-        "method": "GET",
-        "match": [ { "key": "status", "operator": "=", "value": "active" } ]
-    }
+  "request": {
+    "url": "https://api.example.com/licences/$LICENCE",
+    "method": "GET",
+    "match": [
+      {
+        "key": "status",
+        "operator": "=",
+        "value": "active"
+      }
+    ]
+  }
 }
 ```
 
@@ -288,9 +317,22 @@ It can no longer be registered, at the ticket level or inside a `req` action's c
 The same check is a [`req` action](/tickets/actions.md#req-http-request-with-its-own-condition-and-chain) placed first, with its answer checked by its [response check](/tickets/actions.md#checking-the-response):
 
 ```json
-{ "act": "req",
-  "exe": { "url": "https://api.example.com/licences/${data[licence]}", "method": "GET",
-           "condition": { "data": [ { "key": "status", "operator": "=", "value": "active" } ] } } }
+{
+  "act": "req",
+  "exe": {
+    "url": "https://api.example.com/licences/${data[licence]}",
+    "method": "GET",
+    "condition": {
+      "data": [
+        {
+          "key": "status",
+          "operator": "=",
+          "value": "active"
+        }
+      ]
+    }
+  }
+}
 ```
 
 The actions that should run only when the check passes go after it in the chain, or into its `actions`. Unlike the condition, it can also carry a [Secret Key](/tickets/actions.md#sending-a-secret-key), capture from the answer, and act on it.

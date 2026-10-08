@@ -58,19 +58,90 @@ The **Edit as JSON** toggle at the top of the form shows the same ticket as one 
 
 *JSON mode. Edit or paste the whole ticket, click Apply to load it into the builder, then Register or Update to save.*
 
-```json
-{
-  "ticket_id": "launch-coupon",
-  "description": "Launch coupon",
-  "count": 100,
-  "limit_per_user": 1,
-  "time_to_live": null,
-  "condition": { "method": "GET", "params": [ { "key": "code", "operator": "=", "value": "LAUNCH24" } ] },
-  "actions": [ { "act": "pstr", "exe": { "table": "coupons", "data": { "code": "${params[code]}", "ip": "${ip}" } } } ]
-}
+```ts
+type Ticket = {
+  ticket_id: string;                 // letters, digits, _ and -, up to 64 characters
+  description?: string;              // up to 500 characters
+  count?: number | null;             // uses left; null = unlimited
+  limit_per_user?: number | boolean | null; // per signed-in user; true = 1; false, 0 or null = no limit
+  time_to_live?: number | null;      // expiry, ms since the epoch; null = never
+  condition?: {
+    return200?: boolean;               // answer 200 even when it fails
+    method?: "GET" | "POST";           // absent = both
+    signature?: {
+      secretName: string;                // a Secret Key's name
+      header: string;                    // the header holding the signature
+      algorithm?: "sha256" | "sha1" | "sha512";
+      encoding?: "hex" | "base64";
+      separator?: string;
+      parts?: string[];
+      signed?: string;
+      timestamp?: string;
+      tolerance?: number;
+      secret_encoding?: "raw" | "base64" | "hex";
+      secret_prefix?: string;
+    };
+    ip?: { operator: "=" | "!=" | ">" | ">=" | "<" | "<="; value: string | string[] };
+    user_agent?: { operator: "=" | "!=" | ">" | ">=" | "<" | "<="; value: string | string[] };
+    headers?: Matcher[];                   // request headers
+    data?: Matcher[];                      // POST body
+    params?: Matcher[];                    // query string
+    user?: Matcher[];                      // signed requests only
+    record_access?: string;            // signed requests only
+  };
+  actions: Action[];                 // required; [] = no actions; up to 50 in total
+};
+
+type Matcher = {
+  key: string;                       // "keyname" or a path, such as "param[keyname][0]"
+  operator?: "=" | "!=" | ">" | ">=" | "<" | "<="; // absent = capture only
+  value?: string | number | boolean | null | (string | number | boolean | null)[];
+  setValueWhenMatch?: any;           // the placeholder holds this instead of the field's value
+  placeholder?: string;              // captures the field's value as ${placeholder[NAME]}
+};
+
+type Action =
+  | { act: "pstr"; exe: PostRecord; err?: Action[] } // post a record
+  | { act: "acsg"; exe: { group: number | "admin"; user_id?: string }; err?: Action[] } // set the access group of a user
+  | { act: "acsr"; exe: { record_id: string; user_id?: string | string[] }; err?: Action[] } // grant private access to a record
+  | { act: "req"; exe: HttpRequest; err?: Action[] }; // send an HTTP request, check its response, and run a nested chain on it
+
+type PostRecord = {
+  table: {
+    name: string;
+    access_group: "public" | "authorized" | "admin" | "private" | number; // required in JSON mode
+    subscription?: {                 // needs user_id: the project owner's records cannot have one
+      is_subscription_record?: boolean;     // only the uploader's subscribers can read it
+      upload_to_feed?: boolean;             // shows in subscribers' getFeed()
+      notify_subscribers?: boolean;         // pushes to subscribers when created
+      feed_referencing_records?: boolean;
+      notify_referencing_records?: boolean;
+    } | null;                        // null clears every setting
+  };
+  data?: any;
+  index?: { name: string; value: any };
+  tags?: string[];
+  unique_id?: string;
+  record_id?: string;                // update this record instead of creating one
+  reference?: string;
+  readonly?: boolean;
+  source?: object;
+  user_id?: string;                  // post as this user; absent = the project owner
+};
+
+type HttpRequest = {
+  url: string;
+  method?: "GET" | "POST" | "PUT" | "DELETE"; // absent = GET
+  secretName?: string;               // fills ${CLIENT_SECRET}
+  headers?: { [name: string]: string };
+  data?: any;                        // body, POST and PUT only
+  params?: { [key: string]: string };
+  condition?: { headers?: Matcher[]; data?: Matcher[]; user?: Matcher[]; record_access?: string }; // checked against the response
+  actions?: Action[];                // read the response as ${response}
+};
 ```
 
-`count`, `limit_per_user` and `time_to_live` are optional. `count: null` means unlimited and `time_to_live: null` means never; `time_to_live` is otherwise an absolute time in milliseconds since the epoch. Paste a document, click **Apply**, and the builder fills in from it.
+Every string in `exe` may hold references such as `${data[order][id]}`; see [Conditions](/tickets/conditions.md) and [Actions](/tickets/actions.md) for what each part does. Paste a document of this shape, click **Apply**, and the builder fills in from it. **Apply** refuses a document that leaves out a required parameter and names it: `actions` (write `[]` for a ticket with no actions) and the `access_group` of every `pstr` table, as in `"table": { "name": "orders", "access_group": "public" }`.
 
 JSON mode is the quickest way to register a ticket from an example on these pages, or to copy a ticket from one project to another: switch the toggle on, paste the document, **Apply**, then **Register** or **Update**. The toggle refuses to switch while a field holds something the ticket cannot be saved with, and marks that field, so fix it first. Switching back to the builder with edits you have not applied asks whether to discard them.
 
@@ -162,7 +233,12 @@ A failure answers `400`, or `200` when the ticket has **Always answer 200** on, 
   "code": "CONDITION_FAILED",
   "message": "The \"data\" condition did not match.",
   "stage": "condition",
-  "detail": { "field": "data", "keys": ["type"] },
+  "detail": {
+    "field": "data",
+    "keys": [
+      "type"
+    ]
+  },
   "ticket_id": "order-paid"
 }
 ```
@@ -200,10 +276,6 @@ curl -X POST https://eu73.skapi.dev/publ/check/eu73kXm2PqA9vLb4/f2b6c9e1-3a4d-4c
 
 A row marked `failed: CONDITION_FAILED` whose details say `"field": "signature"` means the secret name, the secret itself, or the way the signature fields describe the header is wrong; a `check` row means the signature verified and the placeholders were captured.
 :::
-
-## Tickets Saved Before This Release
-
-The **Tickets** page marks a ticket saved before this release **previous rules**, and [`getTickets()`](/api-reference/tickets/README.md#gettickets) returns it with `legacy: true`. It keeps running by the rules it was saved with until you save it again. Its form shows it converted to the current format, and saving asks you to confirm, then applies the current rules described in this guide. What those tickets do and what saving changes are listed under [Deprecated](/deprecated/deprecated.md#tickets-saved-before-this-release).
 
 ## Next
 

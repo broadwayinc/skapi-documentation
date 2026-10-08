@@ -17,34 +17,107 @@ Your payment provider reports a completed payment. The ticket records the order,
       "secretName": "payment_webhook",
       "header": "x-signature",
       "separator": ",",
-      "parts": ["t=${timestamp}", "v1=${signature}"],
+      "parts": [
+        "t=${timestamp}",
+        "v1=${signature}"
+      ],
       "signed": "${timestamp}.${body}",
       "timestamp": "${timestamp}"
     },
     "data": [
-      { "key": "type", "operator": "=", "value": "payment.completed" },
-      { "key": "payment[metadata][user_id]", "placeholder": "BUYER" }
+      {
+        "key": "type",
+        "operator": "=",
+        "value": "payment.completed"
+      },
+      {
+        "key": "payment[metadata][user_id]",
+        "placeholder": "BUYER"
+      }
     ]
   },
   "actions": [
-    { "act": "pstr",
-      "exe": { "table": { "name": "orders", "access_group": "admin" },
-               "unique_id": "order-${data[payment][id]}",
-               "index": { "name": "buyer", "value": "${placeholder[BUYER]}" },
-               "data": { "payment": "${data[payment][id]}", "amount": "${data[payment][amount_total]}",
-                         "country": "${data[payment][customer][country]}", "note": "paid via ${data[payment][payment_methods][0]}" } },
-      "err": [ { "act": "req", "exe": { "url": "https://hooks.example.com/alert", "method": "POST",
-                 "headers": { "content-type": "application/json" },
-                 "data": { "text": "order record failed: ${error[message]}" } } } ] },
-    { "act": "acsg", "exe": { "group": 2, "user_id": "${placeholder[BUYER]}" } },
-    { "act": "req",
-      "exe": { "url": "https://api.example.com/fulfil", "method": "POST",
-               "headers": { "content-type": "application/json" },
-               "data": { "user_id": "${result[user_id]}", "payment": "${data[payment][id]}" },
-               "condition": { "data": [ { "key": "status", "operator": "=", "value": "ok" } ] },
-               "actions": [ { "act": "pstr", "exe": { "table": "shipments",
-                              "data": { "id": "${response[shipment][id]}", "carrier": "${response[carrier]}",
-                                        "payment": "${data[payment][id]}" } } } ] } }
+    {
+      "act": "pstr",
+      "exe": {
+        "table": {
+          "name": "orders",
+          "access_group": "admin"
+        },
+        "unique_id": "order-${data[payment][id]}",
+        "index": {
+          "name": "buyer",
+          "value": "${placeholder[BUYER]}"
+        },
+        "data": {
+          "payment": "${data[payment][id]}",
+          "amount": "${data[payment][amount_total]}",
+          "country": "${data[payment][customer][country]}",
+          "note": "paid via ${data[payment][payment_methods][0]}"
+        }
+      },
+      "err": [
+        {
+          "act": "req",
+          "exe": {
+            "url": "https://hooks.example.com/alert",
+            "method": "POST",
+            "headers": {
+              "content-type": "application/json"
+            },
+            "data": {
+              "text": "order record failed: ${error[message]}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "act": "acsg",
+      "exe": {
+        "group": 2,
+        "user_id": "${placeholder[BUYER]}"
+      }
+    },
+    {
+      "act": "req",
+      "exe": {
+        "url": "https://api.example.com/fulfil",
+        "method": "POST",
+        "headers": {
+          "content-type": "application/json"
+        },
+        "data": {
+          "user_id": "${result[user_id]}",
+          "payment": "${data[payment][id]}"
+        },
+        "condition": {
+          "data": [
+            {
+              "key": "status",
+              "operator": "=",
+              "value": "ok"
+            }
+          ]
+        },
+        "actions": [
+          {
+            "act": "pstr",
+            "exe": {
+              "table": {
+                "name": "shipments",
+                "access_group": "admin"
+              },
+              "data": {
+                "id": "${response[shipment][id]}",
+                "carrier": "${response[carrier]}",
+                "payment": "${data[payment][id]}"
+              }
+            }
+          }
+        ]
+      }
+    }
   ]
 }
 ```
@@ -52,9 +125,22 @@ Your payment provider reports a completed payment. The ticket records the order,
 The event this ticket expects looks like this, with the signature in the `x-signature` header:
 
 ```json
-{ "type": "payment.completed",
-  "payment": { "id": "pay_a1B2c3", "amount_total": 4200, "payment_methods": ["card"],
-               "metadata": { "user_id": "<the Skapi user id>" }, "customer": { "country": "KR" } } }
+{
+  "type": "payment.completed",
+  "payment": {
+    "id": "pay_a1B2c3",
+    "amount_total": 4200,
+    "payment_methods": [
+      "card"
+    ],
+    "metadata": {
+      "user_id": "<the Skapi user id>"
+    },
+    "customer": {
+      "country": "KR"
+    }
+  }
+}
 ```
 
 Every value the actions fill in is a reference inside `${ }`, and everything outside `${ }` is sent as written. `${data[...]}` reads this event, `${placeholder[BUYER]}` the value a condition row captured, `${result[...]}` the previous action's result, `${response[...]}` the fulfilment API's answer, and `${error[...]}` the failure an `err` chain handles. See [References](/tickets/conditions.md#references).
@@ -119,9 +205,37 @@ Consuming the ticket writes a log row whose `outcome.actions` lists the actions 
 A link you hand out at launch. The first hundred visits with the right code each write a `coupons` record.
 
 ```json
-{ "ticket_id": "launch-coupon", "description": "Launch coupon", "count": 100, "limit_per_user": 1,
-  "condition": { "method": "GET", "params": [ { "key": "code", "operator": "=", "value": "LAUNCH24" } ] },
-  "actions": [ { "act": "pstr", "exe": { "table": "coupons", "data": { "code": "${params[code]}", "ip": "${ip}" } } } ] }
+{
+  "ticket_id": "launch-coupon",
+  "description": "Launch coupon",
+  "count": 100,
+  "limit_per_user": 1,
+  "condition": {
+    "method": "GET",
+    "params": [
+      {
+        "key": "code",
+        "operator": "=",
+        "value": "LAUNCH24"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "act": "pstr",
+      "exe": {
+        "table": {
+          "name": "coupons",
+          "access_group": "public"
+        },
+        "data": {
+          "code": "${params[code]}",
+          "ip": "${ip}"
+        }
+      }
+    }
+  ]
+}
 ```
 
 `"count": 100`. The first hundred successful consumptions take one each; the next answers `TICKET_EXHAUSTED`. Failed calls do not count.
@@ -161,10 +275,21 @@ A private record, the members guide, that a signed-in user with a verified e-mai
   "limit_per_user": 1,
   "condition": {
     "method": "POST",
-    "user": [ { "key": "email_verified", "operator": "=", "value": true } ]
+    "user": [
+      {
+        "key": "email_verified",
+        "operator": "=",
+        "value": true
+      }
+    ]
   },
   "actions": [
-    { "act": "acsr", "exe": { "record_id": "9x2K4mQ1pL8vB3nR6tW5yZ0cA7dF" } }
+    {
+      "act": "acsr",
+      "exe": {
+        "record_id": "9x2K4mQ1pL8vB3nR6tW5yZ0cA7dF"
+      }
+    }
   ]
 }
 ```
@@ -211,31 +336,75 @@ A service you use sends a webhook when an order changes, but the event is only a
       "secretName": "orders_webhook",
       "header": "x-signature",
       "separator": ",",
-      "parts": ["t=${timestamp}", "v1=${signature}"],
+      "parts": [
+        "t=${timestamp}",
+        "v1=${signature}"
+      ],
       "signed": "${timestamp}.${body}",
       "timestamp": "${timestamp}"
     },
     "data": [
-      { "key": "type", "operator": "=", "value": ["order.created", "order.updated"] }
+      {
+        "key": "type",
+        "operator": "=",
+        "value": [
+          "order.created",
+          "order.updated"
+        ]
+      }
     ]
   },
   "actions": [
-    { "act": "req",
+    {
+      "act": "req",
       "exe": {
         "url": "https://api.example.com/v1/orders/${data[order][id]}",
         "method": "GET",
         "secretName": "orders_api_key",
-        "headers": { "Authorization": "Bearer ${CLIENT_SECRET}" },
+        "headers": {
+          "Authorization": "Bearer ${CLIENT_SECRET}"
+        },
         "condition": {
           "data": [
-            { "key": "status", "operator": "=", "value": "paid" },
-            { "key": "plan", "operator": "=", "value": "basic", "setValueWhenMatch": 2, "placeholder": "GROUP" },
-            { "key": "plan", "operator": "=", "value": ["pro", "team"], "setValueWhenMatch": 3, "placeholder": "GROUP" },
-            { "key": "plan", "operator": "!=", "value": null, "setValueWhenMatch": 1, "placeholder": "GROUP" }
+            {
+              "key": "status",
+              "operator": "=",
+              "value": "paid"
+            },
+            {
+              "key": "plan",
+              "operator": "=",
+              "value": "basic",
+              "setValueWhenMatch": 2,
+              "placeholder": "GROUP"
+            },
+            {
+              "key": "plan",
+              "operator": "=",
+              "value": [
+                "pro",
+                "team"
+              ],
+              "setValueWhenMatch": 3,
+              "placeholder": "GROUP"
+            },
+            {
+              "key": "plan",
+              "operator": "!=",
+              "value": null,
+              "setValueWhenMatch": 1,
+              "placeholder": "GROUP"
+            }
           ]
         },
         "actions": [
-          { "act": "acsg", "exe": { "group": "${placeholder[GROUP]}", "user_id": "${response[metadata][user_id]}" } }
+          {
+            "act": "acsg",
+            "exe": {
+              "group": "${placeholder[GROUP]}",
+              "user_id": "${response[metadata][user_id]}"
+            }
+          }
         ]
       }
     }
@@ -252,7 +421,14 @@ The webhook event looks like this, signed like the one in [A Payment Webhook](#a
 and the service's API answers `GET https://api.example.com/v1/orders/ord_8Kq2` with the order:
 
 ```json
-{ "id": "ord_8Kq2", "status": "paid", "plan": "pro", "metadata": { "user_id": "<the Skapi user id>" } }
+{
+  "id": "ord_8Kq2",
+  "status": "paid",
+  "plan": "pro",
+  "metadata": {
+    "user_id": "<the Skapi user id>"
+  }
+}
 ```
 
 ### Before you register

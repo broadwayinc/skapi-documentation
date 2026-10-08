@@ -106,7 +106,9 @@ gemini mcp add --transport http skapi https://mcp.broadwayinc.computer
 ```json [Cursor]
 {
   "mcpServers": {
-    "skapi": { "url": "https://mcp.broadwayinc.computer" }
+    "skapi": {
+      "url": "https://mcp.broadwayinc.computer"
+    }
   }
 }
 ```
@@ -114,7 +116,10 @@ gemini mcp add --transport http skapi https://mcp.broadwayinc.computer
 ```json [VS Code / Copilot]
 {
   "servers": {
-    "skapi": { "type": "http", "url": "https://mcp.broadwayinc.computer" }
+    "skapi": {
+      "type": "http",
+      "url": "https://mcp.broadwayinc.computer"
+    }
   }
 }
 ```
@@ -122,7 +127,9 @@ gemini mcp add --transport http skapi https://mcp.broadwayinc.computer
 ```json [Windsurf]
 {
   "mcpServers": {
-    "skapi": { "serverUrl": "https://mcp.broadwayinc.computer" }
+    "skapi": {
+      "serverUrl": "https://mcp.broadwayinc.computer"
+    }
   }
 }
 ```

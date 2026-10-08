@@ -62,7 +62,7 @@ An action's parameters are templated right before it runs, by the rules in [Temp
 
 | action | templated keys |
 |---|---|
-| `req` | `url`, `method`, `headers`, `data`, `params` |
+| `req` | `url`, `headers`, `data`, `params` |
 | `acsg`, `acsr`, `pstr` | every key of `exe` |
 
 A `req` action's `method` is one of the four methods and `secretName` is the literal name of a Secret Key; neither holds a reference. Its `condition` and `actions` are not templated up front: the condition rows are literal and are checked against the response, and each nested action is templated when it runs, where `${response}` reads that response. Two things apply to a `req` only: a value interpolated into its `url` is [percent-encoded](#url-and-address-rules), and `${CLIENT_SECRET}` resolves in its `headers`, `data` and `params` values when it names a Secret Key (see [Sending a Secret Key](#sending-a-secret-key)).
@@ -105,32 +105,111 @@ Result: `{ record_id, user_id: [...] }`, the users requested.
 
 ## `pstr`: post a record
 
+Posts one record to the project's database, the way [`postRecord()`](/api-reference/database/README.md#postrecord) does from the SDK: the same keys, limits and errors. The one key of its own is `user_id`, which decides who posts it. The full type is the `pstr` member of [`TicketAction`](/api-reference/tickets/README.md#ticketaction).
+
 ```ts
-exe: {
-  table: string | { name: string, access_group?: number | "public" | "authorized" | "admin" | "private", subscription?: {...} },
-  data?: any, index?: { name, value }, tags?: string[], unique_id?: string,
-  record_id?: string,           // update instead of create
-  reference?: string, readonly?: boolean, source?: { ... },
-  user_id?: string              // post as this user instead of the project owner
+{
+  act: "pstr",
+  exe: {
+    table: {                                  // required; a plain name such as "orders" also works
+      name: string;                           // required
+      access_group?: "public" | "authorized" | "admin" | "private" | number; // 0 to 99
+      subscription?: {
+        is_subscription_record?: boolean;
+        upload_to_feed?: boolean;
+        notify_subscribers?: boolean;
+        feed_referencing_records?: boolean;
+        notify_referencing_records?: boolean;
+      } | null;
+    } | string;
+    data?: any;                               // the record's data: any JSON
+    index?: { name: string; value: string | number | boolean };
+    tags?: string[];
+    unique_id?: string;
+    record_id?: string;                       // update this record instead of creating one
+    reference?: string | null;                // a record ID or unique ID
+    readonly?: boolean;
+    source?: {
+      referencing_limit?: number | null;
+      prevent_multiple_referencing?: boolean;
+      can_remove_referencing_records?: boolean;
+      only_granted_can_reference?: boolean;
+      allow_granted_to_grant_others?: boolean;
+      referencing_index_restrictions?: {
+        name: string;
+        value?: string | number | boolean;
+        range?: string | number | boolean;
+        condition?: "=" | "!=" | ">" | ">=" | "<" | "<=";
+      }[] | null;
+    };
+    user_id?: string;                         // a user ID: post as this user. Absent: the project owner
+  };
+  err?: TicketAction[];                       // error chain
 }
 ```
 
-Everything except `user_id` is exactly what [`postRecord()`](/database/create.md) sends: `data` plus the [`PostRecordConfig`](/api-reference/data-types/README.md#postrecordconfig) keys, validated as if the SDK had sent them. So the rules you already know apply. `table` is a name or an object with an `access_group`, `record_id` updates instead of creating, `unique_id` names the record, and what the posting identity may not upload is refused here too, as `ACTION_FAILED` with the operation's `code` and `message` in `detail`.
+### Parameters
 
-By default the record is posted **as the project owner**. Set `user_id` to post it as that user instead (`${user[user_id]}` posts as the signed-in consumer, on [signed requests](/tickets/conditions.md#user) only); the user must exist in the project and be active, otherwise the action fails with `User does not exist.` or `User is not active.`. Keep in mind [what the project owner cannot upload](/admin/intro.md#what-project-owners-cannot-do): a private, subscription or read-only record needs a `user_id`.
+| key | type | required | dashboard field | what it does |
+|---|---|---|---|---|
+| `table` | object, or a table name | yes | | Where the record goes. A plain name, `"orders"`, is read as `{ "name": "orders" }`. |
+| `table.name` | string | yes | **Table** | The table, 1 to 256 characters. See [Creating Records](/database/create.md). |
+| `table.access_group` | `"public"`, `"authorized"`, `"admin"`, `"private"`, or a number from 0 to 99 | yes on the dashboard and in Edit as JSON | **Access group** | Who can read the record. Left out: public on a create, unchanged on an update. `"private"` needs `user_id`. See [Access Restrictions](/database/access-restrictions.md). |
+| `table.subscription` | object of `true`/`false` flags, or `null` | no | **Show advanced (JSON)**, as `"subscription"` | Subscription settings: who sees the record in a feed and who is notified. Needs `user_id`. `null` clears them on an update. See [Subscription options](/database/subscription.md#subscription-options-overview). |
+| `data` | any JSON | no | **Data** | The record's data. |
+| `index` | `{ "name": string, "value": string, number or boolean }` | no | **Index name** and **Index value** | One index to query the record by. See [Indexing](/database/indexing.md). |
+| `tags` | array of strings | no | **Tags**, separated by commas | See [Tags](/database/tags.md). |
+| `unique_id` | string | no | **Unique ID** | A name of your own for the record. Posting the same unique ID again updates that record, so a retried webhook does not duplicate it. See [Unique ID](/database/unique-id.md). |
+| `record_id` | string | no | **Record ID** | The record to update. With it, the action updates instead of creating. See [Updating Records](/database/update-record.md). |
+| `reference` | string or `null` | no | **Show advanced (JSON)** | The record ID or unique ID of a record this one refers to. See [Referencing](/database/referencing.md). |
+| `readonly` | `true` or `false` | no | **Show advanced (JSON)** | `true` makes the record read-only. Needs `user_id`. See [Readonly Record](/database/update-record.md#readonly-record). |
+| `source` | object | no | **Show advanced (JSON)** | Rules for the records that reference this one. See [Reference source settings](/database/referencing.md#reference-source-settings-in-postrecord). |
+| `user_id` | string: a user ID | no | **Post as user** | Who posts the record. See [Who posts the record](#who-posts-the-record). |
 
-On the dashboard, `reference`, `readonly`, `source` and the table's `subscription` are entered under **Show advanced (JSON)** of a Post record action: the first three go into the post, `subscription` into the table.
+Every value may hold references, such as `${data[order][id]}` or `${placeholder[BUYER]}`, filled in right before the action runs ([What is Templated](#what-is-templated)). A value that is one whole reference keeps its type, so `"value": "${placeholder[AMOUNT]}"` can put a number in the index.
 
-Records posted by a ticket are written on the server, so they are never client-side [encrypted](/database/encryption.md), even into `private`.
+Any other key is refused when the ticket is registered, with `Unknown key "<key>" in "actions[0].exe".`. That includes the `postRecord()` options a ticket does not take: `notification`, `remove_bin`, `reference_private_key` and `progress`. A ticket cannot attach files to a record.
 
-Result: the [`RecordData`](/api-reference/data-types/README.md#recorddata) the post returned, so the next action can read `${result[record_id]}`.
+### Who posts the record
+
+- **Without `user_id`**, the project owner posts it. The project owner is not a user of the project, so a record it creates cannot be private, read-only or carry subscription settings (see [What Project Owners Cannot Do](/admin/intro.md#what-project-owners-cannot-do)); the post is refused and the action fails with `ACTION_FAILED`. The exception is an update of another user's record (`record_id`), which the project owner may make read-only or whose subscription settings it may change.
+- **With `user_id`**, that user posts it and the record is theirs. Write `${user[user_id]}` for the signed-in consumer ([signed requests](/tickets/conditions.md#user) only), or a placeholder a condition row captured, such as `${placeholder[BUYER]}`. Once its references are filled in, the value must be:
+  - a user ID, which is a UUID such as `8f3a2c1e-4b5d-4e6f-9a7b-1c2d3e4f5a6b`. Anything else, an empty value included, fails with `ACTION_FAILED`, code `INVALID_PARAMETER` and `Post as user ("user_id") is not a valid user ID (UUID).`
+  - not the project owner's own ID, which fails with `Post as user cannot be the project owner. Leave it empty to post as the project owner.`
+  - a user of this project who is active, otherwise the action fails with `User does not exist.` or `User is not active.`
+
+Any other refusal of the post fails the action with `ACTION_FAILED`, with the operation's `code` and `message` in `detail`.
+
+### On the dashboard
+
+- **Access group** starts at **Public** and is always saved with the action. An action saved without one opens as **Public**.
+- **Show advanced (JSON)** takes `reference`, `readonly`, `source` and `subscription` only: the first three go into the post, `subscription` into the table. Saving refuses any other key, a value of the wrong type and a misspelt flag. A key the card has its own field for, such as `table` or `data`, is refused with the field to use.
+- Saving refuses an action that creates a private or read-only record, or one with subscription settings, while **Post as user** is empty, and marks the field that asks for it. An action with a `record_id` is checked when it runs instead, since the project owner may keep another user's record private or make it read-only.
+
+### Result
+
+The [`RecordData`](/api-reference/data-types/README.md#recorddata) the post returned, so the next action can read `${result[record_id]}`. Records posted by a ticket are written on the server, so they are never client-side [encrypted](/database/encryption.md), even into `private`.
 
 ```json
-{ "act": "pstr",
-  "exe": { "table": { "name": "orders", "access_group": "admin" },
-           "unique_id": "order-${data[payment][id]}",
-           "index": { "name": "buyer", "value": "${placeholder[BUYER]}" },
-           "data": { "payment": "${data[payment][id]}", "amount": "${data[payment][amount_total]}" } } }
+{
+  "act": "pstr",
+  "exe": {
+    "table": {
+      "name": "orders",
+      "access_group": "admin"
+    },
+    "unique_id": "order-${data[payment][id]}",
+    "index": {
+      "name": "buyer",
+      "value": "${placeholder[BUYER]}"
+    },
+    "data": {
+      "payment": "${data[payment][id]}",
+      "amount": "${data[payment][amount_total]}"
+    },
+    "user_id": "${placeholder[BUYER]}"
+  }
+}
 ```
 
 :::tip
@@ -139,19 +218,49 @@ A `unique_id` makes a retried webhook **update** the same record instead of dupl
 
 ## `req`: HTTP request with its own condition and chain
 
+Sends one HTTP request from the server, checks the answer, and can run more actions on it. The full type is the `req` member of [`TicketAction`](/api-reference/tickets/README.md#ticketaction).
+
 ```ts
-exe: {
-  url: string, method?: "GET" | "POST" | "PUT" | "DELETE" (default GET),
-  secretName?: string,                           // a Secret Key: ${CLIENT_SECRET} in headers, data and params values
-  headers?: { [name]: string }, data?: any (POST/PUT body), params?: { [key]: string } (query),
-  condition?: { headers?, data?, user?, record_access? },   // checked against the RESPONSE
-  actions?: Action[]                             // nested chain; ${response} = the response body
+{
+  act: "req",
+  exe: {
+    url: string;                                     // required
+    method?: "GET" | "POST" | "PUT" | "DELETE";      // default "GET"
+    secretName?: string;                             // the name of a Secret Key
+    headers?: { [name: string]: string };
+    data?: any;                                      // the body: POST and PUT only
+    params?: { [key: string]: any };                 // the query string
+    condition?: {                                    // checks the response
+      headers?: { key: string; operator: Operator; value: string | string[] }[];
+      data?: TicketConditionRow[];
+      user?: { key: string; operator: Operator; value: any }[];
+      record_access?: string;
+    };
+    actions?: TicketAction[];                        // run on the response, read as ${response}
+  };
+  err?: TicketAction[];                              // error chain
 }
+// Operator: "=" | "!=" | ">" | ">=" | "<" | "<="
 ```
 
-`req` sends a request and then checks its answer: `condition` against the response, then `actions`, which read the response body as `${response}` and `${response[key]}`. `${data}` is still the request the ticket received.
+### Parameters
 
-`data` is the body, sent on POST and PUT only, as JSON when a `content-type` header says `application/json` and otherwise form encoded. `params` is added to the URL's query string on every method. Every request carries `X-Skapi-Ticket: <service_id>/<ticket_id>`, so your server can tell which ticket is calling.
+| key | type | required | dashboard field | what it does |
+|---|---|---|---|---|
+| `url` | string | yes | **URL** | Where the request goes: `http://` or `https://` and a hostname. References in it are percent-encoded. See [URL and address rules](#url-and-address-rules). |
+| `method` | `"GET"`, `"POST"`, `"PUT"` or `"DELETE"` | no, default `"GET"` | **Method** | Written out, never a reference. |
+| `secretName` | string | no | **Secret key** | The name of a [Secret Key](/api-bridge/client-secret-request.md#registering-secret-keys) of the project, written out. Its value replaces `${CLIENT_SECRET}` in `headers`, `data` and `params`. See [Sending a Secret Key](#sending-a-secret-key). |
+| `headers` | object of header name to string | no | **Headers**, a JSON object | Request headers, their values templated. `Host` and `X-Skapi-Ticket` cannot be set. See [Headers](#headers). |
+| `data` | any JSON | no | **Body**, shown for POST and PUT | The request body. Sent as JSON when a `content-type` header says `application/json`, otherwise form encoded. Not sent on GET or DELETE. |
+| `params` | object | no | **Query**, a JSON object | Added to the URL's query string on every method. A value that is not text is sent as compact JSON: `2` as `2`, `["a","b"]` as `["a","b"]`. |
+| `condition` | object | no | **[Check the response]** | Checks the answer: `headers` rows against the response headers, `data` rows ([`TicketConditionRow`](/api-reference/tickets/README.md#ticketconditionrow)) against the response body, `user` and `record_access` against the consumer. Literal, never templated. See [Checking the response](#checking-the-response). |
+| `actions` | array of actions | no | **[Show then]** | A chain run after the check passes. Its actions read the answer as `${response}` and `${response[key]}`; `${data}` is still the request the ticket received. |
+
+`url`, `headers`, `data` and `params` are templated right before the call ([What is Templated](#what-is-templated)); `method`, `secretName` and `condition` are used as written, and each nested action is templated when it runs. Any other key is refused when the ticket is registered, with `Unknown key "<key>" in "actions[0].exe".`.
+
+Every request also carries `X-Skapi-Ticket: <service_id>/<ticket_id>`, so your server can tell which ticket is calling.
+
+### Headers
 
 `headers` are sent as written, their values templated. Two headers are the engine's own, and a ticket cannot set either: registration refuses them whatever their case or surrounding spaces.
 
@@ -165,19 +274,52 @@ A header name must be ASCII, with no `:`, line break or NUL. A header value cann
 
 What a reference fills in is known only when the call is made, and a value read from the request easily breaks the rule (a customer name in Korean, say). Such a call fails with `REQUEST_FAILED` and `detail: { "reason": "invalid_header", "header": "<name>" }` before anything is sent, with the same rule in its message: `The "X-Name" header of the request to "api.example.com" cannot be sent: a header value cannot hold line breaks, NUL or characters outside Latin-1 (send such values in the body).` Send such values in the body.
 
+### Failures and the result
+
 A status of 300 or above, a refused address, a connection error or a timeout raises `REQUEST_FAILED`, with `detail: { status, body }` or `detail: { reason }`. `body` is the parsed answer, or, when its text is longer than 4 KB, the first 4 KB of that text (compact JSON for a JSON answer). Redirects are never followed: a 3xx is a failure. The response check runs only on an answer below 300.
 
 Result: the parsed response body.
 
 ```json
-{ "act": "req",
-  "exe": { "url": "https://api.example.com/fulfil", "method": "POST",
-           "headers": { "content-type": "application/json" },
-           "data": { "user_id": "${result[user_id]}", "payment": "${data[payment][id]}" },
-           "condition": { "data": [ { "key": "status", "operator": "=", "value": "ok" } ] },
-           "actions": [ { "act": "pstr", "exe": { "table": "shipments",
-                          "data": { "id": "${response[shipment][id]}", "carrier": "${response[carrier]}",
-                                    "payment": "${data[payment][id]}" } } } ] } }
+{
+  "act": "req",
+  "exe": {
+    "url": "https://api.example.com/fulfil",
+    "method": "POST",
+    "headers": {
+      "content-type": "application/json"
+    },
+    "data": {
+      "user_id": "${result[user_id]}",
+      "payment": "${data[payment][id]}"
+    },
+    "condition": {
+      "data": [
+        {
+          "key": "status",
+          "operator": "=",
+          "value": "ok"
+        }
+      ]
+    },
+    "actions": [
+      {
+        "act": "pstr",
+        "exe": {
+          "table": {
+            "name": "shipments",
+            "access_group": "admin"
+          },
+          "data": {
+            "id": "${response[shipment][id]}",
+            "carrier": "${response[carrier]}",
+            "payment": "${data[payment][id]}"
+          }
+        }
+      }
+    ]
+  }
+}
 ```
 
 The condition row's key `status` is a path in the response body. Inside the nested `pstr`, `${response[shipment][id]}` and `${response[carrier]}` read the answer, while `${data[payment][id]}` still reads the request the ticket received.
@@ -199,11 +341,17 @@ Then `actions` run, reading the answer as `${response}`. They may be any action,
 A `req` can send one of your project's [Secret Keys](/api-bridge/client-secret-request.md#registering-secret-keys), such as the API key of the service it calls, without the key ever being written into the ticket. Name the key in `secretName` (on the dashboard, the **Secret key** select of an HTTP request action), and write `${CLIENT_SECRET}` where its value goes:
 
 ```json
-{ "act": "req",
-  "exe": { "url": "https://api.example.com/v1/orders/${data[order][id]}",
-           "method": "GET",
-           "secretName": "orders_api_key",
-           "headers": { "Authorization": "Bearer ${CLIENT_SECRET}" } } }
+{
+  "act": "req",
+  "exe": {
+    "url": "https://api.example.com/v1/orders/${data[order][id]}",
+    "method": "GET",
+    "secretName": "orders_api_key",
+    "headers": {
+      "Authorization": "Bearer ${CLIENT_SECRET}"
+    }
+  }
+}
 ```
 
 - **`secretName`** is the literal name of a Secret Key, never templated. It must exist when you register; otherwise registration is refused with `"actions[0].exe.secretName": no secret key named "orders_api_key" in Secret Keys.`
@@ -245,11 +393,33 @@ A refused address is `REQUEST_FAILED` with `reason: "refused_address"`.
 
 ```json
 "actions": [
-    { "act": "pstr", "exe": { "table": "orders", "unique_id": "order-${data[payment][id]}",
-                              "data": { "amount": "${data[payment][amount_total]}" } } },
-    { "act": "req", "exe": { "url": "https://api.example.com/notify", "method": "POST",
-                             "headers": { "content-type": "application/json" },
-                             "data": { "record": "${result[record_id]}", "table": "${result[table][name]}" } } }
+  {
+    "act": "pstr",
+    "exe": {
+      "table": {
+        "name": "orders",
+        "access_group": "admin"
+      },
+      "unique_id": "order-${data[payment][id]}",
+      "data": {
+        "amount": "${data[payment][amount_total]}"
+      }
+    }
+  },
+  {
+    "act": "req",
+    "exe": {
+      "url": "https://api.example.com/notify",
+      "method": "POST",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "data": {
+        "record": "${result[record_id]}",
+        "table": "${result[table][name]}"
+      }
+    }
+  }
 ]
 ```
 
@@ -270,14 +440,34 @@ An `err` chain is a normal chain that runs only when its action fails. Inside it
 `${data}` is still the request the ticket received, and the placeholder pool holds everything captured so far.
 
 ```json
-{ "act": "pstr",
-  "exe": { "table": { "name": "orders", "access_group": "admin" }, "data": { "payment": "${data[payment][id]}" } },
+{
+  "act": "pstr",
+  "exe": {
+    "table": {
+      "name": "orders",
+      "access_group": "admin"
+    },
+    "data": {
+      "payment": "${data[payment][id]}"
+    }
+  },
   "err": [
-      { "act": "req",
-        "exe": { "url": "https://hooks.example.com/alert", "method": "POST",
-                 "headers": { "content-type": "application/json" },
-                 "data": { "text": "order record failed: ${error[message]}", "payment": "${data[payment][id]}" } } }
-  ] }
+    {
+      "act": "req",
+      "exe": {
+        "url": "https://hooks.example.com/alert",
+        "method": "POST",
+        "headers": {
+          "content-type": "application/json"
+        },
+        "data": {
+          "text": "order record failed: ${error[message]}",
+          "payment": "${data[payment][id]}"
+        }
+      }
+    }
+  ]
+}
 ```
 
 After the alert is sent, the consumption stops and answers the `pstr` failure, not the alert's outcome. An error chain is for telling someone, or for writing a record of the failure; it cannot make the consumption succeed.
