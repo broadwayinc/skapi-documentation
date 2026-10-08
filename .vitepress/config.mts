@@ -4,6 +4,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import all_files from '../all_files.mjs';
+import { skapiVersion, withVersion } from './skapi-version.mjs'
 import {
   ORIGIN,
   SITE_NAME,
@@ -18,6 +19,8 @@ import {
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const PUBLIC_DIR = path.join(ROOT, 'public')
+// Every `skapi-js@latest` in a page is published as this release (skapi-version.mjs).
+const SKAPI_VERSION = await skapiVersion()
 
 /**
  * The last and the first commit date of every markdown file, from ONE `git log`, for the
@@ -233,6 +236,14 @@ export default defineConfig({
   markdown: {
     image: { lazyLoading: true },
     config(md) {
+      // `skapi-js@latest` in code, inline code, html and text becomes the published version,
+      // after parsing and before anything renders, so highlighting and copy buttons get it too.
+      md.core.ruler.push('skapi_version', (state) => {
+        for (const token of state.tokens) {
+          token.content = withVersion(token.content, SKAPI_VERSION)
+          for (const child of token.children || []) child.content = withVersion(child.content, SKAPI_VERSION)
+        }
+      })
       // width and height on images from public/, so the page does not shift as they load.
       const image = md.renderer.rules.image!
       md.renderer.rules.image = (tokens, idx, options, env, self) => {

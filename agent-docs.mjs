@@ -34,9 +34,12 @@
 import fs from 'fs';
 import path from 'path';
 import all_files, { method_ref, full_examples, api_reference, version_history, deprecated } from './all_files.mjs';
+import { skapiVersion, withVersion } from './.vitepress/skapi-version.mjs';
 import { PAGES, DEFAULT_DESCRIPTION, NOINDEX } from './.vitepress/seo-pages.mjs';
 
 const DOCS_ORIGIN = 'https://docs.skapi.com';
+/** The published skapi-js version every `skapi-js@latest` in a code example is written as. */
+const SKAPI_VERSION = await skapiVersion();
 const OUT_DIR = './public';
 const PAGES_DIR = 'md';
 const PROMPT_FILE = 'SKAPI.md';
@@ -203,7 +206,7 @@ function renderComponents(text, sitePath, report) {
 
 function loadPage(sitePath, report, text) {
     let key = pageKey(sitePath);
-    let raw = text === undefined ? fs.readFileSync('.' + sitePath, 'utf-8') : text;
+    let raw = withVersion(text === undefined ? fs.readFileSync('.' + sitePath, 'utf-8') : text, SKAPI_VERSION);
     let lines = renderComponents(stripFrontmatter(raw), sitePath, report).split(/\r?\n/);
     let headings = [];      // { line, slug, level, text }
     let taken = {};
