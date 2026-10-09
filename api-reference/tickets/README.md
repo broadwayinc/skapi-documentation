@@ -250,8 +250,7 @@ type TicketAction =
         exe: {
             group: number | 'admin' | string; // 1..99. 'admin' is 99. Or a reference that gives one, such as "${placeholder[GROUP]}".
             user_id?: string; // The target. Absent = the consumer.
-            condition?: TicketAnswerCondition; // The Check: rows on the answer. A row that does not pass fails the action.
-            actions?: TicketAction[]; // The Then chain, run after the Check passes. Reads the answer as ${response}.
+            actions?: TicketAction[]; // The Then chain, run after the action. Reads the answer as ${response}; a cond in it checks the answer.
         };
         err?: TicketAction[]; // Error chain, run when this action fails.
         retry?: boolean; // Try again on a failure: up to 3 more times, 1, 2 and 4 seconds apart, within the time budget. Never for a failure inside Then.
@@ -261,7 +260,6 @@ type TicketAction =
         exe: {
             record_id: string; // A record id, not a unique id.
             user_id?: string | string[]; // The grantees. Absent = the consumer.
-            condition?: TicketAnswerCondition;
             actions?: TicketAction[];
         };
         err?: TicketAction[];
@@ -303,7 +301,6 @@ type TicketAction =
                 allow_granted_to_grant_others?: boolean; // When true, the user who has granted private access to the record can grant access to other users.
             };
             user_id?: string; // Post as this user: a user ID (UUID) once its references are filled in, not the project owner's own. Anything else fails the action. Absent = the project owner, who cannot create a private, read-only or subscription record.
-            condition?: TicketAnswerCondition; // The Check: rows on the record posted, such as record_id.
             actions?: TicketAction[]; // The Then chain. Reads the record as ${response}: ${response[record_id]}.
         };
         err?: TicketAction[];
@@ -318,8 +315,28 @@ type TicketAction =
             headers?: { [name: string]: string }; // Values templated. A Host or X-Skapi-Ticket header is refused: the engine sets both. A name that is not ASCII or holds ':', a line break or NUL is refused, and so is a value whose text outside ${...} holds a line break, NUL or a character outside Latin-1. A value that breaks that rule once its references are filled in fails the call (REQUEST_FAILED, reason 'invalid_header').
             data?: any; // POST/PUT body. Sent as JSON when a content-type header says application/json, else form encoded.
             params?: { [key: string]: any }; // Added to the query string on every method. A value that is not text is sent as compact JSON.
-            condition?: Pick<TicketCondition, 'headers' | 'data' | 'user' | 'record_access'>; // Checks the RESPONSE, under the same rules as the ticket's condition. Row keys are paths in the response body.
-            actions?: TicketAction[]; // The Then chain, any action. Reads the response body as ${response} and ${response[key]}; ${data} is still the request the ticket received.
+            actions?: TicketAction[]; // The Then chain, any action, run on an answer below 300. Reads the response body as ${response} and ${response[key]}; ${data} is still the request the ticket received. A cond in it checks the response with its response rows.
+        };
+        err?: TicketAction[];
+        retry?: boolean;
+    }
+    | {
+        act: 'mail'; // Send e-mail: a custom template of the project to one address. Answers the SUCCESS text of the send.
+        exe: {
+            template: string; // The template's ID, as the Custom tab of Automated Emails and the upload reply show it. Literal; it must be stored when the ticket is registered.
+            to: string; // The recipient: one address, or a reference that gives one, such as "${user[email]}" or "${data[email]}".
+            placeholders?: { [name: string]: string | number | boolean }; // Values for the placeholders the template carries, by name: { "order": "${data[order][id]}" } fills ${order}. Templated. "service_name" and "email" (the recipient) are filled by default and may be overwritten here. Up to 30.
+            actions?: TicketAction[]; // The Then chain. Reads the SUCCESS text as ${response}.
+        };
+        err?: TicketAction[];
+        retry?: boolean;
+    }
+    | {
+        act: 'nlsd'; // Send newsletter: a stored newsletter of a group to every subscriber of the group. Answers the SUCCESS text of the send.
+        exe: {
+            group: 'public' | 'authorized' | number | string; // "public", "authorized", a number from 2 to 99, or a named group. Literal.
+            newsletter: string; // The newsletter's message_id (getNewsletters()). Literal; it must be stored under the group when the ticket is registered.
+            actions?: TicketAction[];
         };
         err?: TicketAction[];
         retry?: boolean;
@@ -344,18 +361,15 @@ type TicketAction =
             user?: TicketCondition['user']; // Signed requests only.
             record_access?: string; // Signed requests only.
             placeholder?: { key: string; operator: TicketConditionOperator; value: any }[]; // Rows on the placeholder pool: key is a placeholder name. May compare with null.
-            response?: TicketConditionRow[]; // Rows on the enclosing action's answer. Inside a Then chain only.
-            error?: TicketConditionRow[]; // Rows on the failure. Inside an err chain only.
+            response?: TicketConditionRow[]; // Rows on the enclosing action's answer, whatever its shape: key is a path in it ("record_id" on a posted record, "status" in a response body), "" the whole answer as text. Inside a Then chain only.
+            error?: TicketConditionRow[]; // Rows on the failure: code, message, detail, action, path, or "" for the whole error as text. Inside an err chain only.
         };
         err?: TicketAction[];
     };
 
-type TicketAnswerCondition = {
-    data?: TicketConditionRow[]; // Rows on the action's answer. key is a path in it ("record_id" on a posted record); "" is the whole answer as text, for the SUCCESS text of a grant.
-};
 ```
 
-Every string value of `exe` is templated right before the action runs (for `req`: `url`, `headers`, `data` and `params`; for `resp`: `status`, `body` and `resume`; `method`, `secretName`, a `condition`, a Then chain's `actions` and every part of a `cond` are not). Only text inside `${ }` is a reference, and everything outside it is used as written: `"orders"` and `"order[id]"` are plain text. A string that is exactly one `${...}` keeps the value's type; inside longer text the value becomes text. `$${...}` writes a literal `${...}`.
+Every string value of `exe` is templated right before the action runs (for `req`: `url`, `headers`, `data` and `params`; for `resp`: `status`, `body` and `resume`; `method`, `secretName`, a Then chain's `actions` and every part of a `cond` are not). Only text inside `${ }` is a reference, and everything outside it is used as written: `"orders"` and `"order[id]"` are plain text. A string that is exactly one `${...}` keeps the value's type; inside longer text the value becomes text. `$${...}` writes a literal `${...}`.
 
 | reference | reads |
 |---|---|
@@ -371,7 +385,7 @@ Every string value of `exe` is templated right before the action runs (for `req`
 | `${ticket}`, `${ticket[key]}` | this consumption: `id`, `service`, `owner`, `consume_id`, `timestamp`, `hash` |
 | `${CLIENT_SECRET}` | reserved: see below |
 
-Registration refuses anything else inside `${ }` (`${id}`, `${ip[x]}`, `${placeholder}`, `${[ip]}`), the former `${result}` (an answer is read as `${response}` in the action's Then chain, or captured by its Check), and a reference that can never resolve where it is written (`${response}` outside a Then chain, `${error}` outside an `err` chain), with `INVALID_PARAMETER` and a message that lists the valid forms. A reference that does not resolve when the action runs fails the action before it does anything: `PATH_NOT_FOUND`, `PLACEHOLDER_MISSING`, or `AUTH_REQUIRED` for `${user}` on a request that is not signed in. See [Templating](/tickets/conditions.md#templating).
+Registration refuses anything else inside `${ }` (`${id}`, `${ip[x]}`, `${placeholder}`, `${[ip]}`), the former `${result}` (an answer is read as `${response}` in the action's Then chain, or captured there by a Condition), and a reference that can never resolve where it is written (`${response}` outside a Then chain, `${error}` outside an `err` chain), with `INVALID_PARAMETER` and a message that lists the valid forms. A reference that does not resolve when the action runs fails the action before it does anything: `PATH_NOT_FOUND`, `PLACEHOLDER_MISSING`, or `AUTH_REQUIRED` for `${user}` on a request that is not signed in. See [Templating](/tickets/conditions.md#templating).
 
 `${CLIENT_SECRET}` is only allowed in the `headers`, `data` and `params` values of a `req` that names a `secretName`, and registration refuses it anywhere else. Each call is held to the Destinations of the Secret Key it carries, and every copy of the key's value in the response, as sent or escaped up to three times over with percent-encoding, backslash escapes and HTML character references (mixed character by character), is replaced by the text `${CLIENT_SECRET}` before it is checked, logged or returned in an error. A copy escaped four times over is not found, and one is not guaranteed to be found when a round of escaping left part of an earlier round's escape readable on its own, such as the `%BA` of `%&#68;0%BA`. The whole response is searched and passed on, never cut. When the 25 second budget runs out while a long one is searched, the action fails with `REQUEST_FAILED` and `detail: { reason: "timeout" }`. A key that no longer exists fails the action with `REQUEST_FAILED` and `detail: { reason: "secret_missing", secretName }`. See [Sending a Secret Key](/tickets/actions.md#sending-a-secret-key).
 

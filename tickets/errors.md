@@ -43,7 +43,7 @@ The status is `400`, or `200` when the ticket's `return200` is on. `INTERNAL_ERR
 | `TIMEOUT` | action | the 25 s consumption budget ran out before an action (or its HTTP call) could start; its `err` chain is skipped | `{ "elapsed_ms": n }` |
 | `ACTION_FAILED` | action | the underlying Skapi operation refused (record post, access grant, group update) | `{ "code": "<the operation's code>", "message": "<its message>" }` |
 | `ACTION_FORBIDDEN` | action | the action is not available to this project | |
-| `QUOTA_EXCEEDED` | action (`resp`) | a Respond would queue a run past the month's queued ticket runs, on a plan that stops there (Trial, Standard) | `{ "field": "tkq", "limit": n, "used": n, "month": "YYYYMM" }`. See [Going on later](/tickets/actions.md#going-on-later-queued-runs) |
+| `QUOTA_EXCEEDED` | action (`resp`, `mail`, `nlsd`) | a Respond would queue a run past the month's queued ticket runs, on a plan that stops there (Trial, Standard): `{ "field": "tkq", "limit": n, "used": n, "month": "YYYYMM" }`, see [Going on later](/tickets/actions.md#going-on-later-queued-runs). A Send e-mail or a Send newsletter past the month's e-mail sends, the Trial owner cap or the complaint shutoff: `{ "field": "emlsd" }`, see [Sending limits](/email/newsletters.md#sending-limits) | |
 | `ALREADY_RESPONDED` | action (`resp`) | a Respond ran after the consumer was already answered | `{ "path": "actions[2]" }` |
 | `INTERNAL_ERROR` | any | unexpected exception (reported to Skapi) | |
 
@@ -139,9 +139,8 @@ Beside the consumption row, every action that ran has a row of its own, keyed `@
   "from": { "ticket_id": "order-paid", "consume_id": "UwdAhf6k3Qp" },
   "path": "actions[0]", "act": "req", "ok": true,
   "started": <ms>, "ended": <ms>, "attempts": 1,
-  "request": { ... },               // what the action sent, its references filled in (a Secret Key value never)
+  "request": { ... },               // what the action sent, its references filled in (a Secret Key value never); for a Condition, its rows with what each found
   "response": <the answer, up to 200 KB>,
-  "check": [ { "key": "status", "found": true, "value": "ok", "matched": true, "operator": "=", ... } ],  // the Check, row by row
   "retried": [ ... ],               // the earlier failures of a retried action
   "error": { code, message, detail },
   "responded": { "status": 202, "resume": "delay" },   // on a Respond
@@ -161,15 +160,15 @@ The project owner lists them with [`getTickets()`](/api-reference/tickets/README
 
 Open the ticket on the **Tickets** page and switch to the **Log** tab.
 
-![The Log tab of a ticket: four consumptions with their time, consumer and result, one ok, two failed with their error code in red, one dry run marked check, each with a Details link](/screenshots/tickets-logs.webp)
+![The Log tab of a ticket: From and To fields and a Clear log link above five consumptions with their time, consumer and result: a resumed run, a consumption answered 202 and marked queued, two failures with their error code in red, and a dry run marked check, each with a Details link](/screenshots/tickets-logs.webp)
 
-*The Log tab, newest first. A failed consumption names its error code, and a dry run reads check.*
+*The Log tab, newest first. A consumption a Respond answered reads answered 202 with a queued mark, the run that went on later reads resumed, a failed consumption names its error code, and a dry run reads check. From and To narrow the range; Clear log deletes rows before a time.*
 
 Each row shows the **Time**, the **Consumer** (the user id on the signed-in endpoint, otherwise the caller's IP address; the user agent is in the details) and the **Result**: `ok`, `failed: <code>`, `check` for a dry run, `answered <status>` when a Respond answered, or `resumed` for a queued run; a **queued** mark says the consumption's chain goes on later, a **resumed** mark that the row is such a run. Hovering a failed result shows what its code means. **From** and **To** narrow the list to a time range. **[Details]** opens the full log row described above, with the `note` under its header when the request carried one, and lists the [action rows](#the-action-rows) under it, each opening to its own JSON. **Load more** fetches the next page, the refresh icon reloads the log, and **[Clear log]** deletes rows before a time ([Clearing the log](#clearing-the-log)).
 
-![The Consumption dialog for a failed row: the row key with the ticket id, consume id and caller, then the JSON log with the request data and headers and an outcome whose first action succeeded and whose second failed](/screenshots/tickets-log-details.webp)
+![The Consumption dialog for an answered row: the row key with the ticket id, consume id and caller, a line saying when the rest of the chain goes on, the JSON log, and under it the Actions list with one row per action, the first opened to its own JSON with what it sent, the record it got back and the placeholder pool](/screenshots/tickets-log-details.webp)
 
-*Details of a failed consumption. The outcome lists every action that ran, so you can see that the order was posted and that the access group change is what failed.*
+*Details of an answered consumption. The outcome lists every action that ran, and the Actions list under it opens each action's own row: the Post record was tried twice and posted the order, and the Condition in its Then chain captured the record id.*
 
 Only the project owner sees the log, in the dashboard or by calling [`getTickets()`](#who-may-call-gettickets) with `ticket_id: '#<id>#'`.
 

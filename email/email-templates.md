@@ -46,7 +46,11 @@ In the `Automated Emails` page, select an email type you want to set the templat
   
   Sent when a visitor who is not logged in subscribes to your public newsletter, with a link to confirm the subscription.
 
-The tabs on the page are named **Signup**, **Welcome**, **Verification**, **Invitation** and **Newsletter**. Once you select one, the page shows:
+- **Custom Email**
+  
+  Sent by a ticket's [Send e-mail action](/tickets/actions.md#mail-send-an-e-mail) to the address the ticket names, with the values the ticket fills in. See [Custom e-mails](#custom-e-mails).
+
+The tabs on the page are named **Signup**, **Welcome**, **Verification**, **Invitation**, **Newsletter** and **Custom**; on a narrow screen they are a select. Once you select one, the page shows:
 
 - **Set Template**: the template setter, the email endpoint that takes templates for the selected type. Click the address to copy it, or click **[Compose]** to open a new message to it in your mail app. Every type has its own address.
 - **Placeholders**: the placeholders the selected type fills in, split into **Required** and **Optional**.
@@ -70,7 +74,7 @@ See [Template Placeholders](#template-placeholders) for the full list per type.
 
 ### Choosing the template in use
 
-Every template you send is added to the list of its type, newest first, with its subject and when it was received. The filled circle in the **In use** column marks the one your project sends. To switch, click the empty circle of another template and click **Confirm**.
+Every template you send is added to the list of its type, newest first, with its subject and when it was received. Sending a template never changes the one in use: whichever tab's address you send to, the template is only listed, and nothing changes until you choose it here. The filled circle in the **In use** column marks the one your project sends. To switch, click the circle of another row and confirm.
 
 ![The Set as template confirmation: use "Welcome to ${service_name}! Confirm your email" as the Signup Confirmation template, with Cancel and Confirm buttons](/screenshots/mail-set-template.webp)
 
@@ -124,6 +128,19 @@ A template that passes is added to the list for its type: choose it there to use
 - **DO NOT** share your email endpoint address with anyone. This endpoint is unique to your project and should be kept private.
 - You must use the same email address that you used to signup to Skapi.
 :::
+
+## Custom e-mails
+
+The **Custom** tab holds templates that no event sends on its own: a ticket sends them, with its [Send e-mail action](/tickets/actions.md#mail-send-an-e-mail), to the address the ticket names. An order confirmation, a receipt, a notice to a member who just unlocked something: anything a webhook or a signed-in call should trigger.
+
+![The Automated Emails page on the Custom tab: the Set Template address with a Compose link, the optional placeholders, a Sending row reading By a ticket, and a list of templates with their subject, their template ID with a copy button, and when each was received](/screenshots/mail-custom.webp)
+
+*The Custom tab. Every template has a template ID, which a Send e-mail action names.*
+
+- Send a template to the tab's **Set Template** address the way you send any other, from your project's email address. The reply names its **template ID**, and the list shows the ID next to the subject with a button that copies it.
+- There is no **In use** column: a custom template is never the current template of anything, and nothing is sent until a ticket names it. The tab keeps up to **100** templates; the next one is refused with a reply. Delete templates you no longer need by ticking their rows and clicking the trash icon. A ticket whose template was deleted fails that action when it runs.
+- **Placeholders.** `${service_name}` and `${email}`, the recipient, are filled in by default. Any other `${name}` you write, such as `${order}` or `${name}`, is filled in by the ticket, which gives the values under `placeholders`; a name the ticket does not give stays as written. None is required.
+- Each e-mail a ticket sends counts as one e-mail send of the month, like a newsletter to one subscriber. See [Sending limits](/email/newsletters.md#sending-limits).
 
 ## Overriding the template for a single call
 
@@ -216,15 +233,16 @@ An **optional** one is filled in wherever you use it.
 | Welcome E-Mail | none | `${email}`, `${name}`, `${service_name}` |
 | Verification E-Mail | `${code}` | `${email}`, `${name}`, `${service_name}` |
 | Invitation E-Mail | `https://link.skapi.com`, `${email}`, `${password}` | `${name}`, `${service_name}`, `${username}` |
-| Newsletter Subscription | `https://link.skapi.com` | `${service_name}` |
+| Newsletter Subscription | `https://link.skapi.com` | `${email}`, `${service_name}` |
+| Custom Email | none | `${email}`, `${service_name}`, and any `${name}` of your own that the ticket fills in |
 
 - **`${service_name}`**: Name of your project.
 - **`${name}`**: User's name from the profile. If the user has not set their name, it will be replaced with empty string.
-- **`${email}`**: User's email address.
+- **`${email}`**: The address the e-mail is sent to: the user's email address, or the address a subscription confirmation goes to.
 
 A placeholder's value is always inserted as **text**. A user's name, email address or password can hold any characters, and characters such as `<`, `>` and `&` show exactly as the user typed them, so a value can never add a link, an image or any other markup to your template. In the subject line, a line break in a value becomes a space.
 
-The newsletter subscription confirmation is sent to an email address rather than to a user account, so it has no `${name}` or `${email}`.
+The newsletter subscription confirmation is sent to an email address rather than to a user account, so it has no `${name}`; its `${email}` is that address.
 
 In the `Automated Emails` page, hover over a placeholder to see what it turns into for the selected type, and click it to copy it. See [Placeholder information](#placeholder-information).
 
@@ -298,4 +316,4 @@ email login is not enabled and only the username logs the account in. See
 When user subscribes to your public newsletters user receives subscription confirmation email.
 The subscription confirmation email contains a link to confirm the subscription.
 
-You must include a link with **`https://link.skapi.com`** as its URL in your email content. `${service_name}` is the only other placeholder this email fills in.
+You must include a link with **`https://link.skapi.com`** as its URL in your email content. `${service_name}` and `${email}`, the address being subscribed, are the other placeholders this email fills in.

@@ -188,7 +188,7 @@ A list may hold `null` as a member, such as `[null, "none"]`. It cannot hold `un
 
 ### Null and undefined
 
-Rows of `data` and `params`, and the `data` rows of a [`req` action's response check](/tickets/actions.md#checking-the-response), can also compare with `null` and `undefined`, with their strict JavaScript meaning. A field that is not in the request is `undefined`, never `null`.
+Rows of `data` and `params`, and the `response` rows of a [Condition in a Then chain](/tickets/actions.md#then-on-every-action), can also compare with `null` and `undefined`, with their strict JavaScript meaning. A field that is not in the request is `undefined`, never `null`.
 
 | row | passes when |
 |---|---|
@@ -536,7 +536,7 @@ A condition row's `key` says where the row looks, **relative to its own list**, 
 | `params` | `code` | the query string's `code` |
 | `headers` | `x-webhook-source` | that request header, whatever its case |
 | `user` | `email_verified` | that attribute of the signed-in consumer |
-| `data` of a [response check](/tickets/actions.md#checking-the-response) | `status` | the response body's `status` |
+| `response` of a [Condition in a Then chain](/tickets/actions.md#then-on-every-action) | `status` | the enclosing action's answer, here a response body's `status`; `""` is the whole answer as text |
 
 A key of a `data` or `params` row is a root segment followed by zero or more bracketed segments. Segments are literal keys, with no escaping and no reserved names: a `data` row keyed `ticket[id]` or `placeholder[x]` reads the body's own `ticket` or `placeholder` key. A segment that is all digits indexes a list when the value is a list, and is a key when the value is an object. The root segment may hold letters, digits, `_`, `.` and `-` (`[A-Za-z0-9_][A-Za-z0-9_.\-]*`); a key that does not fit is refused when you register. A `headers` key is the header name, and a `user` key the attribute name.
 
@@ -574,7 +574,7 @@ On the dashboard you rarely type one yourself: the **`${ }`** button next to an 
 | `${user}`, `${user[key]}` | the signed-in consumer's attributes, the ones [`user` rows](#user) read. Signed requests only |
 | `${ip}`, `${user_agent}`, `${method}` | the caller's IP address, its user agent, and the HTTP method |
 | `${record_access}` | the record id the condition's [`record_access`](#record-access) names. Signed requests only |
-| `${response}`, `${response[key]}` | the answer of the enclosing action: the record a `pstr` posted, the parsed body of a `req`'s response, the SUCCESS text of a grant. Only in that action's Then chain (`actions`). See [Check and Then](/tickets/actions.md#check-and-then-on-every-action) |
+| `${response}`, `${response[key]}` | the answer of the enclosing action: the record a `pstr` posted, the parsed body of a `req`'s response, the SUCCESS text of a grant. Only in that action's Then chain (`actions`). See [Then on every action](/tickets/actions.md#then-on-every-action) |
 | `${error}`, `${error[key]}` | in an `err` chain, the failure it handles: `code`, `message`, `detail`, `action`, `path`. See [Error chains](/tickets/actions.md#error-chains-with-error) |
 | `${ticket}`, `${ticket[key]}` | this consumption: `id`, `service`, `owner`, `consume_id`, `timestamp` and `hash` |
 | `${CLIENT_SECRET}` | reserved: the value of a Secret Key, only in the `headers`, `data` and `params` values of a `req` action that names a `secretName`. See [Sending a Secret Key](/tickets/actions.md#sending-a-secret-key) |

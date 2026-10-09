@@ -4,14 +4,14 @@ Actions are what a ticket does once its condition passes. A ticket holds an orde
 
 ```ts
 Action = {
-  act: "acsg" | "acsr" | "pstr" | "req" | "resp" | "cond",
+  act: "acsg" | "acsr" | "pstr" | "req" | "mail" | "nlsd" | "resp" | "cond",
   exe: { ... },            // parameters, templated
   err?: Action[],          // error chain
-  retry?: boolean          // try again on a failure (acsg, acsr, pstr, req)
+  retry?: boolean          // try again on a failure (every action but resp and cond)
 }
 ```
 
-There are six actions:
+There are eight actions:
 
 | `act` | does | answers |
 |---|---|---|
@@ -19,30 +19,32 @@ There are six actions:
 | `acsr` | grant private access to a record | the SUCCESS text of the grant |
 | `pstr` | post a record | the record |
 | `req` | send an HTTP request | the parsed response body |
+| `mail` | send a custom e-mail to one address | the SUCCESS text of the send |
+| `nlsd` | send a stored newsletter to a group | the SUCCESS text of the send |
 | `resp` | answer the caller now, then stop or go on later | |
 | `cond` | a condition inside the chain | |
 
-Every action that answers something can **check** that answer and run a **Then chain** on it; see [Check and Then on every action](#check-and-then-on-every-action).
+Every action that answers something can run a **Then chain** on that answer, and a Condition placed in it checks the answer; see [Then on every action](#then-on-every-action).
 
 ## Actions in the Dashboard
 
 The **Actions** section of a ticket is the chain as cards, one per action, in the order they run.
 
-![The Actions section of a ticket: a Post record card with its table, data, index, tags and unique id fields, its open error chain holding a second Post record card, and a Set access group card below](/screenshots/tickets-actions.webp)
+![The Actions section of a ticket: a Post record card with its fields, and its open Then chain holding a Condition card whose Answer row captures the posted record's id as ORDER_RECORD, and a Set access group card with Retry under it](/screenshots/tickets-actions.webp)
 
-*Two actions and one error chain. The first card posts the order and, when that fails, its On error chain writes the failure to a second table. The second card lifts the buyer's access group.*
+*The first action of a payment webhook's chain. It posts the order; in its Then chain a Condition reads the record posted and captures its id, and a Set access group lifts the buyer's access group.*
 
-- The select at the top of a card picks the action: **Post record** (`pstr`), **HTTP request** (`req`), **Set access group** (`acsg`), **Grant record access** (`acsr`), **Respond** (`resp`) or **Condition** (`cond`). The arrows reorder cards, the cross removes one, and **+ Add action** appends one. The label on the card, such as `actions[0]`, is the path the log and the error body use for it.
+- The select at the top of a card picks the action: **Post record** (`pstr`), **HTTP request** (`req`), **Set access group** (`acsg`), **Grant record access** (`acsr`), **Send e-mail** (`mail`), **Send newsletter** (`nlsd`), **Respond** (`resp`) or **Condition** (`cond`). The arrows reorder cards, the cross removes one, and **+ Add action** appends one. The label on the card, such as `actions[0]`, is the path the log and the error body use for it.
 - Each field is one key of `exe`. The **${ }** button next to a field writes a reference for you, and **[Show every reference]** at the top of the section lists every root and what it reads.
 - **[Show advanced (JSON)]** holds the keys a card groups together, such as a `pstr`'s reference, readonly, source and subscription. **[Show other fields (JSON)]** holds keys the card has no control for; they are merged into the action on save.
-- **[Check the answer]** and **[Show then]** on a Post record or a grant hold the card's Check and its Then chain; an **HTTP request** card has **[Check the response]** and **[Show then]** for the same two things. A Then chain reads the answer as `${response[...]}`.
-- **Retry** on those four cards is `retry: true`: the action is tried again on a failure.
+- **[Show then]** on every card but a Respond's and a Condition's holds the card's Then chain, which reads the answer as `${response[...]}`. To check the answer, add a **Condition** card inside it: there its **Answer** rows come first.
+- **Retry** on those six cards is `retry: true`: the action is tried again on a failure.
 - **[Show on error]** opens the card's error chain, labelled **On error** with its level. It is a chain like any other, and its cards read the failure as `${error[...]}`.
 - The line under the section title counts the actions used of the fifty a ticket may hold, and nesting stops at eight levels.
 
 ## How a Chain Runs
 
-Actions run in order. Each action but `resp` and `cond` produces an **answer**, read inside that action's own Then chain as `${response}` and `${response[...]}`, or captured into a placeholder by the action's Check ([Check and Then on every action](#check-and-then-on-every-action)). When the chain ends, the consumer is answered the receipt, unless a [Respond](#resp-answer-the-caller) action answered earlier.
+Actions run in order. Each action but `resp` and `cond` produces an **answer**, read inside that action's own Then chain as `${response}` and `${response[...]}`, or captured into a placeholder by a Condition placed there ([Then on every action](#then-on-every-action)). When the chain ends, the consumer is answered the receipt, unless a [Respond](#resp-answer-the-caller) action answered earlier.
 
 When an action raises, its `err` chain runs (with `${error[...]}` set, and `${data}` still the request the ticket received), and then the whole consumption **stops** and that error is answered. An `err` action that itself raises runs its own `err` chain and stops the error chain; the error originally reported is unchanged. Nothing is rolled back; an action with `retry` is [tried again](#retrying-an-action) first.
 
@@ -74,7 +76,7 @@ An action's parameters are templated right before it runs, by the rules in [Temp
 | `resp` | `status`, `body`, `resume` |
 | `cond` | nothing: its parts are rows, compared as written |
 
-A `req` action's `method` is one of the four methods and `secretName` is the literal name of a Secret Key; neither holds a reference. On every action a `condition` (a Check) is literal rows checked against the answer, and the `actions` of a Then chain are templated when each of them runs, where `${response}` reads that answer. Two things apply to a `req` only: a value interpolated into its `url` is [percent-encoded](#url-and-address-rules), and `${CLIENT_SECRET}` resolves in its `headers`, `data` and `params` values when it names a Secret Key (see [Sending a Secret Key](#sending-a-secret-key)).
+A `req` action's `method` is one of the four methods and `secretName` is the literal name of a Secret Key; neither holds a reference. The `actions` of a Then chain are templated when each of them runs, where `${response}` reads the answer, and the rows of a Condition are literal wherever it sits. Two things apply to a `req` only: a value interpolated into its `url` is [percent-encoded](#url-and-address-rules), and `${CLIENT_SECRET}` resolves in its `headers`, `data` and `params` values when it names a Secret Key (see [Sending a Secret Key](#sending-a-secret-key)).
 
 Templating only touches string **values**, never object keys. `"amount": "${data[payment][amount_total]}"` becomes the number the request carried; `"table": "orders"` stays the text `orders`.
 
@@ -88,7 +90,7 @@ The target is `user_id`, or the consumer when `user_id` is absent (on an anonymo
 
 The same guards apply as to [`grantAccess()`](/api-reference/admin/README.md#grantaccess): the target must be a user of this project, confirmed and not suspended, and the project owner cannot be a target. A refusal is `ACTION_FAILED`, with the operation's own `code` and `message` in `detail`.
 
-Answers the text the grant returns, `SUCCESS: Access has been granted to the user.`, which a Check reads with an empty key and a Then chain as `${response}`.
+Answers the text the grant returns, `SUCCESS: Access has been granted to the user.`, which a Then chain reads as `${response}`, and a Condition in it with the empty key.
 
 ```json
 { "act": "acsg", "exe": { "group": 2, "user_id": "${placeholder[BUYER]}" } }
@@ -114,7 +116,7 @@ Answers the text the grant returns, such as `SUCCESS: Granted 1 user to private 
 
 ## `pstr`: post a record
 
-Posts one record to the project's database, the way [`postRecord()`](/api-reference/database/README.md#postrecord) does from the SDK: the same keys, limits and errors. Its keys of its own are `user_id`, which decides who posts it, and the `condition` and `actions` every action has ([Check and Then](#check-and-then-on-every-action)). The full type is the `pstr` member of [`TicketAction`](/api-reference/tickets/README.md#ticketaction).
+Posts one record to the project's database, the way [`postRecord()`](/api-reference/database/README.md#postrecord) does from the SDK: the same keys, limits and errors. Its keys of its own are `user_id`, which decides who posts it, and the `actions` every action has ([Then on every action](#then-on-every-action)). The full type is the `pstr` member of [`TicketAction`](/api-reference/tickets/README.md#ticketaction).
 
 ```ts
 {
@@ -152,7 +154,6 @@ Posts one record to the project's database, the way [`postRecord()`](/api-refere
       }[] | null;
     };
     user_id?: string;                         // a user ID: post as this user. Absent: the project owner
-    condition?: { data: TicketConditionRow[] }; // the Check: rows on the record posted
     actions?: TicketAction[];                 // the Then chain: reads the record as ${response}
   };
   err?: TicketAction[];                       // error chain
@@ -177,8 +178,7 @@ Posts one record to the project's database, the way [`postRecord()`](/api-refere
 | `readonly` | `true` or `false` | no | **Show advanced (JSON)** | `true` makes the record read-only. Needs `user_id`. See [Readonly Record](/database/update-record.md#readonly-record). |
 | `source` | object | no | **Show advanced (JSON)** | Rules for the records that reference this one. See [Reference source settings](/database/referencing.md#reference-source-settings-in-postrecord). |
 | `user_id` | string: a user ID | no | **Post as user** | Who posts the record. See [Who posts the record](#who-posts-the-record). |
-| `condition` | `{ "data": [rows] }` | no | **[Check the answer]** | Rows on the record posted, such as its `record_id`. See [Check and Then](#check-and-then-on-every-action). |
-| `actions` | array of actions | no | **[Show then]** | A chain run after the Check passes, reading the record as `${response}`. |
+| `actions` | array of actions | no | **[Show then]** | A chain run after the post, reading the record as `${response}`; a Condition in it reads the record's fields, such as `record_id`. See [Then on every action](#then-on-every-action). |
 
 Every value may hold references, such as `${data[order][id]}` or `${placeholder[BUYER]}`, filled in right before the action runs ([What is Templated](#what-is-templated)). A value that is one whole reference keeps its type, so `"value": "${placeholder[AMOUNT]}"` can put a number in the index.
 
@@ -202,7 +202,7 @@ Any other refusal of the post fails the action with `ACTION_FAILED`, with the op
 
 ### Answer
 
-The [`RecordData`](/api-reference/data-types/README.md#recorddata) the post returned, so the Then chain can read `${response[record_id]}` and a Check can capture it into a placeholder. Records posted by a ticket are written on the server, so they are never client-side [encrypted](/database/encryption.md), even into `private`.
+The [`RecordData`](/api-reference/data-types/README.md#recorddata) the post returned, so the Then chain can read `${response[record_id]}`, and a Condition in it can capture it into a placeholder. Records posted by a ticket are written on the server, so they are never client-side [encrypted](/database/encryption.md), even into `private`.
 
 ```json
 {
@@ -232,7 +232,7 @@ A `unique_id` makes a retried webhook **update** the same record instead of dupl
 
 ## `req`: HTTP request with its own condition and chain
 
-Sends one HTTP request from the server, checks the answer, and can run more actions on it. The full type is the `req` member of [`TicketAction`](/api-reference/tickets/README.md#ticketaction).
+Sends one HTTP request from the server and can run more actions on its answer. The full type is the `req` member of [`TicketAction`](/api-reference/tickets/README.md#ticketaction).
 
 ```ts
 {
@@ -244,13 +244,7 @@ Sends one HTTP request from the server, checks the answer, and can run more acti
     headers?: { [name: string]: string };
     data?: any;                                      // the body: POST and PUT only
     params?: { [key: string]: any };                 // the query string
-    condition?: {                                    // checks the response
-      headers?: { key: string; operator: Operator; value: string | string[] }[];
-      data?: TicketConditionRow[];
-      user?: { key: string; operator: Operator; value: any }[];
-      record_access?: string;
-    };
-    actions?: TicketAction[];                        // run on the response, read as ${response}
+    actions?: TicketAction[];                        // run on the response, read as ${response}; a Condition in it checks the response
   };
   err?: TicketAction[];                              // error chain
   retry?: boolean;                                   // try again on a failure
@@ -268,10 +262,9 @@ Sends one HTTP request from the server, checks the answer, and can run more acti
 | `headers` | object of header name to string | no | **Headers**, a JSON object | Request headers, their values templated. `Host` and `X-Skapi-Ticket` cannot be set. See [Headers](#headers). |
 | `data` | any JSON | no | **Body**, shown for POST and PUT | The request body. Sent as JSON when a `content-type` header says `application/json`, otherwise form encoded. Not sent on GET or DELETE. |
 | `params` | object | no | **Query**, a JSON object | Added to the URL's query string on every method. A value that is not text is sent as compact JSON: `2` as `2`, `["a","b"]` as `["a","b"]`. |
-| `condition` | object | no | **[Check the response]** | Checks the answer: `headers` rows against the response headers, `data` rows ([`TicketConditionRow`](/api-reference/tickets/README.md#ticketconditionrow)) against the response body, `user` and `record_access` against the consumer. Literal, never templated. See [Checking the response](#checking-the-response). |
-| `actions` | array of actions | no | **[Show then]** | The Then chain, run after the check passes. Its actions read the answer as `${response}` and `${response[key]}`; `${data}` is still the request the ticket received. |
+| `actions` | array of actions | no | **[Show then]** | The Then chain, run on an answer below 300. Its actions read the answer as `${response}` and `${response[key]}`; `${data}` is still the request the ticket received. A Condition in it checks the response. See [Checking the response](#checking-the-response). |
 
-`url`, `headers`, `data` and `params` are templated right before the call ([What is Templated](#what-is-templated)); `method`, `secretName` and `condition` are used as written, and each nested action is templated when it runs. Any other key is refused when the ticket is registered, with `Unknown key "<key>" in "actions[0].exe".`.
+`url`, `headers`, `data` and `params` are templated right before the call ([What is Templated](#what-is-templated)); `method` and `secretName` are used as written, and each nested action is templated when it runs. Any other key is refused when the ticket is registered, with `Unknown key "<key>" in "actions[0].exe".`.
 
 Every request also carries `X-Skapi-Ticket: <service_id>/<ticket_id>`, so your server can tell which ticket is calling.
 
@@ -291,7 +284,7 @@ What a reference fills in is known only when the call is made, and a value read 
 
 ### Failures and the answer
 
-A status of 300 or above, a refused address, a connection error or a timeout raises `REQUEST_FAILED`, with `detail: { status, body }` or `detail: { reason }`. `body` is the parsed answer, or, when its text is longer than 4 KB, the first 4 KB of that text (compact JSON for a JSON answer). Redirects are never followed: a 3xx is a failure. The response check runs only on an answer below 300.
+A status of 300 or above, a refused address, a connection error or a timeout raises `REQUEST_FAILED`, with `detail: { status, body }` or `detail: { reason }`. `body` is the parsed answer, or, when its text is longer than 4 KB, the first 4 KB of that text (compact JSON for a JSON answer). Redirects are never followed: a 3xx is a failure. The Then chain runs only on an answer below 300.
 
 Answers the parsed response body.
 
@@ -308,16 +301,19 @@ Answers the parsed response body.
       "user_id": "${placeholder[BUYER]}",
       "payment": "${data[payment][id]}"
     },
-    "condition": {
-      "data": [
-        {
-          "key": "status",
-          "operator": "=",
-          "value": "ok"
-        }
-      ]
-    },
     "actions": [
+      {
+        "act": "cond",
+        "exe": {
+          "response": [
+            {
+              "key": "status",
+              "operator": "=",
+              "value": "ok"
+            }
+          ]
+        }
+      },
       {
         "act": "pstr",
         "exe": {
@@ -337,19 +333,17 @@ Answers the parsed response body.
 }
 ```
 
-The condition row's key `status` is a path in the response body. Inside the nested `pstr`, `${response[shipment][id]}` and `${response[carrier]}` read the answer, while `${data[payment][id]}` still reads the request the ticket received.
+The Condition's `response` row reads the response body: its key `status` is a path in it. The `pstr` after it runs only when the row passes; inside it, `${response[shipment][id]}` and `${response[carrier]}` read the answer, while `${data[payment][id]}` still reads the request the ticket received.
 
 ### Checking the response
 
-`condition` checks the answer with the same condition system as the ticket, and the same rules: every part you fill in must pass, an empty part is not checked, and the first part that fails is the one reported. On the dashboard it is the **Check the response** block of an HTTP request action.
+The response is checked by a [Condition](#cond-a-condition-inside-a-chain) action placed in the `req`'s Then chain, with the same condition system as the ticket: every part you fill in must pass, an empty part is not checked, and the first part that fails is the one reported. Its `response` rows read the parsed body, whatever its shape:
 
-- `headers` rows against the response headers. Every header listed must be in the answer and match; rows on the same header are alternatives, and names ignore case.
-- `data` rows against the parsed body, their keys paths in it (`status` is the response's `status`), under [the key rule](/tickets/conditions.md#rows-on-the-same-key) of the ticket's own `data` rows: every key listed must pass, rows on the same key are alternatives, and a missing field is a mismatch. [`null` and `undefined`](/tickets/conditions.md#null-and-undefined), captures, `setValueWhenMatch` and [lookup tables](/tickets/conditions.md#lookup-tables) work the same way. A replacement lands in the response, so `${response[...]}` reads it, and captures land in the shared placeholder pool.
-- `user` and `record_access` against the consumer. Like the ticket's own, they work only for [signed requests](/tickets/conditions.md#user): a webhook has no session, so they always fail for webhooks.
+- a key is a path in the body (`status` is the response's `status`, `shipment[id]` its `shipment.id`), under [the key rule](/tickets/conditions.md#rows-on-the-same-key) of the ticket's own `data` rows: every key listed must pass, rows on the same key are alternatives, and a missing field is a mismatch. A key of `""` reads the whole body as text.
+- [`null` and `undefined`](/tickets/conditions.md#null-and-undefined), captures, `setValueWhenMatch` and [lookup tables](/tickets/conditions.md#lookup-tables) work the same way. A replacement lands in the response, so the actions after the Condition read it as `${response[...]}`, and captures land in the shared placeholder pool.
+- `user` and `record_access` rows read the consumer, like the ticket's own; they work only for [signed requests](/tickets/conditions.md#user). `data`, `params` and `headers` rows still read the request the ticket received. The response headers are not read.
 
-A response has no method, no query string and no status policy, so `method`, `params`, `return200`, `signature`, `ip` and `user_agent` are refused inside a `req` condition.
-
-Then `actions` run, reading the answer as `${response}`. They may be any action, another `req` with a Secret Key of its own included, whose own Then chain reads its answer as `${response}`. A failure anywhere inside, in the HTTP call, in the response check or in the Then chain, is the failure of this `req` action: its `err` chain runs, and `${error[path]}` names the innermost action that failed. It is answered with `stage: "action"` and, in `action`, the innermost action that failed (this `req` for its HTTP call or response check, the nested action for the Then chain), never as a bare condition failure, and is always logged.
+The rest of the chain runs after it, reading the answer as `${response}`. It may hold any action, another `req` with a Secret Key of its own included, whose own Then chain reads its answer as `${response}`. A failure anywhere inside, in the HTTP call or in the Then chain, is the failure of this `req` action: its `err` chain runs, and `${error[path]}` names the innermost action that failed. It is answered with `stage: "action"` and, in `action`, the innermost action that failed (this `req` for its HTTP call, the Condition for a response that does not pass, the nested action for anything else), never as a bare condition failure, and is always logged.
 
 ### Sending a Secret Key
 
@@ -402,6 +396,67 @@ Registration validates the shape of the URL; consumption vets the address on eve
 
 A refused address is `REQUEST_FAILED` with `reason: "refused_address"`.
 
+## `mail`: send an e-mail
+
+```ts
+exe: {
+  template: string;                                  // the template ID of a custom e-mail template, written out
+  to: string;                                        // one e-mail address, templated: "${user[email]}", "${data[email]}"
+  placeholders?: { [name: string]: string | number | boolean }; // values for the template's own ${name} placeholders, templated
+  actions?: TicketAction[];                          // the Then chain, reading the SUCCESS text as ${response}
+}
+```
+
+Sends one e-mail from the project's email alias: the custom template `template` names, with its subject, to the address `to` resolves to. Custom templates are the **Custom** tab of the `Automated Emails` page: a template sent to that tab's address like any other, identified by its **template ID** rather than set in use. See [Custom e-mails](/email/email-templates.md#custom-e-mails).
+
+- **`template`** is the template ID, written out, never a reference, and the template must be on the Custom tab when the ticket is registered; otherwise registration is refused with `"actions[0].exe.template": no custom e-mail template with this ID. Send the template to the Custom address on the Automated Emails page first; its ID is in the reply and on the Custom tab.` A template deleted after registration fails the action with `ACTION_FAILED` when it runs.
+- **`to`** is templated and must be one e-mail address once filled in; anything else fails the action with `ACTION_FAILED`.
+- **`placeholders`** fills the template's own placeholders: a key is a placeholder's name as written in the template without `${ }`, and its value is templated. `${service_name}` and `${email}`, the recipient, are filled in by default, and a key of the same name overrides them. Up to 30, names of letters, digits and `_`, values text, numbers or booleans. A value is inserted as text, never as markup.
+- Counts as **one e-mail send** of the project's month, like a newsletter to one subscriber: the plan's monthly sends, the Trial owner cap and the complaint shutoff apply, and a refusal fails the action with `QUOTA_EXCEEDED` (`detail: { "field": "emlsd" }`), its `err` chain running. See [Sending limits](/email/newsletters.md#sending-limits).
+
+Answers the text `SUCCESS: E-mail sent to <address>.`, which a Then chain reads as `${response}`.
+
+```json
+{
+  "act": "mail",
+  "exe": {
+    "template": "4f1c9e2b7a8d3c6e5b0f1a2d3e4c5b6a",
+    "to": "${user[email]}",
+    "placeholders": { "name": "${user[name]}", "order": "${data[order][id]}" }
+  }
+}
+```
+
+![The Actions section of a ticket: a Send e-mail card with a Template select showing a custom template by its subject, a To field reading ${user[email]} and a Placeholders JSON field; under it a Send newsletter card with a Group select and a Newsletter select](/screenshots/tickets-mail-actions.webp)
+
+*A Send e-mail card picks a template of the Custom tab and names the recipient with a reference; a Send newsletter card picks a group and one of its stored newsletters.*
+
+On the dashboard the **Send e-mail** card has **Template**, a select of the Custom tab's templates, **To** and **Placeholders**, a JSON object.
+
+## `nlsd`: send a newsletter
+
+```ts
+exe: {
+  group: "public" | "authorized" | number | string;  // the list: public, authorized, 2 to 99, or a named group; written out
+  newsletter: string;                                // the newsletter ID of a newsletter stored under that group; written out
+  actions?: TicketAction[];                          // the Then chain, reading the SUCCESS text as ${response}
+}
+```
+
+Sends a **stored** newsletter of the group to every subscriber of the group, the way a newsletter e-mailed to the group's address goes out: one copy each, from the project's email alias, with the unsubscribe link at the bottom. The newsletter may be one that went out before, or one saved with the group's **Save without sending** address; see [Saving a newsletter without sending it](/email/newsletters.md#saving-a-newsletter-without-sending-it).
+
+- **`group`** and **`newsletter`** are written out, never references. The newsletter must be stored under that group when the ticket is registered; otherwise registration is refused with `"actions[0].exe.newsletter": no newsletter with this ID is stored under this group. Its ID is on the Newsletters page.` A newsletter deleted after registration fails the action with `ACTION_FAILED` when it runs.
+- Counts **one e-mail send per subscriber**, under the same limits as an e-mailed newsletter; past them the action fails with `QUOTA_EXCEEDED` (`detail: { "field": "emlsd" }`) before anything is sent. The 15 minute wait between e-mailed newsletters does not apply.
+- The newsletter's row is marked sent: its **Not sent** mark goes, and [`getNewsletters()`](/api-reference/email/README.md#getnewsletters) returns the time in `sent`.
+
+Answers the text `SUCCESS: Newsletter sent to the subscribers of <group>.`, where the group is `public`, `authorized`, `group <n>` or the group's name.
+
+```json
+{ "act": "nlsd", "exe": { "group": "promo", "newsletter": "msg-1" } }
+```
+
+On the dashboard the **Send newsletter** card has a **Group** select and a **Newsletter** select, filled from the `Newsletters` page.
+
 ## `resp`: answer the caller
 
 ```ts
@@ -450,39 +505,40 @@ exe: {
   ip?: Matcher; user_agent?: Matcher;
   user?: Row[]; record_access?: string;            // signed requests only
   placeholder?: Row[];                             // rows on the values captured so far; the key is a placeholder's name
-  response?: Row[];                                // rows on the enclosing action's answer (inside a Then chain only)
-  error?: Row[];                                   // rows on the failure (inside an error chain only)
+  response?: Row[];                                // rows on the enclosing action's answer (inside a Then chain only); key "" is the whole answer as text
+  error?: Row[];                                   // rows on the failure (inside an error chain only); key "" is the whole error as text
 }
 ```
 
-A Condition is the ticket's own condition system placed inside a chain, so a chain can decide halfway through. Every part works as it does in [Conditions and Placeholders](/tickets/conditions.md): the same operators, the [key rule](/tickets/conditions.md#rows-on-the-same-key), captures, `setValueWhenMatch`, and every part you fill in must pass. Three parts are its own: `placeholder` rows read the pool (a row may compare with `null`, for a value a row captured as null), `response` rows read the answer of the action whose Then chain this is, and `error` rows read the failure an `err` chain handles. Registration refuses `response` outside a Then chain, `error` outside an `err` chain, and a Condition with no part at all.
+A Condition is the ticket's own condition system placed inside a chain, so a chain can decide halfway through. Every part works as it does in [Conditions and Placeholders](/tickets/conditions.md): the same operators, the [key rule](/tickets/conditions.md#rows-on-the-same-key), captures, `setValueWhenMatch`, and every part you fill in must pass. Three parts are its own: `placeholder` rows read the pool (a row may compare with `null`, for a value a row captured as null), `response` rows read the answer of the action whose Then chain this is, and `error` rows read the failure an `err` chain handles. Those two read their value whatever its shape: a key is a path in it (`record_id` in a posted record, `shipment[id]` in a response body, `code` in an error), and a key of `""` is the whole value as text, which is how the SUCCESS text of a grant or a send is checked: `{ "key": "", "operator": ">=", "value": "SUCCESS" }`. Registration refuses `response` outside a Then chain, `error` outside an `err` chain, and a Condition with no part at all.
 
-A part that fails fails the chain **here**, with `CONDITION_FAILED`, `stage: "action"` and this action's path, `detail.field` naming the part; the action's `err` chain runs like any other failure. A Condition answers nothing and produces nothing, so it has no Check and no Then chain of its own.
+A part that fails fails the chain **here**, with `CONDITION_FAILED`, `stage: "action"` and this action's path, `detail.field` naming the part; the action's `err` chain runs like any other failure. A Condition answers nothing and produces nothing, so it has no Then chain of its own.
 
 ```json
 { "act": "cond", "exe": { "data": [{ "key": "type", "operator": "=", "value": "payment.completed" }] } }
 ```
 
-On the dashboard the **Condition** card lists the parts, and shows **Answer** rows inside a Then chain and **Error** rows inside an On error chain.
+On the dashboard the **Condition** card lists the parts; inside a Then chain its **Answer** rows come first, and inside an On error chain its **Error** rows.
 
 ## What each action answers
 
-| action | answers | a Check reads it as |
+| action | answers | a Condition in its Then chain reads it as |
 |---|---|---|
 | `pstr` | the [`RecordData`](/api-reference/data-types/README.md#recorddata) the post returned | paths in the record: `record_id`, `table[name]`, `data[amount]` |
 | `req` | the parsed response body | paths in the body: `status`, `shipment[id]` |
 | `acsg` | the text `SUCCESS: Access has been granted to the user.` | the empty key, the whole text |
 | `acsr` | the text `SUCCESS: Granted <n> user to private access of record: <record id>` | the empty key, the whole text |
+| `mail` | the text `SUCCESS: E-mail sent to <address>.` | the empty key, the whole text |
+| `nlsd` | the text `SUCCESS: Newsletter sent to the subscribers of <group>.` | the empty key, the whole text |
 | `resp`, `cond` | nothing | |
 
 This is the SDK's own answer for each operation, so what a Then chain reads as `${response}` is what [`postRecord()`](/api-reference/database/README.md#postrecord), [`grantAccess()`](/api-reference/admin/README.md#grantaccess) and [`grantPrivateRecordAccess()`](/api-reference/database/README.md#grantprivateaccess) resolve with.
 
-## Check and Then on every action
+## Then on every action
 
-Every action that answers something takes two more keys in `exe`:
+Every action that answers something takes one more key in `exe`: **`actions`**, its **Then chain**, run after the action. Inside it `${response}` and `${response[key]}` read the answer, `${data}` is still the request the ticket received, and the pool holds everything captured so far. A failure anywhere inside is the failure of the action the chain belongs to, with the inner action's path in `action.path`; it is never retried.
 
-- **`condition`**, the **Check**: `{ "data": [rows] }`, rows on the answer under the rules of the ticket's own `data` rows, their keys paths in the answer. A key of `""` reads the whole answer as text, which is how the SUCCESS text of a grant is checked: `{ "key": "", "operator": ">=", "value": "SUCCESS" }`. A row that captures lands in the shared placeholder pool, so a value needed further down the chain is captured here. A row that does not pass fails the action with `CONDITION_FAILED` at the action's path, and its `err` chain runs. A `req`'s `condition` stays the [response check](#checking-the-response) it always was, with `headers`, `user` and `record_access` rows as well; the other actions take `data` rows only.
-- **`actions`**, the **Then chain**: run after the Check passes. Inside it `${response}` and `${response[key]}` read the answer, `${data}` is still the request the ticket received, and the pool holds everything captured so far. A failure anywhere inside is the failure of the action the chain belongs to, with the inner action's path in `action.path`; it is never retried.
+To **check** the answer, put a [Condition](#cond-a-condition-inside-a-chain) in the chain. Its `response` rows read the answer under the rules of the ticket's own `data` rows, their keys paths in the answer, and a key of `""` the whole answer as text, which is how the SUCCESS text of a grant or a send is checked: `{ "key": "", "operator": ">=", "value": "SUCCESS" }`. Whatever shape the answer has, a record, a response body or a line of text, the same rows read it. A row that captures lands in the shared placeholder pool, so a value needed further down the ticket is captured here, and a `setValueWhenMatch` lands in the answer, so the actions after it read the replacement as `${response[...]}`. A row that does not pass fails the chain there, with `CONDITION_FAILED` at the Condition's path, and the `err` chain of the action the chain belongs to runs.
 
 ```json
 {
@@ -491,10 +547,13 @@ Every action that answers something takes two more keys in `exe`:
     "table": { "name": "orders", "access_group": "admin" },
     "unique_id": "order-${data[payment][id]}",
     "data": { "amount": "${data[payment][amount_total]}" },
-    "condition": {
-      "data": [{ "key": "record_id", "placeholder": "ORDER_RECORD" }]
-    },
     "actions": [
+      {
+        "act": "cond",
+        "exe": {
+          "response": [{ "key": "record_id", "placeholder": "ORDER_RECORD" }]
+        }
+      },
       {
         "act": "req",
         "exe": {
@@ -509,13 +568,15 @@ Every action that answers something takes two more keys in `exe`:
 }
 ```
 
-The `req` reads the record the `pstr` posted as `${response}`; `${placeholder[ORDER_RECORD]}` reads the same id anywhere later in the ticket, in another chain included. On the dashboard a Post record or a grant has **[Check the answer]** and **[Show then]**, an HTTP request **[Check the response]** and **[Show then]**.
+The Condition captures the id of the record the `pstr` posted, and the `req` reads the record as `${response}`; `${placeholder[ORDER_RECORD]}` reads the same id anywhere later in the ticket, in another chain included. On the dashboard every card but a Respond's and a Condition's has **[Show then]**, and a Condition card placed in a Then chain shows its **Answer** rows first.
+
+A `condition` key on an action, the check of an earlier release, is refused when the ticket is registered: `"actions[0].exe.condition": a response check is a Condition action in the action's Then chain ("actions"): its "response" rows read the answer, whole (key "") or by key.` Saving such a ticket from the dashboard names the field; move the rows into a Condition in the Then chain.
 
 ## Retrying an action
 
-`retry: true` on an `acsg`, `acsr`, `pstr` or `req` action tries it again when it fails: up to **three more times**, with pauses of 1, 2 and 4 seconds, as long as the [time budget](#limits-and-the-time-budget) still holds the pause plus a second. What is retried is the action itself, its Check included; a failure inside its Then chain, and a `TIMEOUT`, are never retried. The last failure is the one reported and the one the `err` chain runs for, once. The log row of the action carries `attempts` and `retried`, the earlier failures, so a call that succeeded on its second try reads `ok after 2 tries` in the dashboard.
+`retry: true` on an `acsg`, `acsr`, `pstr`, `req`, `mail` or `nlsd` action tries it again when it fails: up to **three more times**, with pauses of 1, 2 and 4 seconds, as long as the [time budget](#limits-and-the-time-budget) still holds the pause plus a second. What is retried is the action itself; a failure inside its Then chain, and a `TIMEOUT`, are never retried. The last failure is the one reported and the one the `err` chain runs for, once. The log row of the action carries `attempts` and `retried`, the earlier failures, so a call that succeeded on its second try reads `ok after 2 tries` in the dashboard.
 
-A Respond or a Condition cannot be retried; registration refuses `retry: true` on either with `"actions[0].retry": a Respond cannot be retried.` On the dashboard the four cards have a **Retry** checkbox.
+A Respond or a Condition cannot be retried; registration refuses `retry: true` on either with `"actions[0].retry": a Respond cannot be retried.` On the dashboard the six cards have a **Retry** checkbox.
 
 ## Going on later: queued runs
 

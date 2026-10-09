@@ -364,40 +364,43 @@ A service you use sends a webhook when an order changes, but the event is only a
         "headers": {
           "Authorization": "Bearer ${CLIENT_SECRET}"
         },
-        "condition": {
-          "data": [
-            {
-              "key": "status",
-              "operator": "=",
-              "value": "paid"
-            },
-            {
-              "key": "plan",
-              "operator": "=",
-              "value": "basic",
-              "setValueWhenMatch": 2,
-              "placeholder": "GROUP"
-            },
-            {
-              "key": "plan",
-              "operator": "=",
-              "value": [
-                "pro",
-                "team"
-              ],
-              "setValueWhenMatch": 3,
-              "placeholder": "GROUP"
-            },
-            {
-              "key": "plan",
-              "operator": "!=",
-              "value": null,
-              "setValueWhenMatch": 1,
-              "placeholder": "GROUP"
-            }
-          ]
-        },
         "actions": [
+          {
+            "act": "cond",
+            "exe": {
+              "response": [
+                {
+                  "key": "status",
+                  "operator": "=",
+                  "value": "paid"
+                },
+                {
+                  "key": "plan",
+                  "operator": "=",
+                  "value": "basic",
+                  "setValueWhenMatch": 2,
+                  "placeholder": "GROUP"
+                },
+                {
+                  "key": "plan",
+                  "operator": "=",
+                  "value": [
+                    "pro",
+                    "team"
+                  ],
+                  "setValueWhenMatch": 3,
+                  "placeholder": "GROUP"
+                },
+                {
+                  "key": "plan",
+                  "operator": "!=",
+                  "value": null,
+                  "setValueWhenMatch": 1,
+                  "placeholder": "GROUP"
+                }
+              ]
+            }
+          },
           {
             "act": "acsg",
             "exe": {
@@ -455,15 +458,15 @@ A failed call (an answer of 300 or above, a timeout, a refused address) fails th
 
 ### Checking the answer
 
-The `condition` rows read the order the API returned, under the [same rules](/tickets/actions.md#checking-the-response) as the ticket's own rows. Their keys are paths in the answer:
+The first action of the `req`'s Then chain is a Condition whose `response` rows read the order the API returned, under the [same rules](/tickets/actions.md#checking-the-response) as the ticket's own rows. Their keys are paths in the answer:
 
-- `status` must be `paid`. Any other status fails the check with `CONDITION_FAILED`, `detail: { field: "data", keys: ["status"] }` and `action: { act: "req", path: "actions[0]" }`, and nothing else runs.
+- `status` must be `paid`. Any other status fails the Condition with `CONDITION_FAILED`, `detail: { field: "response", keys: ["status"] }` and `action: { act: "cond", path: "actions[0].actions[0]" }`, and nothing else runs.
 - The three `plan` rows are a [lookup table](/tickets/conditions.md#lookup-tables). The first row that matches wins, so `basic` captures `GROUP` = `2`, `pro` and `team` capture `3`, and the last row, the catch-all, captures `1` for any other plan, so an unknown plan does not fail the ticket.
 
 ### The nested action
 
-`{ "act": "acsg", "exe": { "group": "${placeholder[GROUP]}", "user_id": "${response[metadata][user_id]}" } }` sets the group the lookup table chose for the Skapi user id you stored on the order when it was created, read from the answer with `${response[...]}`. For the order above, it moves the buyer to access group `3`.
+`{ "act": "acsg", "exe": { "group": "${placeholder[GROUP]}", "user_id": "${response[metadata][user_id]}" } }`, the action after the Condition, sets the group the lookup table chose for the Skapi user id you stored on the order when it was created, read from the answer with `${response[...]}`. For the order above, it moves the buyer to access group `3`.
 
 ### What you see afterwards
 
-The log row's `outcome.placeholders` holds `GROUP`, and `outcome.actions` lists the `req` at `actions[0]`, with the order as its result, and the access group change at `actions[0].actions[0]`. The buyer is in the access group of their current plan, however many times the service sends the event.
+The log row's `outcome.placeholders` holds `GROUP`, and `outcome.actions` lists the `req` at `actions[0]`, with the order as its result, the Condition at `actions[0].actions[0]`, and the access group change at `actions[0].actions[1]`. The buyer is in the access group of their current plan, however many times the service sends the event.

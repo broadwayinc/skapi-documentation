@@ -102,15 +102,16 @@ type Matcher = {
 
 type Action =
   | { act: "pstr"; exe: PostRecord; err?: Action[]; retry?: boolean } // post a record
-  | { act: "acsg"; exe: { group: number | "admin"; user_id?: string } & CheckAndThen; err?: Action[]; retry?: boolean } // set the access group of a user
-  | { act: "acsr"; exe: { record_id: string; user_id?: string | string[] } & CheckAndThen; err?: Action[]; retry?: boolean } // grant private access to a record
-  | { act: "req"; exe: HttpRequest; err?: Action[]; retry?: boolean } // send an HTTP request, check its response, and run a nested chain on it
+  | { act: "acsg"; exe: { group: number | "admin"; user_id?: string } & Then; err?: Action[]; retry?: boolean } // set the access group of a user
+  | { act: "acsr"; exe: { record_id: string; user_id?: string | string[] } & Then; err?: Action[]; retry?: boolean } // grant private access to a record
+  | { act: "req"; exe: HttpRequest; err?: Action[]; retry?: boolean } // send an HTTP request and run a nested chain on its response
+  | { act: "mail"; exe: { template: string; to: string; placeholders?: { [name: string]: string | number | boolean } } & Then; err?: Action[]; retry?: boolean } // send a custom e-mail
+  | { act: "nlsd"; exe: { group: "public" | "authorized" | number | string; newsletter: string } & Then; err?: Action[]; retry?: boolean } // send a stored newsletter
   | { act: "resp"; exe: Respond; err?: Action[] }    // answer the caller now, then stop or go on later
   | { act: "cond"; exe: Condition; err?: Action[] }; // a condition inside the chain
 
-type CheckAndThen = {
-  condition?: { data: Matcher[] };   // the Check: rows on the action's answer; key "" is the whole answer as text
-  actions?: Action[];                // the Then chain, reading the answer as ${response}
+type Then = {
+  actions?: Action[];                // the Then chain, reading the answer as ${response}; a Condition in it checks the answer
 };
 
 type Respond = {
@@ -125,8 +126,8 @@ type Condition = {                   // every part as in the ticket's condition,
   user_agent?: { operator: "=" | "!=" | ">" | ">=" | "<" | "<="; value: string | string[] };
   user?: Matcher[]; record_access?: string;
   placeholder?: Matcher[];           // rows on the values captured so far; key = the placeholder's name
-  response?: Matcher[];              // rows on the enclosing action's answer (inside a Then chain only)
-  error?: Matcher[];                 // rows on the failure (inside an error chain only)
+  response?: Matcher[];              // rows on the enclosing action's answer (inside a Then chain only); key "" is the whole answer as text
+  error?: Matcher[];                 // rows on the failure (inside an error chain only); key "" is the whole error as text
 };
 
 type PostRecord = {
@@ -164,7 +165,7 @@ type HttpRequest = {
 };
 ```
 
-Every string in `exe` may hold references such as `${data[order][id]}` (a Check's rows and a Condition's parts are literal); see [Conditions](/tickets/conditions.md) and [Actions](/tickets/actions.md) for what each part does. Paste a document of this shape, click **Apply**, and the builder fills in from it. **Apply** refuses a document that leaves out a required parameter and names it: `actions` (write `[]` for a ticket with no actions) and the `access_group` of every `pstr` table, as in `"table": { "name": "orders", "access_group": "public" }`.
+Every string in `exe` may hold references such as `${data[order][id]}` (a Condition's parts are literal); see [Conditions](/tickets/conditions.md) and [Actions](/tickets/actions.md) for what each part does. Paste a document of this shape, click **Apply**, and the builder fills in from it. **Apply** refuses a document that leaves out a required parameter and names it: `actions` (write `[]` for a ticket with no actions) and the `access_group` of every `pstr` table, as in `"table": { "name": "orders", "access_group": "public" }`.
 
 JSON mode is the quickest way to register a ticket from an example on these pages, or to copy a ticket from one project to another: switch the toggle on, paste the document, **Apply**, then **Register** or **Update**. The toggle refuses to switch while a field holds something the ticket cannot be saved with, and marks that field, so fix it first. Switching back to the builder with edits you have not applied asks whether to discard them.
 

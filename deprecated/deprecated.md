@@ -176,7 +176,7 @@ The SDK's TypeScript still declares `'response'` among the values of `responseTy
 
 ### `${result}` (removed 2026-10-08)
 
-`${result}` and `${result[key]}` read the answer of the previous action in the same chain, by position. An action's answer is now read as `${response}` and `${response[key]}` inside that action's own Then chain (`actions`), or captured into a placeholder by the action's Check (`condition`), on every action that answers something. Registration refuses `${result}` with a message that says so; no stored ticket used it. See [Check and Then on every action](/tickets/actions.md#check-and-then-on-every-action).
+`${result}` and `${result[key]}` read the answer of the previous action in the same chain, by position. An action's answer is now read as `${response}` and `${response[key]}` inside that action's own Then chain (`actions`), or captured there by a Condition action, on every action that answers something. Registration refuses `${result}` with a message that says so; no stored ticket used it. See [Then on every action](/tickets/actions.md#then-on-every-action).
 
 ### Tickets saved before this release
 
@@ -316,9 +316,9 @@ A ticket's condition could carry a `request`: one HTTP call made while the condi
 }
 ```
 
-It can no longer be registered, at the ticket level or inside a `req` action's condition: registration refuses it with `the "request" condition was removed. Call the URL with a req action and check its answer with that action's "condition" instead.`, and drops a blank one (`null`, `{}`, `""`). A ticket saved before this release keeps running its `request` until it is saved again; the dashboard then removes it, after you confirm.
+It can no longer be registered: registration refuses it with `the "request" condition was removed. Call the URL with a req action and check its answer with a Condition action in its Then chain ("actions") instead.`, and drops a blank one (`null`, `{}`, `""`). A ticket saved before this release keeps running its `request` until it is saved again; the dashboard then removes it, after you confirm.
 
-The same check is a [`req` action](/tickets/actions.md#req-http-request-with-its-own-condition-and-chain) placed first, with its answer checked by its [response check](/tickets/actions.md#checking-the-response):
+The same check is a [`req` action](/tickets/actions.md#req-http-request-with-its-own-condition-and-chain) placed first, with its answer checked by a [Condition](/tickets/actions.md#checking-the-response) in its Then chain:
 
 ```json
 {
@@ -326,15 +326,20 @@ The same check is a [`req` action](/tickets/actions.md#req-http-request-with-its
   "exe": {
     "url": "https://api.example.com/licences/${data[licence]}",
     "method": "GET",
-    "condition": {
-      "data": [
-        {
-          "key": "status",
-          "operator": "=",
-          "value": "active"
+    "actions": [
+      {
+        "act": "cond",
+        "exe": {
+          "response": [
+            {
+              "key": "status",
+              "operator": "=",
+              "value": "active"
+            }
+          ]
         }
-      ]
-    }
+      }
+    ]
   }
 }
 ```

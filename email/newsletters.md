@@ -46,12 +46,13 @@ Sending also stops on every plan once a project collects too many spam complaint
 
 Everything about sending happens on the `Newsletters` page of your project in the Skapi dashboard.
 
-- **Tabs.** `Newsletter` is the public list anyone can join with an email address, `Service Email` is the list of your signed-in users, and every [named group](#named-newsletters) you create gets a tab of its own. **+ New group** creates one.
+- **Tabs.** `Newsletter` is the public list anyone can join with an email address, `Service Email` is the list of your signed-in users, and every [named group](#named-newsletters) you create gets a tab of its own. **+ New group** creates one. On a narrow screen the tabs are a select whose last option creates a group.
 - **Send Newsletter.** The sending address of the selected list. Click the address to copy it, or click **[Send]** to open a new message to it in your mail app. Write the newsletter there, send it from your project's email address, and it goes out to every subscriber of that list with an unsubscribe link at the bottom.
+- **Save without sending.** A second address of the list. A newsletter mailed to it is stored and listed with a **Not sent** mark, and goes out to nobody until you send it from the list or a ticket sends it. See [Saving a newsletter without sending it](#saving-a-newsletter-without-sending-it).
 - **Monthly sends.** How many sends this month have used out of the plan's allowance, and the rules that can stop a send.
 - **Subscribers.** How many addresses are on this list and on all lists together. **[View]** opens the list, **[Add]** adds addresses by hand. See [Managing subscribers](#managing-subscribers).
 - **Access.** On a named group's tab, who may subscribe, and **[Delete group]**.
-- **Sent newsletters.** Every newsletter sent to this list with its subject, the date, and how many subscribers read it, complained about it or bounced. Select rows and use the trash icon to delete them from your email storage. Copies already delivered stay in subscribers' inboxes.
+- **Sent newsletters.** Every newsletter sent to this list, and every one saved without sending, with its subject, the date, and how many subscribers read it, complained about it or bounced. Select rows and use the trash icon to delete them from your email storage. Copies already delivered stay in subscribers' inboxes.
 
 The page needs an **email alias**, the address your project sends from. Register it on your project's `Settings` page first: until then the page shows a notice and sends you there.
 
@@ -68,6 +69,25 @@ A newsletter is an ordinary email. Write it in your own mail app and send it to 
 *Composing a newsletter. Any mail app works the same way; there is no editor to learn.*
 
 Skapi forwards the email to every subscriber of that list, adds an unsubscribe link at the bottom, and the newsletter appears under **Sent newsletters** with its subject, the date, and how many subscribers read it, complained or bounced. A newsletter that cannot be sent is answered by a reply from the sending address that says why.
+
+### Saving a newsletter without sending it
+
+Every list has a second address, shown under **Save without sending**, that starts with `nd` where the sending address starts with `nl`:
+
+```
+nd00xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxx@mail.skapi.com
+nd.promo-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxx@mail.skapi.com
+```
+
+A newsletter mailed to it, from your project's email address like any other, is checked and stored the same way but delivered to nobody; the reply says so and names its **newsletter ID**. The row appears under **Sent newsletters** with a **Not sent** mark and a send icon next to its delete icon.
+
+![The Newsletters page with a Save without sending address under the sending address, and a Sent newsletters list whose first row carries a Not sent mark and a send icon](/screenshots/newsletter-not-sent.webp)
+
+*A newsletter saved without sending. The send icon sends it to the list when you are ready.*
+
+- **Send it from the page.** Click the row's send icon and confirm; the page says how many subscribers it goes to. It goes out exactly as a newsletter mailed to the sending address does, counts the same sends, and the mark goes.
+- **Send it from a ticket.** A ticket's [Send newsletter action](/tickets/actions.md#nlsd-send-a-newsletter) names the list and the newsletter ID and sends it when the ticket is consumed: a launch mail at the time a webhook arrives, a reminder a signed-in call triggers. The action may also send again a newsletter that already went out.
+- [`getNewsletters()`](/api-reference/email/README.md#getnewsletters) returns `dry: true` on a newsletter saved this way, and `sent`, the time it was last sent from the page or by a ticket, once it went out.
 
 ## Subscribing Users To Public Newsletters
 
@@ -549,6 +569,8 @@ skapi.getNewsletters().then(newsletters => {
         bounced: string; // Number of bounces
         url: string; // URL of the newsletter
         delivered: number; // Number of users the newsletter was delivered to
+        dry?: boolean; // true on a newsletter saved without sending
+        sent?: number; // when it was last sent from the Newsletters page or by a ticket
     }  
     */
 })
@@ -585,6 +607,8 @@ skapi.getNewsletters({
         bounced: string; // Number of bounces
         url: string; // URL of the newsletter
         delivered: number; // Number of users the newsletter was delivered to
+        dry?: boolean; // true on a newsletter saved without sending
+        sent?: number; // when it was last sent from the Newsletters page or by a ticket
     }  
     */
 })

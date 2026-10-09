@@ -340,6 +340,10 @@ type Newsletter = {
     url: string;
     /** Number users delivered */
     delivered: number;
+    /** true on a newsletter saved without sending (the list's "nd" address); absent once it went out. */
+    dry?: boolean;
+    /** When a stored newsletter was last sent from the Newsletters page or by a ticket's nlsd action, in milliseconds. */
+    sent?: number;
     /**
      * Newsletter group the message was sent to.<br>
      * A number for the 0 ~ 99 groups, the group name for a named newsletter group.
