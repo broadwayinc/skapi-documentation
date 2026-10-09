@@ -88,7 +88,7 @@ Your payment provider reports a completed payment. The ticket records the order,
           "content-type": "application/json"
         },
         "data": {
-          "user_id": "${result[user_id]}",
+          "user_id": "${placeholder[BUYER]}",
           "payment": "${data[payment][id]}"
         },
         "condition": {
@@ -186,11 +186,11 @@ These `${timestamp}`, `${signature}` and `${body}` are the signature's own token
 
 **`actions[1]`: lift the buyer's access group.**
 
-`{ "act": "acsg", "exe": { "group": 2, "user_id": "${placeholder[BUYER]}" } }` sets the buyer to access group `2`, so records posted with `access_group: 2` become readable to them. Its result is `{ user_id, group }`.
+`{ "act": "acsg", "exe": { "group": 2, "user_id": "${placeholder[BUYER]}" } }` sets the buyer to access group `2`, so records posted with `access_group: 2` become readable to them. It answers the SUCCESS text the grant returns.
 
 **`actions[2]`: call your fulfilment API.**
 
-`"data": { "user_id": "${result[user_id]}", "payment": "${data[payment][id]}" }`. `${result[user_id]}` reads the previous action's result, the buyer's id. `${data[payment][id]}` reads the provider's event.
+`"data": { "user_id": "${placeholder[BUYER]}", "payment": "${data[payment][id]}" }`. `${placeholder[BUYER]}` reads the buyer's id the condition captured, at every depth of the chain. `${data[payment][id]}` reads the provider's event.
 
 `"condition"` is checked against the **response**, and its row key `status` is a path in the response body. `status` must be `ok`, else the `req` fails with `CONDITION_FAILED` and `field: "data"`, answered with `stage: "action"` and `action: { act: "req", path: "actions[2]" }` because the failure happened inside the action.
 

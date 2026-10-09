@@ -232,9 +232,6 @@ In the `Automated Emails` page, hover over a placeholder to see what it turns in
 
 Signup confirmation, invitation and newsletter subscription emails carry a link. Put **`https://link.skapi.com`** in your template as the URL of a link, and Skapi replaces it with the real link when the email is sent.
 
-- **`https://link.skapi.app`** is accepted as well.
-- Use the placeholder on its own as the URL, with nothing added to it. A trailing `/` is fine, but a longer domain such as `https://link.skapi.company` does not count as the placeholder.
-
 ## When a template is rejected
 
 Skapi checks every template it receives before saving it. A template is rejected when:

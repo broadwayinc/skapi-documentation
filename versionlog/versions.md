@@ -1,6 +1,14 @@
 # Version History
 
-### Current version: 2.2.5
+### Current version: 2.2.6
+
+**2.2.6**
+
+- `consumeTicket()` resolves with **what the ticket answers**: the receipt `{ ticket_id, consume_id, user_id, is_test, timestamp, hash }` as before, or the `body` a **Respond** action of the ticket composed, as sent and whatever its status. The generic `consumeTicket<T>()` names that body's type. An answer with `stage` still rejects. See [Actions](/tickets/actions.md#resp-answer-the-caller).
+- `getTickets()` takes **`from` and `to`** (milliseconds) on a log listing (`ticket_id: '#<id>#'`), and the owner may list the **action rows** of one consumption with `ticket_id: '@<id>#<consume id>#'`: one row per action that ran, with what it sent, what came back, its Check and its error. See [Errors and Logs](/tickets/errors.md#the-action-rows).
+- New **`clearTicketLog({ ticket_id, before })`** deletes a ticket's log rows before a time (default now), in the background. The remaining count and the per-user limits stay. Project owner only. See [Clearing the log](/tickets/errors.md#clearing-the-log).
+- `TicketAction` gains the **`resp`** (Respond) and **`cond`** (Condition) kinds, a **Check** (`condition`) and a **Then chain** (`actions`) on `acsg`, `acsr` and `pstr` as on `req`, and **`retry`**. `${result}` is gone: an action's answer is read as `${response}` in its Then chain. `TicketErrorCode` gains `QUOTA_EXCEEDED` and `ALREADY_RESPONDED`. See [Actions](/tickets/actions.md).
+- Backend (ships with the API, not the SDK): a ticket's log rows expire after the plan's retention (Free 30 days, Standard 90, Premium never), deleting a ticket deletes its logs, and the ticket rows count as database storage. Queued ticket runs are metered per month. See [Plans and Limits](/introduction/plans.md#queued-ticket-runs).
 
 **2.2.5**
 

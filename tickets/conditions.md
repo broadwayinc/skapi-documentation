@@ -574,10 +574,9 @@ On the dashboard you rarely type one yourself: the **`${ }`** button next to an 
 | `${user}`, `${user[key]}` | the signed-in consumer's attributes, the ones [`user` rows](#user) read. Signed requests only |
 | `${ip}`, `${user_agent}`, `${method}` | the caller's IP address, its user agent, and the HTTP method |
 | `${record_access}` | the record id the condition's [`record_access`](#record-access) names. Signed requests only |
-| `${response}`, `${response[key]}` | the parsed body of the enclosing `req` action's response. Only in that action's nested `actions` |
-| `${result}`, `${result[key]}` | the result of the previous action in the same chain. See [Chaining](/tickets/actions.md#chaining-with-result) |
+| `${response}`, `${response[key]}` | the answer of the enclosing action: the record a `pstr` posted, the parsed body of a `req`'s response, the SUCCESS text of a grant. Only in that action's Then chain (`actions`). See [Check and Then](/tickets/actions.md#check-and-then-on-every-action) |
 | `${error}`, `${error[key]}` | in an `err` chain, the failure it handles: `code`, `message`, `detail`, `action`, `path`. See [Error chains](/tickets/actions.md#error-chains-with-error) |
-| `${ticket}`, `${ticket[key]}` | this consumption: `id`, `service`, `owner`, `consume_id` and `timestamp` |
+| `${ticket}`, `${ticket[key]}` | this consumption: `id`, `service`, `owner`, `consume_id`, `timestamp` and `hash` |
 | `${CLIENT_SECRET}` | reserved: the value of a Secret Key, only in the `headers`, `data` and `params` values of a `req` action that names a `secretName`. See [Sending a Secret Key](/tickets/actions.md#sending-a-secret-key) |
 
 `${data}` is always the request the ticket received, at every depth: in a `req` action's nested actions and in `err` chains as well. The answer of a `req` is `${response}`.
@@ -616,10 +615,10 @@ Inside `${ }`, only the forms in the table above are accepted. Registering anyth
 - a placeholder name that is not a name, such as `${placeholder[1x]}`.
 
 ```
-"actions[0].exe.data.order": "${id}" is not a valid reference. Use one of: ${data}, ${data[key]}, ${params}, ${params[key]}, ${headers[name]}, ${placeholder[NAME]}, ${user}, ${user[key]}, ${ip}, ${user_agent}, ${method}, ${record_access}, ${response}, ${response[key]}, ${result}, ${result[key]}, ${error}, ${error[key]}, ${ticket}, ${ticket[key]} and ${CLIENT_SECRET}.
+"actions[0].exe.data.order": "${id}" is not a valid reference. Use one of: ${data}, ${data[key]}, ${params}, ${params[key]}, ${headers[name]}, ${placeholder[NAME]}, ${user}, ${user[key]}, ${ip}, ${user_agent}, ${method}, ${record_access}, ${response}, ${response[key]}, ${error}, ${error[key]}, ${ticket}, ${ticket[key]} and ${CLIENT_SECRET}.
 ```
 
-A reference written where it can never resolve is refused as well: `${response}` outside a `req` action's nested actions, `${error}` outside an `err` chain, and `${record_access}` when the condition names no record. So is `${CLIENT_SECRET}` anywhere but where [Sending a Secret Key](/tickets/actions.md#sending-a-secret-key) allows it.
+A reference written where it can never resolve is refused as well: `${response}` outside an action's Then chain, `${error}` outside an `err` chain, and `${record_access}` when the condition names no record. So is `${CLIENT_SECRET}` anywhere but where [Sending a Secret Key](/tickets/actions.md#sending-a-secret-key) allows it. `${result}`, which read the previous action's answer by position, is refused with a message that says what replaced it: an answer is read as `${response}` inside the action's Then chain, or captured into a placeholder by the action's Check.
 
 ### When a reference does not resolve
 
@@ -627,7 +626,7 @@ A reference is resolved when its action runs, and one that does not resolve fail
 
 | case | code | detail |
 |---|---|---|
-| the key is not there, such as `${data[coupon]}` on a body without `coupon`, or `${result}` before any action ran | `PATH_NOT_FOUND` | `{ "path": "data[coupon]" }`, the reference without `${ }` |
+| the key is not there, such as `${data[coupon]}` on a body without `coupon`, or `${response[id]}` on an answer without `id` | `PATH_NOT_FOUND` | `{ "path": "data[coupon]" }`, the reference without `${ }` |
 | a placeholder that was never captured | `PLACEHOLDER_MISSING` | `{ "placeholder": "NAME" }` |
 | `${user}` or `${user[key]}` on a request that is not signed in | `AUTH_REQUIRED` | |
 

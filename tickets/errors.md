@@ -1,6 +1,6 @@
 # Errors and Logs
 
-A consumption either succeeds, and answers `{ tkid, hash }`, or fails at one of three stages: `ticket` (the service and the ticket itself), `condition`, or `action`. Every failure is answered with the same flat JSON body, and most failures are written to the ticket's log.
+A consumption either succeeds, and answers `{ tkid, hash }` (or what a [Respond](/tickets/actions.md#resp-answer-the-caller) action composed), or fails at one of three stages: `ticket` (the service and the ticket itself), `condition`, or `action`. Every failure is answered with the same flat JSON body, and most failures are written to the ticket's log.
 
 A ticket the **Tickets** page marks **previous rules** answers differently until it is saved again: see [Tickets saved before this release](/deprecated/deprecated.md#tickets-saved-before-this-release).
 
@@ -43,6 +43,8 @@ The status is `400`, or `200` when the ticket's `return200` is on. `INTERNAL_ERR
 | `TIMEOUT` | action | the 25 s consumption budget ran out before an action (or its HTTP call) could start; its `err` chain is skipped | `{ "elapsed_ms": n }` |
 | `ACTION_FAILED` | action | the underlying Skapi operation refused (record post, access grant, group update) | `{ "code": "<the operation's code>", "message": "<its message>" }` |
 | `ACTION_FORBIDDEN` | action | the action is not available to this project | |
+| `QUOTA_EXCEEDED` | action (`resp`) | a Respond would queue a run past the month's queued ticket runs, on a plan that stops there (Trial, Standard) | `{ "field": "tkq", "limit": n, "used": n, "month": "YYYYMM" }`. See [Going on later](/tickets/actions.md#going-on-later-queued-runs) |
+| `ALREADY_RESPONDED` | action (`resp`) | a Respond ran after the consumer was already answered | `{ "path": "actions[2]" }` |
 | `INTERNAL_ERROR` | any | unexpected exception (reported to Skapi) | |
 
 The ticket-stage codes are the checks of [step 1 of a consumption](/tickets/introduction.md), the condition-stage codes come from [Conditions and Placeholders](/tickets/conditions.md), and the action-stage codes from [Actions](/tickets/actions.md).
@@ -95,7 +97,9 @@ Every successful consumption is logged, and so is every dry run once the ticket 
 
 Ticket-stage failures of a real consumption (`TICKET_NOT_FOUND`, `TICKET_EXPIRED`, `TICKET_EXHAUSTED` and the rest) and failures of `method`, `signature`, `ip`, `user_agent` and `headers` on an anonymous endpoint are not logged, so a scanner hitting your endpoints does not fill the log.
 
-A failed consumption does not take from the count, and does not count toward the per-user limit.
+A failed consumption does not take from the count, and does not count toward the per-user limit. The one exception is a failure a Respond in an error chain answered: the consumer got an answer, so the count is consumed and the per-user counter moves, and the row shows `answered <status> (on error: <code>)`.
+
+A [queued run](/tickets/actions.md#going-on-later-queued-runs) writes a row of its own when it runs, marked **resumed** and naming the consumption it continues, with its own action rows under it.
 
 ## The Log Row
 
@@ -113,14 +117,39 @@ A log row's `description` is a JSON string of this shape:
     "ok": true | false,
     "check": true,                    // dry run only
     "placeholders": { NAME: value },  // the pool at the end (values truncated to 1 KB of JSON each)
-    "actions": [ { "path": "actions[0]", "act": "req", "ok": true, "result": <truncated 1 KB> }
+    "actions": [ { "path": "actions[0]", "act": "req", "ok": true, "result": <truncated 1 KB>, "attempts": 2, "retried": [ { code, message, ... } ] }
                | { "path": "actions[1]", "act": "pstr", "ok": false, "error": { code, message, detail } } ],
+    "responded": { "status": 202, "path": "actions[1]", "at": <ms>, "body": <truncated 1 KB>, "from_error": true },  // what a Respond answered
+    "queued": { "due": <ms>, "run": "<id>", "kind": "now" | "delay" | "at" },  // the run that goes on later
     "error": { code, message, stage, action?, detail? }   // when ok == false
   }
 }
 ```
 
-`outcome.actions` lists every action that ran, in order, with its result or its error, so you can see how far a chain got. `outcome.placeholders` is the pool at the end. The whole string is capped at 60 KB: `data` is truncated first, then the action results.
+`outcome.actions` lists every action that ran, in order, with its answer or its error, so you can see how far a chain got; `attempts` and `retried` appear on an action that was [tried again](/tickets/actions.md#retrying-an-action). `outcome.responded` is what a [Respond](/tickets/actions.md#resp-answer-the-caller) answered, and `outcome.queued` the queued run it left, when there is one. `outcome.placeholders` is the pool at the end. The whole string is capped at 60 KB: `data` is truncated first, then the action results.
+
+The row of a resumed run has, beside `outcome`, `continues` (the consume id of the consumption it goes on with), `queued_at`, `due`, `started`, `ended`, `waited` (ms), `kind` and `run` (its attempt number); a queued run that could not be started after three tries has `skipped` and a failed `outcome`.
+
+### The action rows
+
+Beside the consumption row, every action that ran has a row of its own, keyed `@<ticket_id>#<consume_id>#<path>`, so a consumption's actions can be read one by one and a long chain's detail does not swell the consumption row:
+
+```json
+{
+  "from": { "ticket_id": "order-paid", "consume_id": "UwdAhf6k3Qp" },
+  "path": "actions[0]", "act": "req", "ok": true,
+  "started": <ms>, "ended": <ms>, "attempts": 1,
+  "request": { ... },               // what the action sent, its references filled in (a Secret Key value never)
+  "response": <the answer, up to 200 KB>,
+  "check": [ { "key": "status", "found": true, "value": "ok", "matched": true, "operator": "=", ... } ],  // the Check, row by row
+  "retried": [ ... ],               // the earlier failures of a retried action
+  "error": { code, message, detail },
+  "responded": { "status": 202, "resume": "delay" },   // on a Respond
+  "placeholders": { NAME: value }   // the pool after the action
+}
+```
+
+The project owner lists them with [`getTickets()`](/api-reference/tickets/README.md#gettickets) and `ticket_id: '@<ticket_id>#<consume_id>#'`, and the dashboard shows them under the consumption in its Details dialog. A row is capped at 300 KB; past it the request and the response are cut to 4 KB each and the pool is dropped.
 
 `note` is the `description` key of the request data (the POST body, or the query string on a GET), when it is a string, cut to 500 characters. It is kept for you to read and replaces nothing.
 
@@ -136,13 +165,23 @@ Open the ticket on the **Tickets** page and switch to the **Log** tab.
 
 *The Log tab, newest first. A failed consumption names its error code, and a dry run reads check.*
 
-Each row shows the **Time**, the **Consumer** (the user id on the signed-in endpoint, otherwise the caller's IP address; the user agent is in the details) and the **Result**: `ok`, `failed: <code>`, or `check` for a dry run. Hovering a failed result shows what its code means. **[Details]** opens the full log row described above, with the `note` under its header when the request carried one. **Load more** fetches the next page, and the refresh icon reloads the log.
+Each row shows the **Time**, the **Consumer** (the user id on the signed-in endpoint, otherwise the caller's IP address; the user agent is in the details) and the **Result**: `ok`, `failed: <code>`, `check` for a dry run, `answered <status>` when a Respond answered, or `resumed` for a queued run; a **queued** mark says the consumption's chain goes on later, a **resumed** mark that the row is such a run. Hovering a failed result shows what its code means. **From** and **To** narrow the list to a time range. **[Details]** opens the full log row described above, with the `note` under its header when the request carried one, and lists the [action rows](#the-action-rows) under it, each opening to its own JSON. **Load more** fetches the next page, the refresh icon reloads the log, and **[Clear log]** deletes rows before a time ([Clearing the log](#clearing-the-log)).
 
 ![The Consumption dialog for a failed row: the row key with the ticket id, consume id and caller, then the JSON log with the request data and headers and an outcome whose first action succeeded and whose second failed](/screenshots/tickets-log-details.webp)
 
 *Details of a failed consumption. The outcome lists every action that ran, so you can see that the order was posted and that the access group change is what failed.*
 
 Only the project owner sees the log, in the dashboard or by calling [`getTickets()`](#who-may-call-gettickets) with `ticket_id: '#<id>#'`.
+
+## Clearing the log
+
+**[Clear log]** on the Log tab, or [`clearTicketLog({ ticket_id, before })`](/api-reference/tickets/README.md#clearticketlog) from the SDK, deletes the ticket's log rows (consumptions and their action rows) before a time, which is now unless you pick an earlier one. The rows go in the background over the next minutes. The ticket itself, its remaining count and its per-user limits are unchanged; nothing that was consumed is handed back.
+
+Deleting a ticket deletes all of its logs with it, and drops its queued runs that are still waiting when they come due; the dialog says so before it does.
+
+## How long the log is kept
+
+A ticket's log rows count toward the project's database storage, shown as their own part of the Database figure on the **Plan & Usage** card, and they are kept for the plan's retention: 30 days on Trial, 90 days on Standard, and for good on Premium. A row past its retention expires on its own, and expiring hands nothing back to the count. See [Plans and Limits](/introduction/plans.md#queued-ticket-runs).
 
 ## `getConsumedTickets()`
 
@@ -159,7 +198,7 @@ for (let row of consumed.list) {
 
 ## Who May Call `getTickets()`
 
-[`getTickets()`](/api-reference/tickets/README.md#gettickets) lists the tickets of the project. Any signed-in user may call it, and sees the public part of each ticket: `ticket_id`, `description`, `count`, `time_to_live` and `timestamp`. Conditions, actions and the log are only returned to the project owner: in the dashboard, or when the owner calls `getTickets()` from the SDK. The owner's rows carry `limit_per_user`, `updated`, `condition` and `actions` as well, and the owner may pass `ticket_id: '#<id>#'` to read that ticket's log rows, the way the dashboard's Log tab does. Every other signed-in user, an admin of the project included, is refused a `ticket_id` containing `#` with `INVALID_REQUEST: Invalid ticket id.`.
+[`getTickets()`](/api-reference/tickets/README.md#gettickets) lists the tickets of the project. Any signed-in user may call it, and sees the public part of each ticket: `ticket_id`, `description`, `count`, `time_to_live` and `timestamp`. Conditions, actions and the log are only returned to the project owner: in the dashboard, or when the owner calls `getTickets()` from the SDK. The owner's rows carry `limit_per_user`, `updated`, `condition` and `actions` as well, and the owner may pass `ticket_id: '#<id>#'` to read that ticket's log rows, the way the dashboard's Log tab does, or `'@<id>#<consume_id>#'` for the [action rows](#the-action-rows) of one consumption, with `from` and `to` (milliseconds) for a time range. Every other signed-in user, an admin of the project included, is refused a `ticket_id` containing `#` or `@` with `INVALID_REQUEST: Invalid ticket id.`.
 
 ```js
 let tickets = await skapi.getTickets({});

@@ -101,10 +101,33 @@ type Matcher = {
 };
 
 type Action =
-  | { act: "pstr"; exe: PostRecord; err?: Action[] } // post a record
-  | { act: "acsg"; exe: { group: number | "admin"; user_id?: string }; err?: Action[] } // set the access group of a user
-  | { act: "acsr"; exe: { record_id: string; user_id?: string | string[] }; err?: Action[] } // grant private access to a record
-  | { act: "req"; exe: HttpRequest; err?: Action[] }; // send an HTTP request, check its response, and run a nested chain on it
+  | { act: "pstr"; exe: PostRecord; err?: Action[]; retry?: boolean } // post a record
+  | { act: "acsg"; exe: { group: number | "admin"; user_id?: string } & CheckAndThen; err?: Action[]; retry?: boolean } // set the access group of a user
+  | { act: "acsr"; exe: { record_id: string; user_id?: string | string[] } & CheckAndThen; err?: Action[]; retry?: boolean } // grant private access to a record
+  | { act: "req"; exe: HttpRequest; err?: Action[]; retry?: boolean } // send an HTTP request, check its response, and run a nested chain on it
+  | { act: "resp"; exe: Respond; err?: Action[] }    // answer the caller now, then stop or go on later
+  | { act: "cond"; exe: Condition; err?: Action[] }; // a condition inside the chain
+
+type CheckAndThen = {
+  condition?: { data: Matcher[] };   // the Check: rows on the action's answer; key "" is the whole answer as text
+  actions?: Action[];                // the Then chain, reading the answer as ${response}
+};
+
+type Respond = {
+  status?: number | string;          // 100 to 599, default 200; or a reference
+  body?: any;                        // any JSON, templated; absent = the receipt { tkid, hash }
+  resume?: "stop" | "0m" | string | number; // "stop" (default), "0m" (at once, in the background), "10m" | "2h" | "3d" (after a delay), or a time in ms
+};
+
+type Condition = {                   // every part as in the ticket's condition, plus the three below
+  data?: Matcher[]; params?: Matcher[]; headers?: Matcher[];
+  ip?: { operator: "=" | "!=" | ">" | ">=" | "<" | "<="; value: string | string[] };
+  user_agent?: { operator: "=" | "!=" | ">" | ">=" | "<" | "<="; value: string | string[] };
+  user?: Matcher[]; record_access?: string;
+  placeholder?: Matcher[];           // rows on the values captured so far; key = the placeholder's name
+  response?: Matcher[];              // rows on the enclosing action's answer (inside a Then chain only)
+  error?: Matcher[];                 // rows on the failure (inside an error chain only)
+};
 
 type PostRecord = {
   table: {
@@ -127,7 +150,7 @@ type PostRecord = {
   readonly?: boolean;
   source?: object;
   user_id?: string;                  // post as this user; absent = the project owner
-};
+} & CheckAndThen;                    // condition: rows on the record posted; actions: read it as ${response}
 
 type HttpRequest = {
   url: string;
@@ -141,7 +164,7 @@ type HttpRequest = {
 };
 ```
 
-Every string in `exe` may hold references such as `${data[order][id]}`; see [Conditions](/tickets/conditions.md) and [Actions](/tickets/actions.md) for what each part does. Paste a document of this shape, click **Apply**, and the builder fills in from it. **Apply** refuses a document that leaves out a required parameter and names it: `actions` (write `[]` for a ticket with no actions) and the `access_group` of every `pstr` table, as in `"table": { "name": "orders", "access_group": "public" }`.
+Every string in `exe` may hold references such as `${data[order][id]}` (a Check's rows and a Condition's parts are literal); see [Conditions](/tickets/conditions.md) and [Actions](/tickets/actions.md) for what each part does. Paste a document of this shape, click **Apply**, and the builder fills in from it. **Apply** refuses a document that leaves out a required parameter and names it: `actions` (write `[]` for a ticket with no actions) and the `access_group` of every `pstr` table, as in `"table": { "name": "orders", "access_group": "public" }`.
 
 JSON mode is the quickest way to register a ticket from an example on these pages, or to copy a ticket from one project to another: switch the toggle on, paste the document, **Apply**, then **Register** or **Update**. The toggle refuses to switch while a field holds something the ticket cannot be saved with, and marks that field, so fix it first. Switching back to the builder with edits you have not applied asks whether to discard them.
 
@@ -204,6 +227,8 @@ console.log(unlocked);
 
 `auth: true` with `method: 'GET'` throws `INVALID_PARAMETER: Signed-in consumption is POST only.` before anything is sent.
 
+The object above is the **receipt**. A ticket with a [Respond](/tickets/actions.md#resp-answer-the-caller) action answers what that action composed instead, and `consumeTicket()` resolves with that body as sent, whatever its status: `consumeTicket<{ ok: boolean }>(...)` names its type.
+
 A failed consumption rejects with a `SkapiError` whose `code` is the ticket error code and whose `cause` is the whole error body. See [What consumeTicket() Rejects With](/tickets/errors.md#what-consumeticket-rejects-with).
 
 :::warning
@@ -220,11 +245,13 @@ curl -X POST https://eu73.skapi.dev/tp/eu73kXm2PqA9vLb4/order-paid \
   -d '{ "type": "payment.completed", "payment": { "id": "pay_a1B2c3" } }'
 ```
 
-Success answers `200` with `application/json`:
+Success answers `200` with `application/json`, the receipt:
 
 ```json
 { "tkid": "#order-paid#UwdAhf6k3Qp#203.0.113.7(curl/8.5.0)", "hash": "..." }
 ```
+
+A ticket with a [Respond](/tickets/actions.md#resp-answer-the-caller) action answers that action's `status` and `body` instead, at the moment it runs; the rest of the chain can go on in the background.
 
 A failure answers `400`, or `200` when the ticket has **Always answer 200** on, with a flat JSON error:
 

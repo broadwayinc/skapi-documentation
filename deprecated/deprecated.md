@@ -174,6 +174,10 @@ The SDK's TypeScript still declares `'response'` among the values of `responseTy
 
 ## Tickets
 
+### `${result}` (removed 2026-10-08)
+
+`${result}` and `${result[key]}` read the answer of the previous action in the same chain, by position. An action's answer is now read as `${response}` and `${response[key]}` inside that action's own Then chain (`actions`), or captured into a placeholder by the action's Check (`condition`), on every action that answers something. Registration refuses `${result}` with a message that says so; no stored ticket used it. See [Check and Then on every action](/tickets/actions.md#check-and-then-on-every-action).
+
 ### Tickets saved before this release
 
 Tickets registered before this release keep running by the rules below until they are registered again, apart from the platform rules listed under [What applies to these tickets now](#what-applies-to-these-tickets-now). The dashboard's **Tickets** page marks them **previous rules**, their form says **Saved under the previous rules**, and `getTickets()` returns them to the project owner with `legacy: true`. Saving one applies the current rules; what that changes is listed under [Saving one again](#saving-one-again).

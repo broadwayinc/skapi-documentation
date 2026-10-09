@@ -12,34 +12,37 @@ import type {
     TicketCondition,
     TicketConditionRow,
     TicketError,
+    TicketReceipt,
 } from "skapi-js";
 ```
 
 ## consumeTicket
 
 ```ts
-consumeTicket(
+consumeTicket<T = TicketReceipt>(
     params: {
         ticket_id: string; // The ticket to consume.
         method: 'GET' | 'POST'; // 'POST' sends data as the JSON body. 'GET' sends it as the query string.
         auth?: boolean; // Consume on the signed-in endpoint, as the logged-in user. POST only. Needed by a ticket whose condition has user or record_access.
         data?: { [key: string]: any }; // The request data: the JSON body of a POST, read by data rows and ${data}, or the query string of a GET, read by params rows and ${params}.
     }
-): Promise<{
+): Promise<T> // The receipt below, or the body a Respond action of the ticket answered.
+
+type TicketReceipt = {
     ticket_id: string;  // The ticket consumed.
     consume_id: string; // Id of this consumption: base62 of the timestamp in milliseconds, followed by 4 random characters.
     user_id: string;    // The consumer. The user id on the signed-in endpoint, else "<ip>(<user agent>)".
     is_test: boolean;   // Always false here: dry runs go through the check URL, which consumeTicket() never calls.
     timestamp: number;  // When the consumption happened, in milliseconds. Decoded from consume_id.
     hash: string;       // Proof string of the consumption.
-}>
+}
 ```
 
 Sends the request to `https://<first 4 characters of the project id>.skapi.dev/`: `POST /tpa/` with `auth`, `POST /tp/` anonymous, and `GET /tg/` with `data` as the query string.
 
 **Behavior:**
 - The body is inspected whatever the HTTP status. A body with `stage` is an error, including a `200` from a ticket with `return200`, and the promise rejects with `new SkapiError(body.message, { code: body.code, cause: body })`, so `err.code`, `err.cause.stage`, `err.cause.action` and `err.cause.detail` are available. `err.cause` is a [TicketError](#ticketerror).
-- A body without `stage` is a success, and the promise resolves with the object above.
+- A body without `stage` is a success. The promise resolves with the receipt above, or, when a [Respond](/tickets/actions.md#resp-answer-the-caller) action of the ticket answered, with the `body` it composed, as sent and whatever its status (a Respond with no `body` answers the receipt). `T` names that body's type: `consumeTicket<{ ok: boolean }>(...)`.
 - `auth: true` with `method: 'GET'` throws before anything is sent.
 - `SkapiError.cause` is typed `Error | TicketError`. In TypeScript, narrow it with `'stage' in err.cause` before reading the ticket keys.
 
@@ -64,7 +67,9 @@ See [Errors and Logs](/tickets/errors.md)
 ```ts
 getTickets(
     params: {
-        ticket_id?: string; // One ticket. Omit for every ticket. An id containing '#' is refused unless the caller is the project owner.
+        ticket_id?: string; // One ticket. Omit for every ticket. An id containing '#' or '@' is refused unless the caller is the project owner.
+        from?: number; // A log listing only: rows from this time on, in milliseconds since the epoch.
+        to?: number;   // A log listing only: rows up to this time, in milliseconds since the epoch.
     },
     fetchOptions?: FetchOptions
 ): Promise<DatabaseResponse<{
@@ -88,19 +93,51 @@ The user must be logged in.
 
 A ticket with `legacy: true` keeps running by the rules it was saved with until it is registered again, which applies the current rules. Its `condition` and `actions` are returned converted to the current format. See [Tickets saved before this release](/deprecated/deprecated.md#tickets-saved-before-this-release).
 
-The project owner may also pass `ticket_id: '#<ticket_id>#'` to read the consumption log of that ticket. The rows then have the shape [getConsumedTickets()](#getconsumedtickets) returns, plus `failed: true` on a failed consumption.
+The project owner may also pass `ticket_id: '#<ticket_id>#'` to read the consumption log of that ticket, and `ticket_id: '@<ticket_id>#<consume_id>#'` to read the [action rows](/tickets/errors.md#the-action-rows) of one consumption. The rows then have the shape [getConsumedTickets()](#getconsumedtickets) returns, plus `failed: true` on a failed consumption; `from` and `to` narrow either listing to a time range, each end optional.
 
 #### Errors
 ```ts
 {
     code: "INVALID_REQUEST";
-    message: "Invalid ticket id."; // A ticket_id containing '#' from a caller who is not the project owner.
+    message: "Invalid ticket id."; // A ticket_id containing '#' or '@' from a caller who is not the project owner.
+}
+|
+{
+    code: "INVALID_PARAMETER";
+    message: '"to" is before "from".';
 }
 ```
 
 See [FetchOptions](/api-reference/data-types/README.md#fetchoptions)
 
 See [DatabaseResponse](/api-reference/data-types/README.md#databaseresponse)
+
+## clearTicketLog
+
+```ts
+clearTicketLog(
+    params: {
+        ticket_id: string; // The ticket whose log rows go.
+        before?: number;   // Rows before this time, in milliseconds since the epoch. Default: now. Later than now is clipped to now.
+    }
+): Promise<{
+    message: string;   // "SUCCESS: Clearing the log."
+    ticket_id: string;
+    before: number;    // The time applied.
+}>
+```
+
+Deletes the ticket's consumption rows and action rows before `before`, in the background over the next minutes. The ticket itself, its remaining count and its per-user limits are unchanged. Project owner only.
+
+#### Errors
+```ts
+{
+    code: "INVALID_PARAMETER";
+    message: '"before" should be a time in milliseconds since the epoch.';
+}
+```
+
+See [Clearing the log](/tickets/errors.md#clearing-the-log)
 
 ## getConsumedTickets
 
@@ -209,23 +246,29 @@ See [Data and Params](/tickets/conditions.md#data-and-params)
 ```ts
 type TicketAction =
     | {
-        act: 'acsg'; // Set the access group of a user.
+        act: 'acsg'; // Set the access group of a user. Answers the SUCCESS text the grant returns.
         exe: {
             group: number | 'admin' | string; // 1..99. 'admin' is 99. Or a reference that gives one, such as "${placeholder[GROUP]}".
             user_id?: string; // The target. Absent = the consumer.
+            condition?: TicketAnswerCondition; // The Check: rows on the answer. A row that does not pass fails the action.
+            actions?: TicketAction[]; // The Then chain, run after the Check passes. Reads the answer as ${response}.
         };
         err?: TicketAction[]; // Error chain, run when this action fails.
+        retry?: boolean; // Try again on a failure: up to 3 more times, 1, 2 and 4 seconds apart, within the time budget. Never for a failure inside Then.
     }
     | {
-        act: 'acsr'; // Grant private access to a record.
+        act: 'acsr'; // Grant private access to a record. Answers the SUCCESS text the grant returns.
         exe: {
             record_id: string; // A record id, not a unique id.
             user_id?: string | string[]; // The grantees. Absent = the consumer.
+            condition?: TicketAnswerCondition;
+            actions?: TicketAction[];
         };
         err?: TicketAction[];
+        retry?: boolean;
     }
     | {
-        act: 'pstr'; // Post a record. Everything except user_id is the postRecord() payload. Any other key (notification, remove_bin, reference_private_key, progress) is refused at registration.
+        act: 'pstr'; // Post a record. Everything except user_id, condition and actions is the postRecord() payload. Any other key (notification, remove_bin, reference_private_key, progress) is refused at registration. Answers the record (RecordData).
         exe: {
             table: string | { // A plain name is { name } in the public group.
                 name: string;
@@ -260,11 +303,14 @@ type TicketAction =
                 allow_granted_to_grant_others?: boolean; // When true, the user who has granted private access to the record can grant access to other users.
             };
             user_id?: string; // Post as this user: a user ID (UUID) once its references are filled in, not the project owner's own. Anything else fails the action. Absent = the project owner, who cannot create a private, read-only or subscription record.
+            condition?: TicketAnswerCondition; // The Check: rows on the record posted, such as record_id.
+            actions?: TicketAction[]; // The Then chain. Reads the record as ${response}: ${response[record_id]}.
         };
         err?: TicketAction[];
+        retry?: boolean;
     }
     | {
-        act: 'req'; // HTTP request with its own condition and chain.
+        act: 'req'; // HTTP request with its own condition and chain. Answers the parsed response body.
         exe: {
             url: string; // Starts with http:// or https:// and a hostname, and resolves to a public address. Values put in with ${...} are percent-encoded. A URL that is one whole reference is refused. Sent as a browser sends it: a tab or line break removed, a hostname outside ASCII IDNA-encoded, a space, another control character or a character outside ASCII in the path or query percent-encoded.
             method?: 'GET' | 'POST' | 'PUT' | 'DELETE'; // Default GET. Written out, never a reference.
@@ -273,13 +319,43 @@ type TicketAction =
             data?: any; // POST/PUT body. Sent as JSON when a content-type header says application/json, else form encoded.
             params?: { [key: string]: any }; // Added to the query string on every method. A value that is not text is sent as compact JSON.
             condition?: Pick<TicketCondition, 'headers' | 'data' | 'user' | 'record_access'>; // Checks the RESPONSE, under the same rules as the ticket's condition. Row keys are paths in the response body.
-            actions?: TicketAction[]; // Nested chain, any action. Reads the response body as ${response} and ${response[key]}; ${data} is still the request the ticket received.
+            actions?: TicketAction[]; // The Then chain, any action. Reads the response body as ${response} and ${response[key]}; ${data} is still the request the ticket received.
+        };
+        err?: TicketAction[];
+        retry?: boolean;
+    }
+    | {
+        act: 'resp'; // Respond: answer the caller now, then stop or go on. One per run.
+        exe: {
+            status?: number | string; // 100 to 599, or a reference. Default 200. An error status is an answer, not a failure.
+            body?: any; // Any JSON, templated. Absent: the receipt { tkid, hash }. A "stage" key is refused.
+            resume?: 'stop' | '0m' | string | number; // After the answer: "stop" (default), "0m" (go on at once, in the background), "10m" | "2h" | "3d" (after that delay), or a time in milliseconds since the epoch (a literal in the past is refused). A run that goes on is a queued run, metered per month.
+        };
+        err?: TicketAction[];
+    }
+    | {
+        act: 'cond'; // Condition: rows inside the chain. A part that fails fails the chain here with CONDITION_FAILED. Answers nothing.
+        exe: {
+            data?: TicketConditionRow[]; // Rows against the request body.
+            params?: TicketConditionRow[]; // Rows against the query string.
+            headers?: TicketCondition['headers'];
+            ip?: TicketCondition['ip'];
+            user_agent?: TicketCondition['user_agent'];
+            user?: TicketCondition['user']; // Signed requests only.
+            record_access?: string; // Signed requests only.
+            placeholder?: { key: string; operator: TicketConditionOperator; value: any }[]; // Rows on the placeholder pool: key is a placeholder name. May compare with null.
+            response?: TicketConditionRow[]; // Rows on the enclosing action's answer. Inside a Then chain only.
+            error?: TicketConditionRow[]; // Rows on the failure. Inside an err chain only.
         };
         err?: TicketAction[];
     };
+
+type TicketAnswerCondition = {
+    data?: TicketConditionRow[]; // Rows on the action's answer. key is a path in it ("record_id" on a posted record); "" is the whole answer as text, for the SUCCESS text of a grant.
+};
 ```
 
-Every string value of `exe` is templated right before the action runs (for `req`: `url`, `headers`, `data` and `params`; `method`, `secretName`, the nested `condition` and `actions` are not). Only text inside `${ }` is a reference, and everything outside it is used as written: `"orders"` and `"order[id]"` are plain text. A string that is exactly one `${...}` keeps the value's type; inside longer text the value becomes text. `$${...}` writes a literal `${...}`.
+Every string value of `exe` is templated right before the action runs (for `req`: `url`, `headers`, `data` and `params`; for `resp`: `status`, `body` and `resume`; `method`, `secretName`, a `condition`, a Then chain's `actions` and every part of a `cond` are not). Only text inside `${ }` is a reference, and everything outside it is used as written: `"orders"` and `"order[id]"` are plain text. A string that is exactly one `${...}` keeps the value's type; inside longer text the value becomes text. `$${...}` writes a literal `${...}`.
 
 | reference | reads |
 |---|---|
@@ -290,13 +366,12 @@ Every string value of `exe` is templated right before the action runs (for `req`
 | `${user}`, `${user[key]}` | the signed-in consumer's attributes. Signed requests only |
 | `${ip}`, `${user_agent}`, `${method}` | the caller's IP address, user agent and HTTP method |
 | `${record_access}` | the record id the condition's `record_access` names. Signed requests only |
-| `${response}`, `${response[key]}` | the response body of the enclosing `req`, in its nested `actions` only |
-| `${result}`, `${result[key]}` | the result of the previous action in the same chain |
+| `${response}`, `${response[key]}` | the answer of the enclosing action, in its Then chain (`actions`) only: the record a `pstr` posted, the response body of a `req`, the SUCCESS text of a grant |
 | `${error}`, `${error[key]}` | in an `err` chain: `code`, `message`, `detail`, `action`, `path` |
-| `${ticket}`, `${ticket[key]}` | this consumption: `id`, `service`, `owner`, `consume_id`, `timestamp` |
+| `${ticket}`, `${ticket[key]}` | this consumption: `id`, `service`, `owner`, `consume_id`, `timestamp`, `hash` |
 | `${CLIENT_SECRET}` | reserved: see below |
 
-Registration refuses anything else inside `${ }` (`${id}`, `${ip[x]}`, `${placeholder}`, `${[ip]}`), and a reference that can never resolve where it is written (`${response}` outside a `req`'s nested actions, `${error}` outside an `err` chain), with `INVALID_PARAMETER` and a message that lists the valid forms. A reference that does not resolve when the action runs fails the action before it does anything: `PATH_NOT_FOUND`, `PLACEHOLDER_MISSING`, or `AUTH_REQUIRED` for `${user}` on a request that is not signed in. See [Templating](/tickets/conditions.md#templating).
+Registration refuses anything else inside `${ }` (`${id}`, `${ip[x]}`, `${placeholder}`, `${[ip]}`), the former `${result}` (an answer is read as `${response}` in the action's Then chain, or captured by its Check), and a reference that can never resolve where it is written (`${response}` outside a Then chain, `${error}` outside an `err` chain), with `INVALID_PARAMETER` and a message that lists the valid forms. A reference that does not resolve when the action runs fails the action before it does anything: `PATH_NOT_FOUND`, `PLACEHOLDER_MISSING`, or `AUTH_REQUIRED` for `${user}` on a request that is not signed in. See [Templating](/tickets/conditions.md#templating).
 
 `${CLIENT_SECRET}` is only allowed in the `headers`, `data` and `params` values of a `req` that names a `secretName`, and registration refuses it anywhere else. Each call is held to the Destinations of the Secret Key it carries, and every copy of the key's value in the response, as sent or escaped up to three times over with percent-encoding, backslash escapes and HTML character references (mixed character by character), is replaced by the text `${CLIENT_SECRET}` before it is checked, logged or returned in an error. A copy escaped four times over is not found, and one is not guaranteed to be found when a round of escaping left part of an earlier round's escape readable on its own, such as the `%BA` of `%&#68;0%BA`. The whole response is searched and passed on, never cut. When the 25 second budget runs out while a long one is searched, the action fails with `REQUEST_FAILED` and `detail: { reason: "timeout" }`. A key that no longer exists fails the action with `REQUEST_FAILED` and `detail: { reason: "secret_missing", secretName }`. See [Sending a Secret Key](/tickets/actions.md#sending-a-secret-key).
 
@@ -323,11 +398,13 @@ type TicketError = {
         'TIMEOUT' |
         'ACTION_FAILED' |
         'ACTION_FORBIDDEN' |
+        'QUOTA_EXCEEDED' |
+        'ALREADY_RESPONDED' |
         'INTERNAL_ERROR';
     message: string; // Human readable, one sentence.
     stage: 'ticket' | 'condition' | 'action';
     action?: { // Only when stage is 'action'.
-        act: 'acsg' | 'acsr' | 'pstr' | 'req';
+        act: 'acsg' | 'acsr' | 'pstr' | 'req' | 'resp' | 'cond';
         path: string; // The failed action's place in the ticket, such as "actions[1].err[0]".
     };
     detail?: { [key: string]: any }; // Code specific, such as { field, keys } on CONDITION_FAILED and { status, body } or { reason } on REQUEST_FAILED. See the error table.

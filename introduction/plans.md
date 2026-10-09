@@ -14,6 +14,8 @@ The limits below are per project.
 | E-mail sends per month | 50 | 5,000 | 50,000 |
 | Newsletter subscribers | 50 | 5,000 | 50,000 |
 | Bandwidth per month | 10 GB | 100 GB | 400 GB |
+| Queued ticket runs per month | 100 | 10,000 | 100,000 |
+| Ticket log retention | 30 days | 90 days | Kept |
 | Past a limit | Stop | Stop | Billed as overage |
 
 One Trial limit is counted per owner rather than per project: across every Trial project one owner has, 200 newsletter mails per calendar month, on top of each project's own 50.
@@ -22,6 +24,8 @@ Standard and Premium are always counted per project and have no owner cap.
 E-mail sends are the mails a project chooses to send: every recipient of a newsletter, and every invitation e-mail sent or resent to a user. Automated mail, such as the signup confirmation, is not counted. See [Sending Newsletters](/email/newsletters.md#sending-limits) and [Inviting Users](/admin/invite.md).
 
 File storage is one pooled figure covering your web hosting, your record file attachments and your AI indexed files.
+
+Queued ticket runs are the runs of a ticket that go on after a Respond action answered the caller: at once, after a delay or at a time. See [Queued ticket runs](#queued-ticket-runs).
 
 A Trial project never expires and needs no card.
 
@@ -70,10 +74,19 @@ Past an included limit the excess is metered and added to your next invoice, and
 | Email storage | $0.10 per GB-month |
 | E-mail sends | $1.00 per 1,000 |
 | Newsletter subscribers | $1.00 per 1,000 subscribers-month |
+| Queued ticket runs | $1.00 per 1,000 |
 | Bandwidth | $0.12 per GB, not billed yet |
 | Monthly active users | Free |
 
 Storage overage is time weighted rather than a high water mark, so a project that sits over a limit for two days pays for two days and not for the month.
+
+## Queued ticket runs
+
+A ticket's [Respond](/tickets/actions.md#resp-answer-the-caller) action answers the caller at once and can let the rest of the chain go on later: right away in the background, after a delay, or at a time. Every run that goes on is a **queued run**, counted for the UTC month it was queued in. Trial includes 100 a month, Standard 10,000 and Premium 100,000; Premium is billed $1.00 per 1,000 past that.
+
+On Trial and Standard a Respond that would queue a run past the month's figure fails with `QUOTA_EXCEEDED` at that action: the ticket's other actions, and every Respond that stops, keep working, and the count resets with the month. The **Plan & Usage** card of the project shows the month's queued runs against the plan, and the Tickets page says so when they are used up. See [Going on later](/tickets/actions.md#going-on-later-queued-runs).
+
+The log rows a ticket writes (its consumptions and their action rows) count toward the project's database storage, shown as their own part of the Database figure on Plan & Usage. They are kept 30 days on Trial, 90 days on Standard and for good on Premium, then expire on their own; deleting a ticket deletes its logs, and the owner can [clear a ticket's log](/tickets/errors.md#clearing-the-log) before a time at any moment.
 
 ## Bandwidth
 
