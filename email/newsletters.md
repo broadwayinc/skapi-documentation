@@ -12,7 +12,7 @@ Endpoints in the older `xxxxxxxxxxxxxxxxxxxx-00xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@
 
 Go to `Newsletters` page, select the tab (`Newsletter`, `Service Email` or a named group), and the page will show the email endpoint address to send the newsletter.
 
-![The Newsletters page of a Skapi project: one tab per list, the group's name as code gives it, the sending address with a Send link, monthly sends, subscribers with View and Add links, and the table of sent newsletters](/screenshots/newsletter-page.webp)
+![The Newsletters page of a Skapi project: one tab per list, the group's name as code gives it, the sending address with a Send link, a Save without sending address, monthly sends, subscribers with View and Add links, and the table of newsletters with their IDs](/screenshots/newsletter-page.webp)
 
 *The Newsletters page. Every list has its own sending address, its own subscriber count and its own history of sent mail.*
 
@@ -52,7 +52,7 @@ Everything about sending happens on the `Newsletters` page of your project in th
 - **Monthly sends.** How many sends this month have used out of the plan's allowance, and the rules that can stop a send.
 - **Subscribers.** How many addresses are on this list and on all lists together. **[View]** opens the list, **[Add]** adds addresses by hand. See [Managing subscribers](#managing-subscribers).
 - **Access.** On a named group's tab, who may subscribe, and **[Delete group]**.
-- **Sent newsletters.** Every newsletter sent to this list, and every one saved without sending, with its subject, the date, and how many subscribers read it, complained about it or bounced. Select rows and use the trash icon to delete them from your email storage. Copies already delivered stay in subscribers' inboxes.
+- **Sent newsletters.** Every newsletter sent to this list, and every one saved without sending, with its subject, its **Newsletter ID** (which a ticket's Send newsletter action names; the column copies it with a click and can be hidden with the column picker), the date, and how many subscribers read it, complained about it or bounced. Select rows and use the trash icon to delete them from your email storage. Copies already delivered stay in subscribers' inboxes.
 
 The page needs an **email alias**, the address your project sends from. Register it on your project's `Settings` page first: until then the page shows a notice and sends you there.
 
@@ -79,13 +79,13 @@ nd00xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxx@mail.skapi.com
 nd.promo-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxx@mail.skapi.com
 ```
 
-A newsletter mailed to it, from your project's email address like any other, is checked and stored the same way but delivered to nobody; the reply says so and names its **newsletter ID**. The row appears under **Sent newsletters** with a **Not sent** mark and a send icon next to its delete icon.
+A newsletter mailed to it, from your project's email address like any other, is checked and stored the same way but delivered to nobody; the reply says so and names its **newsletter ID**. The row appears under **Sent newsletters** with **Not sent** in its Sent column.
 
-![The Newsletters page with a Save without sending address under the sending address, and a Sent newsletters list whose first row carries a Not sent mark and a send icon](/screenshots/newsletter-not-sent.webp)
+![The Newsletters page with a Save without sending address under the sending address, a send icon and a delete icon above the table, and a Sent newsletters list with a Newsletter ID column whose first row reads Not sent](/screenshots/newsletter-not-sent.webp)
 
-*A newsletter saved without sending. The send icon sends it to the list when you are ready.*
+*A newsletter saved without sending. Tick it and click the send icon above the table when you are ready.*
 
-- **Send it from the page.** Click the row's send icon and confirm; the page says how many subscribers it goes to. It goes out exactly as a newsletter mailed to the sending address does, counts the same sends, and the mark goes.
+- **Send it from the page.** Tick the newsletter, or several, and click the send icon at the top right of the table, next to the delete icon; the dialog lists them and says how many subscribers each goes to. A newsletter goes out exactly as one mailed to the sending address does, counts the same sends, and its mark goes. A newsletter that already went out can be ticked and sent again.
 - **Send it from a ticket.** A ticket's [Send newsletter action](/tickets/actions.md#nlsd-send-a-newsletter) names the list and the newsletter ID and sends it when the ticket is consumed: a launch mail at the time a webhook arrives, a reminder a signed-in call triggers. The action may also send again a newsletter that already went out.
 - [`getNewsletters()`](/api-reference/email/README.md#getnewsletters) returns `dry: true` on a newsletter saved this way, and `sent`, the time it was last sent from the page or by a ticket, once it went out.
 

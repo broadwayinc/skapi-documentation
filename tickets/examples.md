@@ -24,7 +24,7 @@ Your payment provider reports a completed payment. The ticket records the order,
       "signed": "${timestamp}.${body}",
       "timestamp": "${timestamp}"
     },
-    "data": [
+    "body": [
       {
         "key": "type",
         "operator": "=",
@@ -44,16 +44,16 @@ Your payment provider reports a completed payment. The ticket records the order,
           "name": "orders",
           "access_group": "admin"
         },
-        "unique_id": "order-${data[payment][id]}",
+        "unique_id": "order-${body[payment][id]}",
         "index": {
           "name": "buyer",
           "value": "${placeholder[BUYER]}"
         },
         "data": {
-          "payment": "${data[payment][id]}",
-          "amount": "${data[payment][amount_total]}",
-          "country": "${data[payment][customer][country]}",
-          "note": "paid via ${data[payment][payment_methods][0]}"
+          "payment": "${body[payment][id]}",
+          "amount": "${body[payment][amount_total]}",
+          "country": "${body[payment][customer][country]}",
+          "note": "paid via ${body[payment][payment_methods][0]}"
         }
       },
       "err": [
@@ -89,18 +89,21 @@ Your payment provider reports a completed payment. The ticket records the order,
         },
         "data": {
           "user_id": "${placeholder[BUYER]}",
-          "payment": "${data[payment][id]}"
-        },
-        "condition": {
-          "data": [
-            {
-              "key": "status",
-              "operator": "=",
-              "value": "ok"
-            }
-          ]
+          "payment": "${body[payment][id]}"
         },
         "actions": [
+          {
+            "act": "cond",
+            "exe": {
+              "response": [
+                {
+                  "key": "status",
+                  "operator": "=",
+                  "value": "ok"
+                }
+              ]
+            }
+          },
           {
             "act": "pstr",
             "exe": {
@@ -109,9 +112,9 @@ Your payment provider reports a completed payment. The ticket records the order,
                 "access_group": "admin"
               },
               "data": {
-                "id": "${response[shipment][id]}",
-                "carrier": "${response[carrier]}",
-                "payment": "${data[payment][id]}"
+                "id": "${response[body][shipment][id]}",
+                "carrier": "${response[body][carrier]}",
+                "payment": "${body[payment][id]}"
               }
             }
           }
@@ -143,7 +146,7 @@ The event this ticket expects looks like this, with the signature in the `x-sign
 }
 ```
 
-Every value the actions fill in is a reference inside `${ }`, and everything outside `${ }` is sent as written. `${data[...]}` reads this event, `${placeholder[BUYER]}` the value a condition row captured, `${result[...]}` the previous action's result, `${response[...]}` the fulfilment API's answer, and `${error[...]}` the failure an `err` chain handles. See [References](/tickets/conditions.md#references).
+Every value the actions fill in is a reference inside `${ }`, and everything outside `${ }` is sent as written. `${body[...]}` reads this event, `${placeholder[BUYER]}` the value a condition row captured, `${result[...]}` the previous action's result, `${response[...]}` the fulfilment API's answer, and `${error[...]}` the failure an `err` chain handles. See [References](/tickets/conditions.md#references).
 
 ### The ticket
 
@@ -166,7 +169,7 @@ Every value the actions fill in is a reference inside `${ }`, and everything out
 
 These `${timestamp}`, `${signature}` and `${body}` are the signature's own tokens, not references. `algorithm` and `encoding` are left at their defaults, SHA-256 and hex. If your provider lays the header out differently or signs other bytes, change these fields to match its documentation; [Describing a sender](/tickets/conditions.md#describing-a-sender) shows other common shapes. Save the signing secret as a [Secret Key](/api-bridge/client-secret-request.md#registering-secret-keys) named `payment_webhook`; `"secretName": "payment_webhook"` is that **name**. Skapi recomputes the HMAC over the raw body and compares in constant time. Without this condition, anyone who knows the URL could post a fake event and run your actions.
 
-`{ "key": "type", "operator": "=", "value": "payment.completed" }`. `type` is a top-level key of the event. Any other event type fails here with `CONDITION_FAILED` and `detail: { field: "data", keys: ["type"] }`, answered 200 because of `return200`, and logged, because it carried a valid signature and so came from your provider.
+`{ "key": "type", "operator": "=", "value": "payment.completed" }`. `type` is a top-level key of the event. Any other event type fails here with `CONDITION_FAILED` and `detail: { field: "body", keys: ["type"] }`, answered 200 because of `return200`, and logged, because it carried a valid signature and so came from your provider.
 
 `{ "key": "payment[metadata][user_id]", "placeholder": "BUYER" }`. A capture-only row: no operator, no value. The key is a path in the event body, written without `${ }`: `payment`, then its `metadata`, then `user_id`, which you set when you create the payment with the provider (`metadata: { user_id: <the Skapi user id> }`). The value is remembered as `BUYER`, a shorter name for a value two actions use. A payment without it does not fail here; the first action that reads `${placeholder[BUYER]}` raises `PLACEHOLDER_MISSING` instead.
 
@@ -176,7 +179,7 @@ These `${timestamp}`, `${signature}` and `${body}` are the signature's own token
 
 `"table": { "name": "orders", "access_group": "admin" }`. The record goes into `orders`, readable by admins only. The name has no `${ }`, so it is the text `orders`.
 
-`"unique_id": "order-${data[payment][id]}"`. A reference inside text: the payment id `pay_a1B2c3` becomes the unique id `order-pay_a1B2c3`. When the provider retries the event, the same unique id makes this an update of the same record instead of a second record.
+`"unique_id": "order-${body[payment][id]}"`. A reference inside text: the payment id `pay_a1B2c3` becomes the unique id `order-pay_a1B2c3`. When the provider retries the event, the same unique id makes this an update of the same record instead of a second record.
 
 `"index": { "name": "buyer", "value": "${placeholder[BUYER]}" }`. A value that is one whole reference keeps its type, so the index value is the captured user id, and `getRecords({ table: { name: 'orders', access_group: 'admin' }, index: { name: 'buyer', value: userId } })` finds one buyer's orders.
 
@@ -190,11 +193,11 @@ These `${timestamp}`, `${signature}` and `${body}` are the signature's own token
 
 **`actions[2]`: call your fulfilment API.**
 
-`"data": { "user_id": "${placeholder[BUYER]}", "payment": "${data[payment][id]}" }`. `${placeholder[BUYER]}` reads the buyer's id the condition captured, at every depth of the chain. `${data[payment][id]}` reads the provider's event.
+`"data": { "user_id": "${placeholder[BUYER]}", "payment": "${body[payment][id]}" }`. `${placeholder[BUYER]}` reads the buyer's id the condition captured, at every depth of the chain. `${body[payment][id]}` reads the provider's event.
 
-`"condition"` is checked against the **response**, and its row key `status` is a path in the response body. `status` must be `ok`, else the `req` fails with `CONDITION_FAILED` and `field: "data"`, answered with `stage: "action"` and `action: { act: "req", path: "actions[2]" }` because the failure happened inside the action.
+`"actions"` is the Then chain, run on the response. Its first action is a Check answer whose row key `body[status]` is a path in the response: the body's `status` must be `ok`, else the chain fails there with `CONDITION_FAILED` and `field: "response"`, answered with `stage: "action"` and `action: { act: "cond", path: "actions[2].actions[0]" }` because the failure happened inside the action.
 
-`"actions"` is the nested chain. It reads the answer as `${response[...]}`: a `shipments` record is posted with the answer's `shipment.id` and `carrier`, and `${data[payment][id]}` still reads the provider's event, as it does at every depth.
+The `pstr` after it reads the response as `${response[...]}`: a `shipments` record is posted with the body's `shipment.id` and `carrier` (`${response[body][shipment][id]}`, `${response[body][carrier]}`), and `${body[payment][id]}` still reads the provider's event, as it does at every depth.
 
 ### What you see afterwards
 
@@ -240,7 +243,7 @@ A link you hand out at launch. The first hundred visits with the right code each
 
 `"count": 100`. The first hundred successful consumptions take one each; the next answers `TICKET_EXHAUSTED`. Failed calls do not count.
 
-`"limit_per_user": 1`. Once per signed-in user. This ticket is GET, and signed-in consumption is POST only, so on this link the limit never applies and the count alone caps it. To make it once per user, drop `"method": "GET"`, move the row from `params` to `data`, write `${data[code]}` in the action, and have the page call `consumeTicket({ ticket_id: 'launch-coupon', method: 'POST', auth: true, data: { code } })`.
+`"limit_per_user": 1`. Once per signed-in user. This ticket is GET, and signed-in consumption is POST only, so on this link the limit never applies and the count alone caps it. To make it once per user, drop `"method": "GET"`, move the row from `params` to `data`, write `${body[code]}` in the action, and have the page call `consumeTicket({ ticket_id: 'launch-coupon', method: 'POST', auth: true, data: { code } })`.
 
 `"method": "GET"` and `"params"`. The data is the query string, and `params` rows read it. `code` is a top-level key of that query, so the link is:
 
@@ -318,7 +321,7 @@ let guide = await skapi.getRecords({ record_id: '9x2K4mQ1pL8vB3nR6tW5yZ0cA7dF' }
 The user can see the consumption afterwards with `getConsumedTickets({ ticket_id: 'unlock-guide' })`, and you can see it in the ticket's Log tab with the user id as the consumer.
 
 :::tip
-To hand the unlock out with a purchase instead of to everyone, add a `data` row on a code the page sends, or name a receipt record the user already holds in `record_access`. Both are evaluated before the action runs.
+To hand the unlock out with a purchase instead of to everyone, add a `body` row on a code the page sends, or name a receipt record the user already holds in `record_access`. Both are evaluated before the action runs.
 :::
 
 ## Calling an API With Your Secret Key
@@ -343,7 +346,7 @@ A service you use sends a webhook when an order changes, but the event is only a
       "signed": "${timestamp}.${body}",
       "timestamp": "${timestamp}"
     },
-    "data": [
+    "body": [
       {
         "key": "type",
         "operator": "=",
@@ -358,7 +361,7 @@ A service you use sends a webhook when an order changes, but the event is only a
     {
       "act": "req",
       "exe": {
-        "url": "https://api.example.com/v1/orders/${data[order][id]}",
+        "url": "https://api.example.com/v1/orders/${body[order][id]}",
         "method": "GET",
         "secretName": "orders_api_key",
         "headers": {
@@ -375,14 +378,14 @@ A service you use sends a webhook when an order changes, but the event is only a
                   "value": "paid"
                 },
                 {
-                  "key": "plan",
+                  "key": "body[plan]",
                   "operator": "=",
                   "value": "basic",
                   "setValueWhenMatch": 2,
                   "placeholder": "GROUP"
                 },
                 {
-                  "key": "plan",
+                  "key": "body[plan]",
                   "operator": "=",
                   "value": [
                     "pro",
@@ -392,7 +395,7 @@ A service you use sends a webhook when an order changes, but the event is only a
                   "placeholder": "GROUP"
                 },
                 {
-                  "key": "plan",
+                  "key": "body[plan]",
                   "operator": "!=",
                   "value": null,
                   "setValueWhenMatch": 1,
@@ -405,7 +408,7 @@ A service you use sends a webhook when an order changes, but the event is only a
             "act": "acsg",
             "exe": {
               "group": "${placeholder[GROUP]}",
-              "user_id": "${response[metadata][user_id]}"
+              "user_id": "${response[body][metadata][user_id]}"
             }
           }
         ]
@@ -450,7 +453,7 @@ Give `orders_api_key` the **Destinations** `https://api.example.com/v1/orders`. 
 
 ### The request
 
-`"url": "https://api.example.com/v1/orders/${data[order][id]}"`. `${data[order][id]}` reads the order id from the event. The scheme and host are written out, which a `req` with a `secretName` requires, so no event can send your key to another host. The order id is percent-encoded as it goes in, so an id such as `../customers` stays one path segment.
+`"url": "https://api.example.com/v1/orders/${body[order][id]}"`. `${body[order][id]}` reads the order id from the event. The scheme and host are written out, which a `req` with a `secretName` requires, so no event can send your key to another host. The order id is percent-encoded as it goes in, so an id such as `../customers` stays one path segment.
 
 `"secretName": "orders_api_key"` and `"Authorization": "Bearer ${CLIENT_SECRET}"`. The key's value goes into this header of this call, and nowhere else. Wherever the answer repeats it, as sent or escaped up to three times over, the Log tab shows the text `${CLIENT_SECRET}` instead. See [Sending a Secret Key](/tickets/actions.md#sending-a-secret-key).
 
@@ -458,15 +461,15 @@ A failed call (an answer of 300 or above, a timeout, a refused address) fails th
 
 ### Checking the answer
 
-The first action of the `req`'s Then chain is a Condition whose `response` rows read the order the API returned, under the [same rules](/tickets/actions.md#checking-the-response) as the ticket's own rows. Their keys are paths in the answer:
+The first action of the `req`'s Then chain is a Check answer whose rows read the response, under the [same rules](/tickets/actions.md#checking-the-response) as the ticket's own rows. Their keys are paths in the response, the order the API returned being its `body`:
 
-- `status` must be `paid`. Any other status fails the Condition with `CONDITION_FAILED`, `detail: { field: "response", keys: ["status"] }` and `action: { act: "cond", path: "actions[0].actions[0]" }`, and nothing else runs.
-- The three `plan` rows are a [lookup table](/tickets/conditions.md#lookup-tables). The first row that matches wins, so `basic` captures `GROUP` = `2`, `pro` and `team` capture `3`, and the last row, the catch-all, captures `1` for any other plan, so an unknown plan does not fail the ticket.
+- `body[status]` must be `paid`. Any other status fails the Check answer with `CONDITION_FAILED`, `detail: { field: "response", keys: ["body[status]"] }` and `action: { act: "cond", path: "actions[0].actions[0]" }`, and nothing else runs.
+- The three `body[plan]` rows are a [lookup table](/tickets/conditions.md#lookup-tables). The first row that matches wins, so `basic` captures `GROUP` = `2`, `pro` and `team` capture `3`, and the last row, the catch-all, captures `1` for any other plan, so an unknown plan does not fail the ticket.
 
 ### The nested action
 
-`{ "act": "acsg", "exe": { "group": "${placeholder[GROUP]}", "user_id": "${response[metadata][user_id]}" } }`, the action after the Condition, sets the group the lookup table chose for the Skapi user id you stored on the order when it was created, read from the answer with `${response[...]}`. For the order above, it moves the buyer to access group `3`.
+`{ "act": "acsg", "exe": { "group": "${placeholder[GROUP]}", "user_id": "${response[body][metadata][user_id]}" } }`, the action after the Check answer, sets the group the lookup table chose for the Skapi user id you stored on the order when it was created, read from the response body with `${response[body][...]}`. For the order above, it moves the buyer to access group `3`.
 
 ### What you see afterwards
 
-The log row's `outcome.placeholders` holds `GROUP`, and `outcome.actions` lists the `req` at `actions[0]`, with the order as its result, the Condition at `actions[0].actions[0]`, and the access group change at `actions[0].actions[1]`. The buyer is in the access group of their current plan, however many times the service sends the event.
+The log row's `outcome.placeholders` holds `GROUP`, and `outcome.actions` lists the `req` at `actions[0]`, with the order as its result, the Check answer at `actions[0].actions[0]`, and the access group change at `actions[0].actions[1]`. The buyer is in the access group of their current plan, however many times the service sends the event.

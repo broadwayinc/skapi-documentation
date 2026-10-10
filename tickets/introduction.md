@@ -84,7 +84,7 @@ type Ticket = {
     ip?: { operator: "=" | "!=" | ">" | ">=" | "<" | "<="; value: string | string[] };
     user_agent?: { operator: "=" | "!=" | ">" | ">=" | "<" | "<="; value: string | string[] };
     headers?: Matcher[];                   // request headers
-    data?: Matcher[];                      // POST body
+    body?: Matcher[];                      // POST body
     params?: Matcher[];                    // query string
     user?: Matcher[];                      // signed requests only
     record_access?: string;            // signed requests only
@@ -108,10 +108,10 @@ type Action =
   | { act: "mail"; exe: { template: string; to: string; placeholders?: { [name: string]: string | number | boolean } } & Then; err?: Action[]; retry?: boolean } // send a custom e-mail
   | { act: "nlsd"; exe: { group: "public" | "authorized" | number | string; newsletter: string } & Then; err?: Action[]; retry?: boolean } // send a stored newsletter
   | { act: "resp"; exe: Respond; err?: Action[] }    // answer the caller now, then stop or go on later
-  | { act: "cond"; exe: Condition; err?: Action[] }; // a condition inside the chain
+  | { act: "cond"; exe: CheckAnswer; err?: Action[] }; // a check on the enclosing action's answer, inside a Then chain only
 
 type Then = {
-  actions?: Action[];                // the Then chain, reading the answer as ${response}; a Condition in it checks the answer
+  actions?: Action[];                // the Then chain, reading the answer as ${response}; a Check answer in it checks the answer
 };
 
 type Respond = {
@@ -120,14 +120,8 @@ type Respond = {
   resume?: "stop" | "0m" | string | number; // "stop" (default), "0m" (at once, in the background), "10m" | "2h" | "3d" (after a delay), or a time in ms
 };
 
-type Condition = {                   // every part as in the ticket's condition, plus the three below
-  data?: Matcher[]; params?: Matcher[]; headers?: Matcher[];
-  ip?: { operator: "=" | "!=" | ">" | ">=" | "<" | "<="; value: string | string[] };
-  user_agent?: { operator: "=" | "!=" | ">" | ">=" | "<" | "<="; value: string | string[] };
-  user?: Matcher[]; record_access?: string;
-  placeholder?: Matcher[];           // rows on the values captured so far; key = the placeholder's name
-  response?: Matcher[];              // rows on the enclosing action's answer (inside a Then chain only); key "" is the whole answer as text
-  error?: Matcher[];                 // rows on the failure (inside an error chain only); key "" is the whole error as text
+type CheckAnswer = {
+  response: Matcher[];               // rows on the enclosing action's answer: key = a path in it ("body[status]", "record_id"), "" the whole answer as text
 };
 
 type PostRecord = {
@@ -151,7 +145,7 @@ type PostRecord = {
   readonly?: boolean;
   source?: object;
   user_id?: string;                  // post as this user; absent = the project owner
-} & CheckAndThen;                    // condition: rows on the record posted; actions: read it as ${response}
+} & Then;                            // actions: the Then chain, reading the record as ${response}
 
 type HttpRequest = {
   url: string;
@@ -160,12 +154,11 @@ type HttpRequest = {
   headers?: { [name: string]: string };
   data?: any;                        // body, POST and PUT only
   params?: { [key: string]: string };
-  condition?: { headers?: Matcher[]; data?: Matcher[]; user?: Matcher[]; record_access?: string }; // checked against the response
-  actions?: Action[];                // read the response as ${response}
+  actions?: Action[];                // read the response as ${response}: status, headers, body; a Check answer in it checks the response
 };
 ```
 
-Every string in `exe` may hold references such as `${data[order][id]}` (a Condition's parts are literal); see [Conditions](/tickets/conditions.md) and [Actions](/tickets/actions.md) for what each part does. Paste a document of this shape, click **Apply**, and the builder fills in from it. **Apply** refuses a document that leaves out a required parameter and names it: `actions` (write `[]` for a ticket with no actions) and the `access_group` of every `pstr` table, as in `"table": { "name": "orders", "access_group": "public" }`.
+Every string in `exe` may hold references such as `${body[order][id]}` (a Check answer's parts are literal); see [Conditions](/tickets/conditions.md) and [Actions](/tickets/actions.md) for what each part does. Paste a document of this shape, click **Apply**, and the builder fills in from it. **Apply** refuses a document that leaves out a required parameter and names it: `actions` (write `[]` for a ticket with no actions) and the `access_group` of every `pstr` table, as in `"table": { "name": "orders", "access_group": "public" }`.
 
 JSON mode is the quickest way to register a ticket from an example on these pages, or to copy a ticket from one project to another: switch the toggle on, paste the document, **Apply**, then **Register** or **Update**. The toggle refuses to switch while a field holds something the ticket cannot be saved with, and marks that field, so fix it first. Switching back to the builder with edits you have not applied asks whether to discard them.
 
@@ -188,7 +181,7 @@ On the anonymous endpoints the consumer is identified by IP address and user age
 
 ### What the request carries
 
-- **The body.** A POST body is parsed as JSON. A body that is not JSON is kept as its text, so no row key finds anything in it, but an action can still read the whole text as `${data}`. A GET has no body, and reads it as `{}`. `data` rows read the body, and actions read it as `${data}` or `${data[key]}`.
+- **The body.** A POST body is parsed as JSON. A body that is not JSON is kept as its text, so no row key finds anything in it, but an action can still read the whole text as `${body}`. A GET has no body, and reads it as `{}`. `body` rows read the body, and actions read it as `${body}` or `${body[key]}`.
 - **The query string**, on both methods. Each value is JSON-parsed on its own when it parses (`1` becomes the number `1`, `true` becomes `true`, `{"a":1}` becomes an object), otherwise it stays a string: `?code=LAUNCH24&qty=2` is read as `{ "code": "LAUNCH24", "qty": 2 }`. A request without a query string reads it as `{}`. `params` rows read the query string, and actions read it as `${params}` or `${params[key]}`.
 - **The caller**: its headers, IP address, user agent and method, and on the signed-in endpoint the user. See [References](/tickets/conditions.md#references).
 
@@ -262,7 +255,7 @@ A failure answers `400`, or `200` when the ticket has **Always answer 200** on, 
   "message": "The \"data\" condition did not match.",
   "stage": "condition",
   "detail": {
-    "field": "data",
+    "field": "body",
     "keys": [
       "type"
     ]

@@ -36,7 +36,7 @@ The status is `400`, or `200` when the ticket's `return200` is on. `INTERNAL_ERR
 | `ISSUER_CANNOT_CONSUME` | ticket | consumer is the ticket issuer | |
 | `AUTH_REQUIRED` | ticket, condition or action | a user is needed and the route is anonymous (a `user` or `record_access` condition, which a webhook can never pass, an action with no `user_id`, or a `${user}` reference), or the token is from another project | |
 | `METHOD_NOT_ALLOWED` | condition | `condition.method` mismatch | `{ "expected": "POST", "received": "GET" }` |
-| `CONDITION_FAILED` | condition, or action for a `req` response check | a part of the condition did not pass | `{ "field": "signature"\|"ip"\|"user_agent"\|"headers"\|"data"\|"params"\|"user"\|"record_access"\|"loop", "keys": [ ...keys that failed ] }` (`keys` empty for signature/ip/user_agent/record_access/loop). See [below](#condition-failed-fields) |
+| `CONDITION_FAILED` | condition, or action for a Check answer | a part of the condition did not pass, or a Check answer row did not match | `{ "field": "signature"\|"ip"\|"user_agent"\|"headers"\|"body"\|"params"\|"user"\|"record_access"\|"loop"\|"response", "keys": [ ...keys that failed ] }` (`keys` empty for signature/ip/user_agent/record_access/loop). See [below](#condition-failed-fields) |
 | `PATH_NOT_FOUND` | action | a [reference](/tickets/conditions.md#references) in an action value could not be resolved | `{ "path": "data[payment][id]" }`, the reference without `${ }` |
 | `PLACEHOLDER_MISSING` | action | `${placeholder[NAME]}` referenced but never captured | `{ "placeholder": "NAME" }` |
 | `REQUEST_FAILED` | action (`req`) | HTTP status >= 300, refused address, connection error, per-call timeout, a header that cannot be sent, or a Secret Key that no longer exists | `{ "status": 502, "body": <the parsed answer, or the first 4 KB of its text when longer> }`, `{ "reason": "timeout" \| "refused_address" \| "connection" }`, `{ "reason": "invalid_header", "header": "<name>" }` (see [the req action](/tickets/actions.md#req-http-request-with-its-own-condition-and-chain)), or `{ "reason": "secret_missing", "secretName": "<name>" }` |
@@ -49,11 +49,11 @@ The status is `400`, or `200` when the ticket's `return200` is on. `INTERNAL_ERR
 
 The ticket-stage codes are the checks of [step 1 of a consumption](/tickets/introduction.md), the condition-stage codes come from [Conditions and Placeholders](/tickets/conditions.md), and the action-stage codes from [Actions](/tickets/actions.md).
 
-A code raised inside a `req` action, by its HTTP call, its response check or its nested chain, is reported with `stage: "action"` and, in `action`, the innermost action that failed: the `req` itself when its HTTP call or its response check failed, the nested action when its nested chain failed. A `CONDITION_FAILED` from a response check therefore carries `action: { "act": "req", "path": "actions[2]" }`, while a record post failing inside the nested chain carries `action: { "act": "pstr", "path": "actions[2].actions[0]" }`.
+A code raised inside a `req` action, by its HTTP call or its Then chain, is reported with `stage: "action"` and, in `action`, the innermost action that failed: the `req` itself when its HTTP call failed, the nested action when its Then chain failed. A `CONDITION_FAILED` from a Check answer therefore carries `action: { "act": "cond", "path": "actions[2].actions[0]" }`, as a record post failing in the same chain carries `action: { "act": "pstr", "path": "actions[2].actions[1]" }`.
 
 ### `CONDITION_FAILED` fields
 
-`detail.field` names the part of the condition that failed, and `detail.keys` the keys of that part that did not pass: header names for `headers`, paths for `data` and `params`, attribute names for `user`. A path the request does not carry is one of those keys; it is never a separate error.
+`detail.field` names the part of the condition that failed, and `detail.keys` the keys of that part that did not pass: header names for `headers`, paths for `body` and `params`, attribute names for `user`. A path the request does not carry is one of those keys; it is never a separate error.
 
 One value is not a part you write: `"loop"`. The request carried an `X-Skapi-Ticket` header, so it was sent by a ticket, and a ticket cannot consume a ticket. The message is `Requests sent by a ticket cannot consume a ticket.` See [URL and address rules](/tickets/actions.md#url-and-address-rules).
 
@@ -93,7 +93,7 @@ Every successful consumption is logged, and so is every dry run once the ticket 
 
 - every action-stage failure,
 - every condition failure on the signed-in endpoint,
-- on an anonymous endpoint, a condition failure only when the request passed `method`, `signature`, `ip`, `user_agent` and `headers` and failed on a later part: `data`, `params`, `user` or `record_access` (except the `X-Skapi-Ticket` loop-guard refusal, which is never logged on a real consumption). Such a request came from a caller that already looks like the intended sender.
+- on an anonymous endpoint, a condition failure only when the request passed `method`, `signature`, `ip`, `user_agent` and `headers` and failed on a later part: `body`, `params`, `user` or `record_access` (except the `X-Skapi-Ticket` loop-guard refusal, which is never logged on a real consumption). Such a request came from a caller that already looks like the intended sender.
 
 Ticket-stage failures of a real consumption (`TICKET_NOT_FOUND`, `TICKET_EXPIRED`, `TICKET_EXHAUSTED` and the rest) and failures of `method`, `signature`, `ip`, `user_agent` and `headers` on an anonymous endpoint are not logged, so a scanner hitting your endpoints does not fill the log.
 
@@ -126,7 +126,7 @@ A log row's `description` is a JSON string of this shape:
 }
 ```
 
-`outcome.actions` lists every action that ran, in order, with its answer or its error, so you can see how far a chain got; `attempts` and `retried` appear on an action that was [tried again](/tickets/actions.md#retrying-an-action). `outcome.responded` is what a [Respond](/tickets/actions.md#resp-answer-the-caller) answered, and `outcome.queued` the queued run it left, when there is one. `outcome.placeholders` is the pool at the end. The whole string is capped at 60 KB: `data` is truncated first, then the action results.
+`outcome.actions` lists every action that ran, in order, with its answer or its error, so you can see how far a chain got; `attempts` and `retried` appear on an action that was [tried again](/tickets/actions.md#retrying-an-action), and `warning` on a Send e-mail or Send newsletter that went out but could not be counted or marked sent. `outcome.responded` is what a [Respond](/tickets/actions.md#resp-answer-the-caller) answered, and `outcome.queued` the queued run it left, when there is one. `outcome.placeholders` is the pool at the end. The whole string is capped at 60 KB: `data` is truncated first, then the action results.
 
 The row of a resumed run has, beside `outcome`, `continues` (the consume id of the consumption it goes on with), `queued_at`, `due`, `started`, `ended`, `waited` (ms), `kind` and `run` (its attempt number); a queued run that could not be started after three tries has `skipped` and a failed `outcome`.
 
@@ -139,9 +139,10 @@ Beside the consumption row, every action that ran has a row of its own, keyed `@
   "from": { "ticket_id": "order-paid", "consume_id": "UwdAhf6k3Qp" },
   "path": "actions[0]", "act": "req", "ok": true,
   "started": <ms>, "ended": <ms>, "attempts": 1,
-  "request": { ... },               // what the action sent, its references filled in (a Secret Key value never); for a Condition, its rows with what each found
-  "response": <the answer, up to 200 KB>,
+  "request": { ... },               // what the action sent, its references filled in (a Secret Key value never); for a Check answer, its rows with what each found
+  "response": <the answer, up to 200 KB; for a req { status, headers, body }>,
   "retried": [ ... ],               // the earlier failures of a retried action
+  "warning": "...",                 // a send that went out but could not be counted or marked sent
   "error": { code, message, detail },
   "responded": { "status": 202, "resume": "delay" },   // on a Respond
   "placeholders": { NAME: value }   // the pool after the action
@@ -168,7 +169,7 @@ Each row shows the **Time**, the **Consumer** (the user id on the signed-in endp
 
 ![The Consumption dialog for an answered row: the row key with the ticket id, consume id and caller, a line saying when the rest of the chain goes on, the JSON log, and under it the Actions list with one row per action, the first opened to its own JSON with what it sent, the record it got back and the placeholder pool](/screenshots/tickets-log-details.webp)
 
-*Details of an answered consumption. The outcome lists every action that ran, and the Actions list under it opens each action's own row: the Post record was tried twice and posted the order, and the Condition in its Then chain captured the record id.*
+*Details of an answered consumption. The outcome lists every action that ran, and the Actions list under it opens each action's own row: the Post record was tried twice and posted the order, and the Check answer in its Then chain captured the record id.*
 
 Only the project owner sees the log, in the dashboard or by calling [`getTickets()`](#who-may-call-gettickets) with `ticket_id: '#<id>#'`.
 

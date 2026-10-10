@@ -176,7 +176,17 @@ The SDK's TypeScript still declares `'response'` among the values of `responseTy
 
 ### `${result}` (removed 2026-10-08)
 
-`${result}` and `${result[key]}` read the answer of the previous action in the same chain, by position. An action's answer is now read as `${response}` and `${response[key]}` inside that action's own Then chain (`actions`), or captured there by a Condition action, on every action that answers something. Registration refuses `${result}` with a message that says so; no stored ticket used it. See [Then on every action](/tickets/actions.md#then-on-every-action).
+`${result}` and `${result[key]}` read the answer of the previous action in the same chain, by position. An action's answer is now read as `${response}` and `${response[key]}` inside that action's own Then chain (`actions`), or captured there by a Check answer action, on every action that answers something. Registration refuses `${result}` with a message that says so; no stored ticket used it. See [Then on every action](/tickets/actions.md#then-on-every-action).
+
+### `${data}` and `data` rows are now `${body}` and `body` rows
+
+Since 2026-10-09 the received request body is read as `${body}` and `${body[key]}`, and the condition rows that read it are the `body` rows (`condition.body`); `${params}` and `params` rows read the query string as before. `${data}` and `data` rows were their names until then. A stored ticket keeps running as it was written: the engine still resolves `${data...}` and reads `data` rows. Registration accepts `data` rows and stores them as `body`, and a ticket listing hands back `body` rows and `${body}` references, so a ticket saved again from the dashboard is written the current way. [`TicketCondition`](/api-reference/tickets/README.md#ticketcondition) names the rows `body`.
+
+### A request's answer was its body
+
+Until 2026-10-09 an HTTP request action answered the parsed response body alone, so its Then chain read `${response[carrier]}`. It now answers the whole response, `{ status, headers, body }`, read as `${response[body][carrier]}`, `${response[status]}` and `${response[headers][content-type]}`. See [Failures and the answer](/tickets/actions.md#failures-and-the-answer).
+
+A ticket saved before that keeps answering the body alone, as it was written to read it, until it is saved again. Every registration since stamps the rules the ticket was saved under: [`getTickets()`](/api-reference/tickets/README.md#gettickets) returns it to the project owner as `rules_version` (`2` now), and a ticket without it is one saved before. When you open such a ticket on the dashboard, every reference after an HTTP request is moved under `[body]` for you, a notice says so, and saving asks you to confirm: once saved, the ticket reads the whole response and the moved references read what they always did.
 
 ### Tickets saved before this release
 
@@ -202,7 +212,7 @@ A ticket had one `condition`, a `placeholder` map and a single `action` object:
         "value": "shop"
       }
     ],
-    "data": [
+    "body": [
       {
         "key": "type",
         "operator": "=",
@@ -242,7 +252,7 @@ The rows already combined by key, as they do now: every key must match, and rows
 
 - **A missing field is an error.** A row whose path is not in the request answers `INVALID_MATCH: Path not found: <key>.` at once. A `data` row on a body that is not JSON, or a `params` row on a request without a query string, answers `INVALID_MATCH: Invalid path provided for the data.`
 - **Header names are lower case.** Headers are read with lower-case names, so a `headers` row whose key has a capital letter answers `Path not found`.
-- **The data.** `data` rows read the POST body and `params` rows the query string, on either method. Query values are the strings as received, never JSON-parsed.
+- **The data.** `body` rows read the POST body and `params` rows the query string, on either method. Query values are the strings as received, never JSON-parsed.
 - **Comparisons are loose.** `=` treats `true` as equal to `1`. On a string field, `>=` means starts with, but `<=` compares in character order. An ordering operator between a string and a number answers 500.
 - **A list is one value in a row.** A row whose `value` is a list compares the field with the whole list, not with each member, so `= ["a", "b"]` matches only a field that is that list. Only `ip` and `user_agent` pass when any member matches.
 - **`record_access` in the condition was never checked.**
@@ -280,7 +290,7 @@ A few platform rules apply to every ticket, these included:
 
 #### Saving one again
 
-The form shows the ticket converted to the current format: each `placeholder` entry becomes a capture-only row (in `data`, or in `params` when the method is GET), every `$NAME` becomes `${placeholder[NAME]}`, the request becomes a `req` action whose `${key}` values become `${data[key]}` (`${params[key]}` on a GET ticket) in the parts that filled them in (its headers, its `params` on a GET, its `data` and `url` on a POST), `access_group` becomes an `acsg` action and `record_access` an `acsr` action. A `${...}` anywhere else in the request was sent as written, so it becomes `$${...}`, which still sends it as written. `${CLIENT_SECRET}` is left as written, so saving asks you to name a [Secret Key](/tickets/actions.md#sending-a-secret-key) for it.
+The form shows the ticket converted to the current format: each `placeholder` entry becomes a capture-only row (in `data`, or in `params` when the method is GET), every `$NAME` becomes `${placeholder[NAME]}`, the request becomes a `req` action whose `${key}` values become `${body[key]}` (`${params[key]}` on a GET ticket) in the parts that filled them in (its headers, its `params` on a GET, its `data` and `url` on a POST), `access_group` becomes an `acsg` action and `record_access` an `acsr` action. A `${...}` anywhere else in the request was sent as written, so it becomes `$${...}`, which still sends it as written. `${CLIENT_SECRET}` is left as written, so saving asks you to name a [Secret Key](/tickets/actions.md#sending-a-secret-key) for it.
 
 Saving asks you to confirm, and from then on the ticket runs by the [current rules](/tickets/conditions.md#how-each-part-decides). Read the converted form before you confirm. What can change:
 
@@ -316,15 +326,15 @@ A ticket's condition could carry a `request`: one HTTP call made while the condi
 }
 ```
 
-It can no longer be registered: registration refuses it with `the "request" condition was removed. Call the URL with a req action and check its answer with a Condition action in its Then chain ("actions") instead.`, and drops a blank one (`null`, `{}`, `""`). A ticket saved before this release keeps running its `request` until it is saved again; the dashboard then removes it, after you confirm.
+It can no longer be registered: registration refuses it with `the "request" condition was removed. Call the URL with a req action and check its answer with a Check answer action in its Then chain ("actions") instead.`, and drops a blank one (`null`, `{}`, `""`). A ticket saved before this release keeps running its `request` until it is saved again; the dashboard then removes it, after you confirm.
 
-The same check is a [`req` action](/tickets/actions.md#req-http-request-with-its-own-condition-and-chain) placed first, with its answer checked by a [Condition](/tickets/actions.md#checking-the-response) in its Then chain:
+The same check is a [`req` action](/tickets/actions.md#req-http-request-with-its-own-condition-and-chain) placed first, with its answer checked by a [Check answer](/tickets/actions.md#checking-the-response) in its Then chain:
 
 ```json
 {
   "act": "req",
   "exe": {
-    "url": "https://api.example.com/licences/${data[licence]}",
+    "url": "https://api.example.com/licences/${body[licence]}",
     "method": "GET",
     "actions": [
       {
@@ -350,9 +360,9 @@ The actions that should run only when the check passes go after it in the chain,
 
 A ticket's `condition.signature.secretName`, the name of the Secret Key that signs the sender's requests, was called `secret` before 2026-09-18. That name is still accepted when you register a ticket and is converted to `secretName`, which is what gets stored. It is still read on tickets stored earlier, so no registered ticket breaks.
 
-### match on a req action
+### A response check on an action (`condition`, `match`)
 
-A `req` action's `match` rows were checked against the response like `data` rows. They are the response check's `data` rows now: registering a `match` puts its rows at the end of `condition.data`.
+Until 2026-10-09 a `req` action could carry a `condition` of its own, checked against its response (`headers` and `data` rows), and before that `match` rows checked the same way. An answer is checked by a [Check answer](/tickets/actions.md#cond-check-answer) action in the action's Then chain now, on every action that answers something: its `response` rows read the answer whole (key `""`) or by key. Registering a `condition` or a `match` on an action is refused with a message that says so: `"actions[0].exe.condition": a response check is a Check answer action in the action's Then chain ("actions"): its "response" rows read the answer, whole (key "") or by key.` A ticket saved with one keeps running as it was until it is saved again; the dashboard names the field when such a ticket is saved, and the rows move into a Check answer in the Then chain.
 
 ### The long-form consume endpoints
 

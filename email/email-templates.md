@@ -56,9 +56,9 @@ The tabs on the page are named **Signup**, **Welcome**, **Verification**, **Invi
 - **Placeholders**: the placeholders the selected type fills in, split into **Required** and **Optional**.
 - **Current template**: the subject of the template in use, or `Built-in default`, and when this type of email is sent. **[Preview]** opens it.
 
-Below them is the list of the templates you have sent for that type.
+Below them is the list of the templates you have sent for that type: the subject, the **Template ID** (which a ticket's Send e-mail action names for a custom template; the column copies it with a click and can be hidden with the column picker) and when it was received, and on every tab but **Custom** the **In use** mark.
 
-![The Automated Emails page on the Signup tab: the Set Template address with a Compose link, the required and optional placeholders, the current template with a Preview link, and the list of uploaded templates with an In use column](/screenshots/mail-page.webp)
+![The Automated Emails page on the Signup tab: the Set Template address with a Compose link, the required and optional placeholders, the current template with a Preview link, and the list of uploaded templates with their In use mark, subject, Template ID and date](/screenshots/mail-page.webp)
 
 *The Automated Emails page. The Set Template address takes templates for the selected tab.*
 
@@ -76,7 +76,7 @@ See [Template Placeholders](#template-placeholders) for the full list per type.
 
 Every template you send is added to the list of its type, newest first, with its subject and when it was received. Sending a template never changes the one in use: whichever tab's address you send to, the template is only listed, and nothing changes until you choose it here. The filled circle in the **In use** column marks the one your project sends. To switch, click the circle of another row and confirm.
 
-![The Set as template confirmation: use "Welcome to ${service_name}! Confirm your email" as the Signup Confirmation template, with Cancel and Confirm buttons](/screenshots/mail-set-template.webp)
+![The Set as template confirmation: use "Your order ${order} is on its way" as the Signup Confirmation template, with Cancel and Confirm buttons](/screenshots/mail-set-template.webp)
 
 *New emails of this type use the chosen template right away. The template it replaces stays in the list.*
 

@@ -24,7 +24,7 @@ consumeTicket<T = TicketReceipt>(
         ticket_id: string; // The ticket to consume.
         method: 'GET' | 'POST'; // 'POST' sends data as the JSON body. 'GET' sends it as the query string.
         auth?: boolean; // Consume on the signed-in endpoint, as the logged-in user. POST only. Needed by a ticket whose condition has user or record_access.
-        data?: { [key: string]: any }; // The request data: the JSON body of a POST, read by data rows and ${data}, or the query string of a GET, read by params rows and ${params}.
+        data?: { [key: string]: any }; // The request data: the JSON body of a POST, read by body rows and ${body}, or the query string of a GET, read by params rows and ${params}.
     }
 ): Promise<T> // The receipt below, or the body a Respond action of the ticket answered.
 
@@ -85,7 +85,8 @@ getTickets(
     updated?: number;                  // Last registered at, in milliseconds.
     condition?: TicketCondition;
     actions?: TicketAction[];
-    legacy?: boolean;                  // true: marked "previous rules" on the dashboard. It runs by the rules it was saved with until it is registered again.
+    legacy?: boolean;
+    rules_version?: number; // The rules the ticket was saved under: 2 = an HTTP request answers the whole response. Absent on a ticket saved before 2026-10-09, which keeps answering the body alone until it is saved again. Project owner only. See https://docs.skapi.com/deprecated/deprecated.html#a-request-s-answer-was-its-body                  // true: marked "previous rules" on the dashboard. It runs by the rules it was saved with until it is registered again.
 }[]>>
 ```
 
@@ -197,7 +198,7 @@ type TicketCondition = {
         operator: '=' | '!=' | '>' | '>=' | '<' | '<=' | 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte';
         value: string | string[];
     }[];
-    data?: TicketConditionRow[];   // Rows against the POST body. Refused on a GET ticket: a GET request has no body.
+    body?: TicketConditionRow[];   // Rows against the POST body. Refused on a GET ticket: a GET request has no body.
     params?: TicketConditionRow[]; // Rows against the query string, on GET and POST.
     user?: { // Signed requests only: an app user calling consumeTicket() with auth: true. A webhook always fails these (AUTH_REQUIRED). Actions read the same attributes as ${user[key]}.
         key: string; // A consumer attribute, such as "email_verified" or "access_group".
@@ -208,9 +209,9 @@ type TicketCondition = {
 }
 ```
 
-The parts are evaluated in the order `method`, `signature`, `ip`, `user_agent`, `headers`, `data`, `params`, `user`, `record_access`. The first one that fails is the one reported, and an empty or absent part is not checked.
+The parts are evaluated in the order `method`, `signature`, `ip`, `user_agent`, `headers`, `body`, `params`, `user`, `record_access`. The first one that fails is the one reported, and an empty or absent part is not checked.
 
-Rows of `headers`, `data`, `params` and `user` follow one rule: rows with the same `key` are alternatives, rows with different keys must all be satisfied, and a field the request does not carry is a mismatch (a row compared with `null` or `undefined` aside, see [TicketConditionRow](#ticketconditionrow)). A failure is `CONDITION_FAILED` with `detail: { field, keys }`, `keys` listing every key that failed.
+Rows of `headers`, `body`, `params` and `user` follow one rule: rows with the same `key` are alternatives, rows with different keys must all be satisfied, and a field the request does not carry is a mismatch (a row compared with `null` or `undefined` aside, see [TicketConditionRow](#ticketconditionrow)). A failure is `CONDITION_FAILED` with `detail: { field, keys }`, `keys` listing every key that failed.
 
 On two strings `>=` means "starts with" and `<=` means "ends with"; on two numbers they compare as numbers. `=` and `!=` compare strictly (`1` is not `"1"`). Ordering operators never pass on mixed types, booleans, `null` or a missing field. A `value` list passes `=` and the ordering operators when any member matches, and `!=` when none does.
 
@@ -224,22 +225,22 @@ See [Conditions and Placeholders](/tickets/conditions.md)
 
 ```ts
 type TicketConditionRow = {
-    key: string; // A path relative to its own list, written without ${ }: "id" is the body's id, "order[id]" its order.id; in a response check, a path in the response body. Never templated.
+    key: string; // A path relative to its own list, written without ${ }: "id" is the body's id, "order[id]" its order.id; in a Check answer, a path in the enclosing action's answer ("body[status]" on a response). Never templated.
     operator?: '=' | '!=' | '>' | '>=' | '<' | '<=' | 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte'; // A match row. Without it: a capture-only row, which never passes or fails anything.
     value?: string | number | boolean | null | undefined | Array<string | number | boolean | null>; // A literal, never templated. A match row with no value compares with undefined.
-    setValueWhenMatch?: any; // When this row is the first to match its key, replaces the value at key (in the request, or in the response for a response check), so ${data[...]} or ${response[...]} reads the replacement. null replaces nothing.
+    setValueWhenMatch?: any; // When this row is the first to match its key, replaces the value at key (in the request, or in the answer for a Check answer), so ${body[...]} or ${response[...]} reads the replacement. null replaces nothing.
     placeholder?: string; // Stores the value at key (after any replacement) under this name, when the row matches or is capture-only. Actions read it as ${placeholder[NAME]}. Must match ^[A-Za-z_][A-Za-z0-9_]*$
 }
 ```
 
-A row of `condition.data` (the POST body) or `condition.params` (the query string), and of the `data` of a `req` action's response check.
+A row of `condition.body` (the POST body) or `condition.params` (the query string), and a `response` row of a Check answer (`cond`).
 
-- Rows are read in order. For each key the first match row that matches wins: its `setValueWhenMatch` applies and its `placeholder` captures, and later match rows on that key are skipped. A match row that does not match captures nothing.
+- Rows are read in order, and every one of them: there is no short-circuit, so every capture-only row fills its placeholder. For each key the first match row that matches wins: its `setValueWhenMatch` replaces the value, in the data itself where the field exists, and its `placeholder` captures the result. The later match rows on that key are skipped without being evaluated, so nothing is re-checked against the replaced value; a later row on another key whose path runs through the replaced field reads the replacement. A match row that does not match captures nothing. At the ticket's condition keys and values are literal: `${...}` inside a row is plain text. In a `cond` action the key is literal but `value` and `setValueWhenMatch` may hold `${response...}` and `${placeholder[NAME]}`.
 - A capture-only row captures whenever its path exists, and leaves the placeholder unset otherwise.
 - Query string values are JSON-parsed when they parse, otherwise they stay strings: `?qty=2` is the number `2`, so a `params` row matches it with `value: 2`, not `"2"`. Header values are always strings.
 - `null` and `undefined` keep their JavaScript meaning, and a missing field is `undefined`: `= null` passes on a field that is there and `null`; `!= null` on anything else, a missing field included; `= undefined` on a missing field; `!= undefined` on a field that is there, `null` included. Ordering operators never pass with either. `undefined` is a single value, never a list member.
 
-See [Data and Params](/tickets/conditions.md#data-and-params)
+See [Body and Params](/tickets/conditions.md#body-and-params)
 
 ## TicketAction
 
@@ -307,7 +308,7 @@ type TicketAction =
         retry?: boolean;
     }
     | {
-        act: 'req'; // HTTP request with its own condition and chain. Answers the parsed response body.
+        act: 'req'; // HTTP request with a nested chain on its response. Answers the whole response: { status, headers, body }.
         exe: {
             url: string; // Starts with http:// or https:// and a hostname, and resolves to a public address. Values put in with ${...} are percent-encoded. A URL that is one whole reference is refused. Sent as a browser sends it: a tab or line break removed, a hostname outside ASCII IDNA-encoded, a space, another control character or a character outside ASCII in the path or query percent-encoded.
             method?: 'GET' | 'POST' | 'PUT' | 'DELETE'; // Default GET. Written out, never a reference.
@@ -315,7 +316,7 @@ type TicketAction =
             headers?: { [name: string]: string }; // Values templated. A Host or X-Skapi-Ticket header is refused: the engine sets both. A name that is not ASCII or holds ':', a line break or NUL is refused, and so is a value whose text outside ${...} holds a line break, NUL or a character outside Latin-1. A value that breaks that rule once its references are filled in fails the call (REQUEST_FAILED, reason 'invalid_header').
             data?: any; // POST/PUT body. Sent as JSON when a content-type header says application/json, else form encoded.
             params?: { [key: string]: any }; // Added to the query string on every method. A value that is not text is sent as compact JSON.
-            actions?: TicketAction[]; // The Then chain, any action, run on an answer below 300. Reads the response body as ${response} and ${response[key]}; ${data} is still the request the ticket received. A cond in it checks the response with its response rows.
+            actions?: TicketAction[]; // The Then chain, any action, run on an answer below 300. Reads the response as ${response}: ${response[status]}, ${response[headers][content-type]} (header names lowercase) and ${response[body][key]}; ${body} is still the request the ticket received. A cond in it checks the response.
         };
         err?: TicketAction[];
         retry?: boolean;
@@ -324,8 +325,8 @@ type TicketAction =
         act: 'mail'; // Send e-mail: a custom template of the project to one address. Answers the SUCCESS text of the send.
         exe: {
             template: string; // The template's ID, as the Custom tab of Automated Emails and the upload reply show it. Literal; it must be stored when the ticket is registered.
-            to: string; // The recipient: one address, or a reference that gives one, such as "${user[email]}" or "${data[email]}".
-            placeholders?: { [name: string]: string | number | boolean }; // Values for the placeholders the template carries, by name: { "order": "${data[order][id]}" } fills ${order}. Templated. "service_name" and "email" (the recipient) are filled by default and may be overwritten here. Up to 30.
+            to: string; // The recipient: one address, or a reference that gives one, such as "${user[email]}" or "${body[email]}".
+            placeholders?: { [name: string]: string | number | boolean }; // Values for the placeholders the template carries, by name: { "order": "${body[order][id]}" } fills ${order}. Templated. "service_name" and "email" (the recipient) are filled by default and may be overwritten here. Up to 30.
             actions?: TicketAction[]; // The Then chain. Reads the SUCCESS text as ${response}.
         };
         err?: TicketAction[];
@@ -351,18 +352,9 @@ type TicketAction =
         err?: TicketAction[];
     }
     | {
-        act: 'cond'; // Condition: rows inside the chain. A part that fails fails the chain here with CONDITION_FAILED. Answers nothing.
+        act: 'cond'; // Check answer: rows on the answer of the action whose Then chain this is. A row that does not pass fails the chain here with CONDITION_FAILED. Answers nothing. Inside a Then chain only.
         exe: {
-            data?: TicketConditionRow[]; // Rows against the request body.
-            params?: TicketConditionRow[]; // Rows against the query string.
-            headers?: TicketCondition['headers'];
-            ip?: TicketCondition['ip'];
-            user_agent?: TicketCondition['user_agent'];
-            user?: TicketCondition['user']; // Signed requests only.
-            record_access?: string; // Signed requests only.
-            placeholder?: { key: string; operator: TicketConditionOperator; value: any }[]; // Rows on the placeholder pool: key is a placeholder name. May compare with null.
-            response?: TicketConditionRow[]; // Rows on the enclosing action's answer, whatever its shape: key is a path in it ("record_id" on a posted record, "status" in a response body), "" the whole answer as text. Inside a Then chain only.
-            error?: TicketConditionRow[]; // Rows on the failure: code, message, detail, action, path, or "" for the whole error as text. Inside an err chain only.
+            response: TicketConditionRow[]; // Rows on the enclosing action's answer, whatever its shape: key is a literal path in it ("record_id" on a posted record, "body[status]" or "headers[content-type]" on a response), "" the whole answer as text. value and setValueWhenMatch may hold ${response...} and ${placeholder[NAME]}, resolved before the comparison; any other reference is refused.
         };
         err?: TicketAction[];
     };
@@ -373,19 +365,19 @@ Every string value of `exe` is templated right before the action runs (for `req`
 
 | reference | reads |
 |---|---|
-| `${data}`, `${data[key]}` | the request body the ticket received, at every depth. `${data[order][id]}` is the body's `order.id` |
+| `${body}`, `${body[key]}` | the request body the ticket received, at every depth. `${body[order][id]}` is the body's `order.id` |
 | `${params}`, `${params[key]}` | the query string, on GET and POST |
 | `${headers[name]}` | a request header, case-insensitive. `authorization` and `cookie` read `<redacted>` |
 | `${placeholder[NAME]}` | a value a condition row captured |
 | `${user}`, `${user[key]}` | the signed-in consumer's attributes. Signed requests only |
 | `${ip}`, `${user_agent}`, `${method}` | the caller's IP address, user agent and HTTP method |
 | `${record_access}` | the record id the condition's `record_access` names. Signed requests only |
-| `${response}`, `${response[key]}` | the answer of the enclosing action, in its Then chain (`actions`) only: the record a `pstr` posted, the response body of a `req`, the SUCCESS text of a grant |
+| `${response}`, `${response[key]}` | the answer of the enclosing action, in its Then chain (`actions`) only: the record a `pstr` posted, the response of a `req` (`status`, `headers`, `body`), the SUCCESS text of a grant or a send |
 | `${error}`, `${error[key]}` | in an `err` chain: `code`, `message`, `detail`, `action`, `path` |
 | `${ticket}`, `${ticket[key]}` | this consumption: `id`, `service`, `owner`, `consume_id`, `timestamp`, `hash` |
 | `${CLIENT_SECRET}` | reserved: see below |
 
-Registration refuses anything else inside `${ }` (`${id}`, `${ip[x]}`, `${placeholder}`, `${[ip]}`), the former `${result}` (an answer is read as `${response}` in the action's Then chain, or captured there by a Condition), and a reference that can never resolve where it is written (`${response}` outside a Then chain, `${error}` outside an `err` chain), with `INVALID_PARAMETER` and a message that lists the valid forms. A reference that does not resolve when the action runs fails the action before it does anything: `PATH_NOT_FOUND`, `PLACEHOLDER_MISSING`, or `AUTH_REQUIRED` for `${user}` on a request that is not signed in. See [Templating](/tickets/conditions.md#templating).
+Registration refuses anything else inside `${ }` (`${id}`, `${ip[x]}`, `${placeholder}`, `${[ip]}`), and a reference that can never resolve where it is written (`${response}` outside a Then chain, `${error}` outside an `err` chain), with `INVALID_PARAMETER` and a message that lists the valid forms. A reference that does not resolve when the action runs fails the action before it does anything: `PATH_NOT_FOUND`, `PLACEHOLDER_MISSING`, or `AUTH_REQUIRED` for `${user}` on a request that is not signed in. See [Templating](/tickets/conditions.md#templating).
 
 `${CLIENT_SECRET}` is only allowed in the `headers`, `data` and `params` values of a `req` that names a `secretName`, and registration refuses it anywhere else. Each call is held to the Destinations of the Secret Key it carries, and every copy of the key's value in the response, as sent or escaped up to three times over with percent-encoding, backslash escapes and HTML character references (mixed character by character), is replaced by the text `${CLIENT_SECRET}` before it is checked, logged or returned in an error. A copy escaped four times over is not found, and one is not guaranteed to be found when a round of escaping left part of an earlier round's escape readable on its own, such as the `%BA` of `%&#68;0%BA`. The whole response is searched and passed on, never cut. When the 25 second budget runs out while a long one is searched, the action fails with `REQUEST_FAILED` and `detail: { reason: "timeout" }`. A key that no longer exists fails the action with `REQUEST_FAILED` and `detail: { reason: "secret_missing", secretName }`. See [Sending a Secret Key](/tickets/actions.md#sending-a-secret-key).
 
