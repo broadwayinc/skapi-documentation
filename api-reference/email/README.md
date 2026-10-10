@@ -129,6 +129,32 @@ newsletterGroupEndpoint(): Promise<{
 }>
 ```
 
+## registerNewsletterGroup
+
+```ts
+registerNewsletterGroup(
+    params: {
+        group: string;        // Name of the group: 2 to 20 lowercase letters and digits, at least one letter, not a reserved name ('public', 'authorized').
+        restriction?: number; // Access group required to subscribe: 0 = anyone (default), 1 = any signed-in user, 2 ~ 99 = that access group and above.
+        name?: string;        // Label shown on the dashboard, 60 characters max.
+    }
+): Promise<'SUCCESS: Group registered successfully.'>
+```
+
+Project owner only. The group gets its own sending address, returned by [`newsletterGroupEndpoint()`](#newslettergroupendpoint) with its subscriber count. A project can have up to 20 named groups. See [Named groups](/email/newsletters.md#creating-a-named-group).
+
+## deleteNewsletterGroup
+
+```ts
+deleteNewsletterGroup(
+    params: {
+        group: string; // Name of the group to delete.
+    }
+): Promise<string> // 'SUCCESS: Group has been deleted along with N subscription(s).'
+```
+
+Project owner only. Deletes the group, every subscription to it, the newsletters sent to it and its sending address. This cannot be undone.
+
 ## sendInquiry
 
 ```ts

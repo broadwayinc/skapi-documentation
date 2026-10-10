@@ -56,9 +56,9 @@ The tabs on the page are named **Signup**, **Welcome**, **Verification**, **Invi
 - **Placeholders**: the placeholders the selected type fills in, split into **Required** and **Optional**.
 - **Current template**: the subject of the template in use, or `Built-in default`, and when this type of email is sent. **[Preview]** opens it.
 
-Below them is the list of the templates you have sent for that type: the subject, the **Template ID** (which a ticket's Send e-mail action names for a custom template; the column copies it with a click and can be hidden with the column picker) and when it was received, and on every tab but **Custom** the **In use** mark.
+Below them is the list of the templates you have sent for that type: the subject, the **Template ID** (which a ticket's Send e-mail action names for a custom template; the column copies it with a click and can be hidden with the column picker) and when it was received. On every tab but **Custom**, the template your project sends carries an **In use** chip next to its subject.
 
-![The Automated Emails page on the Signup tab: the Set Template address with a Compose link, the required and optional placeholders, the current template with a Preview link, and the list of uploaded templates with their In use mark, subject, Template ID and date](/screenshots/mail-page.webp)
+![The Automated Emails page on the Signup tab: the Set Template address with a Compose link, the required and optional placeholders, the current template with a Preview link, and the list of uploaded templates with their subject, an In use chip on one of them, Template ID and date](/screenshots/mail-page.webp)
 
 *The Automated Emails page. The Set Template address takes templates for the selected tab.*
 
@@ -74,13 +74,17 @@ See [Template Placeholders](#template-placeholders) for the full list per type.
 
 ### Choosing the template in use
 
-Every template you send is added to the list of its type, newest first, with its subject and when it was received. Sending a template never changes the one in use: whichever tab's address you send to, the template is only listed, and nothing changes until you choose it here. The filled circle in the **In use** column marks the one your project sends. To switch, click the circle of another row and confirm.
+Every template you send is added to the list of its type, newest first, with its subject and when it was received. Sending a template never changes the one in use: whichever tab's address you send to, the template is only listed, and nothing changes until you choose it here. The **In use** chip marks the one your project sends. To switch, click the row of another template to open its preview, check it, and click **Use as Signup Confirmation template** (the button names the type) under the preview; a confirmation follows. On the template in use the button reads **In use**.
+
+![The preview of a template that is not in use, with a Use as Signup Confirmation template button under the rendered email](/screenshots/mail-use-template.webp)
+
+*Choose a template from its preview, where you can see what you are choosing.*
 
 ![The Set as template confirmation: use "Your order ${order} is on its way" as the Signup Confirmation template, with Cancel and Confirm buttons](/screenshots/mail-set-template.webp)
 
 *New emails of this type use the chosen template right away. The template it replaces stays in the list.*
 
-![The template list after the change: the newest template is marked In use and Current template shows its subject](/screenshots/mail-in-use.webp)
+![The template list after the change: the newest template carries the In use chip and Current template shows its subject](/screenshots/mail-in-use.webp)
 
 *The chosen template is marked In use, and Current template shows its subject.*
 
@@ -88,9 +92,9 @@ To remove templates, tick their rows and click the trash icon. Deleting the temp
 
 ### Opening a template
 
-Click a row of the list, or **[Preview]** on the **Current template** row, to open the template the way a recipient sees it. **Fill placeholders** is on when the preview opens, and swaps every placeholder, in the subject and in the body, for a sample value taken from your own account and project.
+Click a row of the list, or **[Preview]** on the **Current template** row, to open the template the way a recipient sees it. Under the preview, the button chooses the template for the tab's type of email, or reads **In use** on the one already chosen. **Fill placeholders** is on when the preview opens, and swaps every placeholder, in the subject and in the body, for a sample value taken from your own account and project.
 
-![The template preview with Fill placeholders on: the subject reads Welcome to Padaria Aurora, and the body greets Marina by name with her email address](/screenshots/mail-preview-filled.webp)
+![The template preview with Fill placeholders on: the subject reads Welcome to Padaria Aurora, Marina, the body greets Marina by name with her email address, and the button under it reads In use](/screenshots/mail-preview-filled.webp)
 
 *Fill placeholders on: the email as a user would receive it.*
 
@@ -138,7 +142,7 @@ The **Custom** tab holds templates that no event sends on its own: a ticket send
 *The Custom tab. Every template has a template ID, which a Send e-mail action names.*
 
 - Send a template to the tab's **Set Template** address the way you send any other, from your project's email address. The reply names its **template ID**, and the list shows the ID next to the subject with a button that copies it.
-- There is no **In use** column: a custom template is never the current template of anything, and nothing is sent until a ticket names it. The tab keeps up to **100** templates; the next one is refused with a reply. Delete templates you no longer need by ticking their rows and clicking the trash icon. A ticket whose template was deleted fails that action when it runs.
+- No template carries an **In use** chip and the preview offers no **Use as** button: a custom template is never the current template of anything, and nothing is sent until a ticket names it. The tab keeps up to **100** templates; the next one is refused with a reply. Delete templates you no longer need by ticking their rows and clicking the trash icon. A ticket whose template was deleted fails that action when it runs.
 - **Placeholders.** `${service_name}` and `${email}`, the recipient, are filled in by default. Any other `${name}` you write, such as `${order}` or `${name}`, is filled in by the ticket, which gives the values under `placeholders`; a name the ticket does not give stays as written. None is required.
 - Each e-mail a ticket sends counts as one e-mail send of the month, like a newsletter to one subscriber. See [Sending limits](/email/newsletters.md#sending-limits).
 

@@ -94,7 +94,7 @@ The user must be logged in.
 
 A ticket with `legacy: true` keeps running by the rules it was saved with until it is registered again, which applies the current rules. Its `condition` and `actions` are returned converted to the current format. See [Tickets saved before this release](/deprecated/deprecated.md#tickets-saved-before-this-release).
 
-The project owner may also pass `ticket_id: '#<ticket_id>#'` to read the consumption log of that ticket, and `ticket_id: '@<ticket_id>#<consume_id>#'` to read the [action rows](/tickets/errors.md#the-action-rows) of one consumption. The rows then have the shape [getConsumedTickets()](#getconsumedtickets) returns, plus `failed: true` on a failed consumption; `from` and `to` narrow either listing to a time range, each end optional.
+The project owner may also pass `ticket_id: '#<ticket_id>#'` to read the consumption log of that ticket, and `ticket_id: '@<ticket_id>#<consume_id>#'` to read the [action rows](/tickets/errors.md#the-action-rows) of one consumption. The rows then have the shape [getConsumedTickets()](#getconsumedtickets) returns, plus `failed: true` on a failed consumption; `from` and `to` narrow either listing to a time range, each end optional. Each row carries `attempts` and, on a retried action, `retried`; a Send e-mail or Send newsletter that went out but could not be counted or marked sent carries a `warning`.
 
 #### Errors
 ```ts
