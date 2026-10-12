@@ -102,6 +102,33 @@ If the specified table does not exist, it will be automatically created when you
 Conversely, if a table has no records, it will be automatically deleted.
 :::
 
+## Creating Several Records at Once
+
+[`postRecords()`](/api-reference/database/README.md#postrecords) takes a list of `{ data, config }` items, each the two arguments of [`postRecord()`](/api-reference/database/README.md#postrecord), and saves them 100 to a request. Use it when a page writes many records in one go, such as one record per imported row or per uploaded file: a thousand records are ten requests instead of a thousand.
+
+```js
+let result = await skapi.postRecords(
+    rows.map(row => ({
+        data: row,
+        config: { table: { name: 'imports', access_group: 'public' } }
+    }))
+);
+
+// result
+{
+    list: [RecordData],   // the records that were saved, in the order given
+    failed: [             // the items that were not, each by its position in the list
+        { index: 7, code: 'INVALID_PARAMETER', message: '...' }
+    ]
+}
+```
+
+An item that is refused does not stop the others: it is reported in `failed` with its `index`, and the same `code` and `message` `postRecord()` would have rejected with, while the items after it are still saved. `list.length + failed.length` is always the number of items given. Only a failure of a request itself (the connection, the sign-in, a server error) rejects the call, and the records saved before it stay saved.
+
+Every item follows the rules of `postRecord()`: the same `config` keys, the same table naming rules, the same access checks. Two differences: `data` is an object (or null), not a form with files, and files are not attached here. Attach them to a saved record with [`uploadFiles()`](/database/handling-files.md#uploading-files-to-an-existing-record), which with many files asks for its upload permits in batches as well.
+
+### [`postRecords(items):Promise<PostRecordsResult>`](/api-reference/database/README.md#postrecords)
+
 ## Large Record Data
 
 There is no separate call for a large payload. When a record's `data` is larger than 32 KB, Skapi stores the

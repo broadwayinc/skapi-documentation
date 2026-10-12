@@ -367,6 +367,32 @@ type ProgressCallback = (e: {
 }) => void;
 ```
 
+## PostRecordsItem
+
+One item of [`postRecords()`](/api-reference/database/README.md#postrecords): the two arguments of `postRecord()` as one object.
+
+```ts
+type PostRecordsItem = {
+    data?: { [key: string]: any } | null; // The record's data. Leave it out to keep a record's stored data as it is on an update.
+    config: PostRecordConfig; // The record's configuration, as postRecord() takes it.
+}
+```
+
+## PostRecordsResult
+
+What [`postRecords()`](/api-reference/database/README.md#postrecords) resolves with. `list.length + failed.length` is the number of items given.
+
+```ts
+type PostRecordsResult = {
+    list: RecordData[]; // The records that were saved, in the order their items were given.
+    failed: {
+        index: number; // The item's position in the `items` given.
+        code: string; // The code postRecord() would have rejected the item with.
+        message: string;
+    }[];
+}
+```
+
 ## UploadFilesResult
 
 What [`uploadFiles()`](/api-reference/database/README.md#uploadfiles) resolves with.

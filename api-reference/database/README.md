@@ -157,6 +157,38 @@ storage refuses a request that then sends a different number of bytes and stores
 declares the true size of the file it sends, [encrypted](/database/encryption.md) and empty files
 included. See [Uploading Files](/database/handling-files.md#uploading-files).
 
+## postRecords
+
+```ts
+postRecords(
+    /** One or more items, each the two arguments of postRecord() as one object. 100 records go out in one request. */
+    items: {
+        /** The record's data, as postRecord()'s first argument: an object, or null. Leave it out to keep a record's stored data as it is on an update. */
+        data?: { [key: string]: any } | null;
+        /** The record's configuration, as postRecord()'s second argument: the same keys, the same rules. */
+        config: PostRecordConfig;
+    }[]
+): Promise<PostRecordsResult>
+```
+
+The records of a request are saved in order. An item that fails a check is reported in `failed` with its `index` in `items` and the same `code` and `message` [`postRecord()`](#postrecord) would have rejected with, and the items after it are still saved; the call resolves either way. `list` holds the saved records in the order their items were given, and `list.length + failed.length` is `items.length`. Only a failure of a request itself (the connection, the sign-in, a server error) rejects the call; the records saved by the requests before it stay saved. Files are not attached by this method: attach them to a saved record with [`uploadFiles()`](#uploadfiles). See [Creating Several Records at Once](/database/create.md#creating-several-records-at-once).
+
+See [`postRecord()`](#postrecord) for every key of `config`.
+
+See [PostRecordsItem](/api-reference/data-types/README.md#postrecordsitem)
+
+See [PostRecordsResult](/api-reference/data-types/README.md#postrecordsresult)
+
+See [RecordData](/api-reference/data-types/README.md#recorddata)
+
+#### Errors
+```ts
+{
+    code: "INVALID_PARAMETER";
+    message: '"items" should be a non-empty array.';
+}
+```
+
 ## getRecords
 
 ```ts
@@ -651,6 +683,8 @@ uploadFiles(
 ```
 
 Files are uploaded one after another. A file storage does not accept does not stop the rest: it is listed in `failed`, and `errors` says why, see [Uploading Files to an Existing Record](/database/handling-files.md#uploading-files-to-an-existing-record).
+
+With five files or more, the upload permits are requested 100 to a request (`POST /get-signed-urls`) instead of one request per file; the files still go up one after another and the result is the same. A file the server refuses a permit for is listed in `failed` and `errors` with the server's `code`, and its slot in `bin_endpoints` is an empty string. Where the bulk permit route is not available, the permits are requested one per file as before, automatically. See [Many files](/database/handling-files.md#many-files).
 
 See [UploadFilesResult](/api-reference/data-types/README.md#uploadfilesresult)
 

@@ -126,6 +126,12 @@ Files are uploaded one after another, and a file storage does not accept does no
 
 `error.code` is the storage code when storage refused the file (`AccessDenied`, `EntityTooLarge` ...), or `NETWORK_ERROR` (the connection failed), `TIMEOUT` (see below), `ABORTED` (the progress callback's `abort()` was called) or `TOO_MANY_REQUESTS`. `error.cause` holds the raw response, when there was one. `failed` lists the file alone, as it always has; `errors` is where the reason is.
 
+### Many files
+
+With five files or more, the upload permits are requested 100 to a request instead of one request per file, so a folder of a thousand files costs ten permit requests and a thousand uploads rather than two thousand requests. Nothing changes in how you call it or in the result; the files still go up one after another. A file the server refuses a permit for (the record already holds 100 files, the project is over its storage, a reserved name) is listed in `failed` and `errors` with the server's `code`, the others are still uploaded, and its slot in `bin_endpoints` is an empty string. Where the bulk permit route is not available yet, the permits are requested one per file as before, automatically.
+
+A file whose upload keeps being answered with `429` and a `Retry-After` is retried up to 6 times and then counted as failed with the code `TOO_MANY_REQUESTS`; it is never retried without end.
+
 ### Time limit per file
 
 By default a file's upload has no time limit: a connection that stalls holds the call for as long as the browser keeps it open. `timeout`, in milliseconds, ends that. A file that is not finished within the time is aborted and counted as failed with the code `TIMEOUT`, and the next file is uploaded. Every file gets the full time.
