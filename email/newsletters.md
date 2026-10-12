@@ -89,6 +89,12 @@ A newsletter mailed to it, from your project's email address like any other, is 
 - **Send it from a ticket.** A ticket's [Send newsletter action](/tickets/actions.md#nlsd-send-a-newsletter) names the list and the newsletter ID and sends it when the ticket is consumed: a launch mail at the time a webhook arrives, a reminder a signed-in call triggers. The action may also send again a newsletter that already went out.
 - [`getNewsletters()`](/api-reference/email/README.md#getnewsletters) returns `dry: true` on a newsletter saved this way, and `sent`, the time it was last sent from the page or by a ticket, once it went out.
 
+### Uploading a newsletter
+
+**[Upload]**, next to **[Compose]** on the **Save without sending** row, stores a newsletter from your computer instead of your mail app: a **subject**, and the body as an **HTML file** or as **plain text** (typed in, or loaded from a `.txt` file; each blank line starts a paragraph and web addresses become links). The dialog checks the subject, the size (up to 240 KB; inline images do not count) and that the body is HTML an e-mail client renders, naming any problem with its line, and **[Preview]** shows it with sample values.
+
+An uploaded newsletter is stored exactly as one mailed to the Save without sending address: dry, sent to nobody, listed as **Not sent**, counted into the project's e-mail storage and never as a send. Send it from the list, or from a ticket's Send newsletter action, when it is ready.
+
 ## Subscribing Users To Public Newsletters
 
 You can send public newsletters to your users by sending your email to the endpoint email.

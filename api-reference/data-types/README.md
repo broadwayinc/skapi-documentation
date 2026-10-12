@@ -367,6 +367,33 @@ type ProgressCallback = (e: {
 }) => void;
 ```
 
+## UploadFilesResult
+
+What [`uploadFiles()`](/api-reference/database/README.md#uploadfiles) resolves with.
+
+```ts
+type UploadFilesResult = {
+    completed: File[]; // Files that are stored.
+    failed: File[]; // Files storage did not accept.
+    errors: FileUploadError[]; // Why each file in `failed` was not stored, one entry per file in the same order. Empty when every file was stored.
+    bin_endpoints: string[]; // The endpoint of every file, in the order they were given, whether or not it was stored.
+}
+```
+
+## FileUploadError
+
+One file of an [`uploadFiles()`](/api-reference/database/README.md#uploadfiles) call that storage did not accept.
+
+```ts
+type FileUploadError = {
+    file: File; // The File as it was given: the same object that is listed in `failed`.
+    name: string; // The file's name.
+    error: SkapiError; // Why it was not stored.
+}
+```
+
+`error.code` is the storage code (`AccessDenied`, `EntityTooLarge` ...), or `NETWORK_ERROR`, `TIMEOUT` (the upload took longer than the `timeout` given), `ABORTED` (the progress callback's `abort()` was called), `TOO_MANY_REQUESTS`, or `UPLOAD_FAILED` when storage gave no code. `error.cause` holds the raw response or rejection, when there was one.
+
 ## RealtimeCallback
 
 ```ts

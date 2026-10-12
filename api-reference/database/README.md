@@ -631,6 +631,47 @@ See [FileInfo](/api-reference/data-types/README.md#fileinfo)
 
 See [ProgressCallback](/api-reference/data-types/README.md#progresscallback)
 
+## uploadFiles
+
+```ts
+uploadFiles(
+    /** The files to attach: a FormData, an HTMLFormElement, or the SubmitEvent of a form with file inputs. The input's name is the key the files are listed under in the record's bin. */
+    fileList: FormData | HTMLFormElement | SubmitEvent,
+    params: {
+        /** Record ID of the record to attach the files to. */
+        record_id: string;
+        /** Callback for upload progress. */
+        progress?: ProgressCallback;
+        /** Milliseconds one file's upload may take. A file that takes longer is aborted and counted as failed with the code 'TIMEOUT'; the next file is then uploaded. Every file gets the full time. Omitted or 0: no limit. */
+        timeout?: number;
+        /** Reject at the first file storage does not accept, with that file's error (see FileUploadError), instead of resolving with it listed in `failed` and `errors`. The files stored before it stay stored. Default false. */
+        throwOnFileError?: boolean;
+    }
+): Promise<UploadFilesResult>
+```
+
+Files are uploaded one after another. A file storage does not accept does not stop the rest: it is listed in `failed`, and `errors` says why, see [Uploading Files to an Existing Record](/database/handling-files.md#uploading-files-to-an-existing-record).
+
+See [UploadFilesResult](/api-reference/data-types/README.md#uploadfilesresult)
+
+See [FileUploadError](/api-reference/data-types/README.md#fileuploaderror)
+
+See [ProgressCallback](/api-reference/data-types/README.md#progresscallback)
+
+#### Errors
+```ts
+{
+    code: "INVALID_PARAMETER";
+    message: '"record_id" is required.' | '"timeout" should be a number of milliseconds, 0 or more.' | '"fileList" should be a FormData or HTMLFormElement.';
+}
+|
+// Only with throwOnFileError: the error of the first file storage did not accept.
+{
+    code: string; // The storage code ('AccessDenied', 'EntityTooLarge' ...), 'NETWORK_ERROR', 'TIMEOUT', 'ABORTED', 'TOO_MANY_REQUESTS' or 'UPLOAD_FAILED'.
+    message: string;
+}
+```
+
 ## deleteFiles
 
 ```ts

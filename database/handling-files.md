@@ -94,6 +94,63 @@ skapi.postRecord(someData, {
 });
 ```
 
+## Uploading Files to an Existing Record
+
+[`uploadFiles()`](/api-reference/database/README.md#uploadfiles) attaches files to a record that already exists, without changing anything else on it. It takes the same `FormData`, `HTMLFormElement` or `SubmitEvent` as [`postRecord()`](/api-reference/database/README.md#postrecord), and the `record_id` of the record.
+
+```js
+let form = new FormData();
+form.append("picture", fileA);
+form.append("picture", fileB);
+
+let result = await skapi.uploadFiles(form, { record_id: "record_id_to_attach_to" });
+```
+
+Files are uploaded one after another, and a file storage does not accept does not stop the rest. The result says what happened to each one:
+
+```js
+// result
+{
+    completed: [File],        // stored
+    failed: [File],           // not stored
+    errors: [                 // why, one entry per file in `failed`, in the same order
+        {
+            file: File,       // the same File object as in `failed`
+            name: "b.jpg",
+            error: SkapiError // error.code and error.message say why, see below
+        }
+    ],
+    bin_endpoints: [string]   // the endpoint of every file, stored or not
+}
+```
+
+`error.code` is the storage code when storage refused the file (`AccessDenied`, `EntityTooLarge` ...), or `NETWORK_ERROR` (the connection failed), `TIMEOUT` (see below), `ABORTED` (the progress callback's `abort()` was called) or `TOO_MANY_REQUESTS`. `error.cause` holds the raw response, when there was one. `failed` lists the file alone, as it always has; `errors` is where the reason is.
+
+### Time limit per file
+
+By default a file's upload has no time limit: a connection that stalls holds the call for as long as the browser keeps it open. `timeout`, in milliseconds, ends that. A file that is not finished within the time is aborted and counted as failed with the code `TIMEOUT`, and the next file is uploaded. Every file gets the full time.
+
+```js
+await skapi.uploadFiles(form, {
+    record_id: "record_id_to_attach_to",
+    timeout: 120000, // two minutes per file
+});
+```
+
+### Failing at the first refused file
+
+`throwOnFileError: true` makes the call reject at the first file storage does not accept, with that file's error, instead of resolving with it listed. The files uploaded before it stay stored, and the files after it are not sent.
+
+```js
+try {
+    await skapi.uploadFiles(form, { record_id: "record_id_to_attach_to", throwOnFileError: true });
+} catch (err) {
+    console.log(err.code, err.message); // 'EntityTooLarge' 'Your proposed upload exceeds the maximum allowed size'
+}
+```
+
+Neither option changes [`postRecord()`](/api-reference/database/README.md#postrecord): a file refused there is left out of the record without an error, as described under [Uploading Files](#uploading-files).
+
 ## Downloading Files
 
 To download files from the record, you can use the `getFile()` method on the [BinaryFile](/api-reference/data-types/README.md#binaryfile) object in the record.

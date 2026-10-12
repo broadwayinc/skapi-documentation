@@ -133,6 +133,17 @@ A template that passes is added to the list for its type: choose it there to use
 - You must use the same email address that you used to signup to Skapi.
 :::
 
+### Uploading a template
+
+A template does not have to come by e-mail. **[Upload]**, next to **[Compose]** on the **Set Template** row, takes it from your computer:
+
+1. Give the template a **subject**. It can hold placeholders, like a mailed subject.
+2. Pick the **body**: an **HTML file** (an `.html` file saved from your mail or page editor, stored as it is with its inline styles and images), or **plain text**, typed in or loaded from a `.txt` file. Plain text goes out as a simple HTML e-mail: each blank line starts a paragraph and web addresses become links, so the link placeholder written as `https://link.skapi.com` becomes a clickable link.
+3. The dialog checks the template as you go, the way the backend checks a mailed one: the subject, the type's [required placeholders](#required-placeholders-for-signup-confirmation-email), the size (up to 240 KB; inline images do not count) and, new with an upload, that the file is HTML an e-mail client renders: text with markup in it, no `<script>`, every element that has to be closed closed where it should be. A problem is named with its line; **Upload** stays off until it is fixed. A placeholder the type never fills is pointed out as a warning, because it would go out empty.
+4. **[Preview]** shows the body with sample values. **Upload template** stores it.
+
+An uploaded template is stored exactly as a mailed one, in the list of its type with a Template ID. It is **not in use** until you choose it there, like any other. On the Custom tab the upload is the template a ticket's Send e-mail action names.
+
 ## Custom e-mails
 
 The **Custom** tab holds templates that no event sends on its own: a ticket sends them, with its [Send e-mail action](/tickets/actions.md#mail-send-an-e-mail), to the address the ticket names. An order confirmation, a receipt, a notice to a member who just unlocked something: anything a webhook or a signed-in call should trigger.
