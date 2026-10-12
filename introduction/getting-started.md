@@ -216,6 +216,7 @@ Everything below runs with the permissions of the signed-in account, so the agen
 - **Database.** Read, search, create, update and delete records. List tables, tags, indexes and unique IDs, and find any of them by how its name starts or ends. It can also read the files attached to a record and give you a download link for them, but it cannot attach a file to a record or remove one: a record sent with files to attach or remove is refused and not saved, while the other records in the same request are still saved. Attach and remove a record's files in the Skapi dashboard (Database page) or with the SDK. Deleting a record still deletes the files attached to it, as it does everywhere else.
 - **Project settings.** Turn sign-ups or inquiries on and off, restrict anonymous writes, and change the other settings of the project.
 - **Hosting.** Register a web address, then upload, edit and delete the files of your project's website.
+- **E-mails** (project owner only). Compose an automated e-mail template, of any type, or a newsletter, and upload it as e-mail HTML or as plain text, with the same checks the dashboard makes (e-mail HTML, the type's required placeholders, the size). An uploaded template is added to its list and is never put in use by the agent; an uploaded newsletter is saved without sending. The owner chooses the template, or sends the newsletter, on the dashboard, or a ticket's Send e-mail or Send newsletter action names it. See [Uploading a template](/email/email-templates.md#uploading-a-template) and [Uploading a newsletter](/email/newsletters.md#uploading-a-newsletter).
 
 The ticket, secret key and OpenID logger pages of this documentation each show the dashboard forms these tools fill in for you. A few prompts to start with:
 
@@ -225,6 +226,8 @@ Create a ticket that saves each incoming webhook payload to the "orders" table, 
 Register a Google OpenID logger for this project, and let in only addresses that end with "@mycompany.com".
 Show me what my "orders" ticket received today.
 Make every record in the "posts" table private.
+Write a welcome e-mail for my shop, in my brand's tone, and upload it as the welcome template.
+Compose this month's newsletter about the new autumn menu and save it to the public list without sending it.
 ```
 
 The agent picks the tools, asks when something is missing, and reports what it changed.

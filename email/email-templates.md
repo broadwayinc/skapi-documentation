@@ -58,7 +58,7 @@ The tabs on the page are named **Signup**, **Welcome**, **Verification**, **Invi
 
 Below them is the list of the templates you have sent for that type: the subject, the **Template ID** (which a ticket's Send e-mail action names for a custom template; the column copies it with a click and can be hidden with the column picker) and when it was received. On every tab but **Custom**, the template your project sends carries an **In use** chip next to its subject.
 
-![The Automated Emails page on the Signup tab: the Set Template address with a Compose link, the required and optional placeholders, the current template with a Preview link, and the list of uploaded templates with their subject, an In use chip on one of them, Template ID and date](/screenshots/mail-page.webp)
+![The Automated Emails page on the Signup tab: the Set Template address with Compose and Upload links, the required and optional placeholders, the current template with a Preview link, and the list of uploaded templates with their subject, an In use chip on one of them, Template ID and date](/screenshots/mail-page.webp)
 
 *The Automated Emails page. The Set Template address takes templates for the selected tab.*
 
@@ -135,20 +135,32 @@ A template that passes is added to the list for its type: choose it there to use
 
 ### Uploading a template
 
-A template does not have to come by e-mail. **[Upload]**, next to **[Compose]** on the **Set Template** row, takes it from your computer:
+A template does not have to come by e-mail. **[Upload]**, next to **[Compose]** on the **Set Template** row, takes it from your computer, as an **HTML file or as plain text**:
 
 1. Give the template a **subject**. It can hold placeholders, like a mailed subject.
-2. Pick the **body**: an **HTML file** (an `.html` file saved from your mail or page editor, stored as it is with its inline styles and images), or **plain text**, typed in or loaded from a `.txt` file. Plain text goes out as a simple HTML e-mail: each blank line starts a paragraph and web addresses become links, so the link placeholder written as `https://link.skapi.com` becomes a clickable link.
-3. The dialog checks the template as you go, the way the backend checks a mailed one: the subject, the type's [required placeholders](#required-placeholders-for-signup-confirmation-email), the size (up to 240 KB; inline images do not count) and, new with an upload, that the file is HTML an e-mail client renders: text with markup in it, no `<script>`, every element that has to be closed closed where it should be. A problem is named with its line; **Upload** stays off until it is fixed. A placeholder the type never fills is pointed out as a warning, because it would go out empty.
-4. **[Preview]** shows the body with sample values. **Upload template** stores it.
+2. Pick the **body**:
+   - **HTML file**: an `.html` file saved from your mail or page editor. It is stored as it is, inline styles and images included. The HTML must be **e-mail HTML**, the kind every mail client renders: text with markup in it, no `<script>`, and every element that has to be closed closed where it should be. A page that leans on scripts or on external stylesheets does not work as an e-mail.
+   - **Plain text**: typed in, or loaded from a `.txt` file. It goes out as a simple HTML e-mail: each blank line starts a paragraph, and web addresses become links, so the link placeholder written as `https://link.skapi.com` becomes a clickable link.
+3. A template of a type that has [required placeholders](#required-placeholders-for-signup-confirmation-email) must contain **all of them**, in either form: the signup confirmation and the newsletter confirmation need the link, the verification e-mail `${code}`, the invitation the link, `${email}` and `${password}`.
+4. The dialog checks all of this as you go, the way the backend checks a mailed template: the subject, the required placeholders, the size (up to 240 KB; inline images do not count) and the HTML. A problem is named with its line; **Upload** stays off until it is fixed. A placeholder the type never fills in is pointed out as a warning, because it would go out empty. **[Preview]** shows the body with sample values.
+
+![The Upload a Signup Confirmation Template dialog: a subject with ${name}, Plain text chosen, a short text body with ${email} and https://link.skapi.com, a Checked line with the size, and the preview rendered below](/screenshots/mail-upload.webp)
+
+*A signup confirmation template from plain text, checked and previewed.*
+
+![The same dialog with an HTML file chosen and two problems listed in red: a span opened on line 10 is still open where the div closes on line 11, and the template is missing the required placeholder https://link.skapi.com; the Upload button is disabled](/screenshots/mail-upload-problems.webp)
+
+*A file the checks refuse. The backend makes the same checks again and answers with the same sentences.*
 
 An uploaded template is stored exactly as a mailed one, in the list of its type with a Template ID. It is **not in use** until you choose it there, like any other. On the Custom tab the upload is the template a ticket's Send e-mail action names.
+
+**From an AI agent.** The [Skapi MCP server](/introduction/getting-started.md#connecting-the-skapi-mcp-server)'s `manageEmailTemplates` tool lets the project owner's agent compose a template and upload it the same way, as e-mail HTML or plain text, under the same checks, and list the templates of a type. It is available to the project owner's account only, and it never puts a template in use: you choose it on this page.
 
 ## Custom e-mails
 
 The **Custom** tab holds templates that no event sends on its own: a ticket sends them, with its [Send e-mail action](/tickets/actions.md#mail-send-an-e-mail), to the address the ticket names. An order confirmation, a receipt, a notice to a member who just unlocked something: anything a webhook or a signed-in call should trigger.
 
-![The Automated Emails page on the Custom tab: the Set Template address with a Compose link, the optional placeholders, a Sending row reading By a ticket, and a list of templates with their subject, their template ID with a copy button, and when each was received](/screenshots/mail-custom.webp)
+![The Automated Emails page on the Custom tab: the Set Template address with Compose and Upload links, the optional placeholders, a Sending row reading By a ticket, and a list of templates with their subject, their template ID with a copy button, and when each was received](/screenshots/mail-custom.webp)
 
 *The Custom tab. Every template has a template ID, which a Send e-mail action names.*
 
@@ -276,6 +288,8 @@ A rejected template is not saved and does not appear in the template list. Skapi
 
 A template that passes gets a reply saying it has been uploaded. It is not used until you select it in the `Automated Emails` page.
 
+
+A template **uploaded** from the dashboard goes through the same checks, in the dialog before it is sent: a missing placeholder, HTML that is not e-mail HTML, or a body over the size is named there, and the upload does not start until it is fixed.
 
 ## Required Placeholders for signup confirmation email
 

@@ -12,7 +12,7 @@ Endpoints in the older `xxxxxxxxxxxxxxxxxxxx-00xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@
 
 Go to `Newsletters` page, select the tab (`Newsletter`, `Service Email` or a named group), and the page will show the email endpoint address to send the newsletter.
 
-![The Newsletters page of a Skapi project: one tab per list, the group's name as code gives it, the sending address with a Send link, a Save without sending address, monthly sends, subscribers with View and Add links, and the table of newsletters with their IDs](/screenshots/newsletter-page.webp)
+![The Newsletters page of a Skapi project: one tab per list, the group's name as code gives it, the sending address with a Send link, a Save without sending address with Compose and Upload links, monthly sends, subscribers with View and Add links, and the table of newsletters with their IDs](/screenshots/newsletter-page.webp)
 
 *The Newsletters page. Every list has its own sending address, its own subscriber count and its own history of sent mail.*
 
@@ -81,7 +81,7 @@ nd.promo-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxx@mail.skapi.com
 
 A newsletter mailed to it, from your project's email address like any other, is checked and stored the same way but delivered to nobody; the reply says so and names its **newsletter ID**. The row appears under **Sent newsletters** with **Not sent** in its Sent column.
 
-![The Newsletters page with a Save without sending address under the sending address, a send icon and a delete icon above the table, and a Sent newsletters list with a Newsletter ID column whose first row reads Not sent](/screenshots/newsletter-not-sent.webp)
+![The Newsletters page with a Save without sending address under the sending address, its Compose and Upload links, a send icon and a delete icon above the table, and a Sent newsletters list with a Newsletter ID column whose first row reads Not sent](/screenshots/newsletter-not-sent.webp)
 
 *A newsletter saved without sending. Tick it and click the send icon above the table when you are ready.*
 
@@ -91,9 +91,20 @@ A newsletter mailed to it, from your project's email address like any other, is 
 
 ### Uploading a newsletter
 
-**[Upload]**, next to **[Compose]** on the **Save without sending** row, stores a newsletter from your computer instead of your mail app: a **subject**, and the body as an **HTML file** or as **plain text** (typed in, or loaded from a `.txt` file; each blank line starts a paragraph and web addresses become links). The dialog checks the subject, the size (up to 240 KB; inline images do not count) and that the body is HTML an e-mail client renders, naming any problem with its line, and **[Preview]** shows it with sample values.
+**[Upload]**, next to **[Compose]** on the **Save without sending** row, stores a newsletter from your computer instead of your mail app, as an **HTML file or as plain text**:
+
+- **HTML file**: stored as it is, inline styles and images included (up to 240 KB; inline images do not count). It must be **e-mail HTML**, the kind every mail client renders: text with markup in it, no `<script>`, every element that has to be closed closed where it should be.
+- **Plain text**: typed in, or loaded from a `.txt` file. Each blank line starts a paragraph and web addresses become links. `${name}`, `${email}` and `${service_name}` are filled in for each subscriber, as in a mailed newsletter.
+
+The dialog checks the subject, the size and the HTML, naming any problem with its line, and **[Preview]** shows the newsletter with sample values.
+
+![The Upload a Newsletter dialog: a subject, Plain text chosen, a short newsletter body with ${name} and a link, and a Checked line with the size](/screenshots/newsletter-upload.webp)
+
+*A newsletter saved from plain text. It is listed as Not sent until you send it.*
 
 An uploaded newsletter is stored exactly as one mailed to the Save without sending address: dry, sent to nobody, listed as **Not sent**, counted into the project's e-mail storage and never as a send. Send it from the list, or from a ticket's Send newsletter action, when it is ready.
+
+**From an AI agent.** The [Skapi MCP server](/introduction/getting-started.md#connecting-the-skapi-mcp-server)'s `manageNewsletters` tool lets the project owner's agent compose a newsletter and save it the same way, as e-mail HTML or plain text, and list a group's newsletters. It is available to the project owner's account only, and it never sends: the newsletter waits in the list as Not sent until you send it, or a ticket does.
 
 ## Subscribing Users To Public Newsletters
 
