@@ -187,3 +187,30 @@ async function RealtimeCallback(rt) {
 skapi.connectRealtime(RealtimeCallback); // Connect to Realtime
 skapi.joinRealtime({ group: 'RTCCall' }); // Join a Realtime group
 ```
+
+## Adding a TURN relay
+
+By default the connection is set up with Skapi's STUN server, `stun:stun.skapi.com:3468`. It tells each browser its public address, and the two browsers then connect directly. That works on most networks.
+
+Some networks, such as strict company firewalls and some mobile carriers, block direct connections between two outside parties. A call from such a network never connects. The way through is a **TURN server**: a relay both browsers connect to, which passes the media between them. Skapi does not provide one; use your own (for example coturn) or a hosted TURN service.
+
+Give it to the SDK with `ice` as a list. Each entry is `{ urls, username, credential }`, the browser's own `RTCIceServer` format, and a TURN entry needs its login. Keep the STUN entry in the list: the browser still connects directly whenever it can and uses the relay only when it must, which keeps relay traffic, and its cost, down.
+
+```js
+const ice = [
+    { urls: 'stun:stun.skapi.com:3468' },
+    { urls: ['turn:turn.example.com:3478', 'turns:turn.example.com:5349'], username: 'user-1760000000', credential: 'short-lived-password' }
+];
+
+// the caller
+skapi.connectRTC({ cid, ice, media: { audio: true, video: true } }, RTCCallback);
+
+// the one answering: the same option, so both ends can reach the relay
+call.connectRTC({ ice, media: { audio: true, video: true } }, RTCCallback);
+```
+
+:::warning
+Do not write a fixed TURN password into your page; anyone could copy it and relay their own traffic on your bill. Most TURN services issue short-lived credentials per user. Fetch them when a call starts, for example from your own endpoint or a [ticket](/tickets/introduction.md), and pass them in `ice`.
+:::
+
+`ice` still takes a single url as before. A list that is empty, a url that does not start with `stun:`, `stuns:`, `turn:` or `turns:`, or a TURN entry without `username` and `credential` is refused with `INVALID_PARAMETER`.

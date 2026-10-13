@@ -551,7 +551,7 @@ type RTCConnector = {
 ```ts
 type RTCConnectorParams = {
     cid: string;
-    ice?: string;
+    ice?: string | Array<{ urls: string | string[]; username?: string; credential?: string }>; // default 'stun:stun.skapi.com:3468'; see "Adding a TURN relay" in the WebRTC guide
     media?: {
         video: boolean;
         audio: boolean;
@@ -573,7 +573,7 @@ type RTCEvent = {
 
 ```ts
 type RTCReceiverParams = {
-    ice?: string;
+    ice?: string | Array<{ urls: string | string[]; username?: string; credential?: string }>; // default 'stun:stun.skapi.com:3468'; see "Adding a TURN relay" in the WebRTC guide
     media?: {
         video: boolean;
         audio: boolean;
