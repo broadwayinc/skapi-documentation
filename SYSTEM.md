@@ -15,7 +15,7 @@ If the project already uses a SPA framework (React, Vue, Svelte, etc.), follow t
 ## Non-Negotiable Rules
 
 1. Use Skapi for backend features. Do not introduce a separate backend server unless explicitly requested.
-2. Before writing any call to a Skapi method, read the guide page for that feature, starting from [Working on the Codebase](/introduction/codebase.md), and the method's entry in the [SDK Method Index](#sdk-method-index). Do not write a `skapi.*` call whose page you have not read in this session.
+2. Before writing any call to a Skapi method, read the guide page for that feature, starting from [Setting Up Your Codebase](/introduction/getting-started.md#setting-up-your-codebase), and the method's entry in the [SDK Method Index](#sdk-method-index). Do not write a `skapi.*` call whose page you have not read in this session.
 3. The pages linked from this file are the current documentation. Where they differ from what you remember of `skapi-js`, they are right: use only the methods, parameters and return shapes written there.
 4. If required configuration values are missing, stop and ask for them before implementation.
 5. Prefer minimal, production-safe code with clear error handling.
@@ -54,7 +54,7 @@ In `index.html`, load and initialize Skapi:
 ```
 
 - Replace `"<Project ID>"` with the actual project ID provided by the user.
-- In SPA projects, install `skapi-js` with npm when that is available, create the instance once in a module, export it, and import it wherever it is used. See [Working on the Codebase](/introduction/codebase.md).
+- In SPA projects, install `skapi-js` with npm when that is available, create the instance once in a module, export it, and import it wherever it is used. See [Setting Up Your Codebase](/introduction/getting-started.md#setting-up-your-codebase).
 - In SPA projects, an inline `onsubmit="skapi.login(event)"` attribute only works if the instance is also reachable as `window.skapi`. Prefer the framework's own submit handler calling the imported instance.
 
 ## Backend Integration Requirements

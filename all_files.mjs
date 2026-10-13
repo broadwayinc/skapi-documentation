@@ -26,7 +26,7 @@ export let method_ref = [
         items: [
             // { text: 'What is Skapi?', link: '/introduction/what-is-skapi.md' },
             { text: 'Getting Started', link: '/introduction/getting-started.md' },
-            { text: 'Working on the Codebase', link: '/introduction/codebase.md' },
+            { text: 'Advanced Settings', link: '/introduction/advanced-settings.md' },
             { text: 'Working with HTML Forms', link: '/introduction/working-with-forms.md' }
         ]
     },

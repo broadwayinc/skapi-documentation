@@ -3,7 +3,7 @@
 
 Skapi is a serverless backend API for web applications.
 
-To build a full-stack web application, create a project and connect it to your HTML or JavaScript code. If an AI coding agent writes that code for you, set the agent up right after creating the project; it takes care of the rest.
+To build a full-stack web application, create a project, connect your codebase to it, and build on it: yourself, or with an AI coding agent that writes the code for you. This page follows that order, and ends with the optional MCP server that lets the agent run the project as well.
 
 
 ## Creating a Project
@@ -21,16 +21,175 @@ Your new project opens on its `Settings` page. The **Information** card holds th
 
 *The Settings page of a project. The Project ID is on the Information card.*
 
-The same page has two shortcuts worth knowing from day one: **Application Examples** opens ready-made HTML pages that already run against your project (see [Full Examples](/full-example/intro.md)), and **For AI Agents** downloads the base prompt for your AI coding tool (see [Setting up AI Agents](#setting-up-ai-agents) below).
+The same page has two shortcuts worth knowing from day one: **Application Examples** opens ready-made HTML pages that already run against your project (see [Full Examples](/full-example/intro.md)), and **For AI Agents** downloads the base prompt for your AI coding tool (see [Building With Your AI Agent](#building-with-your-ai-agent) below).
 
 :::tip For BunnyQuery users
 [BunnyQuery](https://www.bunnyquery.com) projects are fully compatible with Skapi. Your project will appear in both your BunnyQuery and Skapi project lists.
 :::
 
-If you write the code yourself, continue with [Working on the Codebase](/introduction/codebase.md). If an AI coding agent writes it, set the agent up first.
+With the Project ID in hand, connect your codebase to the project below. If an AI coding agent writes your code, go on to [Building With Your AI Agent](#building-with-your-ai-agent): the agent sets the codebase up itself.
 
 
-## Setting up AI Agents
+## Setting Up Your Codebase
+
+Whether you write the code yourself or an AI coding agent writes it for you, this is the part that lives in your codebase: load the Skapi library, create one instance connected to your project, and build on it. Every other page of this documentation calls methods on that instance.
+
+You need the **Project ID** of your project. It is on the project's `Settings` page, under **Information** (see [Creating a Project](#creating-a-project)). An AI agent takes it from your opening prompt (see [Building With Your AI Agent](#building-with-your-ai-agent)).
+
+### For HTML Projects
+
+For a vanilla HTML project, load Skapi with a script tag and initialize the library as shown below.
+Add the Skapi script and initialize the `Skapi` class in the `<head>` of each page that uses Skapi.
+Use your Skapi project's exact Project ID when initializing the library.
+
+```html
+<!-- index.html -->
+<!DOCTYPE html>
+<script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
+<script>
+    // Replace "<Project ID>" with your actual project ID
+    const skapi = new Skapi("<Project ID>");
+</script>
+```
+
+:::warning Replace the placeholder
+`<Project ID>` is a placeholder, including the angle brackets.
+
+Replace the entire placeholder with your actual Project ID from the Skapi dashboard. For example:
+
+```js
+const skapi = new Skapi("abc123defg456hij78-9klmnop012qrstu345vwxyz");
+```
+
+Every example in this documentation uses the same `"<Project ID>"` placeholder. Replace it wherever you copy an example.
+:::
+
+The Project ID uniquely identifies your Skapi project.
+
+
+### For SPA Projects
+
+To use Skapi in a single-page application (SPA) such as Vue, React, or Angular, install `skapi-js` with npm.
+
+```sh
+$ npm i skapi-js@latest
+```
+
+Then import the library in your main JavaScript file:
+
+```javascript
+// main.js
+import { Skapi } from "skapi-js";
+const skapi = new Skapi("<Project ID>");
+
+export { skapi }
+
+// You can now import skapi from anywhere in your project.
+```
+
+### For TypeScript Projects
+
+Skapi includes TypeScript support, so you can import the `Skapi` class and related types.
+
+```typescript
+import { Skapi } from 'skapi-js';
+import type { RecordData, DatabaseResponse } from 'skapi-js';
+
+const skapi = new Skapi("<Project ID>");
+let databaseRecords: DatabaseResponse<RecordData>;
+```
+
+For lists of types, refer [Data Types](/api-reference/data-types/README.md).
+
+### Node.js (CommonJS)
+
+To use Skapi in Node.js (CommonJS), import the library as shown below:
+
+```javascript
+const { Skapi } = require('skapi-js');
+const skapi = new Skapi("<Project ID>");
+```
+
+### Node.js (ESM)
+
+```javascript
+import { Skapi } from 'skapi-js';
+const skapi = new Skapi("<Project ID>");
+```
+
+> **Note:** When running Skapi in Node.js, browser-specific features such as WebSocket, WebRTC, and Notifications are unavailable.
+
+### Checking the Connection
+
+After your client connects to Skapi, call [`getConnectionInfo()`](/api-reference/connection/README.md#getconnectioninfo) to retrieve information about the connection.
+
+::: code-group
+```html [HTML]
+<!-- index.html -->
+<!DOCTYPE html>
+<script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
+<script>
+    const skapi = new Skapi("<Project ID>");
+</script>
+<script>
+skapi.getConnectionInfo().then(info => {
+    console.log(info);
+    /*
+    Returns:
+    {
+        project_id: "Public ID of the connected project",
+        user_ip: "Connected user's IP address",
+        user_agent: "Connected user's user agent",
+        user_location: "Connected user's country code",
+        service_name: "Your project name",
+        service_description: "Your project description",
+        version: 'x.x.x', // Skapi library version
+        ai_agent: "AI agent instructions configured for the project",
+        conf: {
+            freeze_database: boolean, // The database is read-only
+            prevent_signup: boolean, // Sign-up is blocked
+            prevent_inquiry: boolean, // Inquiries are blocked
+            prevent_anonymous: boolean // Anonymous users cannot write to the database
+        }
+    }
+    */
+   window.alert(`Connected to ${info.service_name}`);
+});
+</script>
+```
+
+```javascript [SPA]
+import { skapi } from '../location/of/your/main.js';
+skapi.getConnectionInfo().then(info => {
+    console.log(info);
+    /*
+    Returns:
+    {
+        project_id: "Public ID of the connected project",
+        user_ip: "Connected user's IP address",
+        user_agent: "Connected user's user agent",
+        user_location: "Connected user's country code",
+        service_name: "Your project name",
+        service_description: "Your project description",
+        version: 'x.x.x', // Skapi library version
+        ai_agent: "AI agent instructions configured for the project",
+        conf: {
+            freeze_database: boolean, // The database is read-only
+            prevent_signup: boolean, // Sign-up is blocked
+            prevent_inquiry: boolean, // Inquiries are blocked
+            prevent_anonymous: boolean // Anonymous users cannot write to the database
+        }
+    }
+    */
+   window.alert(`Connected to ${info.service_name}`);
+});
+```
+:::
+
+The `Skapi` instance takes options too, from auto login to in-browser encryption and event listeners. They are on [Advanced Settings](/introduction/advanced-settings.md).
+
+
+## Building With Your AI Agent
 
 Skapi works smoothly with AI coding tools, such as Claude Code, Codex CLI, Gemini CLI, GitHub Copilot, Cursor and Windsurf.
 
@@ -41,11 +200,9 @@ There are two ways an AI agent can help you build on Skapi, and they work well t
 
 ### Download the base prompt for your tool
 
-Every tool reads the same file under its own name. Pick your tool, and the file downloads with the name it expects. Put it in the root of your project.
+Every tool reads the same file under its own name. Pick your tool, and the file downloads with the name it expects.
 
 <AgentPromptDownloads />
-
-Browsers drop the leading dot from a download name, so `.cursorrules` and `.windsurfrules` are saved as `cursorrules` and `windsurfrules`. Add the dot back after saving.
 
 You can also download the plain <a href="/SKAPI.md" download="SKAPI.md">SKAPI.md</a> and rename it yourself.
 
@@ -57,9 +214,15 @@ Your project's `Settings` page at [skapi.com](https://www.skapi.com) offers the 
 
 *The For AI Agents card on the Settings page. The file is the same for every tool; only its name differs.*
 
-### Start writing prompts
+### Put the file in your project folder
 
-When you run your AI coding agent, start with a prompt like this:
+Save the base prompt file in your project's root folder, where your agent reads it, or attach the file directly to your agent's prompt input, which is how a chat platform takes it.
+
+Browsers drop the leading dot from a download name, so `.cursorrules` and `.windsurfrules` are saved as `cursorrules` and `windsurfrules`. Add the dot back after saving.
+
+### Open your agent and start building
+
+Open your AI coding agent in that folder and start with a prompt like this:
 
 ```text
 My Skapi project ID is: "<Project ID>".
@@ -234,4 +397,4 @@ The agent picks the tools, asks when something is missing, and reports what it c
 
 When a project is at a limit of its plan (users, monthly e-mail sends, newsletter subscribers, storage or bandwidth), the agent is told which limit, and is given the link to the project's plan page, where the project owner upgrades. The server itself never changes a plan, and never creates or deletes a project; see [Plans and Limits](/introduction/plans.md).
 
-With the project created and the agent set up, the rest happens in your code: continue with [Working on the Codebase](/introduction/codebase.md).
+With the project created, the codebase connected and the agent set up, the rest happens in your code: every other page of this documentation calls methods on the `skapi` instance from [Setting Up Your Codebase](#setting-up-your-codebase).
