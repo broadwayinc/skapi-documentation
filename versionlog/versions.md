@@ -1,6 +1,10 @@
 # Version History
 
-### Current version: 2.2.8
+### Current version: 2.2.9
+
+**2.2.9**
+
+- **WebRTC: the calling side now adds the ICE candidates that arrived before the SDP answer.** The realtime relay delivers each signaling message on its own, so the answering side's candidates can overtake its answer; the caller buffered them and, when every one had overtaken the answer, never added them, so it never learned the other peer's addresses. On one network the call still connected through the other side's connectivity checks; across two NATs it did not, and the caller saw the call open with no remote video or audio. The answering side already added its buffered candidates after the offer; the calling side does the same after the answer.
 
 **2.2.8**
 
