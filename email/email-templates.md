@@ -35,7 +35,11 @@ In the `Automated Emails` page, select an email type you want to set the templat
 
 - **Verification E-Mail**
   
-  Sent with a one-time code by [`verifyEmail()`](/api-reference/user/README.md#verifyemail) for an unverified email address, or by [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword) for a verified one.
+  Sent with a one-time code by [`verifyEmail()`](/api-reference/user/README.md#verifyemail) for an unverified email address. A phone number is verified by a text message instead, whose wording is the project's [SMS text](#the-sms-text-for-phone-verification).
+
+- **Forgot Password E-Mail**
+  
+  Sent with the password reset code by [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword). The reset code always comes by email, never by text message, so this is the only template a password reset uses.
 
 - **Invitation E-Mail**
   
@@ -50,7 +54,7 @@ In the `Automated Emails` page, select an email type you want to set the templat
   
   Sent by a ticket's [Send e-mail action](/tickets/actions.md#mail-send-an-e-mail) to the address the ticket names, with the values the ticket fills in. See [Custom e-mails](#custom-e-mails).
 
-The tabs on the page are named **Signup**, **Welcome**, **Verification**, **Invitation**, **Newsletter** and **Custom**; on a narrow screen they are a select. Once you select one, the page shows:
+The tabs on the page are named **Signup**, **Welcome**, **Verification**, **Forgot Password**, **Invitation**, **Newsletter** and **Custom**; on a narrow screen they are a select. Once you select one, the page shows:
 
 - **Set Template**: the template setter, the email endpoint that takes templates for the selected type. Click the address to copy it, or click **[Compose]** to open a new message to it in your mail app. Every type has its own address.
 - **Placeholders**: the placeholders the selected type fills in, split into **Required** and **Optional**.
@@ -141,7 +145,7 @@ A template does not have to come by e-mail. **[Upload]**, next to **[Compose]** 
 2. Pick the **body**:
    - **HTML file**: an `.html` file saved from your mail or page editor. It is stored as it is, inline styles and images included. The HTML must be **e-mail HTML**, the kind every mail client renders: text with markup in it, no `<script>`, and every element that has to be closed closed where it should be. A page that leans on scripts or on external stylesheets does not work as an e-mail.
    - **Plain text**: typed in, or loaded from a `.txt` file. It goes out as a simple HTML e-mail: each blank line starts a paragraph, and web addresses become links, so the link placeholder written as `https://link.skapi.com` becomes a clickable link.
-3. A template of a type that has [required placeholders](#required-placeholders-for-signup-confirmation-email) must contain **all of them**, in either form: the signup confirmation and the newsletter confirmation need the link, the verification e-mail `${code}`, the invitation the link, `${email}` and `${password}`.
+3. A template of a type that has [required placeholders](#required-placeholders-for-signup-confirmation-email) must contain **all of them**, in either form: the signup confirmation and the newsletter confirmation need the link, the verification and forgot password e-mails `${code}`, the invitation the link, `${email}` and `${password}`.
 4. The dialog checks all of this as you go, the way the backend checks a mailed template: the subject, the required placeholders, the size (up to 240 KB; inline images do not count) and the HTML. A problem is named with its line; **Upload** stays off until it is fixed. A placeholder the type never fills in is pointed out as a warning, because it would go out empty. **[Preview]** shows the body with sample values.
 
 ![The Upload a Signup Confirmation Template dialog: a subject with ${name}, Plain text chosen, a short text body with ${email} and https://link.skapi.com, a Checked line with the size, and the preview rendered below](/screenshots/mail-upload.webp)
@@ -192,13 +196,17 @@ Methods that accept it:
 |---|---|---|
 | [`signup()`](/api-reference/authentication/README.md#signup) | `options.template` | `{ signup_confirmation?: string; welcome?: string }` |
 | [`verifyEmail()`](/api-reference/user/README.md#verifyemail) | `options.template` | `{ verification?: string }` |
-| `verifyPhoneNumber()` | `options.template` | `{ verification?: string }` |
-| [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword) | `options.template` | `{ verification?: string }` |
+| [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword) | `options.template` | `{ forgot_password?: string }` |
 | [`openIdLogin()`](/api-reference/authentication/README.md#openidlogin) | `params.template` | `{ welcome?: string }` |
 
 Every value is an optional non empty `string`. Any other type, including an empty string, throws
 `INVALID_PARAMETER`. Keys you leave out simply fall through to your project's template, so you can
 override the welcome e-mail while leaving the signup confirmation alone.
+
+Each key names a template of its own type: `verification` a Verification E-Mail template, `forgot_password`
+a Forgot Password E-Mail template. The [SMS text](#the-sms-text-for-phone-verification) has no per-call
+override: `verifyPhoneNumber()` always sends the project's SMS text, and a `template` option passed to it
+has no effect.
 
 :::warning
 `option.template.signup_confirmation` requires `option.signup_confirmation` to be set on the same
@@ -234,19 +242,46 @@ skapi.verifyEmail(undefined, {
 });
 ```
 
-The same option covers the password reset code, since it is sent as a verification e-mail:
+Overriding the forgot password e-mail, which carries the password reset code. The id is that of a
+template sent to the **Forgot Password** address, not a verification one:
 
 ```js
 skapi.forgotPassword(
     { email: 'user@email.com' },
-    { template: { verification: 'verificationtemplateidxxxxxxxxxxxxxxxxxx' } }
+    { template: { forgot_password: 'forgotpasswordtemplateidxxxxxxxxxxxxxxxx' } }
 ).then(res => {
     console.log(res); // SUCCESS: Verification code has been sent.
 });
 ```
 
-If the `message_id` given for a verification e-mail cannot be found in your project, Skapi falls back
-to your project's template rather than failing the call, and the e-mail is still sent.
+If the `message_id` given for a verification or forgot password e-mail cannot be found in your project,
+or names a template of another type, Skapi does not fail the call: it falls back to your project's
+template of that type, or to the built-in default when none is set, and the e-mail is still sent.
+
+## Built-in defaults
+
+A type with no template in use sends Skapi's built-in default, in your project's name. The three
+messages that carry a code have these defaults:
+
+| Message | Subject | Body |
+|---|---|---|
+| Verification E-Mail | `[${service_name}] Verification code` | `Your verification code is ${code}` |
+| Forgot Password E-Mail | `[${service_name}] Password reset code` | `Your password reset code is ${code}` |
+| Phone verification SMS | none | `[${service_name}] Your verification code is ${code}` |
+
+Deleting the template in use, or clearing the SMS text, sends that message's default again.
+
+## The SMS text for phone verification
+
+A phone number is verified by a text message, not an email, so its wording is not a template you send
+to an address: it is one line of text the project owner sets on the dashboard. Open the project, click
+**Automated Emails**, open the **Verification** tab and find the box **Phone verification SMS**. Type the
+text and click **Save**; **Reset to default** clears it.
+
+- `${code}` is **required**: it is where the verification code goes. `${service_name}` is optional and becomes your project's name. No other placeholder is filled in.
+- The text is at most **160 characters**, one SMS segment. Control characters other than a line break are removed.
+- An **empty string** clears the setting, and the built-in default is sent again.
+- Project owner only, like every other template, and set on the dashboard only. There is no per-call override: `verifyPhoneNumber()` always sends this text.
 
 ## Template Placeholders
 
@@ -259,6 +294,7 @@ An **optional** one is filled in wherever you use it.
 | Signup Confirmation | `https://link.skapi.com` | `${email}`, `${name}`, `${service_name}` |
 | Welcome E-Mail | none | `${email}`, `${name}`, `${service_name}` |
 | Verification E-Mail | `${code}` | `${email}`, `${name}`, `${service_name}` |
+| Forgot Password E-Mail | `${code}` | `${email}`, `${name}`, `${service_name}` |
 | Invitation E-Mail | `https://link.skapi.com`, `${email}`, `${password}` | `${name}`, `${service_name}`, `${username}` |
 | Newsletter Subscription | `https://link.skapi.com` | `${email}`, `${service_name}` |
 | Custom Email | none | `${email}`, `${service_name}`, and any `${name}` of your own that the ticket fills in |
@@ -307,6 +343,17 @@ The **`${code}`** placeholder will be replaced with the verification code that t
 Example:
 ```
 Your verification code is: ${code}
+```
+
+
+## Required Placeholders for password reset email
+
+When sending the password reset email, you must include the **`${code}`** placeholder in your email content.
+The **`${code}`** placeholder will be replaced with the code the user enters to set a new password. Without a template of this type, the built-in default is sent (see [Built-in defaults](#built-in-defaults)).
+
+Example:
+```
+Your password reset code is: ${code}
 ```
 
 

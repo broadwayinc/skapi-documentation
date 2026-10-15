@@ -1,10 +1,17 @@
 # Version History
 
-### Current version: 2.2.9
+### Current version: 2.2.10
+
+**2.2.10**
+
+- `forgotPassword()` takes **`template.forgot_password`**, the message id of a password reset e-mail template, as its per-call template option. `template.verification` is no longer an option of `forgotPassword()` and is refused with `INVALID_PARAMETER` naming the new key; `verifyEmail()` keeps `template.verification` as before.
+- Backend (ships with the API, not the SDK): e-mail verification, the password reset e-mail and the phone verification text message are **three separate templates**, each with a built-in default. The new **Password Reset E-Mail** type has its own template address and its own tab on the `Automated Emails` page; the **phone verification SMS** is one line of text set on the `Verification` tab (`${service_name}` and `${code}`, `${code}` required, 160 characters at most, empty puts the default back). A per-call template id that names no stored template falls back to the project's template of that type, then to the built-in default.
+- Backend (ships with the API, not the SDK): a password reset code is sent **by e-mail only**. A user whose e-mail is not verified cannot reset by SMS any more.
 
 **2.2.9**
 
 - **WebRTC: the calling side now adds the ICE candidates that arrived before the SDP answer.** The realtime relay delivers each signaling message on its own, so the answering side's candidates can overtake its answer; the caller buffered them and, when every one had overtaken the answer, never added them, so it never learned the other peer's addresses. On one network the call still connected through the other side's connectivity checks; across two NATs it did not, and the caller saw the call open with no remote video or audio. The answering side already added its buffered candidates after the offer; the calling side does the same after the answer.
+- Backend (ships with the API, not the SDK): an index `value` that Python writes with an exponent (`0.00005`, `1e-07`, `1e15`) no longer fails the request with a server error; every digit is stored and the value reads back exactly. A `NaN` value is refused with `INVALID_PARAMETER`.
 
 **2.2.8**
 

@@ -5,6 +5,7 @@ When the user forgets their password, they can request a verification code to re
 
 :::warning
 If the user's email is not verified, they will not be able to receive a verification code and may lose access to their account permanently.
+The reset code is always sent by email, even when the account has a verified phone number.
 
 It is recommended to encourage users to verify their email addresses.
 For more info on email verification, see [E-Mail Verification](/user-account/email-verification.md).
@@ -48,12 +49,12 @@ please refer to the API Reference below:
 Due to security reasons, [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword) will not tell the user whether the email exists.
 :::
 
-You can also customize the email template for the verification email.
+The code comes in the **Forgot Password E-Mail**, a template of its own, separate from the verification email. You can customize it in the `Automated Emails` page; until you do, Skapi sends its built-in default, the subject `[${service_name}] Password reset code` with the body `Your password reset code is ${code}`.
 
 For more info on email templates, see [E-Mail Templates](/email/email-templates.md).
 
-To use a different template for one call instead of the one set for your project, pass its
-`message_id` in the optional `options.template` argument. For more info, see
+To use a different template for one call instead of the one set for your project, pass the
+`message_id` of a forgot password template in `options.template.forgot_password`. For more info, see
 [Overriding the template for a single call](/email/email-templates.md#overriding-the-template-for-a-single-call).
 
 ## Step 2: Reset Password

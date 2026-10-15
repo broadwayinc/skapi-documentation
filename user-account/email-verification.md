@@ -57,3 +57,7 @@ email login again a few seconds later, on the account's next token. See
 the verification e-mail instead of the template set for your project. It applies to the call that
 issues a new code, and is ignored when you pass a code back to verify it. For more info, see
 [Overriding the template for a single call](/email/email-templates.md#overriding-the-template-for-a-single-call).
+
+## Phone number verification
+
+A phone number is verified the same way with `verifyPhoneNumber()`: the first call, without a code, sends the code, and the second call, with the code, verifies the number. The code comes as a **text message**, not an email. Its wording is the project's SMS text, which the project owner sets with [the SMS text setting](/email/email-templates.md#the-sms-text-for-phone-verification); see [The SMS text for phone verification](/email/email-templates.md#the-sms-text-for-phone-verification). Until it is set, the message reads `[${service_name}] Your verification code is ${code}`. The `template` option has no effect on a text message.

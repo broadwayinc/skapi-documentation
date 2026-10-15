@@ -204,8 +204,11 @@ forgotPassword(
          * See [Automated Emails](/email/email-templates.md#overriding-the-template-for-a-single-call).
          */
         template?: {
-            /** message_id of the template to use for the e-mail carrying the password reset code. */
-            verification?: string;
+            /**
+             * message_id of a forgot password template, one sent to the Forgot Password address, to use
+             * for the e-mail carrying the password reset code. The code always comes by e-mail.
+             */
+            forgot_password?: string;
         };
     }
 ): Promise<'SUCCESS: Verification code has been sent.'>
