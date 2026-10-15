@@ -142,7 +142,7 @@ An access group is a number your own code reads as well. Records, tables and nam
 
 [`updateUserAttributes()`](/admin/account.md#updating-user-attributes), and [`updateProfile()`](/api-reference/user/README.md#updateprofile) with another user's `user_id`, change another account's profile. Attributes you leave out are not touched.
 
-Only profile attributes can be changed: `email`, `name`, `nickname`, `birthdate`, `gender`, `phone_number`, `address`, `picture`, `profile`, `website`, `family_name`, `given_name`, `middle_name`, `locale`, `misc`, and the `email_public`, `phone_number_public`, `address_public`, `gender_public` and `birthdate_public` flags.
+Only profile attributes can be changed: `email`, `name`, `nickname`, `birthdate`, `gender`, `phone_number`, `address`, `picture`, `profile`, `website`, `family_name`, `given_name`, `middle_name`, `locale` and `misc`. The five `*_public` visibility flags are not among them: they are set when the account is created and are the user's own afterwards (see [Public visibility](#public-visibility)).
 Any other attribute name is refused before anything is read or written, with `INVALID_PARAMETER` and `"<attribute>" cannot be changed.`
 
 That list is deliberate. An access group, a block, a signup confirmation and an e-mail verification are **not** profile attributes, and none of them can be set through this method:
@@ -156,10 +156,14 @@ An e-mail address you set here is written **unverified**, whoever sends the requ
 
 The account keeps logging in with its username, or with the address it was created with if it was created without one. Any other e-mail login comes back only after the user runs [`verifyEmail()`](/api-reference/user/README.md#verifyemail) on the new address, and then a few seconds later, on the account's next token rather than in the `verifyEmail()` response.
 
-Set the `email_public` flag only once you know the address is right. See [Login IDs](#login-ids).
+The address is private until the user makes it public themselves; an admin cannot set `email_public`. See [Login IDs](#login-ids).
 :::
 
 A login `username` is permanent. A request that tries to set the login handle without an `email` is refused with `INVALID_REQUEST` and `The login username is permanent and cannot be changed.`
+
+### Public visibility
+
+Each of `email`, `phone_number`, `address`, `gender` and `birthdate` is private unless its `*_public` flag is on. An admin sets the flags **once, when creating the account**, with [`createAccount()`](/api-reference/admin/README.md#createaccount) or [`inviteUser()`](/api-reference/admin/README.md#inviteuser) (they default to `false`). After that the flags belong to the user: only the account itself changes them, with [`updateProfile()`](/api-reference/user/README.md#updateprofile). An admin's [`updateUserAttributes()`](/admin/account.md#updating-user-attributes) that carries one, in any access group, is refused with `INVALID_PARAMETER` and `"email_public" cannot be changed by an admin. Public visibility is set when the account is created, and afterwards only by the user.`, and nothing in the request is written. The dashboard's user form shows the visibility checkboxes when creating an account and not when editing one.
 
 ### Login IDs
 

@@ -189,7 +189,7 @@ skapi.updateUserAttributes(
 ```
 :::
 
-The updatable attributes are the same profile attributes used in [`createAccount()`](/api-reference/admin/README.md#createaccount): `name`, `email`, `phone_number`, `address`, `gender`, `birthdate`, `misc`, `picture`, `profile`, `website`, `nickname`, and the `*_public` visibility flags.
+The updatable attributes are the same profile attributes used in [`createAccount()`](/api-reference/admin/README.md#createaccount): `name`, `email`, `phone_number`, `address`, `gender`, `birthdate`, `misc`, `picture`, `profile`, `website`, `nickname`. Not the `*_public` visibility flags: those are set only when the account is created and are the user's own afterwards; a request that carries one is refused. See [Public visibility](/admin/permissions.md#public-visibility).
 
 ### When the change takes effect
 
@@ -228,8 +228,8 @@ with [`verifyEmail()`](/api-reference/user/README.md#verifyemail), and then a fe
 account's next token rather than in the `verifyEmail()` response.
 
 The account keeps logging in with its `username`, or with the address it was created with when it was
-created without one. Make sure the new value is correct before setting the matching `email_public` or
-`phone_number_public` flag. See [Login IDs](/admin/permissions.md#login-ids).
+created without one. The new address stays private until the user makes it public themselves; an admin
+cannot set `email_public`. See [Login IDs](/admin/permissions.md#login-ids).
 :::
 
 Sending the address the account already has, already verified, is not a change: it is left out of the

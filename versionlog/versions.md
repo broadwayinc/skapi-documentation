@@ -4,6 +4,7 @@
 
 **2.2.6**
 
+- `updateUserAttributes()` no longer takes the **`*_public` visibility flags**, and the backend refuses them from an admin by name: public visibility is set when an account is created (`createAccount()`, `inviteUser()`) and is the user's own afterwards (`updateProfile()`). See [Public visibility](/admin/permissions.md#public-visibility).
 - `connectRTC()` and the answering side's `connectRTC()` (`RTCReceiverParams`) take `ice` as a **list of ICE servers**, `{ urls, username?, credential? }`, besides a single url. A TURN relay, for users whose network blocks direct connections, is added this way with its login; a single url keeps working as before. See [Adding a TURN relay](/realtime/webRTC.md#adding-a-turn-relay).
 - `consumeTicket()` resolves with **what the ticket answers**: the receipt `{ ticket_id, consume_id, user_id, is_test, timestamp, hash }` as before, or the `body` a **Respond** action of the ticket composed, as sent and whatever its status. The generic `consumeTicket<T>()` names that body's type. An answer with `stage` still rejects. See [Actions](/tickets/actions.md#resp-answer-the-caller).
 - `getTickets()` takes **`from` and `to`** (milliseconds) on a log listing (`ticket_id: '#<id>#'`), and the owner may list the **action rows** of one consumption with `ticket_id: '@<id>#<consume id>#'`: one row per action that ran, with what it sent, what came back and its error. See [Errors and Logs](/tickets/errors.md#the-action-rows).

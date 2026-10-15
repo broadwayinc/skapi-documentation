@@ -30,7 +30,7 @@ Admins use high access groups (`90` ~ `99`) and can perform the following action
 - View the e-mail address and `misc` of every user, and search users by e-mail.
 - Invite users to the project.
 - View, resend and cancel pending invitations.
-- Create users in the project.
+- Create users in the project, and set the public visibility of the new account's e-mail, phone number, address, gender and birthdate at that moment, with the `*_public` flags of [`createAccount()`](/api-reference/admin/README.md#createaccount) and [`inviteUser()`](/api-reference/admin/README.md#inviteuser).
 - Assign access groups to users, up to their own access group, on accounts in a lower access group than their own.
 - Remove private record access from users, on any record.
 - Block or unblock users in a lower access group than their own.
@@ -62,6 +62,7 @@ Admins cannot perform the following actions:
 - Update their own account with [`updateUserAttributes()`](/api-reference/admin/README.md#updateuserattributes), admins in access group `99` and the project owner included. Every account updates its own profile with [`updateProfile()`](/api-reference/user/README.md#updateprofile) and no `user_id`, like any user.
 - Mark a user's e-mail address verified. An address an admin sets is written unverified and the account loses its e-mail login until the user verifies the new address themselves. See [Login IDs](/admin/permissions.md#login-ids).
 - Change a login `username`. It is permanent.
+- Change the public visibility of an existing account's e-mail, phone number, address, gender or birthdate, in **any** access group, `99` included. The `*_public` flags are set when the account is created and belong to the user afterwards: only the account itself changes them, with [`updateProfile()`](/api-reference/user/README.md#updateprofile). An admin request that carries one is refused with `INVALID_PARAMETER` and `"email_public" cannot be changed by an admin. Public visibility is set when the account is created, and afterwards only by the user.`
 - In access groups `90` ~ `98`, read subscriber addresses in full. The subscriber list comes back masked, as `j**@**.com`, and a masked address cannot be mailed and is not unique, so rows are told apart by their `subscriber_token` instead.
 - In access groups `90` ~ `98`, search the subscriber list by e-mail address. The search matches the stored address, so it would give the mask back one letter at a time, and it is refused with `No access.`
 - Send newsletters or set e-mail templates, in **any** access group, `99` included. Only the project owner does, from the project's email address. See [Sending Newsletters](/email/newsletters.md).

@@ -355,16 +355,13 @@ updateUserAttributes(
         profile?: string;
         website?: string;
         nickname?: string;
-        email_public?: boolean; // When set to true, email attribute is visible to others.
-        phone_number_public?: boolean; // When set to true, phone_number attribute is visible to others.
-        address_public?: boolean; // When set to true, address attribute is visible to others.
-        gender_public?: boolean; // When set to true, gender attribute is visible to others.
-        birthdate_public?: boolean; // When set to true, birthdate attribute is visible to others.
     }
 ): Promise<'SUCCESS: User attributes updated.'>
 ```
 
 At least one attribute must be provided in addition to the required `user_id`.
+
+The `*_public` visibility flags are not accepted here. They are set when the account is created, with [`createAccount()`](#createaccount) or [`inviteUser()`](#inviteuser), and afterwards only the user changes them with [`updateProfile()`](/api-reference/user/README.md#updateprofile). A request that carries one is refused with `INVALID_PARAMETER` and `"email_public" cannot be changed by an admin. Public visibility is set when the account is created, and afterwards only by the user.` See [Public visibility](/admin/permissions.md#public-visibility).
 
 The update is stored on the account at once and reaches the user's record, which `getUsers()`, the dashboard's Users page and the user's own session read, when the user next logs in or their session next renews its token. `misc` reaches the record at once. See [When the change takes effect](/admin/account.md#when-the-change-takes-effect).
 
