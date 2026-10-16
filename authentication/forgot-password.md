@@ -49,7 +49,7 @@ please refer to the API Reference below:
 Due to security reasons, [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword) will not tell the user whether the email exists.
 :::
 
-The code comes in the **Forgot Password E-Mail**, a template of its own, separate from the verification email. You can customize it on the **Password reset** tab of the `Automated Emails` page; until you do, Skapi sends its built-in default, the subject `[${service_name}] Password reset code` with the body `Your password reset code is ${code}`.
+The code comes in the **Forgot Password E-Mail**, a template of its own, separate from the verification email. You can customize it on the **Forgot password** tab of the `Automated Emails` page; until you do, Skapi sends its built-in default, the subject `[${service_name}] Password reset code` with the body `Your password reset code is ${code}`.
 
 For more info on email templates, see [E-Mail Templates](/email/email-templates.md).
 

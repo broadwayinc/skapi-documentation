@@ -37,7 +37,7 @@ In the `Automated Emails` page, select an email type you want to set the templat
   
   Sent with a one-time code by [`verifyEmail()`](/api-reference/user/README.md#verifyemail) for an unverified email address. A phone number is verified by a text message instead, whose wording is the project's [SMS text](#the-sms-text-for-phone-verification).
 
-- **Forgot Password E-Mail** (the **Password reset** tab)
+- **Forgot Password E-Mail** (the **Forgot password** tab)
   
   Sent with the password reset code by [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword). The reset code always comes by email, never by text message, so this is the only template a password reset uses.
 
@@ -54,7 +54,7 @@ In the `Automated Emails` page, select an email type you want to set the templat
   
   Sent by a ticket's [Send e-mail action](/tickets/actions.md#mail-send-an-e-mail) to the address the ticket names, with the values the ticket fills in. See [Custom e-mails](#custom-e-mails).
 
-The tabs on the page are named **Signup**, **Welcome**, **Verification**, **Password reset**, **Invitation**, **Newsletter** and **Custom**; on a narrow screen they are a select. Once you select one, the page shows:
+The tabs on the page are named **Signup**, **Welcome**, **Verification**, **Forgot password**, **Invitation**, **Newsletter** and **Custom**; on a narrow screen they are a select. Once you select one, the page shows:
 
 - **Set Template**: the template setter, the email endpoint that takes templates for the selected type. Click the address to copy it, or click **[Compose]** to open a new message to it in your mail app. Every type has its own address.
 - **Placeholders**: the placeholders the selected type fills in, split into **Required** and **Optional**.
@@ -66,11 +66,11 @@ Below them is the list of the templates you have sent for that type: the subject
 
 *The Automated Emails page. The Set Template address takes templates for the selected tab.*
 
-The **Password reset** tab is where the e-mail that carries the password reset code is set. Its one required placeholder is `${code}`; until you set a template of your own, the current template is the built-in default, and the row under it says when the mail goes out: by [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword), always by e-mail, to the account's login e-mail.
+The **Forgot password** tab is where the e-mail that carries the password reset code is set. Its one required placeholder is `${code}`; until you set a template of your own, the current template is the built-in default, and the row under it says when the mail goes out: by [`forgotPassword()`](/api-reference/authentication/README.md#forgotpassword), always by e-mail, to the account's login e-mail.
 
-![The Automated Emails page on the Password reset tab: the Set Template address with Compose and Upload links, ${code} as the required placeholder with ${email}, ${name} and ${service_name} optional, and Built-in default as the current template, sent with a one-time code by forgotPassword()](/screenshots/mail-password-reset.webp)
+![The Automated Emails page on the Forgot password tab: the Set Template address with Compose and Upload links, ${code} as the required placeholder with ${email}, ${name} and ${service_name} optional, and Built-in default as the current template, sent with a one-time code by forgotPassword()](/screenshots/mail-forgot-password.webp)
 
-*The Password reset tab. The code placeholder is required; the built-in default is used until you set a template.*
+*The Forgot password tab. The code placeholder is required; the built-in default is used until you set a template.*
 
 ### Placeholder information
 
@@ -249,7 +249,7 @@ skapi.verifyEmail(undefined, {
 ```
 
 Overriding the forgot password e-mail, which carries the password reset code. The id is that of a
-template sent to the **Password reset** tab's Set Template address, not a verification one:
+template sent to the **Forgot password** tab's Set Template address, not a verification one:
 
 ```js
 skapi.forgotPassword(
@@ -352,9 +352,9 @@ Your verification code is: ${code}
 ```
 
 
-## Required Placeholders for password reset email
+## Required Placeholders for forgot password email
 
-When sending the password reset email, you must include the **`${code}`** placeholder in your email content.
+When sending the forgot password email, you must include the **`${code}`** placeholder in your email content.
 The **`${code}`** placeholder will be replaced with the code the user enters to set a new password. Without a template of this type, the built-in default is sent (see [Built-in defaults](#built-in-defaults)).
 
 Example:
