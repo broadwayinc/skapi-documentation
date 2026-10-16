@@ -117,7 +117,7 @@ closeRealtime(): Promise<void>
 connectRTC(
   params: {
     cid: string;
-    ice?: string | Array<{ urls: string | string[]; username?: string; credential?: string }>; // default 'stun:stun.skapi.com:3468'; see "Adding a TURN relay" in the WebRTC guide
+    ice?: string | Array<{ urls: string | string[]; username?: string; credential?: string }>; // Omitted: Skapi's STUN server and TURN relay, with a credential for the user. See "The relay" in the WebRTC guide
     media?: {
       video: boolean;
       audio: boolean;

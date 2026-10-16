@@ -1,6 +1,11 @@
 # Version History
 
-### Current version: 2.2.10
+### Current version: 2.2.11
+
+**2.2.11**
+
+- **Calls get a relay by default.** `connectRTC()` and the answering side's `connectRTC()` now ask the realtime server for their ICE servers when `ice` is not given: Skapi's STUN server plus the Skapi TURN relay (`turn.skapi.com`) with a credential made for the user, valid for 12 hours. A relay is what connects two peers whose networks allow no direct path, which STUN alone cannot; before this, such a call sat on "connecting" and dropped. `ice` still overrides with your own servers. See [The relay](/realtime/webRTC.md#the-relay).
+- Backend (ships with the API, not the SDK): the realtime server answers an `ice` request with the servers above. A region without a relay key answers with the STUN server alone, and an older backend does not answer at all; in both cases the SDK uses the STUN server, as before.
 
 **2.2.10**
 
@@ -19,7 +24,7 @@
 
 **2.2.7**
 
-- `connectRTC()` and the answering side's `connectRTC()` (`RTCReceiverParams`) take `ice` as a **list of ICE servers**, `{ urls, username?, credential? }`, besides a single url. A TURN relay, for users whose network blocks direct connections, is added this way with its login; a single url keeps working as before. See [Adding a TURN relay](/realtime/webRTC.md#adding-a-turn-relay).
+- `connectRTC()` and the answering side's `connectRTC()` (`RTCReceiverParams`) take `ice` as a **list of ICE servers**, `{ urls, username?, credential? }`, besides a single url. A TURN relay, for users whose network blocks direct connections, is added this way with its login; a single url keeps working as before. See [The relay](/realtime/webRTC.md#the-relay).
 
 **2.2.6**
 

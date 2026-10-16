@@ -188,13 +188,18 @@ skapi.connectRealtime(RealtimeCallback); // Connect to Realtime
 skapi.joinRealtime({ group: 'RTCCall' }); // Join a Realtime group
 ```
 
-## Adding a TURN relay
+## The relay
 
-By default the connection is set up with Skapi's STUN server, `stun:stun.skapi.com:3468`. It tells each browser its public address, and the two browsers then connect directly. That works on most networks.
+A call is set up with two kinds of server, and the SDK arranges both for you:
 
-Some networks, such as strict company firewalls and some mobile carriers, block direct connections between two outside parties. A call from such a network never connects. The way through is a **TURN server**: a relay both browsers connect to, which passes the media between them. Skapi does not provide one; use your own (for example coturn) or a hosted TURN service.
+- **STUN** (`stun:stun.skapi.com:3468`) tells each browser its public address, so the two can connect directly. Most calls connect this way.
+- **TURN** (`turn.skapi.com`) is a relay both browsers connect to, which passes the media between them. It carries the calls that cannot connect directly: when one of the two networks maps ports per destination (a common router setting, and most mobile carriers), or a firewall blocks direct traffic. Without a relay such a call sits on "connecting" and drops.
 
-Give it to the SDK with `ice` as a list. Each entry is `{ urls, username, credential }`, the browser's own `RTCIceServer` format, and a TURN entry needs its login. Keep the STUN entry in the list: the browser still connects directly whenever it can and uses the relay only when it must, which keeps relay traffic, and its cost, down.
+When `ice` is not given, `connectRTC()` on both ends asks the realtime server for the servers to use and gets Skapi's STUN server plus the relay with a credential made for the user, valid for 12 hours. Nothing is written into your page, and the browser still connects directly whenever it can, using the relay only when it must.
+
+### Using your own servers
+
+To use your own STUN or TURN servers instead, give `ice` a list. Each entry is `{ urls, username, credential }`, the browser's own `RTCIceServer` format; a TURN entry needs its login. Both ends have to pass the same option, since both need to reach the relay. `ice` also still takes a single STUN url, as before.
 
 ```js
 const ice = [
@@ -213,4 +218,4 @@ call.connectRTC({ ice, media: { audio: true, video: true } }, RTCCallback);
 Do not write a fixed TURN password into your page; anyone could copy it and relay their own traffic on your bill. Most TURN services issue short-lived credentials per user. Fetch them when a call starts, for example from your own endpoint or a [ticket](/tickets/introduction.md), and pass them in `ice`.
 :::
 
-`ice` still takes a single url as before. A list that is empty, a url that does not start with `stun:`, `stuns:`, `turn:` or `turns:`, or a TURN entry without `username` and `credential` is refused with `INVALID_PARAMETER`.
+A list that is empty, a url that does not start with `stun:`, `stuns:`, `turn:` or `turns:`, or a TURN entry without `username` and `credential` is refused with `INVALID_PARAMETER`.
