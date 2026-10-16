@@ -6,6 +6,7 @@
 
 - **Calls get a relay by default.** `connectRTC()` and the answering side's `connectRTC()` now ask the realtime server for their ICE servers when `ice` is not given: Skapi's STUN server plus the Skapi TURN relay (`turn.skapi.com`) with a credential made for the user, valid for 12 hours. A relay is what connects two peers whose networks allow no direct path, which STUN alone cannot; before this, such a call sat on "connecting" and dropped. `ice` still overrides with your own servers. See [The relay](/realtime/webRTC.md#the-relay).
 - Backend (ships with the API, not the SDK): the realtime server answers an `ice` request with the servers above. A region without a relay key answers with the STUN server alone, and an older backend does not answer at all; in both cases the SDK uses the STUN server, as before.
+- Backend (ships with the API, not the SDK): a Respond's delayed **`resume`** (`"1m"`, `"10m"`, ...) now runs. The queued run was claimed twice, by the minute sweep and by the run it started, and the second claim refused it, so the rest of the chain never ran and the run was marked failed after three attempts. Fixed-time and `"0m"` resumes were not affected.
 
 **2.2.10**
 
