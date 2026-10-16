@@ -29,6 +29,14 @@ Queued ticket runs are the runs of a ticket that go on after a Respond action an
 
 A Trial project never expires and needs no card.
 
+## Your plan and usage
+
+The **Plan & Usage** card on your project's `Settings` page at [skapi.com](https://www.skapi.com) shows the plan the project is on and how much of each metered limit it uses: user accounts, database storage, the pooled file storage split into hosting, cloud storage and file storage, this month's bandwidth, e-mail sends and queued ticket runs, and email storage. The note under a meter says how that limit is counted. The **Upgrade Plan** button opens the plan page of the project, and the line under it says what happens past a limit on the current plan.
+
+![The Plan & Usage card on a project's Settings page: a Standard badge, one meter per metered limit with the usage against the limit, an Upgrade Plan button and the hard stop note](/screenshots/settings-plan.webp)
+
+*The Plan & Usage card of a Standard project. Every metered limit has a meter here; the plan page lists the rest.*
+
 ## Trial and Standard: hard stop
 
 The Trial and Standard plans stop at their limits instead of billing you for the excess.

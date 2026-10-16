@@ -17,11 +17,19 @@ An account that already has projects can also click **+ New Project** on its pro
 
 Your new project opens on its `Settings` page. The **Information** card holds the **Project ID**, the value every example in this documentation calls `<Project ID>`. Click it to copy it.
 
-![The Settings page of a Skapi project: the Project card with its name and description, the Information card with the Project ID, Owner ID, Service ID, Region, creation date and a link to the documentation, and the Application Examples card below](/screenshots/settings-page.webp)
+![The Settings page of a Skapi project: the Project card with its name and description, the Information card with the Project ID, Owner ID, Service ID, Region, creation date and a link to the documentation, and the top of the Plan & Usage card below](/screenshots/settings-page.webp)
 
 *The Settings page of a project. The Project ID is on the Information card.*
 
-The same page has two shortcuts worth knowing from day one: **Application Examples** opens ready-made HTML pages that already run against your project (see [Full Examples](/full-example/intro.md)), and **For AI Agents** downloads the base prompt for your AI coding tool (see [Building With Your AI Agent](#building-with-your-ai-agent) below).
+Two cards at the end of the same page are worth knowing from day one: **Application Examples** and **For AI Agents**.
+
+The **Application Examples** card lists plain HTML pages that already run against your project: User Account, Newsletter, Send Inquiry, Database, Realtime Chat and RTC Video Chat. Click **[Open]** on a row to run that page with your project ID already filled in, and see the backend at work before you write a line of code. Click **[Download]** on the last row to get every page as a ZIP file to study or build on. [Full Examples](/full-example/intro.md) walks through each page.
+
+![The Application Examples card on a project's Settings page: an introduction line, one row per example page (User Account, Newsletter, Send Inquiry, Database, Realtime Chat and RTC Video Chat) with an Open link, and a Download the template row for the ZIP](/screenshots/settings-examples.webp)
+
+*The Application Examples card at the end of the Settings page. Open runs a page against your project; Download gets all of them as a ZIP.*
+
+The **For AI Agents** card downloads the base prompt for your AI coding tool (see [Building With Your AI Agent](#building-with-your-ai-agent) below).
 
 :::tip For BunnyQuery users
 [BunnyQuery](https://www.bunnyquery.com) projects are fully compatible with Skapi. Your project will appear in both your BunnyQuery and Skapi project lists.
