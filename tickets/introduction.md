@@ -18,9 +18,9 @@ There is no rollback: actions that already ran stay applied when a later one fai
 
 Tickets are registered from the dashboard. Open your project, click **Tickets** in the project menu, then **+ Register Ticket**.
 
-![The Tickets page of a project: the Register Ticket button, a search box, and a table of registered tickets with their id, description, remaining count, per-user limit, expiry and actions](/screenshots/tickets-list.webp)
+![The Tickets page of a project: the Register Ticket button, a search box, and a table of registered tickets with their id, Enabled switch, description, remaining count, per-user limit, expiry and actions](/screenshots/tickets-list.webp)
 
-*The Tickets page. Every registered ticket is one row. Click a row to open it, search by id or description, and tick rows to delete several at once.*
+*The Tickets page. Every registered ticket is one row with its Enabled switch. Click a row to open it, search by id or description, and tick rows to delete several at once.*
 
 An AI agent can do this for you. The Skapi MCP server registers, updates and deletes tickets and reads their logs from a prompt, so a webhook endpoint is one sentence away. See [Connecting the Skapi MCP server](/introduction/getting-started.md#connecting-the-skapi-mcp-server).
 
@@ -34,9 +34,9 @@ The detail view has these sections:
 - **Actions**: what happens once the condition passes. See [Actions](/tickets/actions.md).
 - **Log**: on an existing ticket, every consumption. See [Reading the Log in the Dashboard](/tickets/errors.md#reading-the-log-in-the-dashboard).
 
-![A ticket opened in the dashboard: the Ticket and Log tabs, the Edit as JSON toggle, the Ticket fields, and the Endpoints section with the POST, GET, signed-in and dry run URLs](/screenshots/tickets-register.webp)
+![A ticket opened in the dashboard: the Ticket and Log tabs, the Edit as JSON and Enabled switches, the Ticket fields, and the Endpoints section with the POST, GET, signed-in and dry run URLs](/screenshots/tickets-register.webp)
 
-*A ticket opened from the list. The same form registers a new ticket, and its Endpoints appear as soon as you type an id.*
+*A ticket opened from the list, with its Enabled switch under Edit as JSON. The same form registers a new ticket, and its Endpoints appear as soon as you type an id.*
 
 ### Ticket fields
 
@@ -47,6 +47,7 @@ The detail view has these sections:
 - **Expires** (`time_to_live`): a date and time after which the ticket answers `TICKET_EXPIRED`, entered in your local time. Blank means never. When set it must be in the future.
 - **Always 200** (`return200`): answer HTTP 200 even when the consumption fails, for webhooks that retry on errors.
 - **Method**: Any, GET or POST. Any accepts both; with GET or POST, a request with the other method fails with `METHOD_NOT_ALLOWED`. See [`return200` and `method`](/tickets/conditions.md#return200-and-method).
+- **Enabled**: the switch on the list and at the top of the detail view. Off, the ticket answers `TICKET_DISABLED` to every call, dry runs included, and a run of it that was queued is skipped and logged as skipped: disabled. On again at any time. Switching does not touch the definition, the remaining count, the per-user counters or the log, so a webhook can be paused and resumed without re-registering it. An AI agent switches it with the `enable` and `disable` actions of the MCP server's ticket tool.
 
 Updating a ticket replaces its whole definition, but the per-user usage counters survive an update, so editing the count does not hand every user a fresh allowance. Deleting a ticket deletes the counters and keeps the log.
 

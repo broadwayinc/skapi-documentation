@@ -83,6 +83,7 @@ getTickets(
     // always gets the five keys above and nothing else.
     limit_per_user?: number | boolean; // true = once per user, n = n times. Absent or 0 = unlimited.
     updated?: number;                  // Last registered at, in milliseconds.
+    enabled?: boolean;                 // false while the owner has the ticket switched off: it answers TICKET_DISABLED and its queued runs are skipped.
     condition?: TicketCondition;
     actions?: TicketAction[];
     legacy?: boolean;

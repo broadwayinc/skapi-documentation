@@ -473,3 +473,25 @@ The first action of the `req`'s Then chain is a Check answer whose rows read the
 ### What you see afterwards
 
 The log row's `outcome.placeholders` holds `GROUP`, and `outcome.actions` lists the `req` at `actions[0]`, with the order as its result, the Check answer at `actions[0].actions[0]`, and the access group change at `actions[0].actions[1]`. The buyer is in the access group of their current plan, however many times the service sends the event.
+
+## Repeating Every 30 Minutes
+
+A ticket that runs on its own every half hour, with nothing outside Skapi calling it: it answers at once, waits, does its work, and then calls its own URL to start the next round.
+
+```json
+{
+  "ticket_id": "poster",
+  "description": "Posts a record every 30 minutes",
+  "condition": { "method": "GET" },
+  "actions": [
+    { "act": "resp", "exe": { "status": 200, "body": { "ok": true }, "resume": "30m" } },
+    { "act": "pstr", "exe": { "table": { "name": "post", "access_group": "public" }, "data": { "at": "${timestamp}" } } },
+    { "act": "req", "exe": { "method": "GET", "url": "https://eu73.skapi.dev/tg/eu73kXm2PqA9vLb4/poster" } }
+  ]
+}
+```
+
+`"resume": "30m"`. The Respond answers the caller and leaves the rest of the chain to a queued run half an hour later: the record is posted, then the `req` calls the ticket's own GET endpoint, which answers at once and queues the next round. Open the endpoint once in a browser to start it; switch the ticket off (the Enabled switch, or `disable` from the MCP server) to stop it, and the round that was waiting is skipped and logged as skipped: disabled.
+
+Each round is one queued ticket run against the plan's month: 48 a day, about 1,440 a month. On Trial, whose month holds 100, the loop stops at the figure with `QUOTA_EXCEEDED` at the Respond and the dashboard shows the banner; Standard holds 10,000 and Premium 100,000 before overage. A round with no wait (`"resume": "0m"` or a `req` to itself without a Respond) is not a timer: nested calls within one request are cut off 8 deep.
+

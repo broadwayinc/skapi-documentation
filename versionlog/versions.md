@@ -1,6 +1,11 @@
 # Version History
 
-### Current version: 2.2.11
+### Current version: 2.2.12
+
+**2.2.12**
+
+- **Tickets can be switched off and on.** `Ticket.enabled` (false while off); the dashboard's Tickets page has the switch on each row and at the top of a ticket; the MCP server's ticket tool gains `enable` and `disable`. Off, the ticket answers **`TICKET_DISABLED`** to every call and a run of it that was queued is skipped and logged as skipped: disabled. Nothing else of the ticket changes. See [Ticket fields](/tickets/introduction.md#ticket-fields).
+- Backend (ships with the API, not the SDK): **a ticket may call ticket URLs**, itself included, so a chain can repeat on its own (see [Repeating Every 30 Minutes](/tickets/examples.md#repeating-every-30-minutes)). `*.skapi.dev` is no longer refused by a `req`; what is refused is a chain of ticket calls nested 8 deep within one request (`CONDITION_FAILED`, `field: "loop"`, `"hops": 8`). A loop that waits is bounded by the plan's queued ticket runs, and the dashboard shows a banner when the month's figure is reached.
 
 **2.2.11**
 
