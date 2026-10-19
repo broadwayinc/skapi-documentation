@@ -1,6 +1,14 @@
 # Version History
 
-### Current version: 2.2.12
+### Current version: 2.2.13
+
+**2.2.13**
+
+- **A call carries more than the camera and microphone.** `connectRTC()` and the answering side's `connectRTC()` take `media` as `{ audio, video, screen }`: `screen` captures the screen with `getDisplayMedia()` (true, or its options plus a `contentHint`), `audio` and `video` take track constraints besides booleans, and a `MediaStream` of your own is sent as it is. New options: `receive` (take a kind you do not send yourself, without a renegotiation), `channels` on the answering side too (the caller opens `default` when it is omitted, the answering side none; a `negotiated` channel takes an `id`), `encoding` (codec order, `maxBitrate`, `maxFramerate`, `scaleResolutionDownBy`), `icePolicy: 'relay'`, and on the caller `meta` (a JSON object the other side reads before answering) and `ringTimeout`. See [What a call can carry](/realtime/webRTC.md#what-a-call-can-carry).
+- **The running call has controls.** The connection object gains `share()` (the screen, the camera, the microphone, or a stream or track of your own, during the call), `unshare()`, `replace()` (a camera switch without a new negotiation), `mute()`, `addChannel()`, `tracks()`, `cid` and `meta`. Either side can add or remove tracks and the connection renegotiates on its own, in both directions; before, only the caller renegotiated, so a track the answering side added never reached the caller. See [During the call](/realtime/webRTC.md#during-the-call).
+- **Each track says what it is.** The `track` event carries `source`: `camera`, `microphone`, `screen`, `custom`, or the name given to `share()`. New events: `trackmute`, `trackunmute` and `trackended` follow a track of the other side, `unshare` a local track that left the call (also when the browser's own Stop sharing button ends a screen), and `ringtimeout` a call nobody answered. The `rtc:incoming` message carries `meta` and `sources`, what the caller sends. Data channel events carry `label`. See [Telling the tracks apart](/realtime/webRTC.md#telling-the-tracks-apart).
+- Fixed: a `MediaStream` passed as `media` was sent as an empty object (the parameter check cloned it through JSON), so a stream of your own never reached the other side. Fixed: each call keeps its own local tracks; hanging up one call no longer stops the tracks of another. Fixed: a call cancelled before it was answered left its offer behind on the other side, and the next call from the same connection then failed to set up. The default data channel (`channels` omitted) is reliable now, where it dropped a message not delivered within 10 ms. A call with `audio` and `video` both off no longer sends a blank one-pixel video track.
+- Types: `RTCMediaOption`, `RTCScreenOption`, `RTCEncodingOption`, `RTCChannelOption`, `RTCShareOptions`, `RTCMediaSource` and `RTCIceOption` are exported. `RTCConnectorParams` extends `RTCReceiverParams`.
 
 **2.2.12**
 

@@ -118,15 +118,26 @@ connectRTC(
   params: {
     cid: string;
     ice?: string | Array<{ urls: string | string[]; username?: string; credential?: string }>; // Omitted: Skapi's STUN server and TURN relay, with a credential for the user. See "The relay" in the WebRTC guide
-    media?: {
-      video: boolean;
-      audio: boolean;
-    } | MediaStream | MediaStreamConstraints;
-    channels?: Array<RTCDataChannelInit | 'text-chat' | 'file-transfer' | 'video-chat' | 'voice-chat' | 'gaming'>;
+    icePolicy?: 'all' | 'relay'; // 'relay' sends everything through the relay, even where a direct path exists
+    media?: MediaStream | {
+      audio?: boolean | MediaTrackConstraints; // the microphone
+      video?: boolean | MediaTrackConstraints; // the camera
+      screen?: boolean | (DisplayMediaStreamOptions & { contentHint?: 'text' | 'detail' | 'motion' }); // the screen, with getDisplayMedia()
+    }; // Omitted, or everything false: no media. A MediaStream of your own is sent as it is.
+    receive?: { audio?: boolean; video?: boolean }; // take a kind you do not send yourself, without a renegotiation
+    encoding?: {
+      video?: { codecs?: string[]; maxBitrate?: number; maxFramerate?: number; scaleResolutionDownBy?: number }; // codec names in the preferred order; bits per second
+      audio?: { codecs?: string[]; maxBitrate?: number };
+    };
+    channels?: Array<RTCDataChannelInit | 'default' | 'text-chat' | 'file-transfer' | 'video-chat' | 'voice-chat' | 'gaming'>; // Omitted: ['default']. A string that is not a preset opens a channel of that name.
+    meta?: Record<string, any>; // a JSON object the other side reads on its rtc:incoming message, before it answers
+    ringTimeout?: number; // milliseconds to wait for an answer; none by default
   },
   callback: (e: RTCEvent) => void
 ): Promise<RTCConnector>
 ```
+
+The answering side calls `connectRTC()` on its `rtc:incoming` message with the same options but `cid`, `meta` and `ringTimeout`: see [RTCReceiverParams](/api-reference/data-types/README.md#rtcreceiverparams). Both resolve, once the call is up, with the running call: see [RTCResolved](/api-reference/data-types/README.md#rtcresolved).
 
 See [RTCConnector](/api-reference/data-types/README.md#rtcconnector)
 
@@ -142,6 +153,16 @@ See [RTCEvent](/api-reference/data-types/README.md#rtcevent)
 {
   code: 'INVALID_REQUEST';
   message: 'Data channel with the protocol "{protocol name}$" already exists.';
+}
+|
+{
+  code: 'INVALID_REQUEST';
+  message: 'Media stream is only supported on either localhost or https.';
+}
+|
+{
+  code: 'INVALID_PARAMETER';
+  message: '"media.screen" should be true, or the options of getDisplayMedia().'; // and the like for icePolicy, receive, encoding, channels, meta and ringTimeout
 }
 ```
 

@@ -9,7 +9,8 @@ The full example is a plain HTML and JavaScript template that shows every Skapi 
 | [Send Inquiry](/full-example/inquiry.md) | A contact form that sends a message to you, the project owner. |
 | [Database](/full-example/database.md) | A photo gallery: upload posts with files, like, comment, subscribe to other users and query posts in different ways. |
 | [Realtime Chat](/full-example/realtime.md) | Group chat and private messages over a WebSocket connection. |
-| [RTC Video Chat](/full-example/webrtc.md) | Video calls and a data channel between two users with WebRTC. |
+| [RTC Video Chat](/full-example/webrtc.md) | Video calls, screen sharing and a data channel between two users with WebRTC. |
+| [Shared Drawing](/full-example/drawing.md) | Two users draw on one canvas; every stroke travels over a WebRTC data channel. |
 
 ## Have your project ID ready
 
@@ -29,13 +30,13 @@ You can also open every page from your project's `Settings` page at [skapi.com](
 
 *Application Examples on the Settings page.*
 
-Pages that need a logged-in user (Database, Realtime Chat, RTC Video Chat and the account pages) send you to the login page first and bring you back afterwards. Newsletter and Send Inquiry work without an account.
+Pages that need a logged-in user (Database, Realtime Chat, RTC Video Chat, Shared Drawing and the account pages) send you to the login page first and bring you back afterwards. Newsletter and Send Inquiry work without an account.
 
 ## Download
 
-Download every page of the template as one ZIP file: [skapi-templates.zip](https://cdn.broadwayinc.com/temp/v2/skapi-templates.zip)
+Download every page of the template as one ZIP file: [skapi-templates.zip](https://cdn.broadwayinc.com/temp/v3/skapi-templates.zip)
 
-Unzip it, then either open a page with `?pid=<Project ID>` in the address or set the project ID in `service.js`. The files are plain HTML and JavaScript, so they run from any web server, or straight from the file system for everything except the video chat, which needs HTTPS or `localhost`.
+Unzip it, then either open a page with `?pid=<Project ID>` in the address or set the project ID in `service.js`. The files are plain HTML and JavaScript, so they run from any web server, or straight from the file system for everything except the video chat and the shared drawing, which need HTTPS or `localhost`.
 
 ## What is shared by every page
 
