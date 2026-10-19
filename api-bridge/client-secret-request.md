@@ -77,6 +77,23 @@ For full parameter details, see the API reference below:
 
 ### [`forwardRequest(form, options): Promise<any>`](/api-reference/api-bridge/README.md#forwardrequest)
 
+## Calling a Ticket
+
+A [ticket](/tickets/introduction.md) is an HTTP endpoint of your own project, and `forwardRequest()` can call its open endpoints (`/tp/...` and `/tg/...`) like any other URL. The use is a ticket whose condition checks a header for a key the browser may not hold: the page sends `$CLIENT_SECRET`, the forwarder fills the key in on the server, and the ticket's `headers` condition compares it. Give that key the ticket URL as its Destination, and nothing else can receive it.
+
+```js
+let answer = await skapi.forwardRequest({ order: 'A-1001' }, {
+    secretName: 'orders_hook_key',
+    url: 'https://eu73.skapi.dev/tp/eu73kXm2PqA9vLb4/order-paid',
+    headers: { Authorization: 'Bearer $CLIENT_SECRET' }
+});
+```
+
+Two things it cannot do:
+
+- Reach the **signed-in endpoint** (`/tpa/...`). That endpoint is proven by the caller's own login token, which the forwarder never attaches, and it is the one call that carries a user: `${user}`, the `user` and `record_access` conditions and the per-user limit all rest on it. A logged-in user calls it with [`consumeTicket()`](/api-reference/tickets/README.md#consumeticket) and `auth: true`; a call through the forwarder is anonymous to the ticket, whoever is logged in.
+- Produce a **`signature`**. That condition expects an HMAC over the raw body, computed by the sender; the forwarder substitutes a value and does not sign.
+
 ## Restricting Where a Key Can Be Sent
 
 `forwardRequest()` takes its `url` from your frontend code, so anyone who can call it can also choose where the request goes. For a key that is not **Locked**, that includes visitors who are not signed in. Without a restriction, a key can be sent to any address, including one that records it.

@@ -43,7 +43,7 @@ The detail view has these sections:
 - **Ticket ID**: the last segment of the endpoint URL. Must match `^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$`; `#`, `!` and `/` are reserved. It cannot be changed after creation.
 - **Description**: up to 500 characters, shown in the list.
 - **Remaining** (`count`): every successful consumption takes one. At `0` the ticket answers `TICKET_EXHAUSTED`. Blank keeps the current value when you update a ticket, and means unlimited on a new one. `0` exhausts the ticket. Tick **Unlimited** to remove the count from an existing ticket.
-- **Limit per user** (`limit_per_user`): how many times one user may consume the ticket. `1` means once. Blank means unlimited. Only signed-in consumptions are counted, so it has no effect on the anonymous endpoints.
+- **Limit per user** (`limit_per_user`): how many times one user may consume the ticket. `1` means once. Blank means unlimited. Counted only on `consumeTicket()` calls with `auth: true`, the one call that carries a user. Only signed-in consumptions are counted, so it has no effect on the anonymous endpoints.
 - **Expires** (`time_to_live`): a date and time after which the ticket answers `TICKET_EXPIRED`, entered in your local time. Blank means never. When set it must be in the future.
 - **Always 200** (`return200`): answer HTTP 200 even when the consumption fails, for webhooks that retry on errors.
 - **Method**: Any, GET or POST. Any accepts both; with GET or POST, a request with the other method fails with `METHOD_NOT_ALLOWED`. See [`return200` and `method`](/tickets/conditions.md#return200-and-method).
@@ -221,6 +221,12 @@ console.log(unlocked);
 ```
 
 `auth: true` with `method: 'GET'` throws `INVALID_PARAMETER: Signed-in consumption is POST only.` before anything is sent.
+
+### Who can call which endpoint
+
+- **The signed-in endpoint** (`/tpa/...`) is called only with `consumeTicket()` and `auth: true`: the SDK sends the user's login token, and that token is what proves who is calling. It is the one call that carries a user, so everything about the consumer rests on it: `${user}` and the `user` condition rows, **Limit per user**, and the `record_access` condition. No other way in reaches it, not another HTTP client, not [`forwardRequest()`](/api-bridge/client-secret-request.md), which never attaches a login token.
+- **The open endpoints** (`/tp/...` and `/tg/...`) take any HTTP client. A page that must send a key the browser may not hold calls them through [`forwardRequest()`](/api-bridge/client-secret-request.md#calling-a-ticket): the key goes in as `$CLIENT_SECRET`, and the ticket's condition checks that header. Such a call has no user: it is anonymous to the ticket, whoever is logged in.
+- **A `signature` condition** is for a webhook sender that signs the raw body with the secret you share with it. A browser cannot produce it, and neither can `forwardRequest()`, which substitutes a value and does not sign.
 
 The object above is the **receipt**. A ticket with a [Respond](/tickets/actions.md#resp-answer-the-caller) action answers what that action composed instead, and `consumeTicket()` resolves with that body as sent, whatever its status: `consumeTicket<{ ok: boolean }>(...)` names its type.
 

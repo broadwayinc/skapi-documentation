@@ -23,7 +23,7 @@ consumeTicket<T = TicketReceipt>(
     params: {
         ticket_id: string; // The ticket to consume.
         method: 'GET' | 'POST'; // 'POST' sends data as the JSON body. 'GET' sends it as the query string.
-        auth?: boolean; // Consume on the signed-in endpoint, as the logged-in user. POST only. Needed by a ticket whose condition has user or record_access.
+        auth?: boolean; // Consume on the signed-in endpoint, as the logged-in user. POST only. The one call that carries a user: ${user}, the user and record_access conditions and the per-user limit see only this. forwardRequest() cannot reach that endpoint.
         data?: { [key: string]: any }; // The request data: the JSON body of a POST, read by body rows and ${body}, or the query string of a GET, read by params rows and ${params}.
     }
 ): Promise<T> // The receipt below, or the body a Respond action of the ticket answered.

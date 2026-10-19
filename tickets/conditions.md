@@ -490,7 +490,7 @@ An action reads the result as `${placeholder[GROUP]}`, for instance `{ "act": "a
 ## User
 
 :::warning Signed requests only
-`user` rows read the account of the signed-in consumer, so they only pass for an app user of this project calling [`consumeTicket()`](/api-reference/tickets/README.md#consumeticket) with `auth: true`. A third-party webhook has no session: a ticket with `user` rows always fails for webhooks, with `AUTH_REQUIRED`.
+`user` rows read the account of the signed-in consumer, so they only pass for an app user of this project calling [`consumeTicket()`](/api-reference/tickets/README.md#consumeticket) with `auth: true`. That is the one call that carries a user; a call made any other way, [`forwardRequest()`](/api-bridge/client-secret-request.md#calling-a-ticket) included, has none. A third-party webhook has no session: a ticket with `user` rows always fails for webhooks, with `AUTH_REQUIRED`.
 :::
 
 ```json
@@ -515,7 +515,7 @@ The keys are the consumer's [`UserProfile`](/api-reference/data-types/README.md#
 ## Record Access
 
 :::warning Signed requests only
-`record_access` checks the signed-in consumer, so it only passes for an app user of this project calling [`consumeTicket()`](/api-reference/tickets/README.md#consumeticket) with `auth: true`. A third-party webhook has no session: a ticket with `record_access` always fails for webhooks, with `AUTH_REQUIRED`.
+`record_access` checks the signed-in consumer, so it only passes for an app user of this project calling [`consumeTicket()`](/api-reference/tickets/README.md#consumeticket) with `auth: true`. That is the one call that carries a user; a call made any other way, [`forwardRequest()`](/api-bridge/client-secret-request.md#calling-a-ticket) included, has none. A third-party webhook has no session: a ticket with `record_access` always fails for webhooks, with `AUTH_REQUIRED`.
 :::
 
 `record_access` names a record id. The consumer must be the record's uploader, or have been granted private access to it with [`grantPrivateRecordAccess()`](/database/access-restrictions.md#grant-private-access). A consumer who is neither fails with `CONDITION_FAILED` and `field: "record_access"`.

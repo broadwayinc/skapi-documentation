@@ -37,7 +37,7 @@ The status is `400`, or `200` when the ticket's `return200` is on. `INTERNAL_ERR
 | `ISSUER_CANNOT_CONSUME` | ticket | consumer is the ticket issuer | |
 | `AUTH_REQUIRED` | ticket, condition or action | a user is needed and the route is anonymous (a `user` or `record_access` condition, which a webhook can never pass, an action with no `user_id`, or a `${user}` reference), or the token is from another project | |
 | `METHOD_NOT_ALLOWED` | condition | `condition.method` mismatch | `{ "expected": "POST", "received": "GET" }` |
-| `CONDITION_FAILED` | condition, or action for a Check answer | a part of the condition did not pass, or a Check answer row did not match | `{ "field": "signature"\|"ip"\|"user_agent"\|"headers"\|"body"\|"params"\|"user"\|"record_access"\|"loop"\|"response", "keys": [ ...keys that failed ] }` (`keys` empty for signature/ip/user_agent/record_access/loop; `loop` adds `"hops": 8`, the depth a chain of ticket calls within one request reached). See [below](#condition-failed-fields) |
+| `CONDITION_FAILED` | condition, or action for a Check answer | a part of the condition did not pass, or a Check answer row did not match | `{ "field": "signature"\|"ip"\|"user_agent"\|"headers"\|"body"\|"params"\|"user"\|"record_access"\|"response", "keys": [ ...keys that failed ] }` (`keys` empty for signature/ip/user_agent/record_access). See [below](#condition-failed-fields) |
 | `PATH_NOT_FOUND` | action | a [reference](/tickets/conditions.md#references) in an action value could not be resolved | `{ "path": "data[payment][id]" }`, the reference without `${ }` |
 | `PLACEHOLDER_MISSING` | action | `${placeholder[NAME]}` referenced but never captured | `{ "placeholder": "NAME" }` |
 | `REQUEST_FAILED` | action (`req`) | HTTP status >= 300, refused address, connection error, per-call timeout, a header that cannot be sent, or a Secret Key that no longer exists | `{ "status": 502, "body": <the parsed answer, or the first 4 KB of its text when longer> }`, `{ "reason": "timeout" \| "refused_address" \| "connection" }`, `{ "reason": "invalid_header", "header": "<name>" }` (see [the req action](/tickets/actions.md#req-http-request-with-its-own-condition-and-chain)), or `{ "reason": "secret_missing", "secretName": "<name>" }` |
@@ -55,8 +55,6 @@ A code raised inside a `req` action, by its HTTP call or its Then chain, is repo
 ### `CONDITION_FAILED` fields
 
 `detail.field` names the part of the condition that failed, and `detail.keys` the keys of that part that did not pass: header names for `headers`, paths for `body` and `params`, attribute names for `user`. A path the request does not carry is one of those keys; it is never a separate error.
-
-One value is not a part you write: `"loop"`. The request carried an `X-Skapi-Ticket` header, so it was sent by a ticket, and a ticket cannot consume a ticket. The message is `Requests sent by a ticket cannot consume a ticket.` See [URL and address rules](/tickets/actions.md#url-and-address-rules).
 
 ## What `consumeTicket()` Rejects With
 
