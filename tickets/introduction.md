@@ -4,7 +4,7 @@ A ticket is an HTTP endpoint that you register once as the project owner, and th
 
 On every consumption Skapi:
 
-1. checks the service and the ticket itself (service active, ticket exists, not expired, count left, per-user limit, issuer, token belongs to this project),
+1. checks the service and the ticket itself (service active, ticket exists, switched on, not expired, count left, per-user limit, issuer, token belongs to this project),
 2. evaluates the ticket's **condition** against the incoming request and captures **placeholders** from it,
 3. runs the ticket's **actions** in order (an action chain), each with its own **error chain**,
 4. writes a consumption log row you can inspect from the dashboard,
@@ -18,9 +18,11 @@ There is no rollback: actions that already ran stay applied when a later one fai
 
 Tickets are registered from the dashboard. Open your project, click **Tickets** in the project menu, then **+ Register Ticket**.
 
-![The Tickets page of a project: the Register Ticket button, a search box, and a table of registered tickets with their id, Enabled switch, description, remaining count, per-user limit, expiry and actions](/screenshots/tickets-list.webp)
+![The Tickets page of a project: the Register Ticket button, a search box, and a table of registered tickets with their id, Status cell, description, remaining count, per-user limit, expiry and actions](/screenshots/tickets-list.webp)
 
-*The Tickets page. Every registered ticket is one row with its Enabled switch. Click a row to open it, search by id or description, and tick rows to delete several at once.*
+*The Tickets page. Every registered ticket is one row with its Status: a green or red dot for enabled or disabled, then idle, queued or recursing. Click a row to open it, search by id or description, and tick rows to delete several at once.*
+
+The **Status** cell is a green dot (enabled) or a red dot (disabled), then one word: `idle` when no queued run of the ticket is waiting, `queued` when at least one queued run is waiting to come due, and `recursing` when a queued run is waiting and one of the ticket's actions, at any depth, is an HTTP request to a ticket URL of this project (a URL with `/tp/<service_id>/`, `/tg/<service_id>/` or `/tpa/<service_id>/`), the shape of a ticket that keeps itself going. The switch that turns a ticket on and off is at the top of its detail view; see [Disabling a ticket](#disabling-a-ticket).
 
 An AI agent can do this for you. The Skapi MCP server registers, updates and deletes tickets and reads their logs from a prompt, so a webhook endpoint is one sentence away. See [Connecting the Skapi MCP server](/introduction/getting-started.md#connecting-the-skapi-mcp-server).
 
@@ -29,27 +31,39 @@ Only the project owner can register, update or delete a ticket. An admin of your
 The detail view has these sections:
 
 - **Ticket**: the identity and the limits of the ticket, listed below.
-- **Endpoints**: the URLs the ticket answers on, with copy buttons. They appear as soon as you type an id.
+- **Endpoints**: the POST, GET and Dry run URLs the ticket answers on, with copy buttons. They appear as soon as you type an id. The route `consumeTicket()` uses with `auth: true` is not listed: the SDK builds it, and nothing calls it by hand.
 - **Condition**: what an incoming request must look like. See [Conditions and Placeholders](/tickets/conditions.md).
 - **Actions**: what happens once the condition passes. See [Actions](/tickets/actions.md).
 - **Log**: on an existing ticket, every consumption. See [Reading the Log in the Dashboard](/tickets/errors.md#reading-the-log-in-the-dashboard).
 
-![A ticket opened in the dashboard: the Ticket and Log tabs, the Edit as JSON and Enabled switches, the Ticket fields, and the Endpoints section with the POST, GET, signed-in and dry run URLs](/screenshots/tickets-register.webp)
+![A ticket opened in the dashboard: the Ticket and Log tabs, the Edit as JSON toggle with the Enabled switch next to it, the Ticket fields, and the Endpoints section with the POST, GET and Dry run URLs](/screenshots/tickets-register.webp)
 
-*A ticket opened from the list, with its Enabled switch under Edit as JSON. The same form registers a new ticket, and its Endpoints appear as soon as you type an id.*
+*A ticket opened from the list, with its Enabled switch next to Edit as JSON. The same form registers a new ticket, and its Endpoints, POST, GET and Dry run, appear as soon as you type an id.*
 
 ### Ticket fields
 
 - **Ticket ID**: the last segment of the endpoint URL. Must match `^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$`; `#`, `!` and `/` are reserved. It cannot be changed after creation.
 - **Description**: up to 500 characters, shown in the list.
 - **Remaining** (`count`): every successful consumption takes one. At `0` the ticket answers `TICKET_EXHAUSTED`. Blank keeps the current value when you update a ticket, and means unlimited on a new one. `0` exhausts the ticket. Tick **Unlimited** to remove the count from an existing ticket.
-- **Limit per user** (`limit_per_user`): how many times one user may consume the ticket. `1` means once. Blank means unlimited. Counted only on `consumeTicket()` calls with `auth: true`, the one call that carries a user. Only signed-in consumptions are counted, so it has no effect on the anonymous endpoints.
+- **Limit per user** (`limit_per_user`): how many times one user may consume the ticket. `1` means once. Blank means unlimited. Counted only on `consumeTicket()` calls with `auth: true`, the one call that carries a user, so it has no effect on the open endpoints, a webhook included.
 - **Expires** (`time_to_live`): a date and time after which the ticket answers `TICKET_EXPIRED`, entered in your local time. Blank means never. When set it must be in the future.
 - **Always 200** (`return200`): answer HTTP 200 even when the consumption fails, for webhooks that retry on errors.
 - **Method**: Any, GET or POST. Any accepts both; with GET or POST, a request with the other method fails with `METHOD_NOT_ALLOWED`. See [`return200` and `method`](/tickets/conditions.md#return200-and-method).
-- **Enabled**: the switch on the list and at the top of the detail view. Off, the ticket answers `TICKET_DISABLED` to every call, dry runs included, and a run of it that was queued is skipped and logged as skipped: disabled. On again at any time. Switching does not touch the definition, the remaining count, the per-user counters or the log, so a webhook can be paused and resumed without re-registering it. An AI agent switches it with the `enable` and `disable` actions of the MCP server's ticket tool.
+- **Enabled**: the switch at the top of the detail view, next to **Edit as JSON**; in the list, the dot of the **Status** cell shows the state. Switching on is immediate; switching off asks you to confirm. Off, the ticket answers `TICKET_DISABLED` to every call, dry runs included, and a queued run of it that comes due is skipped and logged as a failed row with `skipped: disabled`. The definition, the remaining count, the per-user counters and the log are kept, so a webhook can be paused and resumed without re-registering it. On again at any time. An AI agent switches it with the `enable` and `disable` actions of the MCP server's ticket tool. See [Disabling a ticket](#disabling-a-ticket).
 
 Updating a ticket replaces its whole definition, but the per-user usage counters survive an update, so editing the count does not hand every user a fresh allowance. Deleting a ticket deletes the counters and keeps the log.
+
+### Disabling a ticket
+
+The switch at the top of the detail view, next to **Edit as JSON**, pauses a ticket without deleting it. Switching off asks for confirmation; switching on is immediate.
+
+While a ticket is off:
+
+- every call answers `TICKET_DISABLED`, on every endpoint and on the dry run URL as well;
+- a queued run of the ticket that comes due is not run: it is skipped and logged as a failed row with `skipped: disabled`, so a ticket that keeps itself going (see [Repeating Every 30 Minutes](/tickets/examples.md#repeating-every-30-minutes)) stops at its next round;
+- the definition, the remaining count, the per-user counters and the log are all kept.
+
+Switch it on again at any time, and the next call is answered as before. In the list, the dot of the **Status** cell shows the state. An AI agent uses the `enable` and `disable` actions of the MCP server's ticket tool.
 
 ### Edit as JSON
 
@@ -87,8 +101,8 @@ type Ticket = {
     headers?: Matcher[];                   // request headers
     body?: Matcher[];                      // POST body
     params?: Matcher[];                    // query string
-    user?: Matcher[];                      // signed requests only
-    record_access?: string;            // signed requests only
+    user?: Matcher[];                      // consumeTicket() with auth: true only
+    record_access?: string;            // consumeTicket() with auth: true only
   };
   actions: Action[];                 // required; [] = no actions; up to 50 in total
 };
@@ -167,30 +181,30 @@ Each action card in the builder also has **Show other fields (JSON)**. It holds 
 
 ## Endpoints
 
-Every ticket answers on a regional host, `https://<reg>.skapi.dev`, where `<reg>` is the first 4 characters of your project id. The dashboard shows the exact URLs in the **Endpoints** section of the ticket.
+Every ticket answers on a regional host, `https://<reg>.skapi.dev`, where `<reg>` is the first 4 characters of your project id. The dashboard shows the POST, GET and Dry run URLs in the **Endpoints** section of the ticket.
 
 | route | auth | notes |
 |---|---|---|
 | `POST /tp/<service_id>/<ticket_id>` | none | body = JSON (or raw text) |
 | `GET  /tg/<service_id>/<ticket_id>` | none | query string = data |
-| `POST /tpa/<service_id>/<ticket_id>` | Cognito id token in `Authorization` | consumer = the user. POST only |
+| `POST /tpa/<service_id>/<ticket_id>` | the user's Skapi id token in `Authorization` | what `consumeTicket()` sends to with `auth: true`; never called by hand. Consumer = the user. POST only |
 | `GET/POST /publ/check/<service_id>/<owner_id>/<ticket_id>` | none | dry run: service and ticket checks + condition only, no actions, no count change; log row with `:CHK` |
 
-Signed-in consumption is POST only. The signed-in endpoint is what [`consumeTicket()`](/api-reference/tickets/README.md#consumeticket) calls with `auth: true`; the SDK sends the token, you never handle it.
+[`consumeTicket()`](/api-reference/tickets/README.md#consumeticket) with `auth: true` is POST only. It is the only thing that calls the `/tpa/` route: the SDK sends the user's id token, you never handle it, and the dashboard does not list that URL.
 
-On the anonymous endpoints the consumer is identified by IP address and user agent. On the signed-in endpoint the consumer is the user, and the token must belong to this project: a token from another Skapi project is refused with `AUTH_REQUIRED`.
+On the open endpoints the consumer is identified by IP address and user agent. On `consumeTicket()` with `auth: true` the consumer is the user, and the token must belong to this project: a token from another Skapi project is refused with `AUTH_REQUIRED`.
 
 ### What the request carries
 
 - **The body.** A POST body is parsed as JSON. A body that is not JSON is kept as its text, so no row key finds anything in it, but an action can still read the whole text as `${body}`. A GET has no body, and reads it as `{}`. `body` rows read the body, and actions read it as `${body}` or `${body[key]}`.
 - **The query string**, on both methods. Each value is JSON-parsed on its own when it parses (`1` becomes the number `1`, `true` becomes `true`, `{"a":1}` becomes an object), otherwise it stays a string: `?code=LAUNCH24&qty=2` is read as `{ "code": "LAUNCH24", "qty": 2 }`. A request without a query string reads it as `{}`. `params` rows read the query string, and actions read it as `${params}` or `${params[key]}`.
-- **The caller**: its headers, IP address, user agent and method, and on the signed-in endpoint the user. See [References](/tickets/conditions.md#references).
+- **The caller**: its headers, IP address, user agent and method, and on `consumeTicket()` with `auth: true` the user. See [References](/tickets/conditions.md#references). What the SDK itself puts in a request is listed under [What `consumeTicket()` sends](#what-consumeticket-sends).
 
 A GET ticket's data is its query string: use `params` rows and `${params[...]}` there.
 
 ## Consuming From a Browser
 
-Use [`consumeTicket()`](/api-reference/tickets/README.md#consumeticket). `method` picks the endpoint, `auth` picks the signed-in one, and `data` is the JSON body of a POST or the query string of a GET.
+Use [`consumeTicket()`](/api-reference/tickets/README.md#consumeticket). `method` picks GET or POST, `auth: true` sends the call as the logged-in user, and `data` is the JSON body of a POST or the query string of a GET.
 
 ```js
 // anonymous GET: data becomes the query string
@@ -200,7 +214,7 @@ let coupon = await skapi.consumeTicket({
     data: { code: 'LAUNCH24' }
 });
 
-// signed-in POST: the consumer is the logged-in user
+// auth: true: the consumer is the logged-in user
 let unlocked = await skapi.consumeTicket({
     ticket_id: 'unlock-guide',
     method: 'POST',
@@ -222,9 +236,21 @@ console.log(unlocked);
 
 `auth: true` with `method: 'GET'` throws `INVALID_PARAMETER: Signed-in consumption is POST only.` before anything is sent.
 
+### `auth: true` is the switch for everything about the user
+
+`auth: true` is the one way a call carries a user, so it is the way to use **Limit per user**, the **User** condition rows and the **Record access** condition. Without it the call carries no user, whoever is logged in on the page, and those three never apply: the per-user limit is not counted, and a `user` row or a `record_access` condition fails the call with `AUTH_REQUIRED`. The same goes for `${user}` in an action, and for an `acsg` or `acsr` action with no `user_id`, whose target is the consumer.
+
+### What `consumeTicket()` sends
+
+- A **POST** sends `data` as the JSON body, with `Content-Type: application/json`. A **GET** sends `data` as the query string and no body; a value that is not text goes in as compact JSON, so `{ code: 'LAUNCH24', qty: 2 }` becomes `?code=LAUNCH24&qty=2`.
+- With **`auth: true`** the request goes to the `/tpa/` route and carries the user's Skapi id token in the `Authorization` header, which is what makes the user the consumer. Without it no `Authorization` header is sent, and the request goes to `/tp/` (POST) or `/tg/` (GET).
+- Beside these the SDK sends `Accept: */*` and one header of its own, `Content-Meta`, a small JSON naming the project and its owner. Everything else is the browser's: `User-Agent`, `Origin`, `Referer` and the rest.
+
+So on a `consumeTicket()` call a `headers` condition row or a `${headers[name]}` reference can read `content-type`, `accept`, `content-meta` and the browser's headers, such as `user-agent` and `origin`, while `${headers[authorization]}` reads `<redacted>`. `${user}` and its keys, such as `${user[user_id]}` and `${user[email]}`, read the logged-in user's account on a call with `auth: true`, and raise `AUTH_REQUIRED` on any other call.
+
 ### Who can call which endpoint
 
-- **The signed-in endpoint** (`/tpa/...`) is called only with `consumeTicket()` and `auth: true`: the SDK sends the user's login token, and that token is what proves who is calling. It is the one call that carries a user, so everything about the consumer rests on it: `${user}` and the `user` condition rows, **Limit per user**, and the `record_access` condition. No other way in reaches it, not another HTTP client, not [`forwardRequest()`](/api-bridge/client-secret-request.md), which never attaches a login token.
+- **`consumeTicket()` with `auth: true`** is the only thing that calls the `/tpa/...` route: the SDK sends the user's id token, and that token is what proves who is calling. It is the one call that carries a user, so everything about the consumer rests on it: `${user}` and the `user` condition rows, **Limit per user**, and the `record_access` condition. No other way in reaches that route, not another HTTP client, not [`forwardRequest()`](/api-bridge/client-secret-request.md), which never attaches a login token.
 - **The open endpoints** (`/tp/...` and `/tg/...`) take any HTTP client. A page that must send a key the browser may not hold calls them through [`forwardRequest()`](/api-bridge/client-secret-request.md#calling-a-ticket): the key goes in as `$CLIENT_SECRET`, and the ticket's condition checks that header. Such a call has no user: it is anonymous to the ticket, whoever is logged in.
 - **A `signature` condition** is for a webhook sender that signs the raw body with the secret you share with it. A browser cannot produce it, and neither can `forwardRequest()`, which substitutes a value and does not sign.
 
@@ -233,7 +259,7 @@ The object above is the **receipt**. A ticket with a [Respond](/tickets/actions.
 A failed consumption rejects with a `SkapiError` whose `code` is the ticket error code and whose `cause` is the whole error body. See [What consumeTicket() Rejects With](/tickets/errors.md#what-consumeticket-rejects-with).
 
 :::warning
-A browser sends whatever the page tells it to, so the request data of a `consumeTicket()` call is not something a condition can trust on its own. Decide who may run your actions with a [signature](/tickets/conditions.md#signature), or with the signed-in endpoint and rows on the consumer's account.
+A browser sends whatever the page tells it to, so the request data of a `consumeTicket()` call is not something a condition can trust on its own. Decide who may run your actions with a [signature](/tickets/conditions.md#signature), or with `consumeTicket()` with `auth: true` and rows on the consumer's account.
 :::
 
 ## Consuming From a Webhook

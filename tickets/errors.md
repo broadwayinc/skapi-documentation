@@ -31,7 +31,7 @@ The status is `400`, or `200` when the ticket's `return200` is on. `INTERNAL_ERR
 | `SERVICE_DISABLED` | ticket | the service's `active` is below 1, checked right after `INVALID_SERVICE` on every route, before the ticket is read | |
 | `TICKET_NOT_FOUND` | ticket | no ticket with that id | |
 | `TICKET_EXPIRED` | ticket | `time_to_live < now` | `{ "expired_at": <time_to_live> }` |
-| `TICKET_DISABLED` | ticket | the owner switched the ticket off (the Enabled switch) | |
+| `TICKET_DISABLED` | ticket | the owner switched the ticket off with the switch at the top of its detail view. Every call gets it, dry runs included, and a queued run of the ticket that comes due is skipped and logged as a failed row with `skipped: disabled`; the definition, count, per-user counters and log are kept. See [Disabling a ticket](/tickets/introduction.md#disabling-a-ticket) | |
 | `TICKET_EXHAUSTED` | ticket | `count <= 0` | |
 | `USER_LIMIT_REACHED` | ticket | per-user limit hit | `{ "limit": <limit_per_user>, "used": <consumptions by this user> }` |
 | `ISSUER_CANNOT_CONSUME` | ticket | consumer is the ticket issuer | |
@@ -91,7 +91,7 @@ Webhook senders retry when an endpoint answers anything but 2xx. Most of the tim
 Every successful consumption is logged, and so is every dry run once the ticket has been read, whatever fails after that. Failures of a real consumption are logged when they are worth reading:
 
 - every action-stage failure,
-- every condition failure on the signed-in endpoint,
+- every condition failure of a `consumeTicket()` call with `auth: true`,
 - on an anonymous endpoint, a condition failure only when the request passed `method`, `signature`, `ip`, `user_agent` and `headers` and failed on a later part: `body`, `params`, `user` or `record_access` (except the `X-Skapi-Ticket` loop-guard refusal, which is never logged on a real consumption). Such a request came from a caller that already looks like the intended sender.
 
 Ticket-stage failures of a real consumption (`TICKET_NOT_FOUND`, `TICKET_EXPIRED`, `TICKET_EXHAUSTED` and the rest) and failures of `method`, `signature`, `ip`, `user_agent` and `headers` on an anonymous endpoint are not logged, so a scanner hitting your endpoints does not fill the log.
@@ -127,7 +127,7 @@ A log row's `description` is a JSON string of this shape:
 
 `outcome.actions` lists every action that ran, in order, with its answer or its error, so you can see how far a chain got; `attempts` and `retried` appear on an action that was [tried again](/tickets/actions.md#retrying-an-action), and `warning` on a Send e-mail or Send newsletter that went out but could not be counted or marked sent. `outcome.responded` is what a [Respond](/tickets/actions.md#resp-answer-the-caller) answered, and `outcome.queued` the queued run it left, when there is one. `outcome.placeholders` is the pool at the end. The whole string is capped at 60 KB: `data` is truncated first, then the action results.
 
-The row of a resumed run has, beside `outcome`, `continues` (the consume id of the consumption it goes on with), `queued_at`, `due`, `started`, `ended`, `waited` (ms), `kind` and `run` (its attempt number); a queued run that could not be started after three tries has `skipped` and a failed `outcome`.
+The row of a resumed run has, beside `outcome`, `continues` (the consume id of the consumption it goes on with), `queued_at`, `due`, `started`, `ended`, `waited` (ms), `kind` and `run` (its attempt number); a queued run that could not be started after three tries has `skipped` and a failed `outcome`, and so does a run that came due while its ticket was switched off, with `skipped: disabled`.
 
 ### The action rows
 
@@ -164,7 +164,7 @@ Open the ticket on the **Tickets** page and switch to the **Log** tab.
 
 *The Log tab, newest first. A consumption a Respond answered reads answered 202 with a queued mark, the run that went on later reads resumed, a failed consumption names its error code, and a dry run reads check. From and To narrow the range; Clear log deletes rows before a time.*
 
-Each row shows the **Time**, the **Consumer** (the user id on the signed-in endpoint, otherwise the caller's IP address; the user agent is in the details) and the **Result**: `ok`, `failed: <code>`, `check` for a dry run, `answered <status>` when a Respond answered, or `resumed` for a queued run; a **queued** mark says the consumption's chain goes on later, a **resumed** mark that the row is such a run. Hovering a failed result shows what its code means. **From** and **To** narrow the list to a time range. **[Details]** opens the full log row described above, with the `note` under its header when the request carried one, and lists the [action rows](#the-action-rows) under it, each opening to its own JSON. **Load more** fetches the next page, the refresh icon reloads the log, and **[Clear log]** deletes rows before a time ([Clearing the log](#clearing-the-log)).
+Each row shows the **Time**, the **Consumer** (the user id on a `consumeTicket()` call with `auth: true`, otherwise the caller's IP address; the user agent is in the details) and the **Result**: `ok`, `failed: <code>`, `check` for a dry run, `answered <status>` when a Respond answered, or `resumed` for a queued run; a **queued** mark says the consumption's chain goes on later, a **resumed** mark that the row is such a run. Hovering a failed result shows what its code means. **From** and **To** narrow the list to a time range. **[Details]** opens the full log row described above, with the `note` under its header when the request carried one, and lists the [action rows](#the-action-rows) under it, each opening to its own JSON. **Load more** fetches the next page, the refresh icon reloads the log, and **[Clear log]** deletes rows before a time ([Clearing the log](#clearing-the-log)).
 
 ![The Consumption dialog for an answered row: the row key with the ticket id, consume id and caller, a line saying when the rest of the chain goes on, the JSON log, and under it the Actions list with one row per action, the first opened to its own JSON with what it sent, the record it got back and the placeholder pool](/screenshots/tickets-log-details.webp)
 
@@ -184,7 +184,7 @@ A ticket's log rows count toward the project's database storage, shown as their 
 
 ## `getConsumedTickets()`
 
-A signed-in user can list their own consumptions with [`getConsumedTickets()`](/api-reference/tickets/README.md#getconsumedtickets). Only consumptions made on the signed-in endpoint are attributed to a user, so anonymous ones never appear here. `ticket_id` narrows the list to one ticket.
+A signed-in user can list their own consumptions with [`getConsumedTickets()`](/api-reference/tickets/README.md#getconsumedtickets). Only consumptions made with `consumeTicket()` and `auth: true` are attributed to a user, so anonymous ones never appear here. `ticket_id` narrows the list to one ticket.
 
 ```js
 let consumed = await skapi.getConsumedTickets({ ticket_id: 'unlock-guide' });

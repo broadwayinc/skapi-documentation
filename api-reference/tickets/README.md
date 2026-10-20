@@ -23,7 +23,7 @@ consumeTicket<T = TicketReceipt>(
     params: {
         ticket_id: string; // The ticket to consume.
         method: 'GET' | 'POST'; // 'POST' sends data as the JSON body. 'GET' sends it as the query string.
-        auth?: boolean; // Consume on the signed-in endpoint, as the logged-in user. POST only. The one call that carries a user: ${user}, the user and record_access conditions and the per-user limit see only this. forwardRequest() cannot reach that endpoint.
+        auth?: boolean; // Send the call as the logged-in user: to the /tpa/ route, with the user's id token in the Authorization header. POST only. The one call that carries a user: ${user}, the user and record_access conditions and the per-user limit see only this. forwardRequest() cannot reach that route.
         data?: { [key: string]: any }; // The request data: the JSON body of a POST, read by body rows and ${body}, or the query string of a GET, read by params rows and ${params}.
     }
 ): Promise<T> // The receipt below, or the body a Respond action of the ticket answered.
@@ -31,14 +31,14 @@ consumeTicket<T = TicketReceipt>(
 type TicketReceipt = {
     ticket_id: string;  // The ticket consumed.
     consume_id: string; // Id of this consumption: base62 of the timestamp in milliseconds, followed by 4 random characters.
-    user_id: string;    // The consumer. The user id on the signed-in endpoint, else "<ip>(<user agent>)".
+    user_id: string;    // The consumer. The user id with auth: true, else "<ip>(<user agent>)".
     is_test: boolean;   // Always false here: dry runs go through the check URL, which consumeTicket() never calls.
     timestamp: number;  // When the consumption happened, in milliseconds. Decoded from consume_id.
     hash: string;       // Proof string of the consumption.
 }
 ```
 
-Sends the request to `https://<first 4 characters of the project id>.skapi.dev/`: `POST /tpa/` with `auth`, `POST /tp/` anonymous, and `GET /tg/` with `data` as the query string.
+Sends the request to `https://<first 4 characters of the project id>.skapi.dev/`: `POST /tpa/` with `auth`, `POST /tp/` anonymous, and `GET /tg/` with `data` as the query string. A POST carries `data` as the JSON body with `Content-Type: application/json`, a GET carries it as the query string and no body; with `auth: true` the user's Skapi id token goes in the `Authorization` header, without it no `Authorization` header is sent; beside `Accept` and the SDK's own `Content-Meta` header, every other header is the browser's. The `/tpa/` route is never called by hand.
 
 **Behavior:**
 - The body is inspected whatever the HTTP status. A body with `stage` is an error, including a `200` from a ticket with `return200`, and the promise rejects with `new SkapiError(body.message, { code: body.code, cause: body })`, so `err.code`, `err.cause.stage`, `err.cause.action` and `err.cause.detail` are available. `err.cause` is a [TicketError](#ticketerror).
@@ -83,7 +83,9 @@ getTickets(
     // always gets the five keys above and nothing else.
     limit_per_user?: number | boolean; // true = once per user, n = n times. Absent or 0 = unlimited.
     updated?: number;                  // Last registered at, in milliseconds.
-    enabled?: boolean;                 // false while the owner has the ticket switched off: it answers TICKET_DISABLED and its queued runs are skipped.
+    enabled?: boolean;                 // false while the owner has the ticket switched off: every call answers TICKET_DISABLED and a queued run that comes due is skipped, logged with skipped: disabled.
+    queued?: number;                   // Queued runs of the ticket still waiting to come due. The dashboard's Status cell reads queued (or recursing) while this is above 0, idle otherwise.
+    queued_due?: number;               // When the most recently queued run comes due, in milliseconds since the epoch.
     condition?: TicketCondition;
     actions?: TicketAction[];
     legacy?: boolean;
@@ -159,7 +161,7 @@ getConsumedTickets(
 }[]>>
 ```
 
-Lists the caller's own consumptions, which means the consumptions made on the signed-in endpoint. Anonymous consumptions are attributed to an address, not to a user, and never appear here. The user must be logged in.
+Lists the caller's own consumptions, which means the consumptions made with `consumeTicket()` and `auth: true`. Anonymous consumptions are attributed to an address, not to a user, and never appear here. The user must be logged in.
 
 See [The Log Row](/tickets/errors.md#the-log-row)
 
@@ -201,12 +203,12 @@ type TicketCondition = {
     }[];
     body?: TicketConditionRow[];   // Rows against the POST body. Refused on a GET ticket: a GET request has no body.
     params?: TicketConditionRow[]; // Rows against the query string, on GET and POST.
-    user?: { // Signed requests only: an app user calling consumeTicket() with auth: true. A webhook always fails these (AUTH_REQUIRED). Actions read the same attributes as ${user[key]}.
+    user?: { // consumeTicket() with auth: true only, the one call that carries a user. A webhook always fails these (AUTH_REQUIRED). Actions read the same attributes as ${user[key]}.
         key: string; // A consumer attribute, such as "email_verified" or "access_group".
         operator: '=' | '!=' | '>' | '>=' | '<' | '<=' | 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte';
         value: string | number | boolean | (string | number | boolean)[]; // Required: null is refused.
     }[];
-    record_access?: string; // Signed requests only. A record id the consumer must own or have been granted. A webhook always fails it (AUTH_REQUIRED). Actions read it as ${record_access}.
+    record_access?: string; // consumeTicket() with auth: true only. A record id the consumer must own or have been granted. A webhook always fails it (AUTH_REQUIRED). Actions read it as ${record_access}.
 }
 ```
 
@@ -216,7 +218,7 @@ Rows of `headers`, `body`, `params` and `user` follow one rule: rows with the sa
 
 On two strings `>=` means "starts with" and `<=` means "ends with"; on two numbers they compare as numbers. `=` and `!=` compare strictly (`1` is not `"1"`). Ordering operators never pass on mixed types, booleans, `null` or a missing field. A `value` list passes `=` and the ordering operators when any member matches, and `!=` when none does.
 
-`user` and `record_access` only pass for signed requests: an app user of this project calling [consumeTicket](#consumeticket) with `auth: true`. A third-party webhook has no session, so a ticket using either always fails for webhooks.
+`user` and `record_access` only pass on [consumeTicket](#consumeticket) with `auth: true`, the one call that carries a user. A third-party webhook has no session, so a ticket using either always fails for webhooks.
 
 A `signature` that does not verify, for any reason, fails with `CONDITION_FAILED` and `detail: { field: "signature" }`. Public-key signatures (RSA, ECDSA, Ed25519) are not supported. See [Signature](/tickets/conditions.md#signature).
 
@@ -311,7 +313,7 @@ type TicketAction =
     | {
         act: 'req'; // HTTP request with a nested chain on its response. Answers the whole response: { status, headers, body }.
         exe: {
-            url: string; // Starts with http:// or https:// and a hostname, and resolves to a public address. Values put in with ${...} are percent-encoded. A URL that is one whole reference is refused. Sent as a browser sends it: a tab or line break removed, a hostname outside ASCII IDNA-encoded, a space, another control character or a character outside ASCII in the path or query percent-encoded.
+            url: string; // Starts with http:// or https:// and a hostname, and resolves to a public address. Values put in with ${...} are percent-encoded. A URL that is one whole reference is refused. Sent as a browser sends it: a tab or line break removed, a hostname outside ASCII IDNA-encoded, a space, another control character or a character outside ASCII in the path or query percent-encoded. A ticket URL of this project (/tp/, /tg/ or /tpa/<service_id>/) is refused unless a Respond comes before it, earlier in the same chain, in an earlier action's Then chain or in an ancestor chain, so the call runs as a queued run.
             method?: 'GET' | 'POST' | 'PUT' | 'DELETE'; // Default GET. Written out, never a reference.
             secretName?: string; // A Secret Key of the project. Must exist at registration. ${CLIENT_SECRET} in the values of headers, data and params is its value. With it, the url's scheme and host must be written out.
             headers?: { [name: string]: string }; // Values templated. A Host or X-Skapi-Ticket header is refused: the engine sets both. A name that is not ASCII or holds ':', a line break or NUL is refused, and so is a value whose text outside ${...} holds a line break, NUL or a character outside Latin-1. A value that breaks that rule once its references are filled in fails the call (REQUEST_FAILED, reason 'invalid_header').
@@ -370,9 +372,9 @@ Every string value of `exe` is templated right before the action runs (for `req`
 | `${params}`, `${params[key]}` | the query string, on GET and POST |
 | `${headers[name]}` | a request header, case-insensitive. `authorization` and `cookie` read `<redacted>` |
 | `${placeholder[NAME]}` | a value a condition row captured |
-| `${user}`, `${user[key]}` | the signed-in consumer's attributes. Signed requests only |
+| `${user}`, `${user[key]}` | the consumer's attributes. `consumeTicket()` with `auth: true` only |
 | `${ip}`, `${user_agent}`, `${method}` | the caller's IP address, user agent and HTTP method |
-| `${record_access}` | the record id the condition's `record_access` names. Signed requests only |
+| `${record_access}` | the record id the condition's `record_access` names. `consumeTicket()` with `auth: true` only |
 | `${response}`, `${response[key]}` | the answer of the enclosing action, in its Then chain (`actions`) only: the record a `pstr` posted, the response of a `req` (`status`, `headers`, `body`), the SUCCESS text of a grant or a send |
 | `${error}`, `${error[key]}` | in an `err` chain: `code`, `message`, `detail`, `action`, `path` |
 | `${ticket}`, `${ticket[key]}` | this consumption: `id`, `service`, `owner`, `consume_id`, `timestamp`, `hash` |

@@ -14,8 +14,8 @@ The condition is one object. Every key is optional, and an empty condition passe
     headers?: [ { key, operator, value } ],                                  // key = header name, matched case-insensitively
     data?:    [ { key, operator?, value?, setValueWhenMatch?, placeholder? } ], // rows against the POST body; key = a path in it
     params?:  [ { key, operator?, value?, setValueWhenMatch?, placeholder? } ], // rows against the query string, on GET and POST
-    user?:    [ { key, operator, value } ],                                  // signed requests only: the consumer's attributes
-    record_access?: string               // signed requests only: a record the consumer must own or have been granted
+    user?:    [ { key, operator, value } ],                                  // consumeTicket() with auth: true only: the consumer's attributes
+    record_access?: string               // consumeTicket() with auth: true only: a record the consumer must own or have been granted
 }
 ```
 
@@ -31,8 +31,8 @@ Open a ticket on the **Tickets** page and scroll to **Condition**. Every key of 
 - **Allowed IPs** and **User agent**: one operator and a list of values. **[+ Add another]** adds a value, and the part passes when any value matches.
 - **Headers**: one row per header name, with an operator, a value type and a value. Every header listed must match.
 - **Body** and **Query string**: the `body` and `params` rows. A row is a key path, an operator, a value type and a value. Choosing **capture only** as the operator makes a [capture-only row](#match-rows-and-capture-rows); a match row can also carry **replace with** (`setValueWhenMatch`) and a **placeholder** name. **[+ Add row]** adds a row. On a GET ticket the Body part collapses, because a GET has no body.
-- **User**: rows against the signed-in consumer's attributes, such as `access_group`.
-- **Record access**: the id of a record the signed-in consumer must own or be granted.
+- **User**: rows against the consumer's account, such as `access_group`, read on `consumeTicket()` calls with `auth: true`.
+- **Record access**: the id of a record the consumer must own or be granted, checked on `consumeTicket()` calls with `auth: true`.
 
 The operator list reads differently with the value type: on text, `>=` is **starts with** and `<=` is **ends with**; on a number they are **at least** and **at most**. A `${ }` typed into a row value is compared as text, never filled in, and the form says so under the row.
 
@@ -49,15 +49,15 @@ The parts are evaluated in this order: `method`, `signature`, `ip`, `user_agent`
 | `headers` | **every** header listed is sent and matches | not checked |
 | `body` | **every** key listed in the POST body passes | not checked |
 | `params` | **every** key listed in the query string passes | not checked |
-| `user` | **every** key listed passes, read from the signed-in consumer's account | not checked |
-| `record_access` | the signed-in consumer owns the record or holds a grant on it | not checked |
+| `user` | **every** key listed passes, read from the consumer's account (`consumeTicket()` with `auth: true`) | not checked |
+| `record_access` | the consumer (`consumeTicket()` with `auth: true`) owns the record or holds a grant on it | not checked |
 
 `headers`, `body`, `params` and `user` share one rule for their rows, described below: rows on the same key are alternatives, every different key must pass, and a missing field is a mismatch.
 
 `return200` never decides whether a ticket fails. It only changes the HTTP status a failure is answered with. See [`return200` and `method`](#return200-and-method).
 
-:::warning `user` and `record_access` work only for signed requests
-They read the account of the user who consumes the ticket, so they only pass for an app user of this project calling [`consumeTicket()`](/api-reference/tickets/README.md#consumeticket) with `auth: true`, which uses the signed-in endpoint. A third-party webhook has no session: a ticket that uses either of them **always fails for webhooks**, with `AUTH_REQUIRED`.
+:::warning `user` and `record_access` work only with `consumeTicket()` and `auth: true`
+They read the account of the user who consumes the ticket, so they only pass for an app user of this project calling [`consumeTicket()`](/api-reference/tickets/README.md#consumeticket) with `auth: true`, the one call that carries a user. A third-party webhook has no session, and neither has a call made any other way: a ticket that uses either of them **always fails for webhooks**, with `AUTH_REQUIRED`.
 :::
 
 ## Operators and Rows
@@ -368,7 +368,7 @@ Public-key signatures (RSA, ECDSA, Ed25519) are not supported: this condition on
 Nowhere. The verifier reads the signature secret on the server and nothing puts it into a request, so its **Destinations** do not restrict what the ticket calls. Each call a ticket makes is held only to the Destinations of the Secret Key that call carries itself, named by a `req` action's `secretName`. See [Sending a Secret Key](/tickets/actions.md#sending-a-secret-key).
 
 :::warning
-`headers`, `ip` and `user_agent` rows are **not authentication**. Anyone can send any header, and addresses and user agents are trivially forged or shared. Use them to filter noise. Use `signature`, or the signed-in endpoint with `user` rows, to decide who gets to run your actions.
+`headers`, `ip` and `user_agent` rows are **not authentication**. Anyone can send any header, and addresses and user agents are trivially forged or shared. Use them to filter noise. Use `signature`, or `consumeTicket()` with `auth: true` and `user` rows, to decide who gets to run your actions.
 :::
 
 ## IP, User Agent and Headers
@@ -489,8 +489,8 @@ An action reads the result as `${placeholder[GROUP]}`, for instance `{ "act": "a
 
 ## User
 
-:::warning Signed requests only
-`user` rows read the account of the signed-in consumer, so they only pass for an app user of this project calling [`consumeTicket()`](/api-reference/tickets/README.md#consumeticket) with `auth: true`. That is the one call that carries a user; a call made any other way, [`forwardRequest()`](/api-bridge/client-secret-request.md#calling-a-ticket) included, has none. A third-party webhook has no session: a ticket with `user` rows always fails for webhooks, with `AUTH_REQUIRED`.
+:::warning `consumeTicket()` with `auth: true` only
+`user` rows read the account of the consumer, so they only pass for an app user of this project calling [`consumeTicket()`](/api-reference/tickets/README.md#consumeticket) with `auth: true`. That is the one call that carries a user; a call made any other way, [`forwardRequest()`](/api-bridge/client-secret-request.md#calling-a-ticket) included, has none. A third-party webhook has no session: a ticket with `user` rows always fails for webhooks, with `AUTH_REQUIRED`.
 :::
 
 ```json
@@ -514,8 +514,8 @@ The keys are the consumer's [`UserProfile`](/api-reference/data-types/README.md#
 
 ## Record Access
 
-:::warning Signed requests only
-`record_access` checks the signed-in consumer, so it only passes for an app user of this project calling [`consumeTicket()`](/api-reference/tickets/README.md#consumeticket) with `auth: true`. That is the one call that carries a user; a call made any other way, [`forwardRequest()`](/api-bridge/client-secret-request.md#calling-a-ticket) included, has none. A third-party webhook has no session: a ticket with `record_access` always fails for webhooks, with `AUTH_REQUIRED`.
+:::warning `consumeTicket()` with `auth: true` only
+`record_access` checks the consumer's account, so it only passes for an app user of this project calling [`consumeTicket()`](/api-reference/tickets/README.md#consumeticket) with `auth: true`. That is the one call that carries a user; a call made any other way, [`forwardRequest()`](/api-bridge/client-secret-request.md#calling-a-ticket) included, has none. A third-party webhook has no session: a ticket with `record_access` always fails for webhooks, with `AUTH_REQUIRED`.
 :::
 
 `record_access` names a record id. The consumer must be the record's uploader, or have been granted private access to it with [`grantPrivateRecordAccess()`](/database/access-restrictions.md#grant-private-access). A consumer who is neither fails with `CONDITION_FAILED` and `field: "record_access"`.
@@ -537,7 +537,7 @@ A condition row's `key` says where the row looks, **relative to its own list**, 
 | `body` | `items[0][price]` | the `price` of the first element of the body's `items` list |
 | `params` | `code` | the query string's `code` |
 | `headers` | `x-webhook-source` | that request header, whatever its case |
-| `user` | `email_verified` | that attribute of the signed-in consumer |
+| `user` | `email_verified` | that attribute of the consumer, on `consumeTicket()` with `auth: true` |
 | `response` of a [Check answer in a Then chain](/tickets/actions.md#then-on-every-action) | `body[status]` | the enclosing action's answer, here a request's response: its body's `status`. `status` and `headers[content-type]` read the rest of a response; `""` is the whole answer as text |
 
 A key of a `body` or `params` row is a root segment followed by zero or more bracketed segments. Segments are literal keys, with no escaping and no reserved names: a `body` row keyed `ticket[id]` or `placeholder[x]` reads the body's own `ticket` or `placeholder` key. A segment that is all digits indexes a list when the value is a list, and is a key when the value is an object. The root segment may hold letters, digits, `_`, `.` and `-` (`[A-Za-z0-9_][A-Za-z0-9_.\-]*`); a key that does not fit is refused when you register. A `headers` key is the header name, and a `user` key the attribute name.
@@ -573,9 +573,9 @@ On the dashboard you rarely type one yourself: the **`${ }`** button next to an 
 | `${params}`, `${params[key]}` | the query string, whole or one key, on GET and POST |
 | `${headers[name]}` | a request header, the name matched case-insensitively. `authorization` and `cookie` read `<redacted>` |
 | `${placeholder[NAME]}` | a value a condition row [captured](#placeholders) |
-| `${user}`, `${user[key]}` | the signed-in consumer's attributes, the ones [`user` rows](#user) read. Signed requests only |
+| `${user}`, `${user[key]}` | the consumer's attributes, the ones [`user` rows](#user) read. `consumeTicket()` with `auth: true` only |
 | `${ip}`, `${user_agent}`, `${method}` | the caller's IP address, its user agent, and the HTTP method |
-| `${record_access}` | the record id the condition's [`record_access`](#record-access) names. Signed requests only |
+| `${record_access}` | the record id the condition's [`record_access`](#record-access) names. `consumeTicket()` with `auth: true` only |
 | `${response}`, `${response[key]}` | the answer of the enclosing action: the record a `pstr` posted, the response of a `req` (`${response[status]}`, `${response[headers][content-type]}`, `${response[body][key]}`), the SUCCESS text of a grant or a send. Only in that action's Then chain (`actions`). See [Then on every action](/tickets/actions.md#then-on-every-action) |
 | `${error}`, `${error[key]}` | in an `err` chain, the failure it handles: `code`, `message`, `detail`, `action`, `path`. See [Error chains](/tickets/actions.md#error-chains-with-error) |
 | `${ticket}`, `${ticket[key]}` | this consumption: `id`, `service`, `owner`, `consume_id`, `timestamp` and `hash` |
@@ -630,6 +630,6 @@ A reference is resolved when its action runs, and one that does not resolve fail
 |---|---|---|
 | the key is not there, such as `${body[coupon]}` on a body without `coupon`, or `${response[body][id]}` on a response whose body has no `id` | `PATH_NOT_FOUND` | `{ "path": "data[coupon]" }`, the reference without `${ }` |
 | a placeholder that was never captured | `PLACEHOLDER_MISSING` | `{ "placeholder": "NAME" }` |
-| `${user}` or `${user[key]}` on a request that is not signed in | `AUTH_REQUIRED` | |
+| `${user}` or `${user[key]}` on a call that is not `consumeTicket()` with `auth: true` | `AUTH_REQUIRED` | |
 
 The failure is the action's: its `err` chain runs, the consumption stops, and it is answered with `stage: "action"` (400, or 200 with `return200`) and logged. See [How a Chain Runs](/tickets/actions.md#how-a-chain-runs).

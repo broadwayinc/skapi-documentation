@@ -1,6 +1,11 @@
 # Version History
 
-### Current version: 2.2.13
+### Current version: 2.2.14
+
+**2.2.14**
+
+- `Ticket` gains **`queued`**, the ticket's queued runs that have not run yet (the rest of a chain that a Respond with a `resume` left for later), and **`queued_due`**, when the most recently queued one is due (ms). `getTickets()` rows carry both.
+- Backend (ships with the API, not the SDK): a `req` whose URL calls a ticket of the same project (`/tp/`, `/tg/` or `/tpa/` with the project's id) **before any Respond action is refused at registration** (`INVALID_PARAMETER`): the call would run inside the request it is answering, and a ticket that calls itself this way loops with no queue. Put a Respond action before it, so the call runs as a queued run. A `req` after a Respond, in the same chain or in a Then chain that follows one, is accepted as before.
 
 **2.2.13**
 

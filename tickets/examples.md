@@ -152,7 +152,7 @@ Every value the actions fill in is a reference inside `${ }`, and everything out
 
 `"ticket_id": "order-paid"` is the last segment of the endpoint. The webhook URL to paste into your payment provider's webhook settings is `https://<reg>.skapi.dev/tp/<service_id>/order-paid`, copied from the **Endpoints** section of the ticket.
 
-`"description"` is what the list shows. There is no `count`, `limit_per_user` or `time_to_live`: the ticket is unlimited and never expires. A per-user limit would not apply anyway, because the provider calls the anonymous endpoint.
+`"description"` is what the list shows. There is no `count`, `limit_per_user` or `time_to_live`: the ticket is unlimited and never expires. A per-user limit would not apply anyway: the provider calls the open endpoint, and the limit counts only `consumeTicket()` with `auth: true`.
 
 ### The condition
 
@@ -243,7 +243,7 @@ A link you hand out at launch. The first hundred visits with the right code each
 
 `"count": 100`. The first hundred successful consumptions take one each; the next answers `TICKET_EXHAUSTED`. Failed calls do not count.
 
-`"limit_per_user": 1`. Once per signed-in user. This ticket is GET, and signed-in consumption is POST only, so on this link the limit never applies and the count alone caps it. To make it once per user, drop `"method": "GET"`, move the row from `params` to `data`, write `${body[code]}` in the action, and have the page call `consumeTicket({ ticket_id: 'launch-coupon', method: 'POST', auth: true, data: { code } })`.
+`"limit_per_user": 1`. Once per user. This ticket is GET, and `consumeTicket()` with `auth: true`, the one call that carries a user, is POST only, so on this link the limit never applies and the count alone caps it. To make it once per user, drop `"method": "GET"`, move the row from `params` to `data`, write `${body[code]}` in the action, and have the page call `consumeTicket({ ticket_id: 'launch-coupon', method: 'POST', auth: true, data: { code } })`.
 
 `"method": "GET"` and `"params"`. The data is the query string, and `params` rows read it. `code` is a top-level key of that query, so the link is:
 
@@ -297,11 +297,11 @@ A private record, the members guide, that a signed-in user with a verified e-mai
 }
 ```
 
-`"limit_per_user": 1`. Once per user. A second call from the same user answers `USER_LIMIT_REACHED` with `detail: { limit: 1, used: 1 }`. Signed-in consumption is the only kind that is counted per user, and this ticket only makes sense signed in.
+`"limit_per_user": 1`. Once per user. A second call from the same user answers `USER_LIMIT_REACHED` with `detail: { limit: 1, used: 1 }`. Only `consumeTicket()` with `auth: true` is counted per user, and this ticket only makes sense called that way.
 
-`"method": "POST"`. Signed-in consumption is POST only, so this is the only method that could work.
+`"method": "POST"`. `consumeTicket()` with `auth: true` is POST only, so this is the only method that could work.
 
-`"user"`. The consumer's `email_verified` must be `true`. `user` rows work only for signed requests, which is what this ticket is for: on an anonymous POST this row raises `AUTH_REQUIRED` before the action runs (an anonymous GET already fails on `method`), so nobody can reach the action without an account. For the same reason a `user` row never belongs on a webhook ticket, which it would fail every time. An action can read the same attributes, such as `${user[email]}`.
+`"user"`. The consumer's `email_verified` must be `true`. `user` rows pass only on `consumeTicket()` with `auth: true`, which is what this ticket is for: on a POST made any other way this row raises `AUTH_REQUIRED` before the action runs (a GET already fails on `method`), so nobody can reach the action without an account. For the same reason a `user` row never belongs on a webhook ticket, which it would fail every time. An action can read the same attributes, such as `${user[email]}`.
 
 `{ "act": "acsr", "exe": { "record_id": "9x2K4mQ1pL8vB3nR6tW5yZ0cA7dF" } }`. `record_id` is the guide's record id (not its unique id). With no `user_id`, the grantee is the consumer. The grant is made on behalf of the record's uploader, so the guide must have been uploaded by a user of your project, an admin account for instance, or by you as the owner.
 
@@ -491,7 +491,7 @@ A ticket that runs on its own every half hour, with nothing outside Skapi callin
 }
 ```
 
-`"resume": "30m"`. The Respond answers the caller and leaves the rest of the chain to a queued run half an hour later: the record is posted, then the `req` calls the ticket's own GET endpoint, which answers at once and queues the next round. Open the endpoint once in a browser to start it; switch the ticket off (the Enabled switch, or `disable` from the MCP server) to stop it, and the round that was waiting is skipped and logged as skipped: disabled.
+`"resume": "30m"`. The Respond answers the caller and leaves the rest of the chain to a queued run half an hour later: the record is posted, then the `req` calls the ticket's own GET endpoint, which answers at once and queues the next round. The `req` is allowed because the Respond comes before it in the chain: the self-call is made from a queued run, counted, delayed and logged like any other. The same `req` placed before the Respond, or in a ticket with no Respond, is refused when you register, since the call would then run inside the request it is answering (see [URL and address rules](/tickets/actions.md#url-and-address-rules)). Open the endpoint once in a browser to start it; switch the ticket off (the switch at the top of the ticket, or `disable` from the MCP server) to stop it, and the round that was waiting is skipped and logged as a failed row with `skipped: disabled`.
 
-Each round is one queued ticket run against the plan's month: 48 a day, about 1,440 a month. On Trial, whose month holds 100, the loop stops at the figure with `QUOTA_EXCEEDED` at the Respond and the dashboard shows the banner; Standard holds 10,000 and Premium 100,000 before overage. A round with no wait (`"resume": "0m"` or a `req` to itself without a Respond) is not a timer: nested calls within one request are cut off 8 deep.
+Each round is one queued ticket run against the plan's month: 48 a day, about 1,440 a month. On Trial, whose month holds 100, the loop stops at the figure with `QUOTA_EXCEEDED` at the Respond and the dashboard shows the banner; Standard holds 10,000 and Premium 100,000 before overage. A round with no wait (`"resume": "0m"`) is not a timer: each round is still a queued run against the month's figure, and the rounds follow one another as fast as the queue starts them, so the figure is what ends the loop. A `req` to itself with no Respond before it cannot be registered at all.
 
