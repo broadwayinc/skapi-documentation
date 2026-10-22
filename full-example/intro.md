@@ -9,7 +9,7 @@ The full example is a plain HTML and JavaScript template that shows every Skapi 
 | [Send Inquiry](/full-example/inquiry.md) | A contact form that sends a message to you, the project owner. |
 | [Database](/full-example/database.md) | A photo gallery: upload posts with files, like, comment, subscribe to other users and query posts in different ways. |
 | [Realtime Chat](/full-example/realtime.md) | Group chat and private messages over a WebSocket connection. |
-| [RTC Video Chat](/full-example/webrtc.md) | Video calls, screen sharing and a data channel between two users with WebRTC. |
+| [RTC Video Chat](/full-example/webrtc.md) | Video calls, screen sharing, text chat and file transfer between two users with WebRTC. |
 | [Shared Drawing](/full-example/drawing.md) | Two users draw on one canvas; every stroke travels over a WebRTC data channel. |
 
 ## Have your project ID ready

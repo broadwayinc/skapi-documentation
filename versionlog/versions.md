@@ -1,6 +1,11 @@
 # Version History
 
-### Current version: 2.2.14
+### Current version: 2.2.15
+
+**2.2.15**
+
+- **Files go straight to the other browser.** The connection object gains `sendFile(file, { name, onProgress })`: the SDK opens a reliable data channel of its own on first use, sends the file in order with back-pressure, and resolves once the other side has it whole. The other side gets `fileprogress` events and a `file` event holding a `File`. Nothing is stored on a server. A send that is still waiting when the call ends rejects. See [Sending files](/realtime/webRTC.md#sending-files).
+- Types: `RTCFileInfo` and `RTCSendFileOptions` are exported, and the connection's event `type` gains `file` and `fileprogress`.
 
 **2.2.14**
 

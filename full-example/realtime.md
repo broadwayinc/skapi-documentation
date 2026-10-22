@@ -10,6 +10,19 @@ You need your [project ID](/full-example/intro.md#have-your-project-id-ready) to
 
 *`realtime.html` before a group is joined: create a group, or pick one from the table.*
 
+![The chat in a group: the messages box with join notices and messages from two users, the participant list beside it, and the message form below](/screenshots/template-realtime-chat.webp)
+
+*In a group. Every message, the sender's included, arrives through the realtime callback and is appended to the box; the list on the right shows who is in the group.*
+
+![The dialog for a private message to one participant, with the message typed in](/screenshots/template-realtime-private.webp)
+
+*Clicking a name in the participant list opens the private message dialog. The message goes to that user only.*
+
+![The dialog the other user sees: Private message from the sender, and the text](/screenshots/template-realtime-private-received.webp)
+
+*What the other user sees: a `private` message opens this dialog.*
+
+
 ## What it demonstrates
 
 | Feature | How the page does it |

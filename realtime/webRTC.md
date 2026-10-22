@@ -277,6 +277,7 @@ The connection object (what `call.connection` resolves with on the caller's side
 | `replace(what, track)` | Swaps a track for another of the same kind without a new negotiation: a camera switch, another microphone. The old track is stopped. |
 | `mute({ audio, video, screen })` | Pauses or resumes what is sent: `true` pauses, `false` resumes, omitted leaves it. `audio` is the microphone, `video` the camera (and other video), `screen` the screen. A paused track keeps its place on the call and sends silence or black frames; the other side gets no event for it, so tell it over a data channel when its page should show "muted". |
 | `addChannel(name, init)` | Opens a data channel during the call. |
+| `sendFile(file, options)` | Sends a file straight to the other browser. See [Sending files](#sending-files). |
 | `tracks(source)` | The local tracks, all of them or those of one source. |
 | `media`, `meta`, `cid`, `target`, `channels`, `hangup()` | Every local track as one stream, the caller's `meta`, the other side's connection id, the `RTCPeerConnection`, the data channels by label, and the end of the call. |
 
@@ -333,6 +334,29 @@ The preset names `text-chat`, `file-transfer`, `video-chat`, `voice-chat` and `g
 The answering side may open channels of its own with `channels` too. Give the two sides different labels: a channel that arrives from the other side under a label this side already uses is kept as `label#id` in `channels`. A channel both sides should open themselves takes `negotiated: true` and the same `id` on both.
 
 A channel's messages arrive as `message` events with `data` and `label`. When the last data channel of a connection closes, the connection closes with it.
+
+## Sending files
+
+`sendFile()` on the connection sends a file straight to the other browser: nothing is uploaded anywhere. The SDK opens a reliable, ordered data channel of its own the first time either side sends a file, cuts the file into 16 KB pieces, waits whenever the connection's buffer is full, and resolves once the other side has every byte. Files from one side go one after another, so two `sendFile()` calls in a row arrive in that order.
+
+```js
+// the sender, from a file input
+const file = input.files[0];
+const info = await rtc.sendFile(file, { onProgress: (sent, total) => bar.value = sent / total });
+// info: { id, name, size, mime }
+
+// the receiver, in the same callback as everything else
+case 'fileprogress':
+    bar.value = e.received / e.size; // e.id, e.name, e.size, e.mime
+    break;
+case 'file':
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(e.file); // e.file is a File with the sender's name and type
+    link.download = e.name;
+    break;
+```
+
+The receiving side gets a `fileprogress` event as the file starts, every 256 KB, and at the end, then a `file` event holding the whole file as a `File`. The file is kept in the receiving browser's memory until the page lets go of it, so this is the right tool for documents, pictures and the like, and a video of a few gigabytes is better served another way. `sendFile()` rejects when the call ends before the file is through. The types are [RTCSendFileOptions](/api-reference/data-types/README.md#rtcsendfileoptions) and [RTCFileInfo](/api-reference/data-types/README.md#rtcfileinfo).
 
 ## Viewers that send nothing
 

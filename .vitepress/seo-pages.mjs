@@ -378,10 +378,10 @@ export const PAGES = {
         description: 'The Realtime Chat example page: group chat and private messages over the Skapi realtime connection, with groups, participants and join notices.',
     },
     'full-example/webrtc.md': {
-        description: 'The RTC Video Chat example page: video calls, screen sharing and a text data channel between two users with WebRTC, signaled over the Skapi realtime connection.',
+        description: 'The RTC Video Chat example page: video calls, screen sharing, text chat, file transfer and a fullscreen mode between two users with WebRTC, signaled over the Skapi realtime connection.',
     },
     'full-example/drawing.md': {
-        description: 'The Shared Drawing example page: two users draw on one canvas, every stroke sent over a WebRTC data channel, with optional voice.',
+        description: 'The Shared Drawing example page: two users draw on one canvas, every stroke sent over a WebRTC data channel, with a text chat on the same connection.',
     },
 
     // Reference

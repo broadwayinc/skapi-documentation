@@ -26,12 +26,14 @@ import type {
     RTCConnectorParams,
     RTCEncodingOption,
     RTCEvent,
+    RTCFileInfo,
     RTCIceOption,
     RTCMediaOption,
     RTCMediaSource,
     RTCReceiverParams,
     RTCResolved,
     RTCScreenOption,
+    RTCSendFileOptions,
     RTCShareOptions,
     RealtimeCallback,
     RecordData,
@@ -605,7 +607,7 @@ Applied to every track of the kind, those on the call now and those `share()` ad
 
 ```ts
 type RTCEvent = {
-    type: 'track' | 'trackmute' | 'trackunmute' | 'trackended' | 'unshare' | 'connectionstatechange' | 'close' | 'message' | 'open' | 'bufferedamountlow' | 'error' | 'icecandidate' | 'icecandidateend' | 'icecandidateerror' | 'iceconnectionstatechange' | 'icegatheringstatechange' | 'negotiationneeded' | 'signalingstatechange' | 'ringtimeout';
+    type: 'track' | 'trackmute' | 'trackunmute' | 'trackended' | 'unshare' | 'connectionstatechange' | 'close' | 'message' | 'open' | 'bufferedamountlow' | 'error' | 'file' | 'fileprogress' | 'icecandidate' | 'icecandidateend' | 'icecandidateerror' | 'iceconnectionstatechange' | 'icegatheringstatechange' | 'negotiationneeded' | 'signalingstatechange' | 'ringtimeout';
     [key: string]: any;
 }
 ```
@@ -616,9 +618,23 @@ type RTCEvent = {
 | `trackmute`, `trackunmute`, `trackended` | That track stopped arriving (the other side paused it, took it off the call, or the network stalled), resumed, or is gone for good. Same fields as `track`. |
 | `unshare` | A local track left the call: `track`, `source`, and `ended` (true when the track ended on its own, for example by the browser's own Stop sharing button). |
 | `connectionstatechange` | `state`: `connecting`, `connected`, `disconnected`, `failed` or `closed`. |
-| `open`, `message`, `close`, `error`, `bufferedamountlow` | A data channel event: `label` names the channel, `message` carries `data`. |
+| `open`, `message`, `close`, `error`, `bufferedamountlow` | A data channel event: `label` names the channel, `message` carries `data`. The SDK's own file channel raises `open`, `close` and `error`, never `message`. |
+| `fileprogress`, `file` | A file the other side sends with `sendFile()`: `id`, `name`, `size`, `mime` and, while it arrives, `received`; the `file` event adds `file`, the whole thing as a `File`. |
 | `ringtimeout` | Nobody answered within `ringTimeout`. The call is closed right after; a `connectionstatechange` with `closed` follows. |
 | `negotiationneeded`, `signalingstatechange`, `icecandidate`, `icecandidateend`, `icecandidateerror`, `iceconnectionstatechange`, `icegatheringstatechange` | The browser's own connection events, with the states at that moment. |
+
+## RTCFileInfo
+
+```ts
+type RTCFileInfo = {
+    id: string;
+    name: string;
+    size: number;
+    mime: string; // the file's type, or application/octet-stream when the sender's browser knew none
+}
+```
+
+What `sendFile()` resolves with, and the fields of the `fileprogress` and `file` events on the receiving side.
 
 ## RTCIceOption
 
@@ -681,6 +697,7 @@ type RTCResolved = {
     replace: (what: RTCMediaSource | MediaStreamTrack, track: MediaStreamTrack) => Promise<void>; // swaps a track for another of the same kind, without a new negotiation; the old one is stopped
     mute: (what: { audio?: boolean; video?: boolean; screen?: boolean }) => void; // true pauses, false resumes, omitted leaves it. `video` is the camera and other video, `screen` the screen
     addChannel: (protocol: string, init?: RTCDataChannelInit) => RTCDataChannel; // opens a data channel during the call
+    sendFile: (file: Blob, options?: RTCSendFileOptions) => Promise<RTCFileInfo>; // sends a file straight to the other side, over a reliable channel the SDK opens itself; resolves once the other side has it whole
 }
 ```
 
@@ -693,6 +710,15 @@ type RTCScreenOption = boolean | (DisplayMediaStreamOptions & { contentHint?: 't
 ```
 
 `true` captures the screen with the browser's defaults. The object form is passed to `getDisplayMedia()` (`video`, `audio` for the tab or system sound where the browser offers it), and `contentHint` is set on the video track: `text` keeps text on the screen sharp, `motion` favours smooth movement.
+
+## RTCSendFileOptions
+
+```ts
+type RTCSendFileOptions = {
+    name?: string; // the name the other side gets; the file's own name by default
+    onProgress?: (sent: number, total: number) => void; // bytes handed to the connection so far
+}
+```
 
 ## RTCShareOptions
 
