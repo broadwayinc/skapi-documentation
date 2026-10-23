@@ -6,6 +6,8 @@ Once a user has signed up, they can log in to your project using their email and
 
 Use the [`login()`](/api-reference/authentication/README.md#login) method to log a user into your project.
 
+The e-mail address is matched without regard to letter case: `Ana@Example.com` and `ana@example.com` reach the same account, and an address typed with Caps Lock on still signs in. A username chosen at sign-up keeps its case.
+
 If the login is not successful due to invalid password, or user may not have confirm their signup etc... the [`login()`](/api-reference/authentication/README.md#login) method will throw an error.
 
 When successful, it will respond with the [`UserProfile`](/api-reference/data-types/README.md#userprofile) object.

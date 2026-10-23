@@ -1,6 +1,11 @@
 # Version History
 
-### Current version: 2.2.16
+### Current version: 2.2.17
+
+**2.2.17**
+
+- Fixed: **`login()` refused an e-mail typed in capitals** (Caps Lock on, or a phone keyboard capitalising the first letter) with `INCORRECT_USERNAME_OR_PASSWORD`. An e-mail account is known to the server by its lowercased address only; `login()` meant to retry with the lowercased e-mail, but the retry keyed on error names that had already been renamed, so it never ran. The lowercased e-mail is now tried first, and the address exactly as typed only as a fallback, for an account whose username happens to be an e-mail-shaped string. Letter case never mattered at sign-up: the SDK has always stored the address lowercased, and every account on the service is stored that way.
+- Dashboard (skapi.com, not the SDK): **every e-mail input lowercases as you type**, on the login, sign-up and forgot-password pages, the change-e-mail form, the user form on the Users page (creating and editing), and the subscriber search; the Users page search lowercases the value when it searches by e-mail. The login page shows **"Caps Lock is on"** under the password field while the key is on.
 
 **2.2.16**
 
