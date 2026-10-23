@@ -147,16 +147,14 @@ skapi.getTags({ condition: '>=' }); // Error: "table" or "tag" is required for c
 
 ### Who can read tag information
 
-When the project's [Require Login](/service-settings/service-settings.md#require-login) setting is on, [`getTags()`](/api-reference/database/README.md#gettags) is refused to a visitor who is not signed in.
-The SDK throws `REQUIRE_LOGIN` before the request leaves the browser, and the backend refuses the same call with `INVALID_REQUEST`, so a direct API call is refused as well.
-A project that has never set that option counts as **on**.
+Anyone can read tag information, signed in or not: the listing is served to any caller that knows the project ID, and the project's Require Login setting does not apply to it.
 
 :::warning
 The tag listing is **not** filtered by access group, and cannot be.
 A tag is stored as one row keyed by the tag and the table name, with the access group left out of the key, so `number_of_records` counts the records in every access group together.
-Any caller allowed to read the listing reads the whole project's tag vocabulary, including tags carried only by `private` or `admin` records, and their cross group counts.
+Any caller reads the whole project's tag vocabulary, including tags carried only by `private` or `admin` records, and their cross group counts.
 
-The records themselves stay gated: a tag tells a signed in user that records exist, not what is in them. Still, treat a tag name as visible to every signed in user, and do not encode anything sensitive in one.
+The records themselves stay gated: a tag tells a signed in user that records exist, not what is in them. Still, treat a tag name as visible to anyone, and do not encode anything sensitive in one.
 :::
 
 For more detailed information on all the parameters and options available with the [`getTags()`](/api-reference/database/README.md#gettags) method, 

@@ -87,34 +87,11 @@ This is useful when you are not planning to use the [`sendInquiry()`](/api-refer
 
 ## Require Login
 
-When this is on, database reads are refused to a visitor who is not signed in.
+When this is on, the SDK refuses [`getRecords()`](/api-reference/database/README.md#getrecords) from a session with no signed-in user: it throws `REQUIRE_LOGIN` before the request leaves the browser. Signed-in users are not affected. A project that has never set this option counts as on, which is the default every client receives as `conf.require_login` on [`getConnectionInfo()`](/api-reference/connection/README.md#getconnectioninfo), so a page can tell before any login whether it should show its own sign-in screen first.
 
-The SDK refuses them first: [`getRecords()`](/api-reference/database/README.md#getrecords), `getTables()`, `getTags()`, `getIndexes()` and `getUniqueId()` throw `REQUIRE_LOGIN` from a session with no signed-in user. Signed-in users are unaffected.
+**This is a guard rail, not an access control.** Records in `access_group: 0` remain readable by anyone calling the API directly, whether or not this setting is on: only the SDK refuses `getRecords()`. Data that must not be readable without an account has to live outside access group 0.
 
-The four metadata listings are enforced on the **server** as well.
-[`getTables()`](/api-reference/database/README.md#gettables), [`getTags()`](/api-reference/database/README.md#gettags), [`getIndexes()`](/api-reference/database/README.md#getindex) and [`getUniqueId()`](/api-reference/database/README.md#getuniqueid) are refused with `INVALID_REQUEST` when the request arrives with no signed-in user, so a direct API call or a script is refused too.
-A project that has **never set** this option counts as on, which is the same default every client already receives as `conf.require_login`.
-
-:::warning
-An integration that reads table, tag, index or unique ID metadata without signing a user in gets an error while this option is on. Turn this option off if that is what you intend.
-:::
-
-It is returned to every client as `conf.require_login` on [`getConnectionInfo()`](/api-reference/connection/README.md#getconnectioninfo), so a page can tell before any login whether it should show its own sign-in screen first.
-
-**For the records themselves this is still a guard rail, not an access control.** Records in `access_group: 0` remain readable by anyone calling the API directly, whether or not this setting is on: only the SDK refuses `getRecords()`. What it prevents is your own app leaking public records through a signed-out page by accident. If data must not be readable without an account, do not store it in access group 0 - use `authorized`, `private`, or a higher group.
-
-### What a signed-in caller still sees
-
-This setting decides **whether** a caller reads the metadata, not how much of it they read, and only `getTables()` filters its answer by the caller.
-
-- [`getTables()`](/api-reference/database/README.md#gettables) lists every table name in the project, whatever access group the records inside it live in. Its per access group record counters **are** filtered: the public counter for everyone, the counters up to and including the caller's own access group for a signed-in user, and the private and admin counters for admins and the project owner. `number_of_records` and `size` stay totals over every group.
-- [`getTags()`](/api-reference/database/README.md#gettags) and [`getIndexes()`](/api-reference/database/README.md#getindex) are **not** filtered by access group at all, and cannot be: a tag row and an index row are stored keyed by table name with the access group left out of the key, so one row aggregates every group. Any caller allowed to read those listings sees the project's whole tag and index vocabulary, and record counts, sums and averages spanning every access group, including values only `private` or `admin` records contributed.
-- [`getUniqueId()`](/api-reference/database/README.md#getuniqueid) is not filtered either. Called with no `unique_id` it lists every unique ID in the project and the record ID each one maps to.
-
-The records behind all of this stay gated: fetching one still goes through the usual access group checks. What these listings expose is the **shape** of the database, so treat a table, tag, index or unique ID name as visible to every signed-in user, and do not encode anything sensitive in one.
-
-It is also unrelated to anonymous **writes**: whether users without an account may create records is governed separately, and access group 0 is the only group they could ever write to.
-
+The metadata listings are not gated by this setting. [`getTables()`](/api-reference/database/README.md#gettables), [`getTags()`](/api-reference/database/README.md#gettags), [`getIndexes()`](/api-reference/database/README.md#getindex) and [`getUniqueId()`](/api-reference/database/README.md#getuniqueid) answer any caller that knows the project ID, signed in or not. What each one shows is on its own page: [table information](/database/table-info.md#who-can-read-table-information) filters its per access group counters to the caller, while [tags](/database/tags.md#who-can-read-tag-information) and [indexes](/database/indexing.md#who-can-read-index-information) are not filtered by access group at all.
 
 ## Freeze Database
 

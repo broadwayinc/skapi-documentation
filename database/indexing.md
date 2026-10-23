@@ -399,14 +399,12 @@ The only condition it accepts is `order.condition`, described in [Querying index
 
 ### Who can read index information
 
-When the project's [Require Login](/service-settings/service-settings.md#require-login) setting is on, [`getIndexes()`](/api-reference/database/README.md#getindex) is refused to a visitor who is not signed in.
-The SDK throws `REQUIRE_LOGIN` before the request leaves the browser, and the backend refuses the same call with `INVALID_REQUEST`, so a direct API call is refused as well.
-A project that has never set that option counts as **on**.
+Anyone can read index information, signed in or not: the listing is served to any caller that knows the project ID, and the project's Require Login setting does not apply to it.
 
 :::warning
 The index listing is **not** filtered by access group, and cannot be.
 An index is stored as one row keyed by the table and index name, with the access group left out of the key, so `number_of_records`, `total_number`, `average_number`, `total_bool` and the rest are aggregates over **every** access group in that table, including the records a given caller could never read.
-Any caller allowed to read the listing reads the whole project's index vocabulary.
+Any caller reads the whole project's index vocabulary.
 
 The records themselves stay gated, but an index name, and any average or total computed from private values, is visible to every signed in user. An index whose very existence is sensitive does not belong in a table those users can list.
 :::

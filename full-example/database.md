@@ -16,7 +16,7 @@ You need your [project ID](/full-example/intro.md#have-your-project-id-ready) to
 
 ![The Most recent view: its heading, the filter links, then the newest post with its photo, uploader, time, description, tags, like count and comments](/screenshots/template-database-posts.webp)
 
-*The posts, newest first. The heading names the view that is showing, and the links beside it switch between the views. Each post is one record: the photo from its file, the description and tags from its data, the uploader looked up once with `getUsers()`.*
+*The posts, newest first. The heading names the view that is showing, and the links beside it switch between the views. Each post is one record: the photo from its file, the description and tags from its data, the uploader looked up once with `getUsers()`. A guest signed in with [`anonymousLogin()`](/authentication/anonymous-login.md) shows as **Guest**; everyone else shows their name, or their public email address when they have no name.*
 
 ![One post in detail: an Unsubscribe button beside the uploader, one like with the Unlike button, and two comments under the comment form](/screenshots/template-database-detail.webp)
 

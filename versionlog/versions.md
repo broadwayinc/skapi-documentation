@@ -1,6 +1,10 @@
 # Version History
 
-### Current version: 2.2.17
+### Current version: 2.2.18
+
+**2.2.18**
+
+- **`getTables()`, `getTags()`, `getIndexes()` and `getUniqueId()` no longer need a signed-in user.** Since September they were refused to a signed-out caller while the project's Require Login setting was on, and a project that never set it counted as on, so an integration that listed metadata with no login got `REQUIRE_LOGIN` from the SDK and `INVALID_REQUEST` from the server. The gate is gone from both (the server side ships with the API). `require_login` still gates `getRecords()` in the SDK and the BunnyQuery chat. What a signed-out caller sees is unchanged: every table name with the counters cut to the public group, and the tag and index listings unfiltered.
 
 **2.2.17**
 
