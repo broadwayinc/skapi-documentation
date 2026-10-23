@@ -47,7 +47,7 @@ const FULL_FILE = 'SKAPI-full.md';
 /** Written by earlier versions of this script; removed so a stale copy is never served. */
 const RETIRED_FILES = ['skapi-docs.md', 'skapi-types.md'];
 const PROMPT_MAX_BYTES = 30000;
-const DEMO_BASE = 'https://cdn.broadwayinc.com/temp/v5/';
+const DEMO_BASE = 'https://cdn.broadwayinc.com/temp/v6/';
 const PROMPT_DOWNLOADS = './.vitepress/theme/AgentPromptDownloads.vue';
 
 /* ────────────────────────────── the sidebar as lists ────────────────────────────── */

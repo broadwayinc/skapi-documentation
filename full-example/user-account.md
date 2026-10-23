@@ -6,9 +6,9 @@ The User Account pages demonstrate Skapi's account system end to end. Every step
 
 You need your [project ID](/full-example/intro.md#have-your-project-id-ready) to open the demo.
 
-![The User Account page of the template: a description of each account feature with a link to its page, and the logged-in user's name with a Logout button](/screenshots/template-account.webp)
+![The User Account page of the template: the status line says the visitor is logged in as a guest with a temporary account, a Logout button sits on its own line under it, and below are the Login or Sign up section and the Anonymous login section with its Continue as a guest button](/screenshots/template-account.webp)
 
-*`account.html`, the hub of the account pages, with a user logged in.*
+*`account.html`, the hub of the account pages, with a guest logged in through the **Continue as a guest** button. Logging out deletes the temporary account.*
 
 ![The Login page of the template: an email address field, a password field and a Login button](/screenshots/template-login.webp)
 
@@ -36,4 +36,4 @@ You need your [project ID](/full-example/intro.md#have-your-project-id-ready) to
 
 ## Download
 
-The pages are part of the full template: [skapi-templates.zip](https://cdn.broadwayinc.com/temp/v5/skapi-templates.zip). See [Full Examples](/full-example/intro.md) for how to run it.
+The pages are part of the full template: [skapi-templates.zip](https://cdn.broadwayinc.com/temp/v6/skapi-templates.zip). See [Full Examples](/full-example/intro.md) for how to run it.
