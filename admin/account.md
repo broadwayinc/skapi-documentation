@@ -10,6 +10,8 @@ An AI agent can do it for you as well. The Skapi MCP server searches users, crea
 
 *The Users page. Tick accounts with the checkboxes, then use the icons at the top right of the table: **Grant access**, **Unblock users**, **Block users** and **Delete users**. Clicking a row opens the account's own form.*
 
+A temporary account made with [`anonymousLogin()`](/api-reference/authentication/README.md#anonymouslogin) shows **Anonymous** in the Email column, with a crossed-out account icon. Its profile cannot be edited (the form says so, and only its access group and Blocked checkbox are saved); granting access, blocking and deleting work as for any account. It is deleted on its own 30 minutes after the visitor leaves. See [Anonymous Login](/authentication/anonymous-login.md).
+
 ## Assigning Access Group to Users
 
 Users that have admin access can grant access to other users by using the [`grantAccess()`](/api-reference/admin/README.md#grantaccess) method.

@@ -34,6 +34,8 @@ updateProfile(
 ): Promise<UserProfile>
 ```
 
+An anonymous account made with [`anonymousLogin()`](/api-reference/authentication/README.md#anonymouslogin) is refused with `INVALID_REQUEST` (`Anonymous accounts cannot edit their profile.`): a temporary account stays temporary. See [Anonymous Login](/authentication/anonymous-login.md#what-an-anonymous-account-cannot-do).
+
 See [UserProfile](/api-reference/data-types/README.md#userprofile)
 
 Called with the `user_id` of **another** user, this sends the same request as
@@ -55,6 +57,8 @@ changePassword(params: SubmitEvent | {
     current_password: string;
 }): Promise<'SUCCESS: Password has been changed.'>
 ```
+
+An anonymous account made with [`anonymousLogin()`](/api-reference/authentication/README.md#anonymouslogin) is refused with `INVALID_REQUEST` (`Anonymous accounts cannot change their password.`): a temporary account stays temporary. See [Anonymous Login](/authentication/anonymous-login.md#what-an-anonymous-account-cannot-do).
 
 
 ## verifyEmail
@@ -78,6 +82,8 @@ verifyEmail(params?: SubmitEvent | {
     };
 }): Promise<string>
 ```
+
+An anonymous account made with [`anonymousLogin()`](/api-reference/authentication/README.md#anonymouslogin) is refused with `INVALID_REQUEST` (`Anonymous accounts cannot verify an e-mail or a phone number.`): a temporary account stays temporary. See [Anonymous Login](/authentication/anonymous-login.md#what-an-anonymous-account-cannot-do).
 
 #### Errors
 ```ts
@@ -104,6 +110,8 @@ it. See [Login IDs](/admin/permissions.md#login-ids).
 ```ts
 disableAccount(): Promise<'SUCCESS: account has been disabled.'>;
 ```
+
+An anonymous account made with [`anonymousLogin()`](/api-reference/authentication/README.md#anonymouslogin) is refused with `INVALID_REQUEST` (`Anonymous accounts cannot be disabled.`): a temporary account stays temporary. See [Anonymous Login](/authentication/anonymous-login.md#what-an-anonymous-account-cannot-do).
 
 
 ## getUsers

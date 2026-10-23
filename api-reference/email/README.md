@@ -22,6 +22,8 @@ subscribeNewsletter(
 ): Promise<string>
 ```
 
+An anonymous account made with [`anonymousLogin()`](/api-reference/authentication/README.md#anonymouslogin) is refused with `INVALID_REQUEST` (`Anonymous accounts cannot subscribe to newsletters.`): a temporary account stays temporary. See [Anonymous Login](/authentication/anonymous-login.md#what-an-anonymous-account-cannot-do).
+
 ## unsubscribeNewsletter
 
 ```ts

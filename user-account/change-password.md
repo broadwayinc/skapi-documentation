@@ -4,6 +4,10 @@
 User must be logged in to call this method.
 :::
 
+:::info
+An anonymous account made with [`anonymousLogin()`](/api-reference/authentication/README.md#anonymouslogin) cannot change or reset its password: the call fails with `INVALID_REQUEST`. See [Anonymous Login](/authentication/anonymous-login.md#what-an-anonymous-account-cannot-do).
+:::
+
 The [`changePassword()`](/api-reference/user/README.md#changepassword) method allows users who are logged-in to change their password. This method requires the user's current password and the new password as parameters. If the password change is successful, the method will return a success message.
 
 Password should be at least 6 characters and no more than 60 characters.

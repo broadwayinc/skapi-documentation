@@ -156,6 +156,10 @@ export const PAGES = {
     'authentication/openid-login.md': {
         description: 'Sign users in with an OpenID identity provider such as Google through Skapi OpenID Loggers, and merge an OpenID account with an existing account.',
     },
+    'authentication/anonymous-login.md': {
+        title: 'Anonymous Login',
+        description: 'Let visitors use chat, private records and other account features without signing up: anonymousLogin() creates a temporary account that is deleted 30 minutes after they leave.',
+    },
 
     // User account
     'user-account/introduction.md': {

@@ -51,6 +51,7 @@ export let method_ref = [
             { text: 'User Profile', link: '/authentication/user-info.md' },
             { text: 'Forgot Password', link: '/authentication/forgot-password.md' },
             { text: 'OpenID Login', link: '/authentication/openid-login.md' },
+            { text: 'Anonymous Login', link: '/authentication/anonymous-login.md' },
             { text: 'Updating User Profile', link: '/user-account/update-account.md' },
             { text: 'Email Verification', link: '/user-account/email-verification.md' },
             { text: 'Changing Password', link: '/user-account/change-password.md' },

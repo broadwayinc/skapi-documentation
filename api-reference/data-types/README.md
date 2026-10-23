@@ -144,6 +144,8 @@ type Connection = {
         prevent_inquiry: boolean;
         prevent_signup: boolean;
         prevent_anonymous: boolean;
+        // Whether visitors may sign in with a temporary account (anonymousLogin()). Off until the project owner turns it on.
+        anonymous_login?: boolean;
     }
     /* AI agent info */
     ai_agent?: string;
@@ -171,6 +173,9 @@ type ConnectionInfo = {
         // (getRecords, getTables, getTags, getIndexes, getUniqueId) with
         // code 'REQUIRE_LOGIN'. Defaults to true.
         require_login?: boolean;
+        // Whether visitors may sign in with a temporary account (anonymousLogin()).
+        // Off until the project owner turns it on.
+        anonymous_login?: boolean;
     }
 };
 ```
@@ -936,6 +941,8 @@ type UserProfile = {
 
      */
     approved: string;
+    /** true on a temporary account made with anonymousLogin(): no e-mail, no password, deleted 30 minutes after the visitor's last keep-alive. Absent on every other account. */
+    anonymous?: boolean;
     /** Last login timestamp(Seconds). */
     log: number;
     /** Shows true when user has verified their E-Mail. */
@@ -1034,6 +1041,8 @@ type UserPublic = {
 
      */
     approved: string;
+    /** true on a temporary account made with anonymousLogin(). Absent on every other account. */
+    anonymous?: boolean;
     /** Account created timestamp(13 digit milliseconds). */
     timestamp: number;
     /** Last login timestamp(Seconds). */

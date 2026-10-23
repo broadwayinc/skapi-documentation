@@ -112,6 +112,10 @@ You can send public newsletters to your users by sending your email to the endpo
 
 First, the users must subscribe to the public newsletter to receive your public newsletters:
 
+:::info
+An anonymous account made with [`anonymousLogin()`](/api-reference/authentication/README.md#anonymouslogin) cannot subscribe to newsletters: the call fails with `INVALID_REQUEST`. See [Anonymous Login](/authentication/anonymous-login.md#what-an-anonymous-account-cannot-do).
+:::
+
 :::code-group
 ```html [Form]
 <form onsubmit="skapi.subscribeNewsletter(event).then(res => alert(res))">

@@ -103,6 +103,7 @@ const skapi = new Skapi("<Project ID>", options);
 ## Logout
 
 The [`logout()`](/api-reference/authentication/README.md#logout) method logs the user out from the project.
+On an anonymous session (see [Anonymous Login](/authentication/anonymous-login.md)) it also deletes the temporary account at once.
 
 :::code-group
 

@@ -1,6 +1,12 @@
 # Version History
 
-### Current version: 2.2.15
+### Current version: 2.2.16
+
+**2.2.16**
+
+- **Visitors can sign in without signing up.** `anonymousLogin()` creates a temporary anonymous account (no e-mail, no password, access group `1`, `anonymous: true` on the profile) and signs the visitor in. The account lives while a page holds its session (the SDK sends a keep-alive every 10 minutes, and once when a page load restores the session) and is deleted 30 minutes after the last keep-alive, with everything it owns; `logout()` deletes it at once, and so does `signup()`, which logs out first. It cannot edit its profile, change or reset its password, verify an e-mail or a phone number, subscribe to newsletters or disable itself: `updateProfile()`, `changePassword()`, `verifyEmail()`, `verifyPhoneNumber()`, `subscribeNewsletter()`, `unsubscribeNewsletter()`, `getNewsletterSubscription()`, `disableAccount()` and `lastVerifiedEmail()` fail with `INVALID_REQUEST` on such a session. See [Anonymous Login](/authentication/anonymous-login.md).
+- Types: `UserProfile.anonymous` and `UserPublic.anonymous` (`getUsers()` rows), `Connection.opt.anonymous_login` and `ConnectionInfo.conf.anonymous_login`.
+- Backend (ships with the API, not the SDK): the project setting **Anonymous Login** (`anonymous_login`, off by default, independent of Allow Signup) on the project settings page and the MCP server's `setProjectSettings`; `getConnectionInfo()` returns it as `conf.anonymous_login`. An anonymous account is refused the same operations on the server whatever client calls them, an admin cannot edit its profile, and the Users page marks it **Anonymous**.
 
 **2.2.15**
 

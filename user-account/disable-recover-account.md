@@ -7,6 +7,10 @@
 User must be logged in to call this method
 :::
 
+:::info
+An anonymous account made with [`anonymousLogin()`](/api-reference/authentication/README.md#anonymouslogin) cannot be disabled or recovered; it is deleted on its own 30 minutes after the visitor leaves: the call fails with `INVALID_REQUEST`. See [Anonymous Login](/authentication/anonymous-login.md#what-an-anonymous-account-cannot-do).
+:::
+
 :::warning
 If your project does not allow users to signup, the users will not be able to disable their account.
 

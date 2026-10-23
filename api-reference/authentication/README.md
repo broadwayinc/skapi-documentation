@@ -191,6 +191,39 @@ See [UserProfile](/api-reference/data-types/README.md#userprofile)
 logout(params?: { global: boolean; }): Promise<'SUCCESS: The user has been logged out.'>
 ```
 
+On an anonymous session (see [anonymousLogin](#anonymouslogin)) `logout()` deletes the temporary account at once, then signs the page out. `global` has no effect on it.
+
+## anonymousLogin
+
+```ts
+anonymousLogin(): Promise<UserProfile>
+```
+
+Signs the visitor in with a temporary anonymous account: no e-mail, no password, access group `1`, and `anonymous: true` on the profile.
+The account lives while a page holds its session (the SDK sends a keep-alive every 10 minutes, and once when a page load restores the session) and is deleted 30 minutes after the last keep-alive, or at once on [`logout()`](#logout).
+Resolves to the current profile when the page already holds an anonymous session.
+See [Anonymous Login](/authentication/anonymous-login.md).
+
+#### Errors
+```ts
+{
+    code: "INVALID_REQUEST";
+    message: "Anonymous login is not enabled for this service."; // The project owner has not turned on Anonymous Login in the project settings.
+}
+|
+{
+    code: "INVALID_REQUEST";
+    message: "User limit exceeded."; // The project is at the user limit of its plan.
+}
+|
+{
+    code: "INVALID_REQUEST";
+    message: "A user is already logged in. Log out first."; // A session of another account is held by the page.
+}
+```
+
+An anonymous account cannot edit its profile, change or reset its password, verify an e-mail or a phone number, subscribe to newsletters, or disable itself: those methods fail with `INVALID_REQUEST` and a message starting with `Anonymous accounts cannot`.
+
 ## forgotPassword
 
 ```ts

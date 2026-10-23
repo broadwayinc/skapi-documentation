@@ -63,6 +63,20 @@ This setting will prevent anyone to signup or prevent anyone from removing their
 If this option is turned off, only the admin can create, disable user accounts from the **Users** page.
 This is useful when you want to create a private project for a specific group of users.
 
+## Anonymous Login
+
+When this is on, visitors can sign in with a temporary anonymous account through [`anonymousLogin()`](/api-reference/authentication/README.md#anonymouslogin): no e-mail, no password, access group `1`.
+The account lives while a page holds its session and is deleted 30 minutes after the visitor leaves, with everything it owns.
+See [Anonymous Login](/authentication/anonymous-login.md).
+
+It is off until you turn it on. While it is off, `anonymousLogin()` fails with `INVALID_REQUEST` and `Anonymous login is not enabled for this service.`
+
+It does not depend on **Allow Signup**: a project can close signups and still let visitors in anonymously.
+It is unrelated to **Prevent Anonymous** below, which is about visitors **without** an account writing public records.
+
+Anonymous accounts count as users of the project while they exist, toward the plan's user limit and the month's active users.
+It is returned to every client as `conf.anonymous_login` on [`getConnectionInfo()`](/api-reference/connection/README.md#getconnectioninfo).
+
 
 ## Prevent Inquiry
 

@@ -69,7 +69,7 @@ Admins cannot perform the following actions:
 - Change project settings, in **any** access group, `99` included.
 
 Project settings are available only to the project owner's Skapi account, through the Skapi project pages, and to Skapi staff when you ask Skapi for help.
-That covers the project name and CORS, Allow Signup, Allow Inquiries, Allow Anonymous Posts, Require Login, Freeze Database, the API key and the Secret Keys, the subdomain and the 404 page, the OpenID loggers, the sender e-mail address and the automated e-mail templates, and creating, disabling, enabling or deleting the project.
+That covers the project name and CORS, Allow Signup, Anonymous Login, Allow Inquiries, Allow Anonymous Posts, Require Login, Freeze Database, the API key and the Secret Keys, the subdomain and the 404 page, the OpenID loggers, the sender e-mail address and the automated e-mail templates, and creating, disabling, enabling or deleting the project.
 An admin request for any of them is refused with `INVALID_REQUEST` and `Only the project owner can change project settings.` Admins still upload and delete the files of a hosted site, and still manage users, records, invitations, newsletters and notifications. See [Project settings belong to the project owner](/admin/permissions.md#project-settings-belong-to-the-project-owner).
 
 Admin methods are useful when building projects that require admin access to manage users and data.

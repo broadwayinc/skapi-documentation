@@ -4,6 +4,10 @@
 You must be logged in to call this method.
 :::
 
+:::info
+An anonymous account made with [`anonymousLogin()`](/api-reference/authentication/README.md#anonymouslogin) cannot edit its profile: the call fails with `INVALID_REQUEST`. See [Anonymous Login](/authentication/anonymous-login.md#what-an-anonymous-account-cannot-do).
+:::
+
 You can update a user's profile using [`updateProfile()`](/api-reference/user/README.md#updateprofile).
 If successful, the method returns the updated [UserProfile](/api-reference/data-types/README.md#userprofile) object.
 

@@ -4,6 +4,10 @@
 User must be logged in to call this method
 :::
 
+:::info
+An anonymous account made with [`anonymousLogin()`](/api-reference/authentication/README.md#anonymouslogin) cannot verify an e-mail or a phone number: the call fails with `INVALID_REQUEST`. See [Anonymous Login](/authentication/anonymous-login.md#what-an-anonymous-account-cannot-do).
+:::
+
 User with verified E-Mail can:
 
 - Log in with their email address, when the account was created with a `username`. See [Which ID logs a user in](/user-account/update-account.md#which-id-logs-a-user-in).
