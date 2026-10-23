@@ -157,7 +157,7 @@ export let method_ref = [
 ];
 
 // The full example on the CDN (examples/template): one demo page per feature, hosted at
-// https://cdn.broadwayinc.com/temp/v6/. The pages hold a Vue component (the demo link with
+// https://cdn.broadwayinc.com/temp/v7/. The pages hold a Vue component (the demo link with
 // the reader's project id); agent-docs.mjs writes that link out as plain markdown.
 export let full_examples = {
     text: 'Full Examples',
