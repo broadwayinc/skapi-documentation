@@ -94,16 +94,17 @@ Skapi can temporarily ban a subdomain, for example one reported for abuse. While
 
 The **Web Hosting** page has a card for the state of the site, and the list of its files under it.
 
-![The Web Hosting page: a card with the Address, Storage in Use, 404 Page and CDN rows, the Upload Files button, and the file list with folders and files, their size and upload time](/screenshots/hosting-page.webp)
+![The Web Hosting page: a card with the Address, Storage in Use, 404 Page, Browser caching and CDN cache rows, the Upload Files button, and the file list with folders and files, their size, upload time and browser caching](/screenshots/hosting-page.webp)
 
 *The Web Hosting page of a site with files.*
 
-The card has four rows:
+The card has five rows:
 
 - **Address**: where the site is served. **[Open]** opens it in a new tab.
 - **Storage in Use**: how much file storage the site takes.
 - **404 Page**: the file that answers for an address that does not exist. See [Setting the 404 page](#setting-the-404-page).
-- **CDN**: whether the CDN serves the latest files. See [The CDN](#the-cdn).
+- **Browser caching**: how long a visitor's browser keeps your files. See [Browser caching](#browser-caching).
+- **CDN cache**: the copies of your files the CDN serves, and whether they are being refreshed. See [The CDN cache](#the-cdn-cache).
 
 ## Uploading your website files
 
@@ -164,18 +165,41 @@ Choosing it is a project setting, so only the **project owner's Skapi account** 
 If you are using an **SPA framework** such as Vue, React, or Angular, **YOU MUST** set your **`index.html`** as the 404 page, so every route of your app is answered by it.
 :::
 
-## The CDN
+## The CDN cache
 
-Your files are served through a CDN. A new file is served as soon as it is uploaded. When you overwrite or delete a file, the CDN can keep serving the old copy for a while, and the **CDN** row on the **Web Hosting** page then says **Needs refresh**.
+Your files are served through a CDN, which keeps a copy of each file close to your visitors for up to a day. That is what makes the site fast.
 
-![The Web Hosting card with the CDN row reading Needs refresh and a Refresh link](/screenshots/hosting-card-needs-refresh.webp)
+Every upload, overwrite or delete refreshes the CDN by itself: about a minute after your last file lands, the CDN drops its copies of the whole site and fetches the new files on the next visit. The **CDN cache** row on the **Web Hosting** page reads **Updating** while that happens and **Live** when it is done. There is nothing to click.
 
-*The CDN row after a file was overwritten or deleted.*
+**[Refresh now]** on the same row does the same thing at once, without the minute's wait. It republishes every file of the site to the CDN. It does not change what your visitors' browsers already keep; that is [Browser caching](#browser-caching).
 
-Click **[Refresh]** and confirm to republish every file.
+## Browser caching
 
-![The Refresh CDN confirmation: refreshing the CDN republishes every file and takes a few minutes, uploads and deletes are paused until it finishes](/screenshots/hosting-cdn-refresh.webp)
+A visitor's browser keeps its own copy of each file it has fetched, and reuses it without asking for as long as you allow. Longer makes return visits faster, but a changed file is not seen by a visitor who already has it until that time passes or the file's name changes.
 
-*Refreshing the CDN.*
+The **Browser caching** row on the **Web Hosting** page holds the setting for your uploads:
 
-It takes a few minutes. The row reads **Refreshing. This takes a few minutes.** and uploads and deletes are paused until it finishes, and the row reads **Up to date** when it is done.
+| Choice | The browser keeps a file for |
+|---|---|
+| No caching | not at all: it asks the CDN before every use and gets a tiny "unchanged" answer when nothing changed |
+| 5 minutes | 5 minutes. The default |
+| 1 hour | 1 hour |
+| 1 day | 1 day |
+| 1 year | 1 year |
+| Ask on upload | the page asks you once per upload, and offers to make your answer the default |
+
+Anything above 5 minutes comes with a warning: visitors who already have a file will not see a new version for that long unless its name changes.
+
+**Pages are never kept.** Every HTML file is served as "No caching" whatever the setting, so a reload always shows the newest page, and a page is what names your other files. The 404 page is a page too.
+
+The choice is written onto each file when it is uploaded. Files you uploaded before you changed the setting keep what they had; upload a file again to change it. The file list shows each file's value in its **Browser caching** column.
+
+### Shipping a new version of a long-cached file
+
+Give it a new address. Either rename the file, as build tools do with a hash in the name (`app.3f9c1e.js`), or add a version to the address you use in your pages:
+
+```html
+<script src="/app.js?v=2"></script>
+```
+
+`?v=` is the one query string the CDN and the browser treat as a new address; any other query string is ignored. Change the number whenever you change the file, and every visitor gets the new one on their next visit, however long the old one was allowed to live.
