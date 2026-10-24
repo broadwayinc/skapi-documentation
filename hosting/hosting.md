@@ -181,14 +181,31 @@ The **Browser caching** row on the **Web Hosting** page holds the setting for yo
 
 | Choice | The browser keeps a file for |
 |---|---|
-| No caching | not at all: it asks the CDN before every use and gets a tiny "unchanged" answer when nothing changed |
-| 5 minutes | 5 minutes. The default |
+| No caching | not at all: it asks the CDN before every use and gets a tiny "unchanged" answer when nothing changed. The default |
+| 5 minutes | 5 minutes |
 | 1 hour | 1 hour |
 | 1 day | 1 day |
+| 7 days | 7 days |
+| 30 days | 30 days |
 | 1 year | 1 year |
 | Ask on upload | the page asks you once per upload, and offers to make your answer the default |
 
+![The Browser caching dialog the Web Hosting page shows once per upload when the setting is Ask on upload: Browser caching for these files, a choice list reading No caching, a Set as default and stop asking checkbox, a Learn more link, and Cancel and Upload buttons](/screenshots/hosting-browser-caching-ask.webp)
+
+*Asked once per upload when the setting is Ask on upload.*
+
 Anything above 5 minutes comes with a warning: visitors who already have a file will not see a new version for that long unless its name changes.
+
+**7 days or more needs a second look.** Choosing it opens an alert you have to accept, because of what it means:
+
+- Visitors who already have a file will not see a new version of it for that long, even after you upload a change.
+- Once a visitor's browser has downloaded a file, you have no control over it. Nothing you do on the Web Hosting page, not a new upload and not a CDN refresh, reaches a copy a browser already holds. You cannot change this for a file with the same name.
+
+![The Browser caching alert for 7 days: visitors who already have a file will not see a new version of it for 7 days, even after you upload a change; once a visitor's browser has downloaded a file you have no control over it and cannot change this for a file with the same name; with Cancel and I understand buttons](/screenshots/hosting-browser-caching-alert.webp)
+
+*The alert for 7 days or more.*
+
+The only way to ship a change to such a file is a new address: a new file name, or a version on the address as shown below.
 
 **Pages are never kept.** Every HTML file is served as "No caching" whatever the setting, so a reload always shows the newest page, and a page is what names your other files. The 404 page is a page too.
 
