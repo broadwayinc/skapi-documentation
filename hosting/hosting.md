@@ -169,9 +169,11 @@ If you are using an **SPA framework** such as Vue, React, or Angular, **YOU MUST
 
 Your files are served through a CDN, which keeps a copy of each file close to your visitors for up to a day. That is what makes the site fast.
 
-Every upload, overwrite or delete refreshes the CDN by itself: about a minute after your last file lands, the CDN drops its copies of the whole site and fetches the new files on the next visit. The **CDN cache** row on the **Web Hosting** page reads **Updating** while that happens and **Live** when it is done. There is nothing to click.
+The CDN refreshes by itself whenever there is a change. About a minute after an upload, overwrite or delete finishes on the **Web Hosting** page (or through the [Skapi MCP server](/introduction/getting-started.md#connecting-the-skapi-mcp-server)), the CDN drops its copies of the whole site and fetches the new files on the next visit. Changes that land during that minute ride the same refresh. The **CDN cache** row on the **Web Hosting** page reads **Updating** while the refresh runs and **Live** when it is done. There is nothing to click.
 
-**[Refresh now]** on the same row does the same thing at once, without the minute's wait. It republishes every file of the site to the CDN. It does not change what your visitors' browsers already keep; that is [Browser caching](#browser-caching).
+If the CDN misses a change, you do not have to wait for the copies to expire: a check runs every 30 minutes and refreshes any site whose files changed without a refresh, and you can start one yourself at any time. **[Refresh now]** on the same row republishes every file of the site to the CDN at once. A refresh does not change what your visitors' browsers already keep; that is [Browser caching](#browser-caching).
+
+An address that has no file is never cached, by the CDN or by the browser. A file you upload at that address shows at once, and so does a newly set [404 page](#setting-the-404-page).
 
 ## Browser caching
 
