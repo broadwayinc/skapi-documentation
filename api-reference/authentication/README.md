@@ -224,6 +224,23 @@ See [Anonymous Login](/authentication/anonymous-login.md).
 
 An anonymous account cannot edit its profile, change or reset its password, verify an e-mail or a phone number, subscribe to newsletters, or disable itself: those methods fail with `INVALID_REQUEST` and a message starting with `Anonymous accounts cannot`.
 
+## verifyAnonymousSession
+
+```ts
+verifyAnonymousSession(): Promise<UserProfile | null>
+```
+
+Tells a page whether an anonymous session it restored on load still belongs to a live account.
+A page load that restores an anonymous session from storage starts one keep-alive beat for it; the server may have deleted the account 30 minutes after the visitor last left, while the stored token itself has not expired.
+This method waits for that beat and resolves with the current profile, or with `null` when the account is gone: the beat has already signed the page out, and the page can call [`anonymousLogin()`](#anonymouslogin) for a fresh account before it relies on the session, for example before [`connectRealtime()`](/api-reference/realtime/README.md#connectrealtime).
+It forces no token refresh, so a deleted account does not set off a retry of a refresh that can never succeed.
+For a signed-in or a signed-out session, where there is nothing anonymous to verify, it resolves with the current profile at once.
+Available since 2.2.19. See [Anonymous Login](/authentication/anonymous-login.md#how-long-the-account-lives).
+
+#### Errors
+
+None. A deleted account is reported as `null`, not as an error.
+
 ## forgotPassword
 
 ```ts

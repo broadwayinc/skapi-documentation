@@ -22,7 +22,7 @@ Tickets are registered from the dashboard. Open your project, click **Tickets** 
 
 *The Tickets page. Every registered ticket is one row with its Status: a green or red dot for enabled or disabled, then idle, queued or recursing. Click a row to open it, search by id or description, and tick rows to delete several at once.*
 
-The **Status** cell is a green dot (enabled) or a red dot (disabled), then one word: `idle` when no queued run of the ticket is waiting, `queued` when at least one queued run is waiting to come due, and `recursing` when a queued run is waiting and one of the ticket's actions, at any depth, is an HTTP request to a ticket URL of this project (a URL with `/tp/<service_id>/`, `/tg/<service_id>/` or `/tpa/<service_id>/`), the shape of a ticket that keeps itself going. The switch that turns a ticket on and off is at the top of its detail view; see [Disabling a ticket](#disabling-a-ticket).
+The **Status** cell is a green dot (enabled) or a red dot (disabled), then one word: `idle` when no queued run of the ticket is waiting, `queued` when at least one queued run is waiting to come due, and `recursing` when a queued run is waiting and one of the ticket's actions, at any depth, is an HTTP request to a ticket URL of this project (a URL with `/tp/<service_id>/`, `/tg/<service_id>/` or `/tpa/<service_id>/`), the shape of a ticket that keeps itself going. A ticket with a **Concurrency** setting reads `busy` while every slot it has is taken, with the number of calls waiting in its line when there are any; see [One at a time: concurrency](#one-at-a-time-concurrency). The switch that turns a ticket on and off is at the top of its detail view; see [Disabling a ticket](#disabling-a-ticket).
 
 An AI agent can do this for you. The Skapi MCP server registers, updates and deletes tickets and reads their logs from a prompt, so a webhook endpoint is one sentence away. See [Connecting the Skapi MCP server](/introduction/getting-started.md#connecting-the-skapi-mcp-server).
 
@@ -46,6 +46,8 @@ The detail view has these sections:
 - **Description**: up to 500 characters, shown in the list.
 - **Remaining** (`count`): every successful consumption takes one. At `0` the ticket answers `TICKET_EXHAUSTED`. Blank keeps the current value when you update a ticket, and means unlimited on a new one. `0` exhausts the ticket. Tick **Unlimited** to remove the count from an existing ticket.
 - **Limit per user** (`limit_per_user`): how many times one user may consume the ticket. `1` means once. Blank means unlimited. Counted only on `consumeTicket()` calls with `auth: true`, the one call that carries a user, so it has no effect on the open endpoints, a webhook included.
+- **Concurrency** (`concurrency`): how many consumptions of the ticket may be in flight at the same time, `1` to `100`. Blank means unlimited. A consumption is in flight while its actions run, and while the rest of its chain waits to go on after a Respond. See [One at a time: concurrency](#one-at-a-time-concurrency).
+- **When full** (`when_full`): what a call gets once that many are in flight. **Wait in line** (`"queue"`, the default) answers it at once with a receipt and runs it in its turn; **Refuse** (`"refuse"`) fails it with `TICKET_BUSY`. Shown only when Concurrency is set.
 - **Expires** (`time_to_live`): a date and time after which the ticket answers `TICKET_EXPIRED`, entered in your local time. Blank means never. When set it must be in the future.
 - **Always 200** (`return200`): answer HTTP 200 even when the consumption fails, for webhooks that retry on errors.
 - **Method**: Any, GET or POST. Any accepts both; with GET or POST, a request with the other method fails with `METHOD_NOT_ALLOWED`. See [`return200` and `method`](/tickets/conditions.md#return200-and-method).
@@ -64,6 +66,63 @@ While a ticket is off:
 - the definition, the remaining count, the per-user counters and the log are all kept.
 
 Switch it on again at any time, and the next call is answered as before. In the list, the dot of the **Status** cell shows the state. An AI agent uses the `enable` and `disable` actions of the MCP server's ticket tool.
+
+### One at a time: concurrency
+
+Two settings on the ticket decide how many calls may run at once, and what the rest get.
+
+- **Concurrency** (`concurrency`): how many consumptions may be **in flight** at the same time, from `1` to `100`. Blank means unlimited, which is how every ticket runs without the setting.
+- **When full** (`when_full`): `"queue"` (**Wait in line**, the default) or `"refuse"` (**Refuse**).
+
+A consumption is in flight while its actions run, and for as long as the rest of its chain waits to go on after a [Respond](/tickets/actions.md#resp-answer-the-caller) with a `resume`. The wait holds the slot: a ticket with Concurrency `1` whose chain answers with `"resume": "1d"` is full for that day, and nothing else of it runs until the queued run is done. That is what keeps a ticket that repeats on its own from running twice at once.
+
+A dry run never takes a slot and never waits.
+
+**Wait in line.** When every slot is taken, a call is answered at once with HTTP `202` (or `200` when the ticket has **Always 200** on) and a receipt that says where it stands:
+
+```json
+{
+  "queued": true,
+  "position": 2,
+  "consume_id": "UwdAhf6k3Qp",
+  "ticket_id": "order-paid",
+  "tkid": "#order-paid#UwdAhf6k3Qp#203.0.113.7(curl/8.5.0)",
+  "hash": "..."
+}
+```
+
+By then the call has passed every check and the whole condition, and it counts: it took one from the remaining count and from the caller's per-user limit, as a consumption a Respond answered does. Its actions run when its turn comes, first in, first out, with the request, the captured placeholders and the caller exactly as they were. The Log tab shows two rows: the call with a **queued** mark, and the run that followed, marked **resumed** and naming it. A Respond in that chain answers nobody, since the caller already has its receipt; what it would have answered is logged. A newcomer never passes a call already waiting, even when a slot happens to be free at that instant.
+
+Each run that waited counts as one of the plan's [queued ticket runs](/introduction/plans.md#queued-ticket-runs) for the month, like a run a Respond leaves for later. On Trial and Standard a call that would join the line past the month's figure is refused with `QUOTA_EXCEEDED` (`detail.field` is `"tkq"`) instead of waiting.
+
+**Refuse.** When every slot is taken, a call fails with `TICKET_BUSY`, HTTP `429` (or `200` with **Always 200**), and none of its actions run: nothing is consumed. The error's `detail` carries `concurrency`, `running` (consumptions in flight), `waiting` (calls in the line) and `self_calling`. Unlike the other refusals made before a chain runs, it is written to the Log tab as a failed row, so you can see the limit at work. A `req` from another ticket that gets it does not try again, whatever its `retry` says.
+
+**A ticket that calls itself keeps its line to itself.** A ticket whose actions hold, at any depth, a `req` to its own endpoint is a **self-calling** ticket, the shape of one that keeps itself going: it answers, waits, does its work and calls its own URL for the next round. For such a ticket the line is only for its own next round. While it is full, any other call is refused with `TICKET_BUSY`, under Wait in line as under Refuse, and the message says why. So a bot started by opening its GET link once cannot be started a second time by opening the link again while it runs: the second click is told the ticket is busy, and a second copy of the loop is never born. Under Refuse the ticket's own next round is refused too and the loop ends after one round, so a self-calling ticket wants Concurrency `1` and Wait in line.
+
+A ticket that posts something once a day, started by one click:
+
+```json
+{
+  "ticket_id": "daily-post",
+  "description": "Posts one record a day",
+  "condition": { "method": "GET" },
+  "concurrency": 1,
+  "when_full": "queue",
+  "actions": [
+    { "act": "resp", "exe": { "status": 200, "body": { "ok": true }, "resume": "1d" } },
+    { "act": "pstr", "exe": { "table": { "name": "daily", "access_group": "public" }, "data": { "at": "${ticket[timestamp]}" } } },
+    { "act": "req", "exe": { "method": "GET", "url": "https://eu73.skapi.dev/tg/eu73kXm2PqA9vLb4/daily-post" } }
+  ]
+}
+```
+
+Open the GET endpoint once in a browser: the Respond answers `{ "ok": true }` and the rest waits a day, holding the ticket's one slot. A day later the record is posted and the `req` calls the ticket's own URL; that call finds the slot still taken by the round that is making it, waits in the line, and starts the moment the round is over, holding the slot for the next day. Open the link again meanwhile and you get `TICKET_BUSY`. To stop the bot, switch the ticket off: the round that was waiting is skipped and logged with `skipped: disabled` (see [Disabling a ticket](#disabling-a-ticket)). Between the Respond and the self-call the chain can do anything an action can: fetch or generate what it posts with a `req` to an API and your [Secret Key](/tickets/actions.md#sending-a-secret-key), post a record, send an e-mail. See [Repeating Every 30 Minutes](/tickets/examples.md#repeating-every-30-minutes).
+
+In the list, the **Status** cell of a ticket with the setting reads `busy` while every slot is taken, with the number of calls waiting in its line when there are any. The ticket's [`getTickets()`](/api-reference/tickets/README.md#gettickets) row carries `concurrency`, `when_full`, `running` (in flight now), `waiting` (in the line) and `self_calling`.
+
+An AI agent sets these with the MCP server's ticket tool (`concurrency` and `when_full` on `register`); you can also describe the whole bot in a sentence, such as "make me a bot that posts a developer joke every morning", and let it ask what it needs and register the ticket. See [Connecting the Skapi MCP server](/introduction/getting-started.md#connecting-the-skapi-mcp-server).
+
+Changing Concurrency on a ticket with calls in flight applies to new calls; the runs in flight finish as they are. Removing the setting lets everything still waiting run at once, in order. Deleting the ticket drops what waits in its line.
 
 ### Edit as JSON
 
@@ -254,7 +313,7 @@ So on a `consumeTicket()` call a `headers` condition row or a `${headers[name]}`
 - **The open endpoints** (`/tp/...` and `/tg/...`) take any HTTP client. A page that must send a key the browser may not hold calls them through [`forwardRequest()`](/api-bridge/client-secret-request.md#calling-a-ticket): the key goes in as `$CLIENT_SECRET`, and the ticket's condition checks that header. Such a call has no user: it is anonymous to the ticket, whoever is logged in.
 - **A `signature` condition** is for a webhook sender that signs the raw body with the secret you share with it. A browser cannot produce it, and neither can `forwardRequest()`, which substitutes a value and does not sign.
 
-The object above is the **receipt**. A ticket with a [Respond](/tickets/actions.md#resp-answer-the-caller) action answers what that action composed instead, and `consumeTicket()` resolves with that body as sent, whatever its status: `consumeTicket<{ ok: boolean }>(...)` names its type.
+The object above is the **receipt**. A ticket with a [Respond](/tickets/actions.md#resp-answer-the-caller) action answers what that action composed instead, and `consumeTicket()` resolves with that body as sent, whatever its status: `consumeTicket<{ ok: boolean }>(...)` names its type. A ticket with a [Concurrency](#one-at-a-time-concurrency) setting whose slots are all taken resolves with a receipt marked `queued: true` and the call's `position`; its actions run when its turn comes.
 
 A failed consumption rejects with a `SkapiError` whose `code` is the ticket error code and whose `cause` is the whole error body. See [What consumeTicket() Rejects With](/tickets/errors.md#what-consumeticket-rejects-with).
 
@@ -278,7 +337,7 @@ Success answers `200` with `application/json`, the receipt:
 { "tkid": "#order-paid#UwdAhf6k3Qp#203.0.113.7(curl/8.5.0)", "hash": "..." }
 ```
 
-A ticket with a [Respond](/tickets/actions.md#resp-answer-the-caller) action answers that action's `status` and `body` instead, at the moment it runs; the rest of the chain can go on in the background.
+A ticket with a [Respond](/tickets/actions.md#resp-answer-the-caller) action answers that action's `status` and `body` instead, at the moment it runs; the rest of the chain can go on in the background. A ticket with a [Concurrency](#one-at-a-time-concurrency) setting whose slots are all taken answers `202` with the receipt marked `queued: true`, or `TICKET_BUSY` when it refuses when full.
 
 A failure answers `400`, or `200` when the ticket has **Always answer 200** on, with a flat JSON error:
 

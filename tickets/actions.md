@@ -638,6 +638,7 @@ What a queued run costs and what can stop it:
 - A delay is counted to the minute: a run queued for `"10m"` starts between ten and eleven minutes later. A fixed time starts on the second.
 - Deleting the ticket drops its runs that are still waiting, when they come due; so does deleting the project. A run that cannot be started after three tries is written to the log as a failed row with `skipped`, and so is a run that comes due while its ticket is switched off, with `skipped: disabled` (see [Disabling a ticket](/tickets/introduction.md#disabling-a-ticket)).
 - A `req` to a ticket URL of this project (`/tp/`, `/tg/` or `/tpa/<service_id>/`) is accepted only after a Respond on its chain path, so such a call is always made from a queued run: counted, delayed or scheduled, and logged. Registration refuses it anywhere earlier; see [URL and address rules](#url-and-address-rules).
+- On a ticket with a **Concurrency** setting, a run that waits holds the consumption's slot for the whole wait: a ticket with Concurrency `1` whose chain answers with `"resume": "1d"` is full for that day, and a call made to it meanwhile waits in its line or is refused with `TICKET_BUSY`, as its **When full** says. See [One at a time: concurrency](/tickets/introduction.md#one-at-a-time-concurrency).
 
 ## Error Chains With `${error}`
 

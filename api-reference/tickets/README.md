@@ -2,7 +2,7 @@
 
 Below are the parameters and return data type references for the methods in TypeScript format.
 
-Tickets are registered from the dashboard's **Tickets** page by the project owner. The SDK has no public register method. See [Tickets](/tickets/introduction.md).
+Tickets are registered from the dashboard's **Tickets** page by the project owner, or by an AI agent through the MCP server's ticket tool. The SDK has no public register method. The fields a registration takes are listed under [Ticket fields](/tickets/introduction.md#ticket-fields); `concurrency` (`1` to `100`, or `null` for unlimited) and `when_full` (`"queue"` or `"refuse"`, `"queue"` when left out; it needs `concurrency`) are described under [One at a time: concurrency](/tickets/introduction.md#one-at-a-time-concurrency). See [Tickets](/tickets/introduction.md).
 
 You can import the types in a TypeScript project as below:
 
@@ -26,7 +26,7 @@ consumeTicket<T = TicketReceipt>(
         auth?: boolean; // Send the call as the logged-in user: to the /tpa/ route, with the user's id token in the Authorization header. POST only. The one call that carries a user: ${user}, the user and record_access conditions and the per-user limit see only this. forwardRequest() cannot reach that route.
         data?: { [key: string]: any }; // The request data: the JSON body of a POST, read by body rows and ${body}, or the query string of a GET, read by params rows and ${params}.
     }
-): Promise<T> // The receipt below, or the body a Respond action of the ticket answered.
+): Promise<T> // The receipt below, the body a Respond action of the ticket answered, or the queued receipt of a call that waits for a concurrency slot.
 
 type TicketReceipt = {
     ticket_id: string;  // The ticket consumed.
@@ -36,6 +36,18 @@ type TicketReceipt = {
     timestamp: number;  // When the consumption happened, in milliseconds. Decoded from consume_id.
     hash: string;       // Proof string of the consumption.
 }
+
+// What the endpoint answers, HTTP 202 (200 under return200), when the ticket has a concurrency
+// setting and every slot is taken while it waits when full: the call has passed every check and
+// counts, and its actions run when its turn comes.
+{
+    queued: true;
+    position: number;    // The call's place in the line, 1 = next.
+    consume_id: string;
+    ticket_id: string;
+    tkid: string;        // The log row key, as a plain success answers it.
+    hash: string;        // Proof string of the consumption.
+}
 ```
 
 Sends the request to `https://<first 4 characters of the project id>.skapi.dev/`: `POST /tpa/` with `auth`, `POST /tp/` anonymous, and `GET /tg/` with `data` as the query string. A POST carries `data` as the JSON body with `Content-Type: application/json`, a GET carries it as the query string and no body; with `auth: true` the user's Skapi id token goes in the `Authorization` header, without it no `Authorization` header is sent; beside `Accept` and the SDK's own `Content-Meta` header, every other header is the browser's. The `/tpa/` route is never called by hand.
@@ -43,6 +55,7 @@ Sends the request to `https://<first 4 characters of the project id>.skapi.dev/`
 **Behavior:**
 - The body is inspected whatever the HTTP status. A body with `stage` is an error, including a `200` from a ticket with `return200`, and the promise rejects with `new SkapiError(body.message, { code: body.code, cause: body })`, so `err.code`, `err.cause.stage`, `err.cause.action` and `err.cause.detail` are available. `err.cause` is a [TicketError](#ticketerror).
 - A body without `stage` is a success. The promise resolves with the receipt above, or, when a [Respond](/tickets/actions.md#resp-answer-the-caller) action of the ticket answered, with the `body` it composed, as sent and whatever its status (a Respond with no `body` answers the receipt). `T` names that body's type: `consumeTicket<{ ok: boolean }>(...)`.
+- A ticket with a [concurrency](/tickets/introduction.md#one-at-a-time-concurrency) setting whose slots are all taken answers, when it waits when full, the queued receipt above (`queued: true`): the promise resolves with it, and the ticket's actions run later, so no Respond body of theirs reaches the caller. When the ticket refuses when full, or calls itself and the call is not its own next round, the promise rejects with `TICKET_BUSY` (HTTP `429`, `200` under `return200`), `err.cause.detail` holding `{ concurrency, running, waiting, self_calling }`.
 - `auth: true` with `method: 'GET'` throws before anything is sent.
 - `SkapiError.cause` is typed `Error | TicketError`. In TypeScript, narrow it with `'stage' in err.cause` before reading the ticket keys.
 
@@ -86,6 +99,11 @@ getTickets(
     enabled?: boolean;                 // false while the owner has the ticket switched off: every call answers TICKET_DISABLED and a queued run that comes due is skipped, logged with skipped: disabled.
     queued?: number;                   // Queued runs of the ticket still waiting to come due. The dashboard's Status cell reads queued (or recursing) while this is above 0, idle otherwise.
     queued_due?: number;               // When the most recently queued run comes due, in milliseconds since the epoch.
+    concurrency?: number;              // How many consumptions may be in flight at once, 1 to 100. Absent = unlimited.
+    when_full?: 'queue' | 'refuse';    // What a call gets when every slot is taken: a place in the line and a 202 receipt, or TICKET_BUSY. Absent = 'queue'. Only with concurrency.
+    running?: number;                  // Consumptions in flight now: running, or waiting to go on after a Respond. Only with concurrency.
+    waiting?: number;                  // Calls waiting in the ticket's line for a slot. Only with concurrency.
+    self_calling?: boolean;            // true when an action of the ticket, at any depth, is a req to the ticket's own endpoint: while it is full only its own next round may wait, every other call gets TICKET_BUSY.
     condition?: TicketCondition;
     actions?: TicketAction[];
     legacy?: boolean;
@@ -397,6 +415,7 @@ type TicketError = {
         'TICKET_EXPIRED' |
         'TICKET_EXHAUSTED' |
         'USER_LIMIT_REACHED' |
+        'TICKET_BUSY' |
         'ISSUER_CANNOT_CONSUME' |
         'AUTH_REQUIRED' |
         'METHOD_NOT_ALLOWED' |
@@ -416,7 +435,7 @@ type TicketError = {
         act: 'acsg' | 'acsr' | 'pstr' | 'req' | 'resp' | 'cond';
         path: string; // The failed action's place in the ticket, such as "actions[1].err[0]".
     };
-    detail?: { [key: string]: any }; // Code specific, such as { field, keys } on CONDITION_FAILED and { status, body } or { reason } on REQUEST_FAILED. See the error table.
+    detail?: { [key: string]: any }; // Code specific, such as { field, keys } on CONDITION_FAILED, { status, body } or { reason } on REQUEST_FAILED, and { concurrency, running, waiting, self_calling } on TICKET_BUSY. See the error table.
     ticket_id: string;
 }
 ```

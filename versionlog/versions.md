@@ -1,6 +1,15 @@
 # Version History
 
-### Current version: 2.2.18
+### Current version: 2.2.20
+
+**2.2.20**
+
+- **Tickets run one at a time when you say so.** `Ticket` gains **`concurrency`** (how many consumptions may be in flight at once, 1 to 100; absent = unlimited) and **`when_full`** (`'queue'`, the default, or `'refuse'`), set on the Tickets page or with the MCP server's ticket tool. In flight means running now, or answered with a Respond whose rest still waits to go on: the wait holds its slot. With `'queue'`, a call that finds every slot taken gets its receipt at once (HTTP 202, `queued: true` and `position` on `TicketReceipt`) and its chain runs when its turn comes, first in first out; with `'refuse'` it rejects with the new code **`TICKET_BUSY`** (HTTP 429, 200 under `return200`). A ticket whose actions call its own endpoint keeps its line to itself: while it is full only its own next round may wait, and an outside call is refused even under `'queue'`, so a repeating ticket started once cannot be started twice. `getTickets()` rows carry `running`, `waiting` and `self_calling`. See [One at a time: concurrency](/tickets/introduction.md#one-at-a-time-concurrency).
+- Backend (ships with the API, not the SDK): a run that waited in the line counts as a queued run on the month's figure; a dry run never takes a slot.
+
+**2.2.19**
+
+- **`verifyAnonymousSession()`**: a temporary anonymous session brought back from storage on a page load may belong to an account the server has already swept, even though its token has not expired. This awaits the one keep-alive beat the SDK sends for a restored anonymous session (the stored token as it is, no token refresh) and resolves with the current profile, or `null` when the account is gone, so the page can call `anonymousLogin()` again before it relies on the session (for example before `connectRealtime()`). For a signed-in or signed-out session it simply returns the current profile.
 
 **2.2.18**
 

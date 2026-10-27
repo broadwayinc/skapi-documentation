@@ -25,7 +25,7 @@ E-mail sends are the mails a project chooses to send: every recipient of a newsl
 
 File storage is one pooled figure covering your web hosting, your record file attachments and your AI indexed files.
 
-Queued ticket runs are the runs of a ticket that go on after a Respond action answered the caller: at once, after a delay or at a time. See [Queued ticket runs](#queued-ticket-runs).
+Queued ticket runs are the runs of a ticket that go on after a Respond action answered the caller: at once, after a delay or at a time. A call that waited its turn in the line of a ticket with a Concurrency setting is one too. See [Queued ticket runs](#queued-ticket-runs).
 
 A Trial project never expires and needs no card.
 
@@ -90,9 +90,9 @@ Storage overage is time weighted rather than a high water mark, so a project tha
 
 ## Queued ticket runs
 
-A ticket's [Respond](/tickets/actions.md#resp-answer-the-caller) action answers the caller at once and can let the rest of the chain go on later: right away in the background, after a delay, or at a time. Every run that goes on is a **queued run**, counted for the UTC month it was queued in. Trial includes 100 a month, Standard 10,000 and Premium 100,000; Premium is billed $1.00 per 1,000 past that.
+A ticket's [Respond](/tickets/actions.md#resp-answer-the-caller) action answers the caller at once and can let the rest of the chain go on later: right away in the background, after a delay, or at a time. Every run that goes on is a **queued run**, counted for the UTC month it was queued in. So is a call that waited its turn in the line of a ticket with a [Concurrency](/tickets/introduction.md#one-at-a-time-concurrency) setting: it is answered with a receipt at once and runs when a slot frees, the same shape of run. Trial includes 100 a month, Standard 10,000 and Premium 100,000; Premium is billed $1.00 per 1,000 past that.
 
-When the month's figure is reached, the project's pages at skapi.com show a banner saying so (on Premium, that the rest is billed as overage). On Trial and Standard a Respond that would queue a run past the month's figure fails with `QUOTA_EXCEEDED` at that action: the ticket's other actions, and every Respond that stops, keep working, and the count resets with the month. The **Plan & Usage** card of the project shows the month's queued runs against the plan, and the Tickets page says so when they are used up. See [Going on later](/tickets/actions.md#going-on-later-queued-runs).
+When the month's figure is reached, the project's pages at skapi.com show a banner saying so (on Premium, that the rest is billed as overage). On Trial and Standard a Respond that would queue a run past the month's figure fails with `QUOTA_EXCEEDED` at that action, and a call that would join a ticket's line past it is refused with the same code instead of waiting: the ticket's other actions, and every Respond that stops, keep working, and the count resets with the month. The **Plan & Usage** card of the project shows the month's queued runs against the plan, and the Tickets page says so when they are used up. See [Going on later](/tickets/actions.md#going-on-later-queued-runs).
 
 The log rows a ticket writes (its consumptions and their action rows) count toward the project's database storage, shown as their own part of the Database figure on Plan & Usage. They are kept 30 days on Trial, 90 days on Standard and for good on Premium, then expire on their own; deleting a ticket deletes its logs, and the owner can [clear a ticket's log](/tickets/errors.md#clearing-the-log) before a time at any moment.
 

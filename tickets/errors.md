@@ -19,7 +19,7 @@ A ticket the **Tickets** page marks **previous rules** answers differently until
 
 A success body never has `stage`; an error body always does. That is how [`consumeTicket()`](/api-reference/tickets/README.md#consumeticket) tells them apart, whatever the HTTP status.
 
-The status is `400`, or `200` when the ticket's `return200` is on. `INTERNAL_ERROR` is always `500`; `return200` never downgrades it.
+The status is `400`, or `200` when the ticket's `return200` is on. `TICKET_BUSY` is `429` (`200` under `return200`). `INTERNAL_ERROR` is always `500`; `return200` never downgrades it.
 
 `action.path` names the action that failed, counted from the ticket's `actions` list: `actions[1].err[0]` is the first action of the error chain of the second action, and `actions[2].actions[0]` is the first nested action of the third, a `req`.
 
@@ -34,6 +34,7 @@ The status is `400`, or `200` when the ticket's `return200` is on. `INTERNAL_ERR
 | `TICKET_DISABLED` | ticket | the owner switched the ticket off with the switch at the top of its detail view. Every call gets it, dry runs included, and a queued run of the ticket that comes due is skipped and logged as a failed row with `skipped: disabled`; the definition, count, per-user counters and log are kept. See [Disabling a ticket](/tickets/introduction.md#disabling-a-ticket) | |
 | `TICKET_EXHAUSTED` | ticket | `count <= 0` | |
 | `USER_LIMIT_REACHED` | ticket | per-user limit hit | `{ "limit": <limit_per_user>, "used": <consumptions by this user> }` |
+| `TICKET_BUSY` | ticket | every slot of a ticket with a **Concurrency** setting is taken and the ticket refuses when full, or the ticket calls itself and the call is not its own next round (a self-calling ticket keeps its line to itself, whatever **When full** says). HTTP `429`, `200` under `return200`. Raised after the condition passed, before any action: nothing is consumed. Logged as a failed row, unlike the other ticket-stage refusals, and never retried by a `req`. See [One at a time: concurrency](/tickets/introduction.md#one-at-a-time-concurrency) | `{ "concurrency": n, "running": <in flight>, "waiting": <in the line>, "self_calling": true \| false }` |
 | `ISSUER_CANNOT_CONSUME` | ticket | consumer is the ticket issuer | |
 | `AUTH_REQUIRED` | ticket, condition or action | a user is needed and the route is anonymous (a `user` or `record_access` condition, which a webhook can never pass, an action with no `user_id`, or a `${user}` reference), or the token is from another project | |
 | `METHOD_NOT_ALLOWED` | condition | `condition.method` mismatch | `{ "expected": "POST", "received": "GET" }` |
@@ -44,7 +45,7 @@ The status is `400`, or `200` when the ticket's `return200` is on. `INTERNAL_ERR
 | `TIMEOUT` | action | the 25 s consumption budget ran out before an action (or its HTTP call) could start; its `err` chain is skipped | `{ "elapsed_ms": n }` |
 | `ACTION_FAILED` | action | the underlying Skapi operation refused (record post, access grant, group update) | `{ "code": "<the operation's code>", "message": "<its message>" }` |
 | `ACTION_FORBIDDEN` | action | the action is not available to this project | |
-| `QUOTA_EXCEEDED` | action (`resp`, `mail`, `nlsd`) | a Respond would queue a run past the month's queued ticket runs, on a plan that stops there (Trial, Standard): `{ "field": "tkq", "limit": n, "used": n, "month": "YYYYMM" }`, see [Going on later](/tickets/actions.md#going-on-later-queued-runs). A Send e-mail or a Send newsletter past the month's e-mail sends, the Trial owner cap or the complaint shutoff: `{ "field": "emlsd" }`, see [Sending limits](/email/newsletters.md#sending-limits) | |
+| `QUOTA_EXCEEDED` | action (`resp`, `mail`, `nlsd`), or ticket | a Respond would queue a run past the month's queued ticket runs, on a plan that stops there (Trial, Standard): `{ "field": "tkq", "limit": n, "used": n, "month": "YYYYMM" }`, see [Going on later](/tickets/actions.md#going-on-later-queued-runs); the same figure and detail, at stage `ticket`, for a call that would wait in a ticket's [line](/tickets/introduction.md#one-at-a-time-concurrency) past it. A Send e-mail or a Send newsletter past the month's e-mail sends, the Trial owner cap or the complaint shutoff: `{ "field": "emlsd" }`, see [Sending limits](/email/newsletters.md#sending-limits) | |
 | `ALREADY_RESPONDED` | action (`resp`) | a Respond ran after the consumer was already answered | `{ "path": "actions[2]" }` |
 | `INTERNAL_ERROR` | any | unexpected exception (reported to Skapi) | |
 
@@ -82,7 +83,7 @@ Errors raised before the request is sent, such as a missing `ticket_id` or `auth
 
 Webhook senders retry when an endpoint answers anything but 2xx. Most of the time a failed consumption is a request you chose not to handle, such as an event type the condition filters out, and a retry would fail the same way, so the retries only fill the log. `return200: true` answers `200` in those cases. The body is unchanged, so a caller that reads it still sees the error, the Log tab still shows the failure, and `consumeTicket()` still rejects, because it discriminates on `stage` and not on the status.
 
-`return200` covers every failure raised once the ticket has been read, `TICKET_EXPIRED`, `TICKET_EXHAUSTED`, `USER_LIMIT_REACHED` and `ISSUER_CANNOT_CONSUME` included. `INVALID_SERVICE`, `SERVICE_DISABLED`, `TICKET_NOT_FOUND` and the `AUTH_REQUIRED` for a token from another project are raised before the ticket is read, so they are always `400`.
+`return200` covers every failure raised once the ticket has been read, `TICKET_EXPIRED`, `TICKET_EXHAUSTED`, `USER_LIMIT_REACHED`, `ISSUER_CANNOT_CONSUME` and `TICKET_BUSY` included (the last is `429` otherwise). `INVALID_SERVICE`, `SERVICE_DISABLED`, `TICKET_NOT_FOUND` and the `AUTH_REQUIRED` for a token from another project are raised before the ticket is read, so they are always `400`.
 
 `INTERNAL_ERROR` is the exception: it is always answered with `500`, so the sender does retry, and by then the fault may be gone.
 
@@ -94,11 +95,11 @@ Every successful consumption is logged, and so is every dry run once the ticket 
 - every condition failure of a `consumeTicket()` call with `auth: true`,
 - on an anonymous endpoint, a condition failure only when the request passed `method`, `signature`, `ip`, `user_agent` and `headers` and failed on a later part: `body`, `params`, `user` or `record_access` (except the `X-Skapi-Ticket` loop-guard refusal, which is never logged on a real consumption). Such a request came from a caller that already looks like the intended sender.
 
-Ticket-stage failures of a real consumption (`TICKET_NOT_FOUND`, `TICKET_EXPIRED`, `TICKET_EXHAUSTED` and the rest) and failures of `method`, `signature`, `ip`, `user_agent` and `headers` on an anonymous endpoint are not logged, so a scanner hitting your endpoints does not fill the log.
+Ticket-stage failures of a real consumption (`TICKET_NOT_FOUND`, `TICKET_EXPIRED`, `TICKET_EXHAUSTED` and the rest) and failures of `method`, `signature`, `ip`, `user_agent` and `headers` on an anonymous endpoint are not logged, so a scanner hitting your endpoints does not fill the log. The one ticket-stage refusal that is logged is `TICKET_BUSY`: a call refused by a ticket's [Concurrency](/tickets/introduction.md#one-at-a-time-concurrency) setting leaves a failed row, so the limit can be seen at work.
 
 A failed consumption does not take from the count, and does not count toward the per-user limit. The one exception is a failure a Respond in an error chain answered: the consumer got an answer, so the count is consumed and the per-user counter moves, and the row shows `answered <status> (on error: <code>)`.
 
-A [queued run](/tickets/actions.md#going-on-later-queued-runs) writes a row of its own when it runs, marked **resumed** and naming the consumption it continues, with its own action rows under it.
+A [queued run](/tickets/actions.md#going-on-later-queued-runs) writes a row of its own when it runs, marked **resumed** and naming the consumption it continues, with its own action rows under it. A call that waited its turn in a ticket's [line](/tickets/introduction.md#one-at-a-time-concurrency) is logged the same way: the call itself as a row with a **queued** mark (it counts, like a consumption a Respond answered), and the run that followed as a **resumed** row naming it.
 
 ## The Log Row
 
@@ -119,7 +120,7 @@ A log row's `description` is a JSON string of this shape:
     "actions": [ { "path": "actions[0]", "act": "req", "ok": true, "result": <truncated 1 KB>, "attempts": 2, "retried": [ { code, message, ... } ] }
                | { "path": "actions[1]", "act": "pstr", "ok": false, "error": { code, message, detail } } ],
     "responded": { "status": 202, "path": "actions[1]", "at": <ms>, "body": <truncated 1 KB>, "from_error": true },  // what a Respond answered
-    "queued": { "due": <ms>, "run": "<id>", "kind": "now" | "delay" | "at" },  // the run that goes on later
+    "queued": { "due": <ms>, "run": "<id>", "kind": "now" | "delay" | "at" },  // the run that goes on later; { "kind": "line", "run": "<id>", "position": n } on a call that waits for a concurrency slot
     "error": { code, message, stage, action?, detail? }   // when ok == false
   }
 }
@@ -127,7 +128,7 @@ A log row's `description` is a JSON string of this shape:
 
 `outcome.actions` lists every action that ran, in order, with its answer or its error, so you can see how far a chain got; `attempts` and `retried` appear on an action that was [tried again](/tickets/actions.md#retrying-an-action), and `warning` on a Send e-mail or Send newsletter that went out but could not be counted or marked sent. `outcome.responded` is what a [Respond](/tickets/actions.md#resp-answer-the-caller) answered, and `outcome.queued` the queued run it left, when there is one. `outcome.placeholders` is the pool at the end. The whole string is capped at 60 KB: `data` is truncated first, then the action results.
 
-The row of a resumed run has, beside `outcome`, `continues` (the consume id of the consumption it goes on with), `queued_at`, `due`, `started`, `ended`, `waited` (ms), `kind` and `run` (its attempt number); a queued run that could not be started after three tries has `skipped` and a failed `outcome`, and so does a run that came due while its ticket was switched off, with `skipped: disabled`.
+The row of a resumed run has, beside `outcome`, `continues` (the consume id of the consumption it goes on with), `queued_at`, `due`, `started`, `ended`, `waited` (ms), `kind` and `run` (its attempt number); a queued run that could not be started after three tries has `skipped` and a failed `outcome`, and so does a run that came due while its ticket was switched off, with `skipped: disabled`. The run of a call that waited in a ticket's line has `kind: "line"`, and `self: true` when the call was the ticket's own next round (a `req` of the ticket to its own endpoint); its `outcome.responded` is what a Respond in the chain would have answered, delivered to nobody.
 
 ### The action rows
 

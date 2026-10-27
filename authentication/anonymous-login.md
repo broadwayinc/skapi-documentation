@@ -39,6 +39,19 @@ So:
 - A tab in the background keeps its account: browsers slow a background tab's timers, but not below the 10-minute beat.
 - A laptop asleep for an hour comes back to a deleted account. The next keep-alive learns this, signs the page out (`skapi.user` becomes `null` and the login listeners run with `null`), and the page can call `anonymousLogin()` again for a new account.
 
+To know before the page acts, await [`verifyAnonymousSession()`](/api-reference/authentication/README.md#verifyanonymoussession) on load.
+It waits for that first keep-alive and resolves with the profile, or with `null` once the account is gone, so the page can make a fresh account instead of failing its first request:
+
+```js
+let user = await skapi.verifyAnonymousSession();
+if (!user) {
+    user = await skapi.anonymousLogin();
+}
+await skapi.connectRealtime(handler);
+```
+
+For a signed-in or a signed-out session it simply resolves with the current profile, so the same lines are safe on every page.
+
 [`logout()`](/api-reference/authentication/README.md#logout) deletes an anonymous account at once. So does [`signup()`](/api-reference/authentication/README.md#signup), which logs out before it creates the new account.
 [`login()`](/api-reference/authentication/README.md#login) and [`openIdLogin()`](/api-reference/authentication/README.md#openidlogin) replace the session without a logout; the anonymous account they leave behind is deleted 30 minutes later.
 
