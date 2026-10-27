@@ -35,6 +35,8 @@ type TicketReceipt = {
     is_test: boolean;   // Always false here: dry runs go through the check URL, which consumeTicket() never calls.
     timestamp: number;  // When the consumption happened, in milliseconds. Decoded from consume_id.
     hash: string;       // Proof string of the consumption.
+    queued?: true;      // The call waited for a concurrency slot: this is the queued receipt below, and the actions run later.
+    position?: number;  // With queued: the call's place in the line, 1 = next.
 }
 
 // What the endpoint answers, HTTP 202 (200 under return200), when the ticket has a concurrency
@@ -99,15 +101,15 @@ getTickets(
     enabled?: boolean;                 // false while the owner has the ticket switched off: every call answers TICKET_DISABLED and a queued run that comes due is skipped, logged with skipped: disabled.
     queued?: number;                   // Queued runs of the ticket still waiting to come due. The dashboard's Status cell reads queued (or recursing) while this is above 0, idle otherwise.
     queued_due?: number;               // When the most recently queued run comes due, in milliseconds since the epoch.
-    concurrency?: number;              // How many consumptions may be in flight at once, 1 to 100. Absent = unlimited.
-    when_full?: 'queue' | 'refuse';    // What a call gets when every slot is taken: a place in the line and a 202 receipt, or TICKET_BUSY. Absent = 'queue'. Only with concurrency.
+    concurrency?: number;              // How many consumptions may be in flight at once, 1 to 100. Absent = unlimited. A self-calling ticket (a closed loop) should always have 1: while it runs, every other request gets TICKET_BUSY whatever when_full says, so one loop can never become two; without the setting every extra call starts another copy that re-queues itself forever.
+    when_full?: 'queue' | 'refuse';    // What a call gets when every slot is taken: a place in the line and a 202 receipt, or TICKET_BUSY. Absent = 'queue'. Only with concurrency. No effect on a self-calling ticket: its own next round always waits, everyone else is refused.
     running?: number;                  // Consumptions in flight now: running, or waiting to go on after a Respond. Only with concurrency.
     waiting?: number;                  // Calls waiting in the ticket's line for a slot. Only with concurrency.
     self_calling?: boolean;            // true when an action of the ticket, at any depth, is a req to the ticket's own endpoint: while it is full only its own next round may wait, every other call gets TICKET_BUSY.
     condition?: TicketCondition;
     actions?: TicketAction[];
-    legacy?: boolean;
-    rules_version?: number; // The rules the ticket was saved under: 2 = an HTTP request answers the whole response. Absent on a ticket saved before 2026-10-09, which keeps answering the body alone until it is saved again. Project owner only. See https://docs.skapi.com/deprecated/deprecated.html#a-request-s-answer-was-its-body                  // true: marked "previous rules" on the dashboard. It runs by the rules it was saved with until it is registered again.
+    legacy?: boolean;                  // true: marked "previous rules" on the dashboard. It runs by the rules it was saved with until it is registered again.
+    rules_version?: number;            // The rules the ticket was saved under: 2 = an HTTP request answers the whole response. Absent on a ticket saved before 2026-10-09, which keeps answering the body alone until it is saved again. Project owner only. See https://docs.skapi.com/deprecated/deprecated.html#a-request-s-answer-was-its-body
 }[]>>
 ```
 
@@ -368,7 +370,7 @@ type TicketAction =
         exe: {
             status?: number | string; // 100 to 599, or a reference. Default 200. An error status is an answer, not a failure.
             body?: any; // Any JSON, templated. Absent: the receipt { tkid, hash }. A "stage" key is refused.
-            resume?: 'stop' | '0m' | string | number; // After the answer: "stop" (default), "0m" (go on at once, in the background), "10m" | "2h" | "3d" (after that delay), or a time in milliseconds since the epoch (a literal in the past is refused). A run that goes on is a queued run, metered per month.
+            resume?: 'stop' | '0m' | string | number; // After the answer: "stop" (default), "0m" (go on at once, in the background), "10m" | "2h" | "3d" (after that delay, rounded to the nearest whole minute: the run starts a few seconds after that :00), or a time in milliseconds since the epoch (a literal in the past is refused, a fixed time starts on the second). A run that goes on is a queued run, metered per month.
         };
         err?: TicketAction[];
     }
@@ -432,7 +434,7 @@ type TicketError = {
     message: string; // Human readable, one sentence.
     stage: 'ticket' | 'condition' | 'action';
     action?: { // Only when stage is 'action'.
-        act: 'acsg' | 'acsr' | 'pstr' | 'req' | 'resp' | 'cond';
+        act: 'acsg' | 'acsr' | 'pstr' | 'req' | 'mail' | 'nlsd' | 'resp' | 'cond';
         path: string; // The failed action's place in the ticket, such as "actions[1].err[0]".
     };
     detail?: { [key: string]: any }; // Code specific, such as { field, keys } on CONDITION_FAILED, { status, body } or { reason } on REQUEST_FAILED, and { concurrency, running, waiting, self_calling } on TICKET_BUSY. See the error table.

@@ -482,6 +482,7 @@ A ticket that runs on its own every half hour, with nothing outside Skapi callin
 {
   "ticket_id": "poster",
   "description": "Posts a record every 30 minutes",
+  "concurrency": 1,
   "condition": { "method": "GET" },
   "actions": [
     { "act": "resp", "exe": { "status": 200, "body": { "ok": true }, "resume": "30m" } },
@@ -493,7 +494,11 @@ A ticket that runs on its own every half hour, with nothing outside Skapi callin
 
 `"resume": "30m"`. The Respond answers the caller and leaves the rest of the chain to a queued run half an hour later: the record is posted, then the `req` calls the ticket's own GET endpoint, which answers at once and queues the next round. The `req` is allowed because the Respond comes before it in the chain: the self-call is made from a queued run, counted, delayed and logged like any other. The same `req` placed before the Respond, or in a ticket with no Respond, is refused when you register, since the call would then run inside the request it is answering (see [URL and address rules](/tickets/actions.md#url-and-address-rules)). Open the endpoint once in a browser to start it; switch the ticket off (the switch at the top of the ticket, or `disable` from the MCP server) to stop it, and the round that was waiting is skipped and logged as a failed row with `skipped: disabled`.
 
-Give such a ticket **Concurrency** `1` and **When full** set to **Wait in line** (`"concurrency": 1, "when_full": "queue"` in the JSON). One slot means one round in flight at a time: the waiting round holds it, so the loop can never run twice at once, and a second click on the link while it runs is refused with `TICKET_BUSY` instead of starting a second copy of the loop. The self-call at the end of each round finds the slot still taken by the round making it, waits in the line, and starts the moment that round is over. With **Refuse** the self-call would be refused too, and the loop would end after one round. See [One at a time: concurrency](/tickets/introduction.md#one-at-a-time-concurrency).
+The rounds land on whole minutes: a delay is rounded to the nearest `:00`, so a loop started at 10:00 runs at 10:30, 11:00 and so on, however many seconds each round takes (see [Going on later](/tickets/actions.md#going-on-later-queued-runs)).
+
+`"concurrency": 1` is part of the recipe. One slot means one round in flight at a time: the waiting round holds it, so the loop can never run twice at once, and a second click on the link while it runs is refused with `TICKET_BUSY` instead of starting a second copy of the loop. The self-call at the end of each round finds the slot still taken by the round making it, waits in the line, and starts the moment that round is over. **When full** has no effect on a ticket that calls itself: its own next round always waits and everyone else is always refused, so there is nothing to set there. See [One at a time: concurrency](/tickets/introduction.md#one-at-a-time-concurrency).
+
+Do not register a ticket like this without the setting. Without a concurrency limit every extra call to its link (a second click, a browser prefetch, a webhook retry, a crawler) starts another copy of the loop, each copy re-queues itself forever, and the copies multiply their records, API calls and queued runs until the ticket is switched off. See [Closed loops](/tickets/introduction.md#one-at-a-time-concurrency).
 
 Each round is one queued ticket run against the plan's month, two with Concurrency 1 (the waiting round, and the self-call's place in the line): 48 rounds a day, about 1,440 a month, or about 2,880 with the setting. On Trial, whose month holds 100, the loop stops at the figure with `QUOTA_EXCEEDED` at the Respond (or at the self-call's entry into the line) and the dashboard shows the banner; Standard holds 10,000 and Premium 100,000 before overage. A round with no wait (`"resume": "0m"`) is not a timer: each round is still a queued run against the month's figure, and the rounds follow one another as fast as the queue starts them, so the figure is what ends the loop. A `req` to itself with no Respond before it cannot be registered at all.
 

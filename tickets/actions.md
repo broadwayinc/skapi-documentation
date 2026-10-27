@@ -83,7 +83,7 @@ Templating only touches string **values**, never object keys. `"amount": "${body
 ## `acsg`: set the access group of a user
 
 ```ts
-exe: { group: number (1..99) | "admin", user_id?: string }
+exe: { group: number (1..99) | "admin", user_id?: string, actions?: Action[] }   // actions: the Then chain, reading the SUCCESS text as ${response}
 ```
 
 The target is `user_id`, or the consumer when `user_id` is absent (on a call that is not `consumeTicket()` with `auth: true`, that raises `AUTH_REQUIRED`). `"admin"` is access group `99`.
@@ -101,7 +101,7 @@ Answers the text the grant returns, `SUCCESS: Access has been granted to the use
 ## `acsr`: grant private access to a record
 
 ```ts
-exe: { record_id: string, user_id?: string | string[] }
+exe: { record_id: string, user_id?: string | string[], actions?: Action[] }   // actions: the Then chain, reading the SUCCESS text as ${response}
 ```
 
 The targets are `user_id` (one id or a list; on the dashboard, ids separated by commas), or the consumer. `record_id` must be a record id, not a unique id.
@@ -513,7 +513,7 @@ A Respond answers the consumer **now**, with `status` and `body`, instead of the
 |---|---|
 | absent, or `"stop"` | the rest of the chain does not run |
 | `"0m"` | the rest of the chain goes on at once, in the background |
-| `"10m"`, `"2h"`, `"3d"` | it goes on after that delay, to the minute: ten minutes means ten minutes plus up to a minute |
+| `"10m"`, `"2h"`, `"3d"` | it goes on after that delay, rounded to the nearest whole minute: the run starts a few seconds after that :00, so a chain that repeats keeps its grid (see [Going on later](#going-on-later-queued-runs)) |
 | a number | a time in milliseconds since the epoch: it goes on at that time, to the second. A literal time in the past is refused at registration; a time a reference fills in that is already past goes on at once |
 
 Anything else is refused: `"actions[0].exe.resume" should be "stop", "0m", a delay such as "10m", "2h" or "3d", or a time in milliseconds since the epoch.` Every run that goes on is a **queued run**, counted against the plan's monthly figure; see [Going on later](#going-on-later-queued-runs).
@@ -635,7 +635,7 @@ A Respond with `resume` other than `"stop"` ends the consumption for the caller 
 What a queued run costs and what can stop it:
 
 - Every run that goes on counts toward the plan's **queued ticket runs** for the UTC month. When the month's figure is reached the dashboard shows a banner on the project's pages, and the same two numbers are on the `Settings` page under Plan & Usage. The figures: Trial 100, Standard 10,000, Premium 100,000 and $1.00 per 1,000 past that. On Trial and Standard a Respond that would queue a run past the month's figure fails with `QUOTA_EXCEEDED` (`Queued ticket runs for this month are used up. Consider upgrading your plan.`, `detail: { field: "tkq", limit, used, month }`) before it answers; its `err` chain runs, and a Respond that stops is never affected. The **Plan & Usage** card shows the month's figure, and the Tickets page says so when it is used up. See [Plans and Limits](/introduction/plans.md#queued-ticket-runs).
-- A delay is counted to the minute: a run queued for `"10m"` starts between ten and eleven minutes later. A fixed time starts on the second.
+- A delay is rounded to the nearest whole minute (`:00` seconds) and the run starts a few seconds after it: `"10m"` queued at 10:00:04 goes on at 10:10:00, queued at 10:00:40 at 10:11:00. That is what keeps a repeating ticket on its grid: a round that starts at 10:00:00 and takes a few seconds queues 10:30:00, not 10:30:03, so the rounds stay on the same minutes however long the loop runs (as long as a round's own work takes under 30 seconds). A fixed time starts on the second.
 - Deleting the ticket drops its runs that are still waiting, when they come due; so does deleting the project. A run that cannot be started after three tries is written to the log as a failed row with `skipped`, and so is a run that comes due while its ticket is switched off, with `skipped: disabled` (see [Disabling a ticket](/tickets/introduction.md#disabling-a-ticket)).
 - A `req` to a ticket URL of this project (`/tp/`, `/tg/` or `/tpa/<service_id>/`) is accepted only after a Respond on its chain path, so such a call is always made from a queued run: counted, delayed or scheduled, and logged. Registration refuses it anywhere earlier; see [URL and address rules](#url-and-address-rules).
 - On a ticket with a **Concurrency** setting, a run that waits holds the consumption's slot for the whole wait: a ticket with Concurrency `1` whose chain answers with `"resume": "1d"` is full for that day, and a call made to it meanwhile waits in its line or is refused with `TICKET_BUSY`, as its **When full** says. See [One at a time: concurrency](/tickets/introduction.md#one-at-a-time-concurrency).

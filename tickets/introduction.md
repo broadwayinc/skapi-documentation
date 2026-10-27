@@ -18,9 +18,9 @@ There is no rollback: actions that already ran stay applied when a later one fai
 
 Tickets are registered from the dashboard. Open your project, click **Tickets** in the project menu, then **+ Register Ticket**.
 
-![The Tickets page of a project: the Register Ticket button, a search box, and a table of registered tickets with their id, Status cell, description, remaining count, per-user limit, expiry and actions](/screenshots/tickets-list.webp)
+![The Tickets page of a project: the Register Ticket button, a search box, and a table of registered tickets with their id, Status cell, description, remaining count and per-user limit; the Status cells read idle, queued, idle with a red dot for a disabled ticket, and busy, 1 waiting](/screenshots/tickets-list.webp)
 
-*The Tickets page. Every registered ticket is one row with its Status: a green or red dot for enabled or disabled, then idle, queued or recursing. Click a row to open it, search by id or description, and tick rows to delete several at once.*
+*The Tickets page. Every registered ticket is one row with its Status: a green or red dot for enabled or disabled, then idle, queued, recursing or busy, with the number of calls waiting in the ticket's line when there are any. Click a row to open it, search by id or description, and tick rows to delete several at once.*
 
 The **Status** cell is a green dot (enabled) or a red dot (disabled), then one word: `idle` when no queued run of the ticket is waiting, `queued` when at least one queued run is waiting to come due, and `recursing` when a queued run is waiting and one of the ticket's actions, at any depth, is an HTTP request to a ticket URL of this project (a URL with `/tp/<service_id>/`, `/tg/<service_id>/` or `/tpa/<service_id>/`), the shape of a ticket that keeps itself going. A ticket with a **Concurrency** setting reads `busy` while every slot it has is taken, with the number of calls waiting in its line when there are any; see [One at a time: concurrency](#one-at-a-time-concurrency). The switch that turns a ticket on and off is at the top of its detail view; see [Disabling a ticket](#disabling-a-ticket).
 
@@ -36,9 +36,9 @@ The detail view has these sections:
 - **Actions**: what happens once the condition passes. See [Actions](/tickets/actions.md).
 - **Log**: on an existing ticket, every consumption. See [Reading the Log in the Dashboard](/tickets/errors.md#reading-the-log-in-the-dashboard).
 
-![A ticket opened in the dashboard: the Ticket and Log tabs, the Edit as JSON toggle with the Enabled switch next to it, the Ticket fields, and the Endpoints section with the POST, GET and Dry run URLs](/screenshots/tickets-register.webp)
+![A ticket opened in the dashboard: the Ticket and Log tabs, the Edit as JSON toggle with the Enabled switch next to it, the Ticket fields including Concurrency set to 3 and When full set to Wait in line, and the Endpoints section with the POST, GET and Dry run URLs](/screenshots/tickets-register.webp)
 
-*A ticket opened from the list, with its Enabled switch next to Edit as JSON. The same form registers a new ticket, and its Endpoints, POST, GET and Dry run, appear as soon as you type an id.*
+*A ticket opened from the list, with its Enabled switch next to Edit as JSON, and Concurrency with When full under Limit per user. The same form registers a new ticket, and its Endpoints, POST, GET and Dry run, appear as soon as you type an id.*
 
 ### Ticket fields
 
@@ -97,7 +97,11 @@ Each run that waited counts as one of the plan's [queued ticket runs](/introduct
 
 **Refuse.** When every slot is taken, a call fails with `TICKET_BUSY`, HTTP `429` (or `200` with **Always 200**), and none of its actions run: nothing is consumed. The error's `detail` carries `concurrency`, `running` (consumptions in flight), `waiting` (calls in the line) and `self_calling`. Unlike the other refusals made before a chain runs, it is written to the Log tab as a failed row, so you can see the limit at work. A `req` from another ticket that gets it does not try again, whatever its `retry` says.
 
-**A ticket that calls itself keeps its line to itself.** A ticket whose actions hold, at any depth, a `req` to its own endpoint is a **self-calling** ticket, the shape of one that keeps itself going: it answers, waits, does its work and calls its own URL for the next round. For such a ticket the line is only for its own next round. While it is full, any other call is refused with `TICKET_BUSY`, under Wait in line as under Refuse, and the message says why. So a bot started by opening its GET link once cannot be started a second time by opening the link again while it runs: the second click is told the ticket is busy, and a second copy of the loop is never born. Under Refuse the ticket's own next round is refused too and the loop ends after one round, so a self-calling ticket wants Concurrency `1` and Wait in line.
+**A ticket that calls itself keeps its line to itself.** A ticket whose actions hold, at any depth, a `req` to its own endpoint is a **self-calling** ticket, the shape of one that keeps itself going: it answers, waits, does its work and calls its own URL for the next round. For such a ticket the line is only for its own next round. While it is full, any other call is refused with `TICKET_BUSY`, under Wait in line as under Refuse, and the message says why. So a bot started by opening its GET link once cannot be started a second time by opening the link again while it runs: the second click is told the ticket is busy, and a second copy of the loop is never born. When full has no effect on such a ticket: its own next round always waits and everyone else is always refused, so all a self-calling ticket needs is Concurrency `1`.
+
+**Closed loops: Concurrency `1` and a self-calling ticket.** To put it plainly: while a self-calling ticket with Concurrency `1` is running, any other request to it is answered with `TICKET_BUSY`, whether When full is Wait in line or Refuse; the setting has no effect on a self-calling ticket, whose own next round always waits. So for a closed-loop recursive task, a job that must keep running on its own and must exist exactly once, Concurrency `1` on a self-calling ticket is the way to go: one copy, started by one call, refusing every other start until you switch it off.
+
+**Never run a self-calling ticket without a concurrency limit.** Without it, nothing stops a second copy. Every extra call to the ticket's endpoint, a second click on the link, a browser that prefetches it, a webhook sender that retries, a crawler that found the URL, starts another loop, and each loop re-queues itself forever. The copies multiply instead of ending: every one of them makes the chain's API calls, posts, e-mails and records, every one of them takes queued runs from the month's figure, and the only way out is switching the ticket off, which stops all of them at once. A loop with `"resume": "0m"` and no limit does all of this as fast as the queue can start rounds. Concurrency `1` turns that into one loop that cannot be doubled.
 
 A ticket that posts something once a day, started by one click:
 
@@ -107,7 +111,6 @@ A ticket that posts something once a day, started by one click:
   "description": "Posts one record a day",
   "condition": { "method": "GET" },
   "concurrency": 1,
-  "when_full": "queue",
   "actions": [
     { "act": "resp", "exe": { "status": 200, "body": { "ok": true }, "resume": "1d" } },
     { "act": "pstr", "exe": { "table": { "name": "daily", "access_group": "public" }, "data": { "at": "${ticket[timestamp]}" } } },
@@ -118,7 +121,7 @@ A ticket that posts something once a day, started by one click:
 
 Open the GET endpoint once in a browser: the Respond answers `{ "ok": true }` and the rest waits a day, holding the ticket's one slot. A day later the record is posted and the `req` calls the ticket's own URL; that call finds the slot still taken by the round that is making it, waits in the line, and starts the moment the round is over, holding the slot for the next day. Open the link again meanwhile and you get `TICKET_BUSY`. To stop the bot, switch the ticket off: the round that was waiting is skipped and logged with `skipped: disabled` (see [Disabling a ticket](#disabling-a-ticket)). Between the Respond and the self-call the chain can do anything an action can: fetch or generate what it posts with a `req` to an API and your [Secret Key](/tickets/actions.md#sending-a-secret-key), post a record, send an e-mail. See [Repeating Every 30 Minutes](/tickets/examples.md#repeating-every-30-minutes).
 
-In the list, the **Status** cell of a ticket with the setting reads `busy` while every slot is taken, with the number of calls waiting in its line when there are any. The ticket's [`getTickets()`](/api-reference/tickets/README.md#gettickets) row carries `concurrency`, `when_full`, `running` (in flight now), `waiting` (in the line) and `self_calling`.
+In the list, the **Status** cell of a ticket with the setting reads `busy` while every slot is taken, with the number of calls waiting in its line when there are any, and the ticket's **Log** tab shows the setting with the live running and waiting figures above the rows. The ticket's [`getTickets()`](/api-reference/tickets/README.md#gettickets) row carries `concurrency`, `when_full`, `running` (in flight now), `waiting` (in the line) and `self_calling`.
 
 An AI agent sets these with the MCP server's ticket tool (`concurrency` and `when_full` on `register`); you can also describe the whole bot in a sentence, such as "make me a bot that posts a developer joke every morning", and let it ask what it needs and register the ticket. See [Connecting the Skapi MCP server](/introduction/getting-started.md#connecting-the-skapi-mcp-server).
 
@@ -128,7 +131,7 @@ Changing Concurrency on a ticket with calls in flight applies to new calls; the 
 
 The **Edit as JSON** toggle at the top of the form shows the same ticket as one JSON document, which is the form the examples in this guide use:
 
-![The same ticket in JSON mode: the Edit as JSON toggle is on, the Ticket JSON editor holds the whole document, and an Apply button sits under it](/screenshots/tickets-json.webp)
+![The same ticket in JSON mode: the Edit as JSON toggle is on, the Ticket JSON editor holds the whole document with ticket_id, description, count, concurrency, when_full and the condition, and an Apply button sits under it](/screenshots/tickets-json.webp)
 
 *JSON mode. Edit or paste the whole ticket, click Apply to load it into the builder, then Register or Update to save.*
 
@@ -139,6 +142,9 @@ type Ticket = {
   count?: number | null;             // uses left; null = unlimited
   limit_per_user?: number | boolean | null; // per signed-in user; true = 1; false, 0 or null = no limit
   time_to_live?: number | null;      // expiry, ms since the epoch; null = never
+  enabled?: boolean;                 // false registers the ticket switched off; absent keeps the stored state (a new ticket is on)
+  concurrency?: number | null;       // calls in flight at once, 1 to 100; absent or null = unlimited
+  when_full?: "queue" | "refuse";    // with concurrency: a place in the line and a 202 receipt (default), or TICKET_BUSY
   condition?: {
     return200?: boolean;               // answer 200 even when it fails
     method?: "GET" | "POST";           // absent = both
@@ -227,7 +233,7 @@ type HttpRequest = {
   secretName?: string;               // fills ${CLIENT_SECRET}
   headers?: { [name: string]: string };
   data?: any;                        // body, POST and PUT only
-  params?: { [key: string]: string };
+  params?: { [key: string]: any };   // the query string; a value that is not text is sent as compact JSON
   actions?: Action[];                // read the response as ${response}: status, headers, body; a Check answer in it checks the response
 };
 ```
