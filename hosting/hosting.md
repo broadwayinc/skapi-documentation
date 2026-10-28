@@ -167,7 +167,7 @@ If you are using an **SPA framework** such as Vue, React, or Angular, **YOU MUST
 
 ## The CDN cache
 
-Your files are served through a CDN, which keeps a copy of each file close to your visitors for up to a day. That is what makes the site fast.
+Your files are served through a CDN, which keeps a copy of each file close to your visitors for up to six months. That is what makes the site fast, and it is safe because every change you make refreshes those copies, as described next.
 
 The CDN refreshes by itself whenever there is a change. About a minute after an upload, overwrite or delete finishes on the **Web Hosting** page (or through the [Skapi MCP server](/introduction/getting-started.md#connecting-the-skapi-mcp-server)), the CDN drops its copies of the whole site and fetches the new files on the next visit. Changes that land during that minute ride the same refresh. The **CDN cache** row on the **Web Hosting** page reads **Updating** while the refresh runs and **Live** when it is done. There is nothing to click.
 

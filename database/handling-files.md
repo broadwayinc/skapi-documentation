@@ -265,11 +265,21 @@ fileToDownload.getFile("base64", progressInfo).then((b) => {
 });
 ```
 
+## Browser Caching
+
+Every file uploaded to a record gets its own address, with the time of the upload in it.
+Uploading a file again, even the same file under the same name, makes a new address, and the old one is only ever deleted.
+A record file therefore never changes under its address, and it is stored with a **90-day browser cache**: once a browser has fetched a public file through its URL, it reuses its own copy for 90 days with no network request.
+The same applies to a private file fetched through its CDN URL with the user's token, for example one you reach through a granted private access key.
+Files uploaded before 2026-10-28 carry no such header, and browsers re-check those on their own schedule.
+
+Private files you read with `getFile()` take a different path, described next.
+
 ## Caching Expiring Files
 
-Files in a record whose access group is not `public` are **cached for one week automatically**.
+Files in a record whose access group is not `public` are **cached for 55 minutes automatically**: the SDK reads them through a signed URL that lives an hour, and the browser reuses the downloaded file for 55 minutes of it.
 Reading the same private file twice used to download it twice, because the URL a private file is served under changes on every read and browsers cache by URL.
-Now the first read downloads it and every read after that is served from the browser's own cache, with no network request at all, for a week.
+Now the first read downloads it and every read after that is served from the browser's own cache, with no network request at all, for 55 minutes; the next read after that mints a fresh URL and downloads it again.
 
 You do not have to do anything for this. It applies to every `getFile()` call on a `record.bin[...]` object:
 
@@ -285,7 +295,7 @@ skapi.getRecords({ record_id: "record_id_with_file" }).then((rec) => {
 To display a private file, take the URL from `getFile("endpoint")` rather than reading the `url` property:
 
 ```js
-let src = await file.getFile("endpoint"); // cached for a week
+let src = await file.getFile("endpoint"); // cached for 55 minutes
 imgElement.src = src;
 ```
 
