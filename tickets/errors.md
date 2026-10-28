@@ -159,7 +159,7 @@ The project owner lists them with [`getTickets()`](/api-reference/tickets/README
 
 ## Reading the Log in the Dashboard
 
-Open the ticket on the **Tickets** page and switch to the **Log** tab. On a ticket with a [Concurrency](/tickets/introduction.md#one-at-a-time-concurrency) setting, a line under the From and To fields shows the setting and the live figures: the Concurrency, whether the ticket waits in line or refuses when full (or that it is self-calling), how many calls are running and how many are waiting; the refresh icon re-reads them with the log. A ticket that calls itself without the setting shows a warning there instead.
+Open the ticket on the **Tickets** page and switch to the **Log** tab. A line under the From and To fields shows the ticket's [Concurrency](/tickets/introduction.md#one-at-a-time-concurrency) (`unlimited` when none is set), how many calls are running (counted on every ticket: running now, or answered with a Respond and waiting to go on) and, with the setting on, whether the ticket waits in line or refuses when full (or that it is self-calling) and how many calls are waiting; the refresh icon re-reads them with the log. A ticket that calls itself without the setting shows a warning there instead.
 
 ![The Log tab of a ticket: From and To fields and a Clear log link, under them a line reading Concurrency 3, waits in line when full, 2 running, 0 waiting, and below seven consumptions with their time, consumer and result: a run answered 202 and marked after the line, the receipt it followed marked in line, a resumed run, a consumption answered 202 and marked queued, two failures with their error code in red, and a dry run marked check, each with a Details link](/screenshots/tickets-logs.webp)
 

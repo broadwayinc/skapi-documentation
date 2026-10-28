@@ -103,7 +103,7 @@ getTickets(
     queued_due?: number;               // When the most recently queued run comes due, in milliseconds since the epoch.
     concurrency?: number;              // How many consumptions may be in flight at once, 1 to 100. Absent = unlimited. A self-calling ticket (a closed loop) should always have 1: while it runs, every other request gets TICKET_BUSY whatever when_full says, so one loop can never become two; without the setting every extra call starts another copy that re-queues itself forever.
     when_full?: 'queue' | 'refuse';    // What a call gets when every slot is taken: a place in the line and a 202 receipt, or TICKET_BUSY. Absent = 'queue'. Only with concurrency. No effect on a self-calling ticket: its own next round always waits, everyone else is refused.
-    running?: number;                  // Consumptions in flight now: running, or waiting to go on after a Respond. Only with concurrency.
+    running?: number;                  // Consumptions in flight now: running, or waiting to go on after a Respond. Kept for every ticket (absent until its first call after the figure was introduced).
     waiting?: number;                  // Calls waiting in the ticket's line for a slot. Only with concurrency.
     self_calling?: boolean;            // true when an action of the ticket, at any depth, is a req to the ticket's own endpoint: while it is full only its own next round may wait, every other call gets TICKET_BUSY.
     condition?: TicketCondition;
