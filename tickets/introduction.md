@@ -123,7 +123,7 @@ Open the GET endpoint once in a browser: the Respond answers `{ "ok": true }` an
 
 In the list, the **Status** cell of a ticket with the setting reads `busy` while every slot is taken, with the number of calls waiting in its line when there are any, and the ticket's **Log** tab shows the setting with the live running and waiting figures above the rows. The ticket's [`getTickets()`](/api-reference/tickets/README.md#gettickets) row carries `concurrency`, `when_full`, `running` (in flight now), `waiting` (in the line) and `self_calling`.
 
-An AI agent sets these with the MCP server's ticket tool (`concurrency` and `when_full` on `register`); you can also describe the whole bot in a sentence, such as "make me a bot that posts a developer joke every morning", and let it ask what it needs and register the ticket. See [Connecting the Skapi MCP server](/introduction/getting-started.md#connecting-the-skapi-mcp-server).
+An AI agent sets these with the MCP server's ticket tool (`concurrency` and `when_full` on `register` and `update`); you can also describe the whole bot in a sentence, such as "make me a bot that posts a developer joke every morning", and let it ask what it needs and register the ticket. See [Connecting the Skapi MCP server](/introduction/getting-started.md#connecting-the-skapi-mcp-server).
 
 Changing Concurrency on a ticket with calls in flight applies to new calls; the runs in flight finish as they are. Removing the setting lets everything still waiting run at once, in order. Deleting the ticket drops what waits in its line.
 
