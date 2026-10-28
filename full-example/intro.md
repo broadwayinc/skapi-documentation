@@ -34,7 +34,7 @@ Pages that need a logged-in user (Database, Realtime Chat, RTC Video Chat, Share
 
 ## Download
 
-Download every page of the template as one ZIP file: [skapi-templates.zip](https://cdn.broadwayinc.com/temp/v7/skapi-templates.zip)
+Download every page of the template as one ZIP file: [skapi-templates.zip](https://cdn.broadwayinc.com/temp/v8/skapi-templates.zip)
 
 Unzip it, then either open a page with `?pid=<Project ID>` in the address or set the project ID in `service.js`. The files are plain HTML and JavaScript, so they run from any web server, or straight from the file system for everything except the video chat and the shared drawing, which need HTTPS or `localhost`.
 
