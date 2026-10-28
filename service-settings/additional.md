@@ -5,7 +5,7 @@ Go to your project page and click on the **Project Settings** menu.
 On this page, you can configure the basic settings for your project.
 
 :::warning Only the project owner can change these
-The project name, the CORS list and the secret key belong to the **project owner's Skapi account**, and to Skapi staff when you ask Skapi for help. An [admin](/admin/permissions.md#project-settings-belong-to-the-project-owner) of your project, access group `99` included, is refused with `INVALID_REQUEST` and `Only the project owner can change project settings.`
+The project name and the CORS list belong to the **project owner's Skapi account**, and to Skapi staff when you ask Skapi for help. An [admin](/admin/permissions.md#project-settings-belong-to-the-project-owner) of your project, access group `99` included, is refused with `INVALID_REQUEST` and `Only the project owner can change project settings.`
 :::
 
 ## Project Name
@@ -25,14 +25,3 @@ You can also set multiple domains by separating them with a comma, for example, 
 When the CORS setting is configured, requests from other domains will be blocked.
 
 In production, it is recommended to set the CORS setting to the specific domain to prevent unauthorized access to your project.
-
-
-## Secret Key
-
-Skapi provides API bridge to your custom APIs.
-
-For example, you might have your own external server that you want your users to connect to.
-
-You can set your own secret key to protect your own APIs from unauthorized access.
-
-For more information, refer [secure post request](/api-bridge/secure-post-request.html#secure-post-request) to your custom APIs.

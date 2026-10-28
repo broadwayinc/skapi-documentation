@@ -1,6 +1,13 @@
 # Version History
 
-### Current version: 2.2.20
+### Current version: 2.2.21
+
+**2.2.21**
+
+- **A call survives a bad connection.** A WebRTC connection that drops (`disconnected` or `failed`) is no longer closed at once. The SDK waits a few seconds for the browser to bring it back, then restarts ICE so the browsers look for a new path (a phone that moved from Wi-Fi to mobile data, a router that changed the port), and gives the call up only when nothing has helped within 15 seconds. The callback gets **`reconnecting`** when the connection drops, **`reconnected`** when it is back, and **`lost`** when it is given up; `lost` is followed by a `connectionstatechange` of `closed` on both sides, so a page can tell a lost call from a hang-up. A call also goes on when a side's realtime socket reconnects and the server gives it a new connection id: the signals of a call name the call, the reopened side announces its new id to the other, and that id is aliased to the one the call started with (**`cidchange`** event, `cid` and `previous`). See [A dropped connection](/realtime/webRTC.md#a-dropped-connection).
+- **`media.audio` and `media.video` take a `MediaStreamTrack`.** A track the page already holds is sent as the microphone or the camera without a new `getUserMedia()`, so a page that shows a camera preview before the call does not make the browser ask for permission a second time. Pass `track.clone()`: hanging up stops every track on the call. See [What a call can carry](/realtime/webRTC.md#what-a-call-can-carry).
+- **The realtime connection keeps trying.** A socket that closes on its own is reopened after a growing wait (3 seconds, then 6, 12, 24, 30 at most) for as long as the page is open and the user is signed in; an attempt that fails because the network is still down, or whose handshake the server refuses, schedules the next. Before, a failed attempt ended the attempts, and a refused handshake left `connectRealtime()` waiting for ever. The `reconnect` message comes before each attempt, `success` when one opens. See [Connecting to realtime](/realtime/connecting.md).
+- **No sign-out for lack of network.** A sign-in token refresh that gets no answer from the server (the network is down) no longer signs the user out; the session is kept and the next request refreshes again. The request that needed the token fails with code `NETWORK_ERROR`, as any request does without network. A refresh the server answers with a rejection (an expired or revoked refresh token, a deleted user) signs out as before. Together with the point above, a socket that dropped comes back by itself after an outage of any length, with the user still signed in.
 
 **2.2.20**
 

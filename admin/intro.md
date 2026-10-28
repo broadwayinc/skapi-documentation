@@ -12,7 +12,7 @@ Before using admin methods, create an admin user from your Skapi project Users p
 
 The **Users** page of your project in the Skapi dashboard does the same work without code: create or invite accounts, grant access groups, block, unblock and delete accounts. [Managing Users](/admin/account.md) shows the dashboard steps next to each method.
 
-An AI agent can do it for you as well. The Skapi MCP server searches users, sends, resends and cancels invitations, creates accounts, grants access groups, updates profiles, and blocks, unblocks and deletes accounts from a prompt, for the project owner and for admins of the project, under the rules on this page. See [Connecting the Skapi MCP server](/introduction/getting-started.md#connecting-the-skapi-mcp-server).
+An AI agent can do it for you as well. The Skapi MCP server searches users, sends, resends and cancels invitations, creates accounts, grants access groups, updates profiles, blocks, unblocks and deletes accounts, and lists newsletter subscribers from a prompt, for the project owner and for admins of the project, under the rules on this page. See [Connecting the Skapi MCP server](/introduction/getting-started.md#connecting-the-skapi-mcp-server).
 
 The lists below are the summary. [Admin Permissions](/admin/permissions.md) is the full policy: the access group rules that apply to every action on another account, the record, file, newsletter and notification rights in detail, and the exact message every refusal returns.
 
@@ -69,7 +69,7 @@ Admins cannot perform the following actions:
 - Change project settings, in **any** access group, `99` included.
 
 Project settings are available only to the project owner's Skapi account, through the Skapi project pages, and to Skapi staff when you ask Skapi for help.
-That covers the project name and CORS, Allow Signup, Anonymous Login, Allow Inquiries, Allow Anonymous Posts, Require Login, Freeze Database, the API key and the Secret Keys, the subdomain and the 404 page, the OpenID loggers, the sender e-mail address and the automated e-mail templates, and creating, disabling, enabling or deleting the project.
+That covers the project name and CORS, Allow Signup, Anonymous Login, Allow Inquiries, Allow Anonymous Posts, Require Login, Freeze Database, the Secret Keys, the subdomain and the 404 page, the OpenID loggers, the sender e-mail address and the automated e-mail templates, and creating, disabling, enabling or deleting the project.
 An admin request for any of them is refused with `INVALID_REQUEST` and `Only the project owner can change project settings.` Admins still upload and delete the files of a hosted site, and still manage users, records, invitations, newsletters and notifications. See [Project settings belong to the project owner](/admin/permissions.md#project-settings-belong-to-the-project-owner).
 
 Admin methods are useful when building projects that require admin access to manage users and data.

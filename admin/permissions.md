@@ -376,7 +376,7 @@ Owner only, everything that configures the project itself:
 
 - The project **name** and description, and the **CORS** list.
 - **Freeze Database**, **Allow Signup**, **Anonymous Login**, **Allow Inquiries**, **Allow Anonymous Posts to Database**, **Require Login**, and the AI agent option.
-- The project's [**secret key**](/service-settings/additional.md#secret-key) and API key, and the keys on the [**Secret Keys**](/api-bridge/client-secret-request.md#registering-secret-keys) page. Listing those keys answers with their stored values, so reading them is owner only as well.
+- The keys on the [**Secret Keys**](/api-bridge/client-secret-request.md#registering-secret-keys) page. Listing those keys answers with their stored values, so reading them is owner only as well.
 - **Website hosting**: the subdomain, the files of the hosted site, its 404 page and its CDN refresh. See [Hosting your website](/hosting/hosting.md).
 - The **OpenID loggers**, registering, updating, deleting and listing them, since a logger's stored URL, headers and parameters come back with the listing.
 - The **sender e-mail address** the project's mail is sent from, and the [automated e-mail templates](/email/email-templates.md), which decide what the project's verification, welcome, invitation and confirmation mail says.

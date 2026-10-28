@@ -612,7 +612,7 @@ Applied to every track of the kind, those on the call now and those `share()` ad
 
 ```ts
 type RTCEvent = {
-    type: 'track' | 'trackmute' | 'trackunmute' | 'trackended' | 'unshare' | 'connectionstatechange' | 'close' | 'message' | 'open' | 'bufferedamountlow' | 'error' | 'file' | 'fileprogress' | 'icecandidate' | 'icecandidateend' | 'icecandidateerror' | 'iceconnectionstatechange' | 'icegatheringstatechange' | 'negotiationneeded' | 'signalingstatechange' | 'ringtimeout';
+    type: 'track' | 'trackmute' | 'trackunmute' | 'trackended' | 'unshare' | 'connectionstatechange' | 'reconnecting' | 'reconnected' | 'lost' | 'cidchange' | 'close' | 'message' | 'open' | 'bufferedamountlow' | 'error' | 'file' | 'fileprogress' | 'icecandidate' | 'icecandidateend' | 'icecandidateerror' | 'iceconnectionstatechange' | 'icegatheringstatechange' | 'negotiationneeded' | 'signalingstatechange' | 'ringtimeout';
     [key: string]: any;
 }
 ```
@@ -622,7 +622,11 @@ type RTCEvent = {
 | `track` | A track of the other side arrived: `track`, `streams`, `source` (what the other side says it is: `camera`, `microphone`, `screen`, `custom`, or a name it gave `share()`), `mid`. |
 | `trackmute`, `trackunmute`, `trackended` | That track stopped arriving (the other side paused it, took it off the call, or the network stalled), resumed, or is gone for good. Same fields as `track`. |
 | `unshare` | A local track left the call: `track`, `source`, and `ended` (true when the track ended on its own, for example by the browser's own Stop sharing button). |
-| `connectionstatechange` | `state`: `connecting`, `connected`, `disconnected`, `failed` or `closed`. |
+| `connectionstatechange` | `state`: `connecting`, `connected`, `disconnected`, `failed` or `closed`. `disconnected` and `failed` no longer end the call; see the three below. |
+| `reconnecting` | The connection dropped and the SDK is bringing it back: `state` (`disconnected` or `failed`), `iceState`. The call stays open meanwhile. |
+| `reconnected` | The connection is back. |
+| `lost` | The connection could not be brought back within 15 seconds: the call is closed right after, with a `connectionstatechange` of `closed`, on both sides. A `closed` without `lost` before it is a hang-up. |
+| `cidchange` | The other side's realtime socket reconnected and got a new connection id: `cid` (the new one), `previous`. The call goes on; the connection object keeps the id the call started with, and `closeRTC()` takes either. |
 | `open`, `message`, `close`, `error`, `bufferedamountlow` | A data channel event: `label` names the channel, `message` carries `data`. The SDK's own file channel raises `open`, `close` and `error`, never `message`. |
 | `fileprogress`, `file` | A file the other side sends with `sendFile()`: `id`, `name`, `size`, `mime` and, while it arrives, `received`; the `file` event adds `file`, the whole thing as a `File`. |
 | `ringtimeout` | Nobody answered within `ringTimeout`. The call is closed right after; a `connectionstatechange` with `closed` follows. |
@@ -653,11 +657,13 @@ One STUN url, or a list of ICE servers in the browser's own `RTCIceServer` forma
 
 ```ts
 type RTCMediaOption = MediaStream | {
-    audio?: boolean | MediaTrackConstraints; // the microphone, with getUserMedia()
-    video?: boolean | MediaTrackConstraints; // the camera, with getUserMedia()
+    audio?: boolean | MediaTrackConstraints | MediaStreamTrack; // the microphone, with getUserMedia(), or an audio track the page holds already
+    video?: boolean | MediaTrackConstraints | MediaStreamTrack; // the camera, with getUserMedia(), or a video track the page holds already
     screen?: RTCScreenOption; // the screen, with getDisplayMedia()
 }
 ```
+
+A track given as `audio` or `video` is sent as the microphone or the camera without a new capture, so without a new permission prompt. Hanging up stops every track on the call: pass `track.clone()` to keep using the original.
 
 What a side sends. A `MediaStream` is sent as it is. Omitted, or everything false, sends no media; a data channel is enough for a connection.
 

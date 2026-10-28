@@ -168,6 +168,26 @@ skapi.forwardRequest({ report: 'quarterly' }, {
 
 `skapiHeaders: true` is how your backend still learns who is calling.
 
+## The project secret key (api_key)
+
+A project once had one **secret key** of its own, set on the project settings page. [`secureRequest()`](/api-bridge/secure-post-request.md) sent it to your API as `api_key` in the request body, so your API could check that the request came through Skapi.
+
+That key was retired on 2026-10-28. The dashboard no longer offers it, no API route sets it, and `secureRequest()` no longer sends it. A request body now holds `user` and `data` only, so an API that compares `body.api_key` with its key refuses every request until it is changed.
+
+To keep that check, send the request with [`forwardRequest()`](/api-bridge/forward-request.md) and a key from the [Secret Keys](/api-bridge/client-secret-request.md#registering-secret-keys) page. Your API then checks the header instead of the body:
+
+```js
+skapi.forwardRequest({ some_data: 'Hello' }, {
+    secretName: 'my_backend_key',
+    url: 'https://your.custom.api.com/myapi',
+    method: 'POST',
+    headers: { 'x-api-key': '$CLIENT_SECRET' },
+    skapiHeaders: true
+});
+```
+
+`skapiHeaders: true` sends the caller's user id in `x-skapi-user`. See [Telling the destination who is calling](/api-bridge/forward-request.md#telling-the-destination-who-is-calling).
+
 ### responseType: 'response'
 
 The SDK's TypeScript still declares `'response'` among the values of `responseType`, for the retired method's callers, but it is **refused** at runtime with `INVALID_PARAMETER`. The destination is called server side and its body is relayed, so there is no live `Response` object to hand back. The destination's own status code is the `status_code` of the row [`forwardRequestHistory()`](/api-bridge/request-history.md) lists.

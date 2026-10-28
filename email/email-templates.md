@@ -164,7 +164,7 @@ A template does not have to come by e-mail. **[Upload]**, next to **[Compose]** 
 
 An uploaded template is stored exactly as a mailed one, in the list of its type with a Template ID. It is **not in use** until you choose it there, like any other. On the Custom tab the upload is the template a ticket's Send e-mail action names.
 
-**From an AI agent.** The [Skapi MCP server](/introduction/getting-started.md#connecting-the-skapi-mcp-server)'s `manageEmailTemplates` tool lets the project owner's agent compose a template and upload it the same way, as e-mail HTML or plain text, under the same checks, and list the templates of a type. It is available to the project owner's account only, and it never puts a template in use: you choose it on this page.
+**From an AI agent.** The [Skapi MCP server](/introduction/getting-started.md#connecting-the-skapi-mcp-server)'s `manageEmailTemplates` tool lets the project owner's agent compose a template and upload it the same way, as e-mail HTML or plain text, under the same checks, list the templates of a type, and put a stored template in use. It is available to the project owner's account only. It cannot delete a template or go back to the built-in default: do that on this page.
 
 ## Custom e-mails
 
@@ -287,7 +287,7 @@ text and click **Save**; **Reset to default** clears it.
 - `${code}` is **required**: it is where the verification code goes. `${service_name}` is optional and becomes your project's name. No other placeholder is filled in.
 - The text is at most **160 characters**, one SMS segment. Control characters other than a line break are removed.
 - An **empty string** clears the setting, and the built-in default is sent again.
-- Project owner only, like every other template, and set on the dashboard only. There is no per-call override: `verifyPhoneNumber()` always sends this text.
+- Project owner only, like every other template. Set it on the dashboard, or have your agent set it through the [Skapi MCP server](/introduction/getting-started.md#connecting-the-skapi-mcp-server)'s `setProjectSettings` tool, whose `template_sms_verification` follows the same rules. There is no per-call override: `verifyPhoneNumber()` always sends this text.
 
 ## Template Placeholders
 

@@ -104,7 +104,7 @@ The dialog checks the subject, the size and the HTML, naming any problem with it
 
 An uploaded newsletter is stored exactly as one mailed to the Save without sending address: dry, sent to nobody, listed as **Not sent**, counted into the project's e-mail storage and never as a send. Send it from the list, or from a ticket's Send newsletter action, when it is ready.
 
-**From an AI agent.** The [Skapi MCP server](/introduction/getting-started.md#connecting-the-skapi-mcp-server)'s `manageNewsletters` tool lets the project owner's agent compose a newsletter and save it the same way, as e-mail HTML or plain text, and list a group's newsletters. It is available to the project owner's account only, and it never sends: the newsletter waits in the list as Not sent until you send it, or a ticket does.
+**From an AI agent.** The [Skapi MCP server](/introduction/getting-started.md#connecting-the-skapi-mcp-server)'s `manageNewsletters` tool lets the project owner's agent compose a newsletter and save it the same way, as e-mail HTML or plain text, and list a group's newsletters. It is available to the project owner's account only, and it never sends or deletes: the newsletter waits in the list as Not sent until you send it on this page, or a ticket does.
 
 ## Subscribing Users To Public Newsletters
 
@@ -427,6 +427,8 @@ The search field finds the subscribers whose e-mail address **starts with** what
 ![The Subscribers dialog after searching for "ana": only the addresses that start with ana are listed](/screenshots/newsletter-search.webp)
 
 *Searching matches the start of the address.*
+
+**From an AI agent.** The [Skapi MCP server](/introduction/getting-started.md#connecting-the-skapi-mcp-server)'s `listNewsletterSubscribers` tool lists a group's subscribers and searches them by the start of an address, for the project owner and for admins under the rules in [Who can read the subscriber list](#who-can-read-the-subscriber-list). It only reads: adding or uploading subscribers is done on this page.
 
 ### Adding subscribers by hand
 

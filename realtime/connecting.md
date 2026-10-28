@@ -60,7 +60,7 @@ When the callback runs, it receives a message object with the following properti
 
     -   "private": When there is private data transfer between the users.
 
-    -   "reconnect": When there is reconnection attempt. This happens after user leaves the browser tab or device screen is lock for certain amount of time, and the user comes back to the application. The websocket can disconnect when the application is left unfocus for some period of time.
+    -   "reconnect": When there is reconnection attempt. The websocket can disconnect when the network drops, or when the application is left unfocused for some period of time (the user leaves the browser tab, or the device screen is locked). The SDK reopens it by itself: an attempt after 3 seconds, then after 6, 12, 24 and at most 30 seconds between attempts, for as long as the page is open and the user is signed in, and at once when the user comes back to the tab. Each attempt is announced with "reconnect" and a successful one with "success". A WebRTC call that is up goes on meanwhile; see [A dropped connection](/realtime/webRTC.md#a-dropped-connection).
 
     -   "rtc:incoming": When there is incoming WebRTC call.
     -   "rtc:closed": When the WebRTC connection is closed.
@@ -72,6 +72,45 @@ When the callback runs, it receives a message object with the following properti
 -   `code` is a string identifier for notice messages.
 -   `connectRTC`: Function to accept an incoming RTC call. Pass a callback to receive `RTCEvent` updates.
 -   `hangup`: Function to reject incoming RTC connection.
+
+## Staying Connected
+
+A connection that closes on its own (the network dropped, the device slept) is reopened by the SDK without any call from your code: the first attempt 3 seconds later, then after 6, 12 and 24 seconds, then every 30 seconds, for as long as the page is open and the user is signed in, and at once when the user returns to the tab. The group the user was in is joined again by itself. The user stays signed in through the outage: a token refresh that gets no answer leaves the session as it is (see [Auto Login](/authentication/login-logout.md#auto-login)).
+
+Your callback hears about it, so the page can say what is going on:
+
+```js
+let online = true;
+
+let RealtimeCallback = (rt) => {
+    switch (rt.type) {
+        case 'reconnect':
+            // the connection dropped; an attempt to reopen it follows. One message per attempt.
+            if (online) {
+                online = false;
+                status.textContent = 'Connection lost. Reconnecting...';
+            }
+            break;
+
+        case 'success':
+            // the connection is open: the first time, and after every successful attempt
+            if (!online) {
+                online = true;
+                status.textContent = '';
+                // who is in the group may have changed meanwhile: read the list again
+                skapi.getRealtimeUsers({ group: currentGroup }).then(renderUsers);
+            }
+            break;
+
+        case 'error':
+            // "Skapi: WebSocket unexpected close." comes once per drop, before the first 'reconnect'
+            if (!/unexpected close/.test(rt.message)) console.error(rt.message);
+            break;
+    }
+};
+```
+
+A message posted while the connection is down is not queued: `postRealtime()` throws, and the page should keep it until `success` comes back. After a reconnect the server gives the connection a new connection id (`sender_cid` on the messages others receive from this user); a WebRTC call that was up goes on across it, see [A dropped connection](/realtime/webRTC.md#a-dropped-connection).
 
 ## Closing Connection
 

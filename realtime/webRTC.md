@@ -70,6 +70,9 @@ The `call_dialog` &lt;dialog&gt; content is generated dynamically when an RTC ca
 <video id="localVideo" autoplay muted></video>
 <video id="remoteVideo" autoplay hidden></video>
 
+<!-- What the connection is doing: "Reconnecting..." while a dropped connection is brought back -->
+<p id="status"></p>
+
 <!-- Dialog used for outgoing and incoming calls -->
 <dialog id="call_dialog"></dialog>
 ```
@@ -102,12 +105,9 @@ function RTCCallback(e) {
         case "connectionstatechange":
             // RTC connection state
 
-            if (
-                e.state === "disconnected" ||
-                e.state === "failed" ||
-                e.state === "closed"
-            ) {
-                // RTC has disconnected. Hide the opponent video element.
+            if (e.state === "closed") {
+                // The call ended: a hang-up on either side, or a lost connection (a "lost" event came first).
+                // Hide the opponent video element.
                 document.getElementById('remoteVideo').hidden = true;
                 
             } else if (e.state === "connecting") {
@@ -115,6 +115,19 @@ function RTCCallback(e) {
                 // Show the opponent video element.
                 document.getElementById('remoteVideo').hidden = false;
             }
+            // "disconnected" and "failed" are not the end: the SDK brings the connection back, see the three events below.
+            break;
+
+        case "reconnecting":
+            // The connection dropped. The call is still open; the SDK restarts it for up to 15 seconds.
+            document.getElementById('status').textContent = 'Reconnecting...';
+            break;
+        case "reconnected":
+            document.getElementById('status').textContent = '';
+            break;
+        case "lost":
+            // The connection could not be brought back. A "closed" follows right after.
+            document.getElementById('status').textContent = 'The connection was lost.';
             break;
 
         // Data Channel Events
@@ -197,7 +210,7 @@ skapi.joinRealtime({ group: 'RTCCall' }); // Join a Realtime group
 
 | Option | What it does |
 | --- | --- |
-| `media` | What this side sends. An object `{ audio, video, screen }`: the microphone, the camera and the screen, each `true`, `false`, or the browser's own constraints (`video: { facingMode: 'environment' }`, `screen: { contentHint: 'text' }`). Or a `MediaStream` of your own, sent as it is: a canvas, a mixed or processed stream. Omitted, or everything false: no media at all. A data channel is enough for a connection. |
+| `media` | What this side sends. An object `{ audio, video, screen }`: the microphone, the camera and the screen, each `true`, `false`, or the browser's own constraints (`video: { facingMode: 'environment' }`, `screen: { contentHint: 'text' }`). `audio` and `video` may also be a `MediaStreamTrack` the page holds already, sent as the microphone or the camera without a new capture: a page that shows a camera preview before the call passes `track.clone()` and the browser does not ask for permission a second time (hanging up stops every track on the call, hence the clone). Or a `MediaStream` of your own, sent as it is: a canvas, a mixed or processed stream. Omitted, or everything false: no media at all. A data channel is enough for a connection. |
 | `receive` | A kind you want to get without sending it: `{ video: true }` for a viewer with no camera. Without it a track the other side adds later still arrives, after a renegotiation. |
 | `channels` | The data channels this side opens: preset names, or `RTCDataChannelInit` with `protocol` as the label. The caller opens `default` when the option is omitted; the answering side opens none. |
 | `encoding` | The codec order and the limits of what this side sends: `maxBitrate`, `maxFramerate`, `scaleResolutionDownBy`. |
@@ -223,6 +236,20 @@ rt.meta;    // { kind: 'screen', title: 'Design review' }
 rt.sources; // ['microphone', 'screen']: what the caller is sending
 
 const rtc = await rt.connectRTC({ media: { audio: true, video: true } }, RTCCallback);
+```
+
+```js
+// a waiting room: the camera is opened once, for the preview, and every call sends a copy of its tracks
+const preview = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+previewVideo.srcObject = preview;
+
+const call = await skapi.connectRTC({
+    cid,
+    media: {
+        audio: preview.getAudioTracks()[0].clone(),
+        video: preview.getVideoTracks()[0].clone()
+    }
+}, RTCCallback); // no second permission prompt; the preview keeps running for the next call
 ```
 
 The types are [RTCConnectorParams](/api-reference/data-types/README.md#rtcconnectorparams) and [RTCReceiverParams](/api-reference/data-types/README.md#rtcreceiverparams). The camera, the microphone and the screen need HTTPS or `localhost`; a data channel on its own does not.
@@ -312,6 +339,33 @@ What happens to a track later comes as events in the same callback:
 | `ringtimeout` | Nobody answered within `ringTimeout`. The call closes right after, with a `connectionstatechange` of `closed`. |
 
 Data channel events (`open`, `message`, `close`, `error`) carry `label`, the channel's name, so a page with several channels can tell them apart. The full list is [RTCEvent](/api-reference/data-types/README.md#rtcevent).
+
+## A dropped connection
+
+A connection that stops carrying packets (`connectionstatechange` with `disconnected`, then perhaps `failed`) is not the end of the call. The browser often brings it back by itself within a few seconds; when it does not, the SDK restarts ICE, so the two browsers look for a path again, which is what a phone needs after moving from Wi-Fi to mobile data, or a router after changing the port. Only when nothing has helped within 15 seconds is the call given up, on both sides at once.
+
+| Event | When |
+| --- | --- |
+| `reconnecting` | The connection dropped. `state` says `disconnected` or `failed`. The call is still open: keep it on the screen and say so; the picture freezes meanwhile. |
+| `reconnected` | The connection is back. Nothing else changed: the tracks, the data channels and the files in flight are the same. |
+| `lost` | The connection could not be brought back. The call is closed right after, with a `connectionstatechange` of `closed`. A `closed` that no `lost` came before is a hang-up, on one side or the other. |
+
+```js
+case 'reconnecting':
+    setStatus('Reconnecting...');
+    break;
+case 'reconnected':
+    setStatus('In a call');
+    break;
+case 'lost':
+    lost = true; // the closed that follows is not a hang-up: call again when both are back in the room
+    break;
+case 'connectionstatechange':
+    if (e.state === 'closed') endCall(lost);
+    break;
+```
+
+The realtime socket, which carries the signals, may drop and reopen meanwhile; the SDK reopens it by itself (see [Connecting](/realtime/connecting.md)). A side whose socket reopened gets a new connection id from the server, and the call goes on all the same: the signals of a call name the call, the reopened side announces itself to the other at once, and the other side learns the new id from that. It gets a `cidchange` event with `cid`, the new id, and `previous`. The connection object keeps the id the call started with, and `closeRTC()` takes either, so a page that keys its state by `cid` need not change anything; one that compares the id with the room's list of users (`getRealtimeUsers()`, which has the new one) updates it on the event. When both sockets reopen in the same moment, each side writes to the other's old id and the call is lost at the deadline; the page then starts a new one as after any `lost`.
 
 ## Data channels
 

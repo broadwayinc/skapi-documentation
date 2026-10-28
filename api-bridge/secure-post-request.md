@@ -36,10 +36,12 @@ skapi.secureRequest({
 ```
 
 Skapi will mirror your request to your custom API. From your API, it receives user information along with the request data.
-If you have set the secret key in your [project settings](/service-settings/additional.md) page, the request will contain your secret key.
-Setting that key is a project setting, so only the **project owner's Skapi account** can set it. An [admin](/admin/permissions.md#project-settings-belong-to-the-project-owner) of your project, access group `99` included, is refused with `Only the project owner can change project settings.`
 
-You can have your custom API's to check the secret key in the request data. If the secret key is not matched, you can return the error response.
+:::warning The request carries no secret key
+The request body holds `user` and `data` only. The project secret key that used to be sent as `api_key` was retired, so your API cannot tell from the body alone that the request came through Skapi.
+
+When your API has to check that, use [`forwardRequest()`](/api-bridge/forward-request.md) instead. Store a key on the [Secret Keys](/api-bridge/client-secret-request.md#registering-secret-keys) page, name it with `secretName`, and put `$CLIENT_SECRET` in a header your API checks. See [The project secret key](/deprecated/deprecated.md#the-project-secret-key-api-key).
+:::
 
 Below is an example of handling the request from your custom API:
 
@@ -69,18 +71,12 @@ http.createServer(function (request, response) {
                 //         "request_locale": "KR",
                 //         ...
                 //     },
-                //     "data": {"some_data": "Hello"},
-                //     "api_key": 'your api secret key',
+                //     "data": {"some_data": "Hello"}
                 // }
 
-                if (body.api_key === 'your api secret key') {
-                    response.writeHead(200, {'Content-Type': 'text/html'});
-                    // do something
-                    response.end('success');
-                } else {
-                    response.writeHead(401, {'Content-Type': 'text/html'});
-                    response.end("api key mismatch");
-                }
+                response.writeHead(200, {'Content-Type': 'text/html'});
+                // do something
+                response.end('success');
             });
         }
     }
@@ -112,19 +108,13 @@ class MyServer(BaseHTTPRequestHandler):
         #         "request_locale": "KR",
         #         ...
         #     },
-        #     "data": {"some_data": "Hello"},
-        #     "api_key": 'your api secret key',
+        #     "data": {"some_data": "Hello"}
         # }
 
         if self.path == "/myapi":
-            if body.get("api_key") == "your api secret key":
-                self.send_response(200)
-                self.end_headers()
-                self.wfile.write("success".encode("utf-8"))
-            else:
-                self.send_response(401)
-                self.end_headers()
-                self.wfile.write("api key mismatch".encode("utf-8"))
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write("success".encode("utf-8"))
 
 myServer = HTTPServer(("", 3000), MyServer)
 

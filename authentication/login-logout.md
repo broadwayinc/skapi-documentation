@@ -91,6 +91,8 @@ starts, and the one case where it is not enabled.
 
 By default, once user login to your website, their login session is maintained until they logout.
 
+The session is kept up by the SDK: the sign-in token is refreshed in the background when it nears its end, and a refresh that gets no answer because the network is down leaves the session as it is, so a user whose connection drops for a while is still signed in when it returns (the request that needed the token fails with the code `NETWORK_ERROR`, as any request does without network, and the next one refreshes again). The session ends only when the user logs out or the server answers a refresh with a rejection: an expired or revoked refresh token, or a deleted account.
+
 To ensure that users' sessions are destroyed when they leave your website, you can set options.autoLogin to false in the third argument when initializing Skapi.
 
 ```javascript
@@ -159,7 +161,7 @@ The `onLogin` callback is triggered in the following cases:
 
 -   Skapi initializes with the user's current authentication state.
 -   User logs in or logs out.
--   User loses their session due to an expired token.
+-   User loses their session because the server rejected the token refresh (an expired or revoked refresh token, a deleted account). A refresh that fails for lack of network does not end the session and does not trigger the callback.
 
 If the user is logged in, the callback receives the [UserProfile](/api-reference/data-types/README.md#userprofile) object; otherwise, it receives `null`.
 
