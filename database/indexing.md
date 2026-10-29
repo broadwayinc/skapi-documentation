@@ -129,6 +129,16 @@ Reserved names are limited to: `$uploaded`, `$updated`, `$referenced_count`, `$u
 - Maximum length: 256 characters
 - Empty string is allowed
 - Control characters and sentinel `􏿿` are not allowed
+
+`index.value` (number) rules:
+
+- Range: `-4503599627370496` to `4503599627370496` (plus or minus 2<sup>52</sup>), both ends included. A number outside the range is refused with `INVALID_PARAMETER`.
+- Decimals are allowed, negative ones included. A number keeps the precision of a JavaScript number, about 15 to 17 significant digits in total, so the larger the whole part, the fewer decimals survive. Between 2<sup>51</sup> and 2<sup>52</sup> only `.5` is left, and at 2<sup>52</sup> none.
+- `NaN` and `Infinity` are not allowed.
+:::
+
+:::warning Negative decimals before skapi-js 2.2.22
+A negative number with decimals, like `-1.2`, was stored in a form that sorted and read back wrong until October 28, 2026. The server stores it correctly now and saved values of `-1` and below were repaired, but skapi-js older than 2.2.22 reads the corrected form wrong (`-1.2` as `-2.8`). Use skapi-js 2.2.22 or later. A value between `-1` and `0` saved before the fix lost its minus sign and cannot be repaired: save that record again.
 :::
 
 

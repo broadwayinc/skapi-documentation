@@ -36,4 +36,4 @@ You need your [project ID](/full-example/intro.md#have-your-project-id-ready) to
 
 ## Download
 
-The pages are part of the full template: [skapi-templates.zip](https://cdn.broadwayinc.com/temp/v8/skapi-templates.zip). See [Full Examples](/full-example/intro.md) for how to run it.
+The pages are part of the full template: [skapi-templates.zip](https://cdn.broadwayinc.com/temp/v9/skapi-templates.zip). See [Full Examples](/full-example/intro.md) for how to run it.

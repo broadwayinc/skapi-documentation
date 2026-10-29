@@ -1,6 +1,11 @@
 # Version History
 
-### Current version: 2.2.21
+### Current version: 2.2.22
+
+**2.2.22**
+
+- Fixed: **negative decimal index values.** A number index value that was negative with decimals, like `-1.2`, was stored in a form that sorted between `-1` and `0`, read back on the server as `-0.8`, and was missed by range queries; a value between `-1` and `0` lost its minus sign. The server stores these values correctly now (ships with the API), and saved values of `-1` and below were repaired, with `getIndexes()`' `total_number` and `average_number`. This version reads the corrected form; older versions read it wrong (`-1.2` as `-2.8`), so update. A value between `-1` and `0` saved before the fix cannot be repaired: save that record again. Whole numbers and positive decimals were never affected. A number index value is allowed from `-4503599627370496` to `4503599627370496`. See [Indexing](/database/indexing.md).
+- Dashboard (skapi.com and bunnyquery.com, not the SDK): the record form on the Database page takes decimals in its number index field and refuses a number outside that range before saving.
 
 **2.2.21**
 

@@ -37,7 +37,7 @@ postRecord(
         readonly?: boolean; // Default: false. When true, the record cannot be updated. (Not available to anonymous users)
         index?: {
             name: string; // Custom index name: 1..256 characters, where / ! * # % each count as 3. Blocks control chars and sentinel U+10FFFF, and cannot start with '$'.
-            value: string | number | boolean; // String value: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
+            value: string | number | boolean; // String value: 0..256 chars. Blocks control chars and sentinel U+10FFFF only. Number value: -4503599627370496 ~ 4503599627370496, decimals allowed.
         };
         tags?: string[] | null; // null removes all tags.
         source?: {
@@ -216,7 +216,7 @@ getRecords(
             /** Reserved names: '$updated' | '$uploaded' | '$referenced_count' | '$user_id'. */
             /** Custom names: 1..256 characters, where / ! * # % each count as 3. Block control chars and sentinel U+10FFFF, and cannot start with '$'. */
             name: string | '$updated' | '$uploaded' | '$referenced_count' | '$user_id';
-            value: string | number | boolean; // String value: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
+            value: string | number | boolean; // String value: 0..256 chars. Blocks control chars and sentinel U+10FFFF only. Number value: -4503599627370496 ~ 4503599627370496, decimals allowed.
             /** For a string value: '>=' = 'starts with', '<=' = 'ends with'. When the name is a compound name ending in '.', '>=' / '<=' match the child name segment (starts / ends with). '>' / '<' are lexicographic; numbers/booleans compare normally. */
             condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '='; // cannot be used with range. Default: '='
             range?: string | number | boolean; // String range: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
@@ -368,7 +368,7 @@ deleteRecords({
         /** Reserved names: '$updated' | '$uploaded' | '$referenced_count' | '$user_id'. */
         /** Custom names: 1..256 characters, where / ! * # % each count as 3. Block control chars and sentinel U+10FFFF, and cannot start with '$'. */
         name: string | '$updated' | '$uploaded' | '$referenced_count' | '$user_id';
-        value: string | number | boolean; // String value: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.
+        value: string | number | boolean; // String value: 0..256 chars. Blocks control chars and sentinel U+10FFFF only. Number value: -4503599627370496 ~ 4503599627370496, decimals allowed.
         /** For a string value: '>=' = 'starts with', '<=' = 'ends with'. When the name is a compound name ending in '.', '>=' / '<=' match the child name segment (starts / ends with). '>' / '<' are lexicographic; numbers/booleans compare normally. */
         condition?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | '>' | '>=' | '<' | '<=' | '='; // cannot be used with range. Default: '='
         range?: string | number | boolean; // String range: 0..256 chars. Blocks control chars and sentinel U+10FFFF only.

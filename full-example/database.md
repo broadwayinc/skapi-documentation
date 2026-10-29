@@ -56,4 +56,4 @@ The view is chosen with the URL hash (`#mostliked`, `#mostcomment`, `#myposts`, 
 
 ## Download
 
-The page is part of the full template: [skapi-templates.zip](https://cdn.broadwayinc.com/temp/v8/skapi-templates.zip). See [Full Examples](/full-example/intro.md) for how to run it.
+The page is part of the full template: [skapi-templates.zip](https://cdn.broadwayinc.com/temp/v9/skapi-templates.zip). See [Full Examples](/full-example/intro.md) for how to run it.
