@@ -25,7 +25,7 @@ Two cards at the end of the same page are worth knowing from day one: **Applicat
 
 The **Application Examples** card lists plain HTML pages that already run against your project: User Account, Newsletter, Send Inquiry, Database, Realtime Chat and RTC Video Chat. Click **[Open]** on a row to run that page with your project ID already filled in, and see the backend at work before you write a line of code. Click **[Download]** on the last row to get every page as a ZIP file to study or build on. [Full Examples](/full-example/intro.md) walks through each page.
 
-![The Application Examples card on a project's Settings page: an introduction line, one row per example page (User Account, Newsletter, Send Inquiry, Database, Realtime Chat and RTC Video Chat) with an Open link, and a Download the template row for the ZIP](/screenshots/settings-examples.webp)
+![The Application Examples card on a project's Settings page: an introduction line, one row per example page (User Account, Newsletter, Send Inquiry, Database, Realtime Chat, RTC Video Chat and Shared Drawing) with an Open link, and a Download the template row for the ZIP](/screenshots/settings-examples.webp)
 
 *The Application Examples card at the end of the Settings page. Open runs a page against your project; Download gets all of them as a ZIP.*
 

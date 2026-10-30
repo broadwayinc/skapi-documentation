@@ -52,7 +52,7 @@ Everything about sending happens on the `Newsletters` page of your project in th
 - **Monthly sends.** How many sends this month have used out of the plan's allowance, and the rules that can stop a send.
 - **Subscribers.** How many addresses are on this list and on all lists together. **[View]** opens the list, **[Add]** adds addresses by hand. See [Managing subscribers](#managing-subscribers).
 - **Access.** On a named group's tab, who may subscribe, and **[Delete group]**.
-- **Sent newsletters.** Every newsletter sent to this list, and every one saved without sending, with its subject, its **Newsletter ID** (which a ticket's Send newsletter action names; the column copies it with a click and can be hidden with the column picker), the date, and how many subscribers read it, complained about it or bounced. Select rows and use the trash icon to delete them from your email storage. Copies already delivered stay in subscribers' inboxes.
+- **Sent newsletters.** Every newsletter sent to this list, and every one saved without sending, with its subject, its **Newsletter ID** (which a ticket's Send newsletter action names; the column copies it with a click and can be hidden with the column picker), the date, and how many subscribers read it, complained about it or bounced. Click a row to open the newsletter the way subscribers received it, with **Open in new tab** under the preview. Select rows and use the trash icon to delete them from your email storage. Copies already delivered stay in subscribers' inboxes.
 
 The page needs an **email alias**, the address your project sends from. Register it on your project's `Settings` page first: until then the page shows a notice and sends you there.
 

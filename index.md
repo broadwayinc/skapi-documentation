@@ -3,33 +3,32 @@ layout: home
 
 hero:
   name: "Skapi"
-  text: "Serverless\nLightweight\nInstant Backend API"
-  tagline: "Everything your web application needs from a backend, without running one."
+  text: "Serverless. Lightweight. Instant."
+  tagline: "Everything your web application needs from a backend, without managing servers or infrastructure."
   
   actions:
     - theme: brand
       text: Getting Started
       link: /introduction/getting-started
+    - theme: alt
+      text: Visit Skapi.com
+      link: https://www.skapi.com
   image:
     src: /skapi-icon-cut-low.png
     alt: Skapi logo
 
 features:
-  - title: Everything Out of the Box
-    icon: ⚡
-    details: Authentication, database, file storage, realtime data, and more, all through a single JS library.
-    link: /introduction/what-is-skapi
   - title: Works with Any Framework
-    icon: 🧩
-    details: Works with plain HTML, any JavaScript framework, or Node.js.
-    link: /introduction/getting-started#setting-up-your-codebase
-  - title: Built for AI Agents
+    icon: 🌐
+    details: Build with plain HTML, any JavaScript framework, or Node.js. No complex setup or server deployment required.
+    link: /introduction/getting-started.html#setting-up-your-codebase
+  - title: Build with your AI Agents
     icon: 🤖
-    details: Build faster. Use fewer tokens. Skip the backend.
-    link: /introduction/getting-started#building-with-your-ai-agent
-  - icon: 🐰
-    title: BunnyQuery Compatible
-    details: Turn your BunnyQuery project into a full-stack web service.
-    link: /introduction/what-is-skapi#creating-a-project
+    details: Let your AI agent build your backend with Skapi. Spend less time on infrastructure and more time building your application.
+    link: /introduction/getting-started.html#building-with-your-ai-agent
+  - icon: ⚡
+    title: High Performance. Lower Costs.
+    details: A fully serverless architecture that scales with your application while keeping operating costs low.
+    link: /introduction/what-is-skapi
 
 ---
