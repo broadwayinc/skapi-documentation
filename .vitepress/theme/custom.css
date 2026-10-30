@@ -1,0 +1,8 @@
+/**
+ * Screenshots often have the same background as the page (a white dashboard on the light
+ * theme), so without a frame their edge disappears into the text around them. Only the
+ * images under public/screenshots/ get one: the logo and icons stay as they are.
+ */
+.vp-doc img[src^="/screenshots/"] {
+  border: 1px solid var(--vp-c-border);
+}

@@ -4,6 +4,7 @@ import { defineComponent, h, watchEffect } from 'vue'
 import type { Theme } from 'vitepress'
 import AgentPromptDownloads from './AgentPromptDownloads.vue'
 import FullExampleDemo from './FullExampleDemo.vue'
+import './custom.css'
 
 /**
  * CloudFront answers any URL that has no file with index.html and status 200, so a
